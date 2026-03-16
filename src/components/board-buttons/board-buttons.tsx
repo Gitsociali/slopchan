@@ -602,14 +602,24 @@ export const DesktopBoardButtons = () => {
           <>
             {isInCatalogView ? (
               <>
-                [<ReturnButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />] [
-                <ArchiveButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />]{' '}
+                [<ReturnButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />]
+                {!(isInAllView || isInSubscriptionsView || isInModView) && (
+                  <>
+                    {' '}
+                    [<ArchiveButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />]
+                  </>
+                )}{' '}
               </>
             ) : (
               <>
                 <SearchOPsBar />
-                [<CatalogButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />] [
-                <ArchiveButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />]{' '}
+                [<CatalogButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />]
+                {!(isInAllView || isInSubscriptionsView || isInModView) && (
+                  <>
+                    {' '}
+                    [<ArchiveButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />]
+                  </>
+                )}{' '}
               </>
             )}
             {showBottomButton && (
