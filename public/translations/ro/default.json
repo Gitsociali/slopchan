@@ -317,5 +317,5 @@
   "view": "Vizualizare",
   "report_post": "Raportează postarea",
   "delete_post": "Șterge postarea",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "Șterge definitiv această postare? Această acțiune nu poate fi anulată."
 }

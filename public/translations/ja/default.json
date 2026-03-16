@@ -317,5 +317,5 @@
   "view": "表示",
   "report_post": "投稿を報告",
   "delete_post": "投稿を削除",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "この投稿を完全に削除しますか？元に戻せません。"
 }

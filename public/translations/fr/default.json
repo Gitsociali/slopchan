@@ -317,5 +317,5 @@
   "view": "Voir",
   "report_post": "Signaler la publication",
   "delete_post": "Supprimer la publication",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "Supprimer définitivement cette publication ? Cette action est irréversible."
 }

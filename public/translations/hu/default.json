@@ -317,5 +317,5 @@
   "view": "Megtekintés",
   "report_post": "Bejegyzés jelentése",
   "delete_post": "Bejegyzés törlése",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "Végleg törölni ezt a bejegyzést? Ez nem vonható vissza."
 }

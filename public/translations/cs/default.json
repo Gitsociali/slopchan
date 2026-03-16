@@ -317,5 +317,5 @@
   "view": "Zobrazit",
   "report_post": "Nahlásit příspěvek",
   "delete_post": "Smazat příspěvek",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "Nadobro smazat tento příspěvek? Tuto akci nelze vrátit zpět."
 }

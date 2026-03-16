@@ -317,5 +317,5 @@
   "view": "Προβολή",
   "report_post": "Αναφορά ανάρτησης",
   "delete_post": "Διαγραφή ανάρτησης",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "Διαγραφή οριστικά αυτής της ανάρτησης; Δεν είναι δυνατή η αναίρεση."
 }

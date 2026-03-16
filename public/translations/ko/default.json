@@ -317,5 +317,5 @@
   "view": "보기",
   "report_post": "게시물 신고",
   "delete_post": "게시물 삭제",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "이 게시물을 영구적으로 삭제하시겠습니까? 취소할 수 없습니다."
 }

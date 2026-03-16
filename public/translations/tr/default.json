@@ -317,5 +317,5 @@
   "view": "Görüntüle",
   "report_post": "Gönderiyi bildir",
   "delete_post": "Gönderiyi sil",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "Bu gönderiyi kalıcı olarak silmek istiyor musunuz? Bu işlem geri alınamaz."
 }

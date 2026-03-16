@@ -317,5 +317,5 @@
   "view": "Visa",
   "report_post": "Rapportera inlägg",
   "delete_post": "Radera inlägg",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "Radera detta inlägg permanent? Detta kan inte ångras."
 }

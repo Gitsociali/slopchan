@@ -317,5 +317,5 @@
   "view": "देखें",
   "report_post": "पोस्ट की रिपोर्ट करें",
   "delete_post": "पोस्ट हटाएं",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "क्या इस पोस्ट को स्थायी रूप से हटाया जाए? इसे पूर्ववत नहीं किया जा सकता।"
 }

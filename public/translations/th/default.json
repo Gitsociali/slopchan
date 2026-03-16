@@ -317,5 +317,5 @@
   "view": "ดู",
   "report_post": "แจ้งรายงานโพสต์",
   "delete_post": "ลบโพสต์",
-  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
+  "delete_post_confirm": "ลบกระทู้นี้อย่างถาวรหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้"
 }
