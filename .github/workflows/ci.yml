@@ -44,6 +44,18 @@ jobs:
       - name: Collect coverage
         run: yarn test:coverage
 
+      - name: Write coverage badge payload
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: node scripts/write-coverage-badge.mjs
+
+      - name: Upload coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: badges/coverage.json
+          if-no-files-found: error
+
       - name: Lint
         run: yarn lint
 
@@ -83,6 +95,32 @@ jobs:
           name: coverage-summary
           path: coverage/coverage-summary.json
           if-no-files-found: warn
+
+  publish-coverage-badge:
+    name: Publish Coverage Badge
+    runs-on: ubuntu-22.04
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Download coverage badge
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-badge
+          path: badges/
+
+      - run: git add badges/coverage.json
+      - run: git status
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'chore(ci): update coverage badge'
+          file_pattern: 'badges/coverage.json'
+          branch: ${{ github.ref_name }}
 
   android-build:
     name: Android Build
