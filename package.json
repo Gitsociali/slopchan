@@ -160,7 +160,7 @@
     "workbox-window": "7.4.0"
   },
   "optionalDependencies": {
-    "portless": "0.5.2"
+    "portless": "0.7.0"
   },
   "resolutions": {
     "axios": "1.13.5",
