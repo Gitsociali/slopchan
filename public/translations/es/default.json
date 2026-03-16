@@ -314,5 +314,8 @@
   "archived": "Archivado",
   "loading_archive": "Cargando archivo...",
   "thread_archived": "Hilo archivado.",
-  "view": "Ver"
+  "view": "Ver",
+  "report_post": "Denunciar publicación",
+  "delete_post": "Eliminar publicación",
+  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
 }

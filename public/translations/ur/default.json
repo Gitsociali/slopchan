@@ -314,5 +314,8 @@
   "archived": "محفوظ شدہ",
   "loading_archive": "آرکائیو لوڈ ہو رہا ہے...",
   "thread_archived": "موضوع آرکائیو کر دیا گیا ہے۔",
-  "view": "دیکھیں"
+  "view": "دیکھیں",
+  "report_post": "پوسٹ ریپورٹ کریں",
+  "delete_post": "پوسٹ حذف کریں",
+  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
 }

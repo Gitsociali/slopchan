@@ -314,5 +314,8 @@
   "archived": "Arşivlendi",
   "loading_archive": "Arşiv yükleniyor...",
   "thread_archived": "Konu arşivlendi.",
-  "view": "Görüntüle"
+  "view": "Görüntüle",
+  "report_post": "Gönderiyi bildir",
+  "delete_post": "Gönderiyi sil",
+  "delete_post_confirm": "Delete this post permanently? This cannot be undone."
 }
