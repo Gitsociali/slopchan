@@ -7,7 +7,6 @@ import proxyServer from './proxy-server.js';
 import tcpPortUsed from 'tcp-port-used';
 import EnvPaths from 'env-paths';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { downloadIpfsClients } from './before-pack.js';
 const dirname = path.join(path.dirname(fileURLToPath(import.meta.url)));
 const envPaths = EnvPaths('plebbit', { suffix: false });
 
@@ -23,6 +22,12 @@ const getPlatformDir = () => {
 
 const getBundledKuboPath = (rootPath) => path.join(rootPath, 'bin', getPlatformDir(), getIpfsBinaryName());
 
+const downloadBundledIpfsClients = async () => {
+  // before-pack.js is excluded from packaged builds, so only load it in dev.
+  const { downloadIpfsClients } = await import('./before-pack.js');
+  await downloadIpfsClients();
+};
+
 // Resolve kubo binary path
 const getKuboPath = async () => {
   if (isDev) {
@@ -36,7 +41,7 @@ const getKuboPath = async () => {
     }
 
     console.log(`Kubo binary missing at ${bundledKuboPath}, downloading repo-managed binary...`);
-    await downloadIpfsClients();
+    await downloadBundledIpfsClients();
 
     if (fs.existsSync(bundledKuboPath)) {
       return bundledKuboPath;
