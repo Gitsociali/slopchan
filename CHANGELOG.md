@@ -1,3 +1,27 @@
+## [0.7.1](https://github.com/plebbit/plebchan/compare/v0.7.0...v0.7.1) (2026-03-16)
+
+
+### Bug Fixes
+
+* **edit-menu:** allow pseudonymous reply deletion ([#1076](https://github.com/plebbit/plebchan/issues/1076)) ([7265225](https://github.com/plebbit/plebchan/commit/726522586c5c56e28125cb4f6b162e43a00c0ee9))
+* **electron:** lazy-load before-pack ipfs downloader ([a37fbcb](https://github.com/plebbit/plebchan/commit/a37fbcb9bcf6ace259e32af5e9258937774fd357))
+* **mod-queue:** show board button from live roles ([#1079](https://github.com/plebbit/plebchan/issues/1079)) ([fd9ab19](https://github.com/plebbit/plebchan/commit/fd9ab19de38ac680ebebceeb21b0b59c916dee2f))
+* **multiboards:** hide archive button slot ([47e8c5a](https://github.com/plebbit/plebchan/commit/47e8c5a37bd31060f737ffd7e88e108e98f46f53))
+* **reply-modal:** keep drag interactions sharp ([#1086](https://github.com/plebbit/plebchan/issues/1086)) ([37c834d](https://github.com/plebbit/plebchan/commit/37c834d97584419c0ec800dd5b714b623811021a))
+* **reply-quote-preview:** restore `(You)` for pseudonymous quotes ([#1084](https://github.com/plebbit/plebchan/issues/1084)) ([3a7400e](https://github.com/plebbit/plebchan/commit/3a7400e4a8c0a6ec095042ea9f54dd4a47056444))
+* **security:** patch vulnerable transitive packages ([be44aef](https://github.com/plebbit/plebchan/commit/be44aefd49d906ee279ea37ab726db0e7748d72c))
+* **testing:** stabilize Vitest worktree runs ([#1081](https://github.com/plebbit/plebchan/issues/1081)) ([7ed0edd](https://github.com/plebbit/plebchan/commit/7ed0edd50e5ba7619deb8060da610b0250735f41))
+* **thread:** count user id tooltips from thread data ([6ecf3c4](https://github.com/plebbit/plebchan/commit/6ecf3c40d3a099fb00c7a0f4b8ef8e5a33c1ccf9))
+
+
+### Features
+
+* **archive:** implement comment.archived and add archive page ([#1074](https://github.com/plebbit/plebchan/issues/1074)) ([aedee9f](https://github.com/plebbit/plebchan/commit/aedee9fb835e7b3f27a274aa7f0c85a4350cd4c4))
+* **post-menu:** add Report/Delete, reorder buttons, edit-only-for-mods, copy link 5chan.app ([#1089](https://github.com/plebbit/plebchan/issues/1089)) ([f4ff7a2](https://github.com/plebbit/plebchan/commit/f4ff7a23f7ada02647a8277f1adcc3527a4be015))
+* **skills:** add inspect-elements skill backed by element-source ([7f4e069](https://github.com/plebbit/plebchan/commit/7f4e069783c3280ea6f2c8799bf69b7de5aa455e)), closes [#1082](https://github.com/plebbit/plebchan/issues/1082)
+
+
+
 # [0.7.0](https://github.com/plebbit/plebchan/compare/v0.6.10...v0.7.0) (2026-03-12)
 
 
