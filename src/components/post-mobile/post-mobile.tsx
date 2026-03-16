@@ -48,6 +48,7 @@ import { filterRepliesForDisplay, getPreviewDisplayReplies } from '../../lib/uti
 import { getRenderableMobileBacklinks } from '../../lib/utils/reply-backlink-utils';
 import { getThreadTopNavigationState, scrollThreadContainerToTop } from '../../lib/utils/thread-scroll-utils';
 import useDeleteFailedPost from '../../hooks/use-delete-failed-post';
+import { getThreadPostCountsByAuthor } from '../../lib/utils/author-post-counts';
 import { withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
 
 const { addChallenge } = useChallengesStore.getState();
@@ -62,7 +63,7 @@ const RepliesFooter = ({ hasMore, loadingString }: { hasMore: boolean; loadingSt
 // Store scroll position for replies virtuoso across navigations
 const lastVirtuosoStates: { [key: string]: StateSnapshot } = {};
 
-const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber }: PostProps) => {
+const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, postsByAuthorInThread }: PostProps & { postsByAuthorInThread?: Map<string, number> }) => {
   const { t } = useTranslation();
   const directories = useDirectories();
   const resolvedPost = withResolvedCommentCommunityAddress(post);
@@ -206,12 +207,11 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber }: Pos
 
   const handleUserAddressClick = useAuthorAddressClick();
   const numberOfPostsByAuthor = (() => {
-    if (!showUserID || deleted || removed || purged || !shortAddress || !postCid || typeof document === 'undefined') {
+    if (!showUserID || deleted || removed || purged || !shortAddress || !postCid) {
       return 0;
     }
 
-    const domCount = document.querySelectorAll(`[data-author-address="${shortAddress}"][data-post-cid="${postCid}"]`).length;
-    return Math.max(domCount, 1);
+    return Math.max(postsByAuthorInThread?.get(shortAddress) ?? 0, 1);
   })();
 
   const userID = address ? getShortAddress(address) : shortAddress;
@@ -493,7 +493,8 @@ const Reply = ({
   threadNumber,
   quotedByMap,
   directRepliesByParentCid,
-}: PostProps & { directRepliesByParentCid?: Map<string, Comment[]> }) => {
+  postsByAuthorInThread,
+}: PostProps & { directRepliesByParentCid?: Map<string, Comment[]>; postsByAuthorInThread?: Map<string, number> }) => {
   const accountReply = useAccountComment({
     commentIndex: typeof reply?.index === 'number' ? reply.index : undefined,
   });
@@ -525,7 +526,7 @@ const Reply = ({
           data-author-address={author?.shortAddress}
           data-post-cid={postCid}
         >
-          <PostInfoAndMedia post={post} postReplyCount={postReplyCount} roles={roles} threadNumber={threadNumber} />
+          <PostInfoAndMedia post={post} postReplyCount={postReplyCount} postsByAuthorInThread={postsByAuthorInThread} roles={roles} threadNumber={threadNumber} />
           {!hidden && (!(removed || deleted || purged) || ((removed || deleted) && reason) || purged) && (
             <CommentContent comment={post} prependContent={failedPublishNotice} />
           )}
@@ -604,6 +605,7 @@ const PostMobile = ({
 
   // Author-deleted replies are hidden from thread replies; moderator removals still render their placeholder.
   const filteredReplies = filterRepliesForDisplay(freshRepliesForRender);
+  const postsByAuthorInThread = getThreadPostCountsByAuthor(resolvedPost, filteredReplies);
   const previewDisplayReplies = getPreviewDisplayReplies(filteredReplies, BOARD_REPLIES_PREVIEW_VISIBLE_COUNT);
 
   const directRepliesByParentCid = (() => {
@@ -702,7 +704,13 @@ const PostMobile = ({
                 data-post-cid={postCid}
               >
                 {shouldShowSnow() && <img src='assets/xmashat.gif' className={styles.xmasHat} alt='' />}
-                <PostInfoAndMedia post={resolvedPost} postReplyCount={replyCount} roles={roles} threadNumber={resolvedPost?.number} />
+                <PostInfoAndMedia
+                  post={resolvedPost}
+                  postReplyCount={replyCount}
+                  postsByAuthorInThread={postsByAuthorInThread}
+                  roles={roles}
+                  threadNumber={resolvedPost?.number}
+                />
                 <CommentContent comment={resolvedPost} prependContent={failedPublishNotice} />
                 <ReplyBacklinks post={resolvedPost} quotedByMap={quotedByMap} directRepliesByParentCid={directRepliesByParentCid} />
               </div>
@@ -765,6 +773,7 @@ const PostMobile = ({
                     <Reply
                       postReplyCount={replyCount}
                       reply={reply}
+                      postsByAuthorInThread={postsByAuthorInThread}
                       roles={roles}
                       threadNumber={resolvedPost?.number}
                       quotedByMap={quotedByMap}
@@ -790,6 +799,7 @@ const PostMobile = ({
                   <Reply
                     postReplyCount={replyCount}
                     reply={reply}
+                    postsByAuthorInThread={postsByAuthorInThread}
                     roles={roles}
                     threadNumber={resolvedPost?.number}
                     quotedByMap={quotedByMap}
@@ -807,6 +817,7 @@ const PostMobile = ({
                   <Reply
                     postReplyCount={replyCount}
                     reply={reply}
+                    postsByAuthorInThread={postsByAuthorInThread}
                     roles={roles}
                     threadNumber={resolvedPost?.number}
                     quotedByMap={quotedByMap}

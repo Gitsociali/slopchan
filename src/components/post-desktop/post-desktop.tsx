@@ -53,6 +53,7 @@ import { computeOmittedCount, filterRepliesForDisplay, getPreviewDisplayReplies,
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import { getThreadTopNavigationState, scrollThreadContainerToTop } from '../../lib/utils/thread-scroll-utils';
 import useDeleteFailedPost from '../../hooks/use-delete-failed-post';
+import { getThreadPostCountsByAuthor } from '../../lib/utils/author-post-counts';
 import { withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
 
 const { addChallenge } = useChallengesStore.getState();
@@ -97,7 +98,8 @@ const PostInfo = ({
   onReject,
   quotedByMap,
   directRepliesByParentCid,
-}: PostProps & { directRepliesByParentCid?: Map<string, Comment[]> }) => {
+  postsByAuthorInThread,
+}: PostProps & { directRepliesByParentCid?: Map<string, Comment[]>; postsByAuthorInThread?: Map<string, number> }) => {
   const { t } = useTranslation();
   const { author, cid, deleted, locked, pinned, parentCid, postCid, reason, removed, state, communityAddress, timestamp } = post || {};
   const archived = isCommentArchived(post);
@@ -228,12 +230,11 @@ const PostInfo = ({
 
   const handleUserAddressClick = useAuthorAddressClick();
   const numberOfPostsByAuthor = (() => {
-    if (!showUserID || deleted || removed || purged || !shortAddress || !postCid || typeof document === 'undefined') {
+    if (!showUserID || deleted || removed || purged || !shortAddress || !postCid) {
       return 0;
     }
 
-    const domCount = document.querySelectorAll(`[data-author-address="${shortAddress}"][data-post-cid="${postCid}"]`).length;
-    return Math.max(domCount, 1);
+    return Math.max(postsByAuthorInThread?.get(shortAddress) ?? 0, 1);
   })();
 
   const { hidden } = useHide(post);
@@ -704,7 +705,8 @@ const Reply = ({
   threadNumber,
   quotedByMap,
   directRepliesByParentCid,
-}: PostProps & { directRepliesByParentCid?: Map<string, Comment[]> }) => {
+  postsByAuthorInThread,
+}: PostProps & { directRepliesByParentCid?: Map<string, Comment[]>; postsByAuthorInThread?: Map<string, number> }) => {
   const accountReply = useAccountComment({
     commentIndex: typeof reply?.index === 'number' ? reply.index : undefined,
   });
@@ -744,6 +746,7 @@ const Reply = ({
         <PostInfo
           post={post}
           postReplyCount={postReplyCount}
+          postsByAuthorInThread={postsByAuthorInThread}
           roles={roles}
           isHidden={hidden}
           threadNumber={threadNumber}
@@ -890,6 +893,7 @@ const PostDesktop = ({
 
   // Author-deleted replies are hidden from thread replies; moderator removals still render their placeholder.
   const filteredReplies = filterRepliesForDisplay(freshRepliesForRender);
+  const postsByAuthorInThread = getThreadPostCountsByAuthor(resolvedPost, filteredReplies);
   const directRepliesByParentCid = (() => {
     const map = new Map<string, Comment[]>();
     for (const reply of filteredReplies) {
@@ -1011,6 +1015,7 @@ const PostDesktop = ({
             isHidden={hidden}
             post={resolvedPost}
             postReplyCount={replyCount}
+            postsByAuthorInThread={postsByAuthorInThread}
             roles={roles}
             threadNumber={resolvedPost?.number}
             isModQueue={isModQueue}
@@ -1070,6 +1075,7 @@ const PostDesktop = ({
                   reply={reply}
                   roles={roles}
                   postReplyCount={replyCount}
+                  postsByAuthorInThread={postsByAuthorInThread}
                   threadNumber={resolvedPost?.number}
                   quotedByMap={quotedByMap}
                   directRepliesByParentCid={directRepliesByParentCid}
@@ -1096,6 +1102,7 @@ const PostDesktop = ({
                 reply={reply}
                 roles={roles}
                 postReplyCount={replyCount}
+                postsByAuthorInThread={postsByAuthorInThread}
                 threadNumber={resolvedPost?.number}
                 quotedByMap={quotedByMap}
                 directRepliesByParentCid={directRepliesByParentCid}
@@ -1114,6 +1121,7 @@ const PostDesktop = ({
                 reply={reply}
                 roles={roles}
                 postReplyCount={replyCount}
+                postsByAuthorInThread={postsByAuthorInThread}
                 threadNumber={resolvedPost?.number}
                 quotedByMap={quotedByMap}
                 directRepliesByParentCid={directRepliesByParentCid}
