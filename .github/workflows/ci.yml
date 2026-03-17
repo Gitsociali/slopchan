@@ -102,13 +102,15 @@ jobs:
     needs: quality
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     permissions:
-      contents: write
-    env:
-      COVERAGE_BADGE_BRANCH: badges
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Download coverage badge
         uses: actions/download-artifact@v4
@@ -116,51 +118,23 @@ jobs:
           name: coverage-badge
           path: ${{ runner.temp }}/coverage-badge
 
-      - name: Publish coverage badge branch
+      - name: Prepare Pages artifact
         env:
           BADGE_SOURCE_PATH: ${{ runner.temp }}/coverage-badge/coverage.json
+          PAGES_OUTPUT_PATH: ${{ runner.temp }}/github-pages
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p "${PAGES_OUTPUT_PATH}/badges"
+          cp "${BADGE_SOURCE_PATH}" "${PAGES_OUTPUT_PATH}/badges/coverage.json"
+          touch "${PAGES_OUTPUT_PATH}/.nojekyll"
 
-          if git ls-remote --exit-code --heads origin "${COVERAGE_BADGE_BRANCH}"; then
-            git fetch origin "${COVERAGE_BADGE_BRANCH}:${COVERAGE_BADGE_BRANCH}"
-            git switch "${COVERAGE_BADGE_BRANCH}"
-          else
-            git switch --orphan "${COVERAGE_BADGE_BRANCH}"
-            git rm -rf --ignore-unmatch .
-            find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-          fi
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/github-pages
 
-          mkdir -p badges
-          cp "${BADGE_SOURCE_PATH}" badges/coverage.json
-
-          git add badges/coverage.json
-          if git diff --cached --quiet; then
-            echo "Coverage badge is already up to date."
-            exit 0
-          fi
-
-          git commit -m "chore(ci): update coverage badge"
-
-          for attempt in 1 2 3; do
-            if git push --force-with-lease origin "HEAD:${COVERAGE_BADGE_BRANCH}"; then
-              exit 0
-            fi
-
-            if [ "${attempt}" -eq 3 ]; then
-              echo "Failed to publish coverage badge after ${attempt} attempts."
-              exit 1
-            fi
-
-            echo "Push failed on attempt ${attempt}; syncing with origin/${COVERAGE_BADGE_BRANCH} before retrying..."
-            git fetch origin "${COVERAGE_BADGE_BRANCH}" || true
-            if git show-ref --verify --quiet "refs/remotes/origin/${COVERAGE_BADGE_BRANCH}"; then
-              git rebase "origin/${COVERAGE_BADGE_BRANCH}"
-            fi
-
-            sleep $((attempt * 2))
-          done
+      - name: Deploy badge site
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   android-build:
     name: Android Build
