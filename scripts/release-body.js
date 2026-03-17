@@ -104,7 +104,7 @@ const downloads = [macSection, winSection, linuxSection, androidSection, htmlSec
 
 // One-liner summary of what changed in this release. Update before each release.
 const oneLinerDescription =
-  'This release adds an archive page for archived threads, a Report/Delete post menu with mod-only editing, migrates to the community hooks API, and includes fixes for mod queue roles, pseudonymous reply deletion, and reply modal drag interactions.';
+  'This release adds a video auto-unmute setting, platform-specific info on the homepage, improves reply loading performance with cached board previews, and fixes Electron desktop app loading and PWA update reliability.';
 
 const releaseBody = `${oneLinerDescription}
 

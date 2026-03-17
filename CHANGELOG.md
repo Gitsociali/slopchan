@@ -1,3 +1,27 @@
+## [0.7.2](https://github.com/plebbit/plebchan/compare/v0.7.1...v0.7.2) (2026-03-17)
+
+
+### Bug Fixes
+
+* **ci:** publish coverage badge from badges branch ([#1091](https://github.com/plebbit/plebchan/issues/1091)) ([b2946e8](https://github.com/plebbit/plebchan/commit/b2946e8b2e1b370142c9162810a94990d505cec3))
+* **ci:** publish coverage badge via GitHub Pages ([2de723a](https://github.com/plebbit/plebchan/commit/2de723a076c2087848205422839fe3039fb8aefc))
+* **ci:** scope Electron native rebuilds ([#1099](https://github.com/plebbit/plebchan/issues/1099)) ([2c276f0](https://github.com/plebbit/plebchan/commit/2c276f05eb2a608a830eb100725673a3957ff96c))
+* **electron:** restore packaged desktop app loading ([#1095](https://github.com/plebbit/plebchan/issues/1095)) ([c9bd625](https://github.com/plebbit/plebchan/commit/c9bd6258b2ba6f3e2dea9b655decd1af450401b6))
+* **pwa:** make web updates deterministic ([#1093](https://github.com/plebbit/plebchan/issues/1093)) ([f812fe1](https://github.com/plebbit/plebchan/commit/f812fe1d1890287a7caa57690a40ba83d27fdf3d))
+
+
+### Features
+
+* **home:** show platform-specific info message on homepage ([1db0c62](https://github.com/plebbit/plebchan/commit/1db0c625e814b1b569c68efe858dff3e0d376705)), closes [#1096](https://github.com/plebbit/plebchan/issues/1096)
+* **settings:** add expanded video auto-unmute preference ([#1104](https://github.com/plebbit/plebchan/issues/1104)) ([714c39c](https://github.com/plebbit/plebchan/commit/714c39cf47779fd759691c57a4bfefa15e6400ca))
+
+
+### Performance Improvements
+
+* **replies:** prefer cached board preview replies ([#1101](https://github.com/plebbit/plebchan/issues/1101)) ([8c37258](https://github.com/plebbit/plebchan/commit/8c37258f203b410154e8f2aee114311e192d71f4))
+
+
+
 ## [0.7.1](https://github.com/plebbit/plebchan/compare/v0.7.0...v0.7.1) (2026-03-16)
 
 

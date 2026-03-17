@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "release-0.7.2",
+      "kind": "release",
+      "timestamp": 1773748800,
+      "message": "v0.7.2: video auto-unmute setting, platform-specific homepage info, cached board preview replies",
+      "version": "0.7.2"
+    },
+    {
       "id": "release-0.7.1",
       "kind": "release",
       "timestamp": 1773662400,
