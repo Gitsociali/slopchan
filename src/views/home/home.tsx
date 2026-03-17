@@ -12,6 +12,7 @@ import useDirectoryModalStore from '../../stores/use-directory-modal-store';
 import DisclaimerModal from '../../components/disclaimer-modal';
 import DirectoryModal from '../../components/directory-modal';
 import { getBoardPath } from '../../lib/utils/route-utils';
+import { isWebRuntime } from '../../lib/media-hosting/show-upload-controls';
 import lowerCase from 'lodash/lowerCase';
 
 // https://github.com/bitsocialnet/lists/blob/master/5chan-directories.json
@@ -51,6 +52,7 @@ const SearchBar = () => {
 
 const InfoBox = () => {
   const { t } = useTranslation();
+  const isWeb = isWebRuntime();
   return (
     <div className={`${styles.box} ${styles.infoBox}`}>
       <div className={styles.infoboxBar}>
@@ -67,13 +69,17 @@ const InfoBox = () => {
         />
         <br />
         <br />
-        <Trans
-          i18nKey='no_global_rules_info'
-          shouldUnescape={true}
-          components={{
-            1: <a key='releases-link' href='https://github.com/bitsocialnet/5chan/releases/latest' target='_blank' rel='noopener noreferrer' />,
-          }}
-        />
+        {isWeb ? (
+          <Trans
+            i18nKey='no_global_rules_info'
+            shouldUnescape={true}
+            components={{
+              1: <a key='releases-link' href='https://github.com/bitsocialnet/5chan/releases/latest' target='_blank' rel='noopener noreferrer' />,
+            }}
+          />
+        ) : (
+          t('app_p2p_info')
+        )}
       </div>
     </div>
   );

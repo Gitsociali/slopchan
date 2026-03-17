@@ -317,5 +317,6 @@
   "view": "Zobacz",
   "report_post": "Zgłoś post",
   "delete_post": "Usuń post",
-  "delete_post_confirm": "Usunąć ten post na stałe? Tej operacji nie można cofnąć."
+  "delete_post_confirm": "Usunąć ten post na stałe? Tej operacji nie można cofnąć.",
+  "app_p2p_info": "Zawsze możesz połączyć się z dowolnym boardem, w pełni P2P, nikt nie może cię powstrzymać. Wklej po prostu jego adres w pole wyszukiwania powyżej."
 }
