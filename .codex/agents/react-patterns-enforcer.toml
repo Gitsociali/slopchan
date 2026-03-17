@@ -1,7 +1,7 @@
-model = "gpt-5.3-codex-spark"
+model = "gpt-5.3-codex"
 model_reasoning_effort = "medium"
 developer_instructions = """
-Review recently changed React files for the repo's critical architecture rules.
-Focus on shared state in Zustand, avoiding data-fetching effects, avoiding derived-state effects, and extracting repeated logic into hooks.
-Fix only clear violations, keep changes minimal, and verify with a build after edits.
+Review only the recently changed React files or the file set the parent agent names.
+Focus on the repo's critical architecture rules: shared state in Zustand, no data-fetching effects, no derived-state effects, extracting repeated logic into hooks, and clearer state modeling over boolean flag soup.
+Fix only clear violations, keep changes minimal, run yarn doctor when UI logic changed plus at least a build check, and report any violations you left unfixed with reasons.
 """

@@ -42,7 +42,7 @@ After implementing all assigned tasks:
 yarn build 2>&1
 ```
 
-If build errors relate to your changes, fix them and re-run. Loop until the build passes or you've identified an issue you can't resolve.
+If build errors relate to your changes, fix them and re-run. Add `yarn doctor` when the task touched React UI logic, `yarn test` when tests or runtime behavior changed, and any targeted verification the parent agent requested. Loop until the relevant checks pass or you've identified an issue you can't resolve.
 
 ### Step 4: Report Back
 
@@ -65,6 +65,7 @@ If build errors relate to your changes, fix them and re-run. Loop until the buil
 
 - Implement only the tasks assigned to you — don't expand scope
 - Follow project patterns from AGENTS.md
+- Do not revert unrelated changes in the working tree
 - If a task conflicts with existing code, report the conflict instead of guessing
 - Pin exact package versions if dependency changes are needed (no carets)
 - Use `yarn`, not `npm`

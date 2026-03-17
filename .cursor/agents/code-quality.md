@@ -18,6 +18,16 @@ yarn lint 2>&1
 yarn type-check 2>&1
 ```
 
+Add these when relevant:
+
+```bash
+yarn doctor 2>&1
+yarn test 2>&1
+yarn knip 2>&1
+```
+
+Use `yarn doctor` when the change touched React UI logic, `yarn test` when tests changed or the bug fix is covered by tests, and `yarn knip` when package manifests or direct imports changed.
+
 ### Step 2: Analyze Failures
 
 If any check fails, read the error output carefully:
@@ -64,4 +74,5 @@ Return a structured report:
 - Only fix issues surfaced by the quality checks — don't refactor unrelated code
 - Pin exact package versions if dependency changes are needed (no carets)
 - Use `yarn`, not `npm`
+- Report the exact commands run and any residual blockers or risk
 - If a fix is unclear or risky, report it as a remaining issue instead of guessing

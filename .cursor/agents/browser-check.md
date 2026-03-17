@@ -17,27 +17,18 @@ If either is missing, report back asking for the missing information.
 
 ## Workflow
 
-### Step 1: Ensure Dev Server is Running
+### Step 1: Use the Existing Dev Server
 
-Check if the dev server is already running:
+Use the already-running Portless dev server at `http://5chan.localhost:1355` unless the parent agent gives you a different URL.
 
-```bash
-lsof -i :3000 2>/dev/null | grep LISTEN
-```
-
-If not running, start it in the background:
-
-```bash
-yarn start &
-sleep 5
-```
+Do not start, restart, or stop the dev server yourself. If the app is unreachable, report the failure and stop.
 
 ### Step 2: Navigate and Snapshot
 
 Use playwright-cli to check the relevant page:
 
 ```bash
-playwright-cli open http://localhost:3000
+playwright-cli open http://5chan.localhost:1355
 playwright-cli snapshot
 ```
 
@@ -63,7 +54,7 @@ playwright-cli snapshot
 ## Browser Check Results
 
 ### Page Tested
-- URL: http://localhost:3000/...
+- URL: http://5chan.localhost:1355/...
 
 ### What Was Checked
 - description of each verification
@@ -82,5 +73,5 @@ playwright-cli snapshot
 
 - Only check what the parent agent asked you to verify — don't audit the entire app
 - If playwright-cli is not installed, report it immediately and stop
-- If the dev server won't start, report the error and stop
+- If the dev server is unreachable, report the error and stop
 - Don't modify any code — you are read-only, verification only

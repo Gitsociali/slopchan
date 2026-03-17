@@ -107,6 +107,7 @@ Extract logical sections into focused sub-components in separate files.
 - Follow the plan from the parent agent — don't freelance unrelated fixes
 - Only fix the targeted diagnostic(s), don't refactor unrelated code
 - Always verify with react-doctor before reporting back
+- Report which files changed and any remaining risk
 - If the fix is unclear or risky, report back with concerns instead of guessing
 - Pin exact package versions if any dependency changes are needed
 - Use `yarn`, not `npm`

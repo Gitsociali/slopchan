@@ -39,7 +39,7 @@ Batch 3 (parallel): [tasks that depend on batch 2]
 
 ### 3. Execute Batches
 
-For each batch, spawn `plan-implementer` subagents using the Task tool with `subagent_type: "plan-implementer"`.
+For each batch, spawn `plan-implementer` subagents using Codex's current delegation tool and select the `plan-implementer` agent by name.
 
 Each subagent prompt must include:
 
@@ -47,7 +47,7 @@ Each subagent prompt must include:
 - **File paths** and context needed to work independently
 - **Constraints** or edge cases from the plan
 
-Use `model: "fast"` for straightforward tasks. Omit model for complex ones.
+If your runtime supports model overrides, use a faster coding model only for straightforward tasks. Omit the override for complex or cross-cutting tasks.
 
 Wait for all subagents in a batch to complete before starting the next batch.
 
