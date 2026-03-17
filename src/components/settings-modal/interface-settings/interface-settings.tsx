@@ -8,22 +8,26 @@ import useFeedViewSettingsStore from '../../../stores/use-feed-view-settings-sto
 import Version from '../../version';
 import StyleSelector from '../../style-selector/style-selector';
 import { INTERFACE_LANGUAGE_STORAGE_KEY, SUPPORTED_INTERFACE_LANGUAGES } from '../../../lib/constants';
+import { fetchLatestStableVersion, isElectron } from '../../../lib/app-update';
+import useAppUpdateStore from '../../../stores/use-app-update-store';
 
 const commitRef = process.env.VITE_COMMIT_REF;
-const isElectron = window.electronApi?.isElectron === true;
 
-const fetchLatestVersionInfo = async (t: (key: string, opts?: Record<string, unknown>) => string): Promise<void> => {
+const fetchLatestVersionInfo = async (t: (key: string, opts?: Record<string, unknown>) => string, applyAppUpdate: () => Promise<void>): Promise<void> => {
   try {
-    const packageRes = await fetch('https://raw.githubusercontent.com/bitsocialnet/5chan/master/package.json', { cache: 'no-cache' });
-    const packageData = await packageRes.json();
+    const latestStableVersion = await fetchLatestStableVersion();
     let updateAvailable = false;
 
-    if (packageJson.version !== packageData.version) {
-      const newVersionText = t('new_stable_version', { newVersion: packageData.version, oldVersion: packageJson.version });
-      const updateActionText = isElectron
-        ? t('download_latest_desktop', { link: 'https://github.com/bitsocialnet/5chan/releases/latest', interpolation: { escapeValue: false } })
-        : t('refresh_to_update');
-      alert(newVersionText + ' ' + updateActionText);
+    if (packageJson.version !== latestStableVersion) {
+      if (isElectron) {
+        const newVersionText = t('new_stable_version', { newVersion: latestStableVersion, oldVersion: packageJson.version });
+        const updateActionText = t('download_latest_desktop', { link: 'https://github.com/bitsocialnet/5chan/releases/latest', interpolation: { escapeValue: false } });
+        alert(newVersionText + ' ' + updateActionText);
+      } else {
+        await applyAppUpdate();
+        return;
+      }
+
       updateAvailable = true;
     }
 
@@ -55,16 +59,26 @@ const fetchLatestVersionInfo = async (t: (key: string, opts?: Record<string, unk
 const CheckForUpdates = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const needRefresh = useAppUpdateStore((state) => state.needRefresh);
+  const applyAppUpdate = useAppUpdateStore((state) => state.applyAppUpdate);
 
   const checkForUpdates = async () => {
     setLoading(true);
-    await fetchLatestVersionInfo(t);
-    setLoading(false);
+    try {
+      if (needRefresh) {
+        await applyAppUpdate();
+        return;
+      }
+
+      await fetchLatestVersionInfo(t, applyAppUpdate);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <button className={styles.checkForUpdatesButton} onClick={checkForUpdates} disabled={loading}>
-      {t('check')}
+      {needRefresh ? t('update') : t('check')}
     </button>
   );
 };
