@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { copyToClipboard } from '../clipboard-utils';
 import { hashStringToColor, getTextColorForBackground, removeMarkdown } from '../post-utils';
-import { preloadReplyModal, preloadThemeAssets } from '../preload-utils';
+import { preloadReplyModal, preloadThemeAssets, resolveAssetUrl } from '../preload-utils';
 import { computeOmittedCount, filterRepliesForDisplay, getPreviewDisplayReplies, getTotalReplyCount } from '../replies-preview-utils';
 import { getQuotedCidsFromContent, mergeQuotedCids } from '../reply-quote-utils';
 import { formatUserIDForDisplay, truncateWithEllipsisInMiddle } from '../string-utils';
@@ -116,7 +116,16 @@ describe('misc utils', () => {
 
     preloadThemeAssets();
 
-    expect(loadedSources).toEqual(['/buttons/default.png', '/buttons/hover.png', '/backgrounds/wallpaper.png']);
+    expect(loadedSources).toEqual([
+      `${import.meta.env.BASE_URL}buttons/default.png`,
+      `${import.meta.env.BASE_URL}buttons/hover.png`,
+      `${import.meta.env.BASE_URL}backgrounds/wallpaper.png`,
+    ]);
+  });
+
+  it('resolves theme asset URLs against a non-root base URL', () => {
+    expect(resolveAssetUrl('buttons/default.png', 'file:///app/')).toBe('file:///app/buttons/default.png');
+    expect(resolveAssetUrl('backgrounds/wallpaper.png', 'file:///app/')).toBe('file:///app/backgrounds/wallpaper.png');
   });
 
   it('schedules reply modal preload with requestIdleCallback when available', () => {
