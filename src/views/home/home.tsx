@@ -154,7 +154,7 @@ export const Footer = () => {
           </a>
         </li>
         <li>
-          <a href='https://t.me/bitsocial' target='_blank' rel='noopener noreferrer'>
+          <a href='https://t.me/bitsocialnet' target='_blank' rel='noopener noreferrer'>
             Telegram
           </a>
         </li>
