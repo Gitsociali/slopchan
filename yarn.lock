@@ -20,6 +20,7 @@ __metadata:
     "@electron-forge/maker-dmg": "npm:7.8.0"
     "@electron-forge/maker-squirrel": "npm:7.8.0"
     "@electron-forge/maker-zip": "npm:7.8.0"
+    "@electron/rebuild": "npm:3.7.2"
     "@floating-ui/react": "npm:0.26.1"
     "@react-spring/web": "npm:9.7.5"
     "@reforged/maker-appimage": "npm:5.1.1"
@@ -2243,7 +2244,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron/rebuild@npm:^3.7.0":
+"@electron/rebuild@npm:3.7.2, @electron/rebuild@npm:^3.7.0":
   version: 3.7.2
   resolution: "@electron/rebuild@npm:3.7.2"
   dependencies:
