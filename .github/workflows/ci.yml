@@ -33,7 +33,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -165,7 +165,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -207,7 +207,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -273,7 +273,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -339,7 +339,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -403,7 +403,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
