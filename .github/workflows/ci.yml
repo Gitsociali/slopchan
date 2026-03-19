@@ -7,9 +7,6 @@ on:
     branches: [development, master]
   workflow_dispatch:
 
-env:
-  HUSKY: '0'
-
 permissions:
   contents: read
 

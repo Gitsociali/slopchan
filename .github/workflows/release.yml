@@ -13,9 +13,6 @@ on:
     tags:
       - 'v*'
 
-env:
-  HUSKY: '0'
-
 jobs:
   preflight:
     runs-on: ubuntu-22.04
