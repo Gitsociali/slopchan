@@ -154,7 +154,7 @@ bundle install
 ### 3. Install JavaScript Dependencies
 
 \`\`\`bash
-yarn install
+corepack yarn install
 \`\`\`
 
 ### 4. Environment Setup
@@ -708,7 +708,7 @@ The master key doesn't match the credentials file. Either:
 rm -rf node_modules/.vite
 
 # Reinstall JS dependencies
-rm -rf node_modules && yarn install
+rm -rf node_modules && corepack yarn install
 \`\`\`
 
 ### Solid Queue Issues

@@ -13,9 +13,6 @@ on:
     tags:
       - 'v*'
 
-env:
-  HUSKY: '0'
-
 jobs:
   preflight:
     runs-on: ubuntu-22.04
@@ -29,12 +26,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+      - run: corepack enable
       - name: Install dependencies
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -70,12 +67,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+      - run: corepack enable
       - name: Install dependencies
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -130,7 +127,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+      - run: corepack enable
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -140,7 +137,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -189,13 +186,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+      - run: corepack enable
       - name: Install dependencies
         shell: bash
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -232,13 +229,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+      - run: corepack enable
       - run: sudo apt-get install -y apksigner zipalign
       - name: Install dependencies
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -288,12 +285,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+      - run: corepack enable
       - name: Install dependencies
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done

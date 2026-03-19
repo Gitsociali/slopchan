@@ -78,12 +78,12 @@ These are condensed from `AGENTS.md`. If you are contributing code, follow the r
 Prerequisites:
 
 - Node.js 22
-- Yarn
+- Corepack enabled for Yarn 4 (`corepack enable`)
 
 Common setup:
 
 ```bash
-yarn install --frozen-lockfile
+corepack yarn install
 yarn start
 ```
 

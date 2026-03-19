@@ -27,7 +27,7 @@ Only record items that are repo-specific, likely to recur, and have a concrete m
 | Situation | Required action |
 |---|---|
 | React UI logic changed (`src/components`, `src/views`, `src/hooks`, UI stores) | Follow React architecture rules below and run `yarn doctor` |
-| `package.json` changed | Run `yarn install` to keep `yarn.lock` in sync |
+| `package.json` changed | Run `corepack yarn install` to keep `yarn.lock` in sync |
 | Dependencies or import graph changed | Run `yarn knip` as an advisory manifest/import audit |
 | Translation key/value changed | Use `docs/agent-playbooks/translations.md` |
 | Bug report in a specific file/line | Start with git history scan from `docs/agent-playbooks/bug-investigation.md` before editing |
@@ -71,7 +71,7 @@ src/
 
 ### Package and Dependency Rules
 
-- Use `yarn`, never `npm`.
+- Use Corepack-managed Yarn 4, never `npm`. Run `corepack enable` once on a new machine before using `yarn`.
 - Pin exact dependency versions (`package@x.y.z`), never `^` or `~`.
 - Keep lockfile synchronized when dependency manifests change.
 
@@ -178,7 +178,7 @@ To bypass Portless: `PORTLESS=0 yarn start`
 ## Common Commands
 
 ```bash
-yarn install
+corepack yarn install
 yarn start                # http://5chan.localhost:1355
 yarn build
 yarn test
