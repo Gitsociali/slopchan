@@ -7,7 +7,7 @@ If your AI coding assistant supports lifecycle hooks, configure these for this r
 | Hook | Command | Purpose |
 |---|---|---|
 | `afterFileEdit` | `scripts/agent-hooks/format.sh` | Auto-format files after AI edits |
-| `afterFileEdit` | `scripts/agent-hooks/yarn-install.sh` | Run `yarn install` when `package.json` changes |
+| `afterFileEdit` | `scripts/agent-hooks/yarn-install.sh` | Run `corepack yarn install` when `package.json` changes |
 | `stop` | `scripts/agent-hooks/sync-git-branches.sh` | Prune stale refs and delete integrated temporary task branches |
 | `stop` | `scripts/agent-hooks/verify.sh` | Hard-gate build, lint, and type-check; keep `yarn audit` informational |
 
@@ -16,7 +16,7 @@ If your AI coding assistant supports lifecycle hooks, configure these for this r
 - Consistent formatting
 - Lockfile stays in sync
 - Build/lint/type issues caught early
-- Security visibility via `yarn audit`
+- Security visibility via `corepack yarn npm audit`
 - One shared hook implementation for both Codex and Cursor
 - Temporary task branches stay aligned with the repo's worktree workflow
 
@@ -46,20 +46,20 @@ exit 0
 
 cat > /dev/null  # consume stdin
 status=0
-yarn build || status=1
-yarn lint || status=1
-yarn type-check || status=1
-echo "=== yarn audit ===" && (yarn audit || true)  # informational
+corepack yarn build || status=1
+corepack yarn lint || status=1
+corepack yarn type-check || status=1
+echo "=== corepack yarn npm audit ===" && (corepack yarn npm audit || true)  # informational
 exit $status
 ```
 
-By default, `scripts/agent-hooks/verify.sh` exits non-zero when `yarn build`, `yarn lint`, or `yarn type-check` fails. Set `AGENT_VERIFY_MODE=advisory` only when you intentionally need signal from a broken tree without blocking the hook.
+By default, `scripts/agent-hooks/verify.sh` exits non-zero when `corepack yarn build`, `corepack yarn lint`, or `corepack yarn type-check` fails. Set `AGENT_VERIFY_MODE=advisory` only when you intentionally need signal from a broken tree without blocking the hook.
 
 ### Yarn Install Hook
 
 ```bash
 #!/bin/bash
-# Run yarn install when package.json is changed
+# Run Corepack-managed Yarn install when package.json is changed
 # Hook receives JSON via stdin with file_path
 
 input=$(cat)
@@ -71,8 +71,8 @@ fi
 
 if [ "$file_path" = "package.json" ]; then
   cd "$(dirname "$0")/../.." || exit 0
-  echo "package.json changed - running yarn install to update yarn.lock..."
-  yarn install
+  echo "package.json changed - running corepack yarn install to update yarn.lock..."
+  corepack yarn install
 fi
 
 exit 0

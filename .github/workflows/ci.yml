@@ -28,12 +28,13 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
+      - run: corepack enable
 
       - name: Install dependencies
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -160,12 +161,13 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
+      - run: corepack enable
 
       - name: Install dependencies
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -195,6 +197,7 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
+      - run: corepack enable
 
       - name: Cache electron binaries
         uses: actions/cache@v4
@@ -207,7 +210,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -258,6 +261,7 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
+      - run: corepack enable
 
       - name: Install setuptools for native modules
         run: pip3 install --break-system-packages setuptools || pip3 install --user setuptools || true
@@ -273,7 +277,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -324,6 +328,7 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
+      - run: corepack enable
 
       - name: Install setuptools for native modules
         run: pip3 install --break-system-packages setuptools || pip3 install --user setuptools || true
@@ -339,7 +344,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done
@@ -390,6 +395,7 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
+      - run: corepack enable
 
       - name: Cache electron binaries
         uses: actions/cache@v4
@@ -403,7 +409,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "yarn install attempt $i"
-            yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
+            yarn install --immutable --ignore-engines --network-timeout 100000 --network-concurrency 1 && break
             sleep 5
             [ "$i" = "3" ] && exit 1
           done

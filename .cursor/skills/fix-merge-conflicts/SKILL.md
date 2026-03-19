@@ -36,8 +36,8 @@ Open each conflicting file and remove conflict markers. Merge both sides logical
 
 | File type | Strategy |
 |-----------|----------|
-| `package.json` | Merge keys conservatively, then `yarn install` to regenerate `yarn.lock` |
-| `yarn.lock` | Never manually edit — regenerate with `yarn install` |
+| `package.json` | Merge keys conservatively, then `corepack yarn install` to regenerate `yarn.lock` |
+| `yarn.lock` | Never manually edit — regenerate with `corepack yarn install` |
 | Config files (`.json`, `.yaml`) | Preserve union of safe settings; don't delete required fields |
 | Markdown / text | Include both unique sections, deduplicate headings |
 | Binary files | Prefer current branch (ours) |
@@ -48,10 +48,10 @@ Open each conflicting file and remove conflict markers. Merge both sides logical
 Run all three checks. Fix any failures before proceeding.
 
 ```bash
-yarn build && yarn lint && yarn type-check
+corepack yarn build && corepack yarn lint && corepack yarn type-check
 ```
 
-If `package.json` was modified, run `yarn install` first.
+If `package.json` was modified, run `corepack yarn install` first.
 
 ### 4. Verify no remaining markers
 
@@ -78,6 +78,6 @@ git commit -m "chore: resolve merge conflicts"
 ## Deliverables
 
 - Clean working tree with all conflicts resolved
-- Passing `yarn build && yarn lint && yarn type-check`
+- Passing `corepack yarn build && corepack yarn lint && corepack yarn type-check`
 - One local commit: `chore: resolve merge conflicts`
 - Brief summary of files touched and notable resolution choices

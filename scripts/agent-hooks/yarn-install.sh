@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# afterFileEdit hook: Run yarn install when package.json is changed
+# afterFileEdit hook: Run Corepack-managed Yarn install when package.json is changed
 # Receives JSON via stdin: {"file_path": "...", "edits": [...]}
 
 input=$(cat)
@@ -13,8 +13,8 @@ fi
 if [ "$file_path" = "package.json" ]; then
   repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
   cd "$repo_root" || exit 0
-  echo "package.json changed - running yarn install to update yarn.lock..."
-  yarn install
+  echo "package.json changed - running corepack yarn install to update yarn.lock..."
+  corepack yarn install
 fi
 
 exit 0

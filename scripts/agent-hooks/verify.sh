@@ -59,12 +59,12 @@ echo ""
 
 failures=0
 
-run_required_check "yarn build" yarn build || failures=1
-run_required_check "yarn lint" yarn lint || failures=1
-run_required_check "yarn type-check" yarn type-check || failures=1
+run_required_check "corepack yarn build" corepack yarn build || failures=1
+run_required_check "corepack yarn lint" corepack yarn lint || failures=1
+run_required_check "corepack yarn type-check" corepack yarn type-check || failures=1
 
-echo "=== yarn audit ==="
-yarn audit 2>&1 || true
+echo "=== corepack yarn npm audit ==="
+corepack yarn npm audit 2>&1 || true
 echo ""
 
 cleanup_generated_dir build

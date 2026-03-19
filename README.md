@@ -90,13 +90,13 @@ To have your board appear in a directory on the 5chan homepage:
 ### Prerequisites
 
 - Node.js v22 (Download from https://nodejs.org)
-- Yarn: `npm install -g yarn`
-- Portless is installed with project dependencies via `yarn install`
+- Corepack enabled for Yarn 4: `corepack enable`
+- Portless is installed with project dependencies via `corepack yarn install`
 
 ### Setup
 
 1. Clone the repository
-2. Install dependencies: `yarn install --frozen-lockfile`
+2. Install dependencies: `corepack yarn install`
 3. Start the web client: `yarn start`
 
 The dev server runs at http://5chan.localhost:1355 via [Portless](https://port1355.dev/), which gives each Bitsocial project a stable, named URL instead of a random port. To bypass Portless and use a plain Vite dev server: `PORTLESS=0 yarn start`
