@@ -320,5 +320,8 @@
   "delete_post_confirm": "Bu gönderiyi kalıcı olarak silmek istiyor musunuz? Bu işlem geri alınamaz.",
   "app_p2p_info": "Her zaman herhangi bir boarda bağlanabilirsin, tamamen P2P, kimse seni durduramaz. Sadece adresini yukarıdaki arama alanına yapıştır.",
   "unmute_video_sound_tip": "Video oynatırken sesi otomatik aç",
-  "unmute_video_sound": "Video oynatırken sesi otomatik aç"
+  "unmute_video_sound": "Video oynatırken sesi otomatik aç",
+  "download": "indir",
+  "checking_for_updates": "Güncellemeler kontrol ediliyor...",
+  "new_version_found": "yeni sürüm bulundu"
 }

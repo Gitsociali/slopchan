@@ -1,6 +1,7 @@
 import './log.js';
 import { app, BrowserWindow, Menu, MenuItem, Tray, shell, dialog, nativeTheme, nativeImage, ipcMain, clipboard } from 'electron';
 import { automateUploadMedia } from './media-upload-automation.js';
+import { downloadAndInstallUpdate } from './app-updater.js';
 import isDev from 'electron-is-dev';
 import fs from 'fs';
 import path from 'path';
@@ -389,4 +390,9 @@ ipcMain.handle('automate-upload-media', async (event, options) => {
     throw new Error('automate-upload-media requires { provider, filePath }');
   }
   return automateUploadMedia({ provider, filePath });
+});
+
+ipcMain.handle('download-and-install-update', async (event, options) => {
+  const { url, fileName } = options || {};
+  return downloadAndInstallUpdate({ url, fileName });
 });

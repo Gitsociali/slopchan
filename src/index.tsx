@@ -15,6 +15,11 @@ import { Analytics } from '@vercel/analytics/react';
 // Exclude Electron (file:// or localhost), Capacitor/APK (capacitor:// or localhost), and IPFS (ipfs:// or different domain)
 const isVercelDeployment =
   typeof window !== 'undefined' && (window.location.hostname === '5chan.app' || window.location.hostname === 'www.5chan.app') && !window.isElectron;
+const e2eStartHash = import.meta.env.VITE_E2E_START_HASH?.trim();
+
+if (typeof window !== 'undefined' && e2eStartHash && window.location.hash.length === 0) {
+  window.location.hash = e2eStartHash.startsWith('#') ? e2eStartHash : `#${e2eStartHash}`;
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

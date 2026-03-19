@@ -51,6 +51,10 @@
   padding-left: 19px;
 }
 
+.updateStatus {
+  margin-left: 8px;
+}
+
 .webUploadWarning {
   font-size: 0.8em;
   padding: 2px 0;

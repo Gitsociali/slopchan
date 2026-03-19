@@ -3,7 +3,6 @@ import { createElement } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import packageJson from '../../../../../package.json';
 import InterfaceSettings from '../interface-settings';
 import useFeedViewSettingsStore from '../../../../stores/use-feed-view-settings-store';
 import { INTERFACE_LANGUAGE_STORAGE_KEY } from '../../../../lib/constants';
@@ -16,8 +15,8 @@ const testState = vi.hoisted(() => ({
   alertMock: vi.fn(),
   applyAppUpdateMock: vi.fn(),
   changeLanguageMock: vi.fn(),
-  fetchMock: vi.fn(),
   fitExpandedImagesToScreen: false,
+  refreshAvailableUpdateMock: vi.fn(),
   setFitExpandedImagesToScreenMock: vi.fn(),
   setUnmuteExpandedVideoSoundMock: vi.fn(),
   unmuteExpandedVideoSound: false,
@@ -47,7 +46,6 @@ vi.mock('../../../style-selector/style-selector', () => ({
   default: () => null,
 }));
 
-/** Minimal component that subscribes to feed view settings (like Board) to verify re-renders. */
 const BoardModeIndicator = () => {
   const enableInfiniteScroll = useFeedViewSettingsStore((state) => state.enableInfiniteScroll);
   return <span data-testid='board-mode'>{enableInfiniteScroll ? 'infinite' : 'pagination'}</span>;
@@ -58,25 +56,13 @@ const STORAGE_KEY = 'feed-view-settings-store';
 let root: Root;
 let container: HTMLDivElement;
 
-const createFetchResponse = (body: unknown) => ({
-  json: vi.fn().mockResolvedValue(body),
-});
-
-const createDeferred = <T,>() => {
-  let resolve!: (value: T) => void;
-  let reject!: (reason?: unknown) => void;
-  const promise = new Promise<T>((innerResolve, innerReject) => {
-    resolve = innerResolve;
-    reject = innerReject;
-  });
-  return { promise, resolve, reject };
-};
-
 const render = (children: React.ReactNode) => {
   act(() => {
     root.render(createElement(MemoryRouter, {}, children));
   });
 };
+
+const findButtonByText = (text: string) => Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === text);
 
 describe('InterfaceSettings', () => {
   let setItemSpy: ReturnType<typeof vi.spyOn>;
@@ -87,18 +73,20 @@ describe('InterfaceSettings', () => {
     testState.alertMock.mockReset();
     testState.applyAppUpdateMock.mockReset();
     testState.changeLanguageMock.mockReset();
-    testState.fetchMock.mockReset();
     testState.fitExpandedImagesToScreen = false;
+    testState.refreshAvailableUpdateMock.mockReset();
     testState.setFitExpandedImagesToScreenMock.mockReset();
     testState.setUnmuteExpandedVideoSoundMock.mockReset();
     testState.unmuteExpandedVideoSound = false;
     useFeedViewSettingsStore.getState().setEnableInfiniteScroll(false);
     useAppUpdateStore.setState({
-      needRefresh: false,
+      availableUpdate: null,
+      isApplyingUpdate: false,
+      isCheckingForUpdate: false,
       applyAppUpdate: testState.applyAppUpdateMock,
+      refreshAvailableUpdate: testState.refreshAvailableUpdateMock,
     });
     vi.stubGlobal('alert', testState.alertMock);
-    vi.stubGlobal('fetch', testState.fetchMock);
     setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -119,7 +107,7 @@ describe('InterfaceSettings', () => {
 
   it('renders enable_infinite_scroll checkbox unchecked by default', () => {
     render(createElement(InterfaceSettings));
-    const label = Array.from(container.querySelectorAll('label')).find((l) => l.textContent?.toLowerCase().includes('enable_infinite_scroll'));
+    const label = Array.from(container.querySelectorAll('label')).find((candidate) => candidate.textContent?.toLowerCase().includes('enable_infinite_scroll'));
     expect(label).toBeTruthy();
     const checkbox = label?.querySelector<HTMLInputElement>('input[type="checkbox"]');
     expect(checkbox).toBeTruthy();
@@ -129,7 +117,7 @@ describe('InterfaceSettings', () => {
   it('toggling checkbox updates persisted state and re-renders board mode', async () => {
     render(createElement(React.Fragment, {}, createElement(InterfaceSettings), createElement(BoardModeIndicator)));
 
-    const label = Array.from(container.querySelectorAll('label')).find((l) => l.textContent?.toLowerCase().includes('enable_infinite_scroll'));
+    const label = Array.from(container.querySelectorAll('label')).find((candidate) => candidate.textContent?.toLowerCase().includes('enable_infinite_scroll'));
     const checkbox = label?.querySelector<HTMLInputElement>('input[type="checkbox"]');
     expect(checkbox).toBeTruthy();
 
@@ -192,37 +180,70 @@ describe('InterfaceSettings', () => {
     expect(localStorage.getItem(INTERFACE_LANGUAGE_STORAGE_KEY)).toBe('fr');
   });
 
-  it('disables the update button while fetching and restores it afterward', async () => {
-    const pendingFetch = createDeferred<ReturnType<typeof createFetchResponse>>();
-    testState.fetchMock.mockReturnValueOnce(pendingFetch.promise);
+  it('renders a check button when no app update is available', () => {
+    render(createElement(InterfaceSettings));
+
+    expect(container.textContent).toContain('Update:');
+    expect(findButtonByText('Check')).toBeTruthy();
+  });
+
+  it('shows the checking status while an update check is in progress', () => {
+    useAppUpdateStore.setState({
+      isCheckingForUpdate: true,
+    });
 
     render(createElement(InterfaceSettings));
 
-    const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'check');
+    expect(findButtonByText('Check')?.disabled).toBe(true);
+    expect(container.textContent).toContain('checking_for_updates');
+  });
+
+  it('renders a download button and release link when an app update is available', () => {
+    useAppUpdateStore.setState({
+      availableUpdate: {
+        runtime: 'web',
+        targetVersion: '9.9.9',
+        releaseUrl: 'https://github.com/bitsocialnet/5chan/releases/tag/v9.9.9',
+      },
+    });
+
+    render(createElement(InterfaceSettings));
+
+    expect(findButtonByText('Download')).toBeTruthy();
+    const releaseLink = container.querySelector<HTMLAnchorElement>('a[href="https://github.com/bitsocialnet/5chan/releases/tag/v9.9.9"]');
+    expect(releaseLink?.textContent).toBe('v9.9.9');
+    expect(container.textContent).toContain('new_version_found');
+  });
+
+  it('checks for app updates when the check button is pressed', async () => {
+    render(createElement(InterfaceSettings));
+
+    const button = findButtonByText('Check');
     expect(button).toBeTruthy();
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    });
-
-    expect(button?.disabled).toBe(true);
-
-    pendingFetch.resolve(createFetchResponse({ version: packageJson.version }));
-    await act(async () => {
-      await Promise.resolve();
       await Promise.resolve();
     });
 
-    expect(button?.disabled).toBe(false);
-    expect(testState.alertMock).toHaveBeenCalledWith(expect.stringContaining('latest_stable_version'));
+    expect(testState.refreshAvailableUpdateMock).toHaveBeenCalledTimes(1);
+    expect(testState.applyAppUpdateMock).not.toHaveBeenCalled();
   });
 
-  it('applies the app update when a newer stable version is available', async () => {
-    testState.fetchMock.mockResolvedValueOnce(createFetchResponse({ version: '9.9.9' }));
+  it('applies the available app update when the button is pressed', async () => {
+    useAppUpdateStore.setState({
+      availableUpdate: {
+        runtime: 'android',
+        targetVersion: '9.9.9',
+        assetName: '5chan-9.9.9.apk',
+        downloadUrl: 'https://github.com/bitsocialnet/5chan/releases/download/v9.9.9/5chan-9.9.9.apk',
+        releaseUrl: 'https://github.com/bitsocialnet/5chan/releases/tag/v9.9.9',
+      },
+    });
 
     render(createElement(InterfaceSettings));
 
-    const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'check');
+    const button = findButtonByText('Download');
     expect(button).toBeTruthy();
 
     await act(async () => {
@@ -234,12 +255,36 @@ describe('InterfaceSettings', () => {
     expect(testState.alertMock).not.toHaveBeenCalled();
   });
 
-  it('alerts when already on the latest stable version', async () => {
-    testState.fetchMock.mockResolvedValueOnce(createFetchResponse({ version: packageJson.version }));
+  it('disables the update button while an app update is already being applied', () => {
+    useAppUpdateStore.setState({
+      availableUpdate: {
+        runtime: 'web',
+        targetVersion: '9.9.9',
+        releaseUrl: 'https://github.com/bitsocialnet/5chan/releases/tag/v9.9.9',
+      },
+      isApplyingUpdate: true,
+    });
 
     render(createElement(InterfaceSettings));
 
-    const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'check');
+    expect(findButtonByText('Download')?.disabled).toBe(true);
+  });
+
+  it('alerts when applying the update fails', async () => {
+    testState.applyAppUpdateMock.mockRejectedValueOnce(new Error('installer failed'));
+    useAppUpdateStore.setState({
+      availableUpdate: {
+        runtime: 'electron',
+        targetVersion: '9.9.9',
+        assetName: '5chan-9.9.9-x64.AppImage',
+        downloadUrl: 'https://github.com/bitsocialnet/5chan/releases/download/v9.9.9/5chan-9.9.9-x64.AppImage',
+        releaseUrl: 'https://github.com/bitsocialnet/5chan/releases/tag/v9.9.9',
+      },
+    });
+
+    render(createElement(InterfaceSettings));
+
+    const button = findButtonByText('Download');
     expect(button).toBeTruthy();
 
     await act(async () => {
@@ -247,48 +292,6 @@ describe('InterfaceSettings', () => {
       await Promise.resolve();
     });
 
-    expect(testState.alertMock).toHaveBeenCalledWith(expect.stringContaining('latest_stable_version'));
-  });
-
-  it('renders an update button when a service worker refresh is ready', () => {
-    useAppUpdateStore.setState({ needRefresh: true });
-
-    render(createElement(InterfaceSettings));
-
-    const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'update');
-    expect(button).toBeTruthy();
-  });
-
-  it('applies the waiting service worker when the update button is pressed', async () => {
-    useAppUpdateStore.setState({ needRefresh: true });
-
-    render(createElement(InterfaceSettings));
-
-    const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'update');
-    expect(button).toBeTruthy();
-
-    await act(async () => {
-      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      await Promise.resolve();
-    });
-
-    expect(testState.applyAppUpdateMock).toHaveBeenCalledTimes(1);
-    expect(testState.fetchMock).not.toHaveBeenCalled();
-  });
-
-  it('alerts when fetching the latest version info fails', async () => {
-    testState.fetchMock.mockRejectedValueOnce(new Error('network down'));
-
-    render(createElement(InterfaceSettings));
-
-    const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'check');
-    expect(button).toBeTruthy();
-
-    await act(async () => {
-      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      await Promise.resolve();
-    });
-
-    expect(testState.alertMock).toHaveBeenCalledWith('Failed to fetch latest version info: Error: network down');
+    expect(testState.alertMock).toHaveBeenCalledWith('Error: installer failed');
   });
 });

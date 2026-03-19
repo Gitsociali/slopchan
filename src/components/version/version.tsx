@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import packageJson from '../../../package.json';
+import { currentAppVersion } from '../../lib/app-version';
 
-const { version } = packageJson;
 const commitRef = import.meta.env.VITE_COMMIT_REF;
 const isElectron = window.electronApi?.isElectron === true;
 
@@ -10,11 +9,11 @@ const Version = () => {
   return (
     <>
       <a
-        href={commitRef ? `https://github.com/bitsocialnet/5chan/commit/${commitRef}` : `https://github.com/bitsocialnet/5chan/releases/tag/v${version}`}
+        href={commitRef ? `https://github.com/bitsocialnet/5chan/commit/${commitRef}` : `https://github.com/bitsocialnet/5chan/releases/tag/v${currentAppVersion}`}
         target='_blank'
         rel='noopener noreferrer'
       >
-        v{commitRef ? `${version}#${commitRef.slice(0, 7)}` : version}
+        v{commitRef ? `${currentAppVersion}#${commitRef.slice(0, 7)}` : currentAppVersion}
       </a>
       {isElectron && (
         <>

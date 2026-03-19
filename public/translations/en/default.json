@@ -320,5 +320,8 @@
   "archived": "Archived",
   "loading_archive": "Loading archive...",
   "thread_archived": "Thread archived.",
-  "view": "View"
+  "view": "View",
+  "download": "download",
+  "checking_for_updates": "checking for updates...",
+  "new_version_found": "new version found"
 }

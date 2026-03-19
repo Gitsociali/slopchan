@@ -320,5 +320,8 @@
   "delete_post_confirm": "Nadobro smazat tento příspěvek? Tuto akci nelze vrátit zpět.",
   "app_p2p_info": "K jakékoli desce se můžete kdykoli připojit, plně P2P, nikdo vás nemůže zastavit. Stačí vložit její adresu do vyhledávacího pole výše.",
   "unmute_video_sound_tip": "Automaticky zapnout zvuk při přehrávání videa",
-  "unmute_video_sound": "Automaticky zapnout zvuk při přehrávání videa"
+  "unmute_video_sound": "Automaticky zapnout zvuk při přehrávání videa",
+  "download": "stáhnout",
+  "checking_for_updates": "Kontroluji aktualizace...",
+  "new_version_found": "nalezena nová verze"
 }

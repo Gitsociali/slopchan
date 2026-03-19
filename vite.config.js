@@ -4,7 +4,8 @@ import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { VitePWA } from 'vite-plugin-pwa';
 
-const { version: appVersion } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const { version: packageVersion } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const appVersion = `${process.env.VITE_APP_VERSION || packageVersion}`.trim() || packageVersion;
 
 function appVersionMetadataPlugin() {
   const payload = `${JSON.stringify({ version: appVersion })}\n`;

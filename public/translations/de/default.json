@@ -320,5 +320,8 @@
   "delete_post_confirm": "Diesen Beitrag dauerhaft löschen? Dies kann nicht rückgängig gemacht werden.",
   "app_p2p_info": "Du kannst dich jederzeit mit jedem Board verbinden, vollständig P2P, niemand kann dich aufhalten. Füge einfach seine Adresse in das Suchfeld oben ein.",
   "unmute_video_sound_tip": "Ton beim Videowiedergabe automatisch aktivieren",
-  "unmute_video_sound": "Ton beim Videowiedergabe automatisch aktivieren"
+  "unmute_video_sound": "Ton beim Videowiedergabe automatisch aktivieren",
+  "download": "herunterladen",
+  "checking_for_updates": "Suche nach Updates...",
+  "new_version_found": "neue Version gefunden"
 }

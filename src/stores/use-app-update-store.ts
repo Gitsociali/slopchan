@@ -1,24 +1,40 @@
 import { create } from 'zustand';
-import { refreshServiceWorkerRegistration } from '../lib/app-update';
+import { applyAvailableAppUpdate, resolveAvailableAppUpdate, type AvailableAppUpdate } from '../lib/app-update';
 
 interface AppUpdateState {
-  needRefresh: boolean;
-  setNeedRefresh: (needRefresh: boolean) => void;
+  availableUpdate: AvailableAppUpdate | null;
+  isApplyingUpdate: boolean;
+  isCheckingForUpdate: boolean;
+  refreshAvailableUpdate: () => Promise<AvailableAppUpdate | null>;
   applyAppUpdate: () => Promise<void>;
 }
 
-const reloadCurrentPage = () => {
-  window.location.reload();
-};
-
-const useAppUpdateStore = create<AppUpdateState>((set) => ({
-  needRefresh: false,
-  setNeedRefresh: (needRefresh) => set({ needRefresh }),
+const useAppUpdateStore = create<AppUpdateState>((set, get) => ({
+  availableUpdate: null,
+  isApplyingUpdate: false,
+  isCheckingForUpdate: false,
+  refreshAvailableUpdate: async () => {
+    set({ isCheckingForUpdate: true });
+    try {
+      const availableUpdate = await resolveAvailableAppUpdate();
+      set({ availableUpdate });
+      return availableUpdate;
+    } finally {
+      set({ isCheckingForUpdate: false });
+    }
+  },
   applyAppUpdate: async () => {
-    await refreshServiceWorkerRegistration().catch((error) => {
-      console.error('Failed to refresh service worker registration', error);
-    });
-    reloadCurrentPage();
+    const availableUpdate = get().availableUpdate;
+    if (!availableUpdate) {
+      return;
+    }
+
+    set({ isApplyingUpdate: true });
+    try {
+      await applyAvailableAppUpdate(availableUpdate);
+    } finally {
+      set({ isApplyingUpdate: false });
+    }
   },
 }));
 

@@ -1,6 +1,5 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import packageJson from '../../../../package.json';
 import styles from './interface-settings.module.css';
 import capitalize from 'lodash/capitalize';
 import useExpandedMediaStore from '../../../stores/use-expanded-media-store';
@@ -8,78 +7,50 @@ import useFeedViewSettingsStore from '../../../stores/use-feed-view-settings-sto
 import Version from '../../version';
 import StyleSelector from '../../style-selector/style-selector';
 import { INTERFACE_LANGUAGE_STORAGE_KEY, SUPPORTED_INTERFACE_LANGUAGES } from '../../../lib/constants';
-import { fetchLatestStableVersion, isElectron } from '../../../lib/app-update';
 import useAppUpdateStore from '../../../stores/use-app-update-store';
 
-const commitRef = process.env.VITE_COMMIT_REF;
-
-const fetchLatestVersionInfo = async (t: (key: string, opts?: Record<string, unknown>) => string, applyAppUpdate: () => Promise<void>): Promise<void> => {
-  try {
-    const latestStableVersion = await fetchLatestStableVersion();
-    let updateAvailable = false;
-
-    if (packageJson.version !== latestStableVersion) {
-      if (isElectron) {
-        const newVersionText = t('new_stable_version', { newVersion: latestStableVersion, oldVersion: packageJson.version });
-        const updateActionText = t('download_latest_desktop', { link: 'https://github.com/bitsocialnet/5chan/releases/latest', interpolation: { escapeValue: false } });
-        alert(newVersionText + ' ' + updateActionText);
-      } else {
-        await applyAppUpdate();
-        return;
-      }
-
-      updateAvailable = true;
-    }
-
-    if (commitRef && commitRef.length > 0) {
-      const commitRes = await fetch('https://api.github.com/repos/bitsocialnet/5chan/commits?per_page=1&sha=development', { cache: 'no-cache' });
-      const commitData = await commitRes.json();
-
-      const latestCommitHash = commitData[0].sha;
-
-      if (latestCommitHash.trim() !== commitRef.trim()) {
-        const newVersionText = t('new_development_version', { newCommit: latestCommitHash.slice(0, 7), oldCommit: commitRef.slice(0, 7) }) + ' ' + t('refresh_to_update');
-        alert(newVersionText);
-        updateAvailable = true;
-      }
-    }
-
-    if (!updateAvailable) {
-      alert(
-        commitRef
-          ? `${t('latest_development_version', { commit: commitRef.slice(0, 7), link: `${window.location.origin}/#/`, interpolation: { escapeValue: false } })}`
-          : `${t('latest_stable_version', { version: packageJson.version })}`,
-      );
-    }
-  } catch (error) {
-    alert('Failed to fetch latest version info: ' + error);
-  }
-};
-
-const CheckForUpdates = () => {
+const UpdateButton = () => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const needRefresh = useAppUpdateStore((state) => state.needRefresh);
+  const availableUpdate = useAppUpdateStore((state) => state.availableUpdate);
+  const isApplyingUpdate = useAppUpdateStore((state) => state.isApplyingUpdate);
+  const isCheckingForUpdate = useAppUpdateStore((state) => state.isCheckingForUpdate);
   const applyAppUpdate = useAppUpdateStore((state) => state.applyAppUpdate);
+  const refreshAvailableUpdate = useAppUpdateStore((state) => state.refreshAvailableUpdate);
 
-  const checkForUpdates = async () => {
-    setLoading(true);
+  const handleUpdateAction = async () => {
     try {
-      if (needRefresh) {
+      if (availableUpdate) {
         await applyAppUpdate();
         return;
       }
 
-      await fetchLatestVersionInfo(t, applyAppUpdate);
-    } finally {
-      setLoading(false);
+      await refreshAvailableUpdate();
+    } catch (error) {
+      alert(String(error));
     }
   };
+  const buttonLabel = availableUpdate ? t('download') : t('check');
+  const isBusy = isApplyingUpdate || isCheckingForUpdate;
 
   return (
-    <button className={styles.checkForUpdatesButton} onClick={checkForUpdates} disabled={loading}>
-      {needRefresh ? t('update') : t('check')}
-    </button>
+    <>
+      <button type='button' onClick={handleUpdateAction} disabled={isBusy}>
+        {capitalize(buttonLabel)}
+      </button>
+      {isCheckingForUpdate && (
+        <span className={styles.updateStatus} aria-live='polite'>
+          {t('checking_for_updates')}
+        </span>
+      )}
+      {!isCheckingForUpdate && availableUpdate && (
+        <span className={styles.updateStatus} aria-live='polite'>
+          {t('new_version_found')}:&nbsp;
+          <a href={availableUpdate.releaseUrl} target='_blank' rel='noopener noreferrer'>
+            v{availableUpdate.targetVersion}
+          </a>
+        </span>
+      )}
+    </>
   );
 };
 
@@ -117,7 +88,7 @@ const InterfaceSettings = () => {
         {capitalize(t('version'))}: <Version />
       </div>
       <div className={styles.setting}>
-        {capitalize(t('update'))}: <CheckForUpdates />
+        {capitalize(t('update'))}: <UpdateButton />
       </div>
       <div className={styles.setting}>
         {capitalize(t('interface_language'))}: <InterfaceLanguage />
