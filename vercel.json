@@ -44,7 +44,7 @@
       ]
     }
   ],
-  "installCommand": "HUSKY=0 corepack yarn install --immutable",
+  "installCommand": "corepack yarn install --immutable",
   "buildCommand": "corepack yarn build",
   "outputDirectory": "build",
   "framework": "vite"
