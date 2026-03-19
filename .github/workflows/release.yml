@@ -29,7 +29,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
       - run: corepack enable
       - name: Install dependencies
         run: |
@@ -71,7 +70,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
       - run: corepack enable
       - name: Install dependencies
         run: |
@@ -132,7 +130,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
       - run: corepack enable
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
@@ -192,7 +189,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
       - run: corepack enable
       - name: Install dependencies
         shell: bash
@@ -236,7 +232,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
       - run: corepack enable
       - run: sudo apt-get install -y apksigner zipalign
       - name: Install dependencies
@@ -293,7 +288,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
       - run: corepack enable
       - name: Install dependencies
         run: |
