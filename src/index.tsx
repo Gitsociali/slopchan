@@ -16,21 +16,36 @@ import { Analytics } from '@vercel/analytics/react';
 const isVercelDeployment =
   typeof window !== 'undefined' && (window.location.hostname === '5chan.app' || window.location.hostname === 'www.5chan.app') && !window.isElectron;
 const e2eStartHash = import.meta.env.VITE_E2E_START_HASH?.trim();
+const shouldRenderThreadAutoUpdateHarness =
+  import.meta.env.DEV && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === 'thread-auto-update';
 
 if (typeof window !== 'undefined' && e2eStartHash && window.location.hash.length === 0) {
   window.location.hash = e2eStartHash.startsWith('#') ? e2eStartHash : `#${e2eStartHash}`;
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(
-  <React.StrictMode>
-    <Router>
-      <AppUpdateRegistration />
-      <App />
-      {isVercelDeployment && <Analytics />}
-    </Router>
-  </React.StrictMode>,
-);
+const renderRoot = async () => {
+  let threadAutoUpdateHarness: React.ComponentType | null = null;
+  if (shouldRenderThreadAutoUpdateHarness) {
+    threadAutoUpdateHarness = (await import('./e2e/thread-auto-update-harness')).default;
+  }
+
+  root.render(
+    <React.StrictMode>
+      {threadAutoUpdateHarness ? (
+        React.createElement(threadAutoUpdateHarness)
+      ) : (
+        <Router>
+          <AppUpdateRegistration />
+          <App />
+          {isVercelDeployment && <Analytics />}
+        </Router>
+      )}
+    </React.StrictMode>,
+  );
+};
+
+void renderRoot();
 
 // add back button in android app
 CapacitorApp.addListener('backButton', ({ canGoBack }) => {
