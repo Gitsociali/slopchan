@@ -154,12 +154,12 @@ jobs:
           else
             yarn electron:build:mac:x64
           fi
-      - name: Rename DMG with architecture suffix
+      - name: Rename DMG with version and architecture suffix
         run: |
+          VERSION=$(node -e "console.log(require('./package.json').version)")
           for f in out/make/*.dmg; do
             [ -f "$f" ] || continue
-            base=$(basename "$f" .dmg)
-            mv "$f" "out/make/${base}-${{ matrix.arch }}.dmg"
+            mv "$f" "out/make/5chan-${VERSION}-${{ matrix.arch }}.dmg"
           done
       - name: Stage release artifacts
         run: |
