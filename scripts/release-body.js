@@ -104,7 +104,7 @@ const downloads = [macSection, winSection, linuxSection, androidSection, htmlSec
 
 // One-liner summary of what changed in this release. Update before each release.
 const oneLinerDescription =
-  'This release adds a video auto-unmute setting, platform-specific info on the homepage, improves reply loading performance with cached board previews, and fixes Electron desktop app loading and PWA update reliability.';
+  'This release adds an in-app update flow for desktop, makes thread auto-updates opt-in, adapts to compact account history hooks, and includes Yarn 4 migration and CI reliability fixes.';
 
 const releaseBody = `${oneLinerDescription}
 

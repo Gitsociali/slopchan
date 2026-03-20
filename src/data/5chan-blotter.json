@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "release-0.7.3",
+      "kind": "release",
+      "timestamp": 1774008000,
+      "message": "v0.7.3: In-app desktop updates, opt-in thread auto-updates, compact account history, Yarn 4 migration",
+      "version": "0.7.3"
+    },
+    {
       "id": "release-0.7.2",
       "kind": "release",
       "timestamp": 1773748800,
