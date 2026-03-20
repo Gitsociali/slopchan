@@ -55,7 +55,6 @@ const EditMenu = ({ post }: { post: Comment }) => {
   const allowsPseudonymousDelete = pseudonymityMode !== undefined && pseudonymityMode !== 'none';
   const canAttemptAuthorDelete = isAccountCommentAuthor || allowsPseudonymousDelete;
   const canOpenEditMenu = isAccountMod || canAttemptAuthorDelete;
-  const requiresDeleteSelection = canAttemptAuthorDelete && !isAccountCommentAuthor && !isAccountMod;
   const signer = isAccountCommentAuthor ? account?.signer : undefined;
   const latestPostRef = useRef(resolvedPost);
   useEffect(() => {
@@ -259,14 +258,10 @@ const EditMenu = ({ post }: { post: Comment }) => {
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
 
   const headingId = useId();
-  const canSave = !requiresDeleteSelection || publishCommentEditOptions.deleted === true;
+  const hasDeleteStateChanged = (deleted ?? false) !== (publishCommentEditOptions.deleted ?? false);
 
   const _publishCommentEdit = async () => {
-    if (!canSave) {
-      return;
-    }
-
-    const shouldPublishAuthorEdit = isAccountCommentAuthor || (canAttemptAuthorDelete && publishCommentEditOptions.deleted === true);
+    const shouldPublishAuthorEdit = isAccountCommentAuthor || (canAttemptAuthorDelete && hasDeleteStateChanged);
 
     try {
       if (shouldPublishAuthorEdit && isAccountMod) {
@@ -433,7 +428,7 @@ const EditMenu = ({ post }: { post: Comment }) => {
                   </>
                 )}
                 <div className={styles.bottom}>
-                  <button className={isMobile ? 'button' : ''} onClick={_publishCommentEdit} disabled={!canSave}>
+                  <button className={isMobile ? 'button' : ''} onClick={_publishCommentEdit}>
                     {t('save')}
                   </button>
                 </div>

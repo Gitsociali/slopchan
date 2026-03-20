@@ -284,11 +284,9 @@ describe('EditMenu', () => {
 
     const saveButton = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'save');
     expect(saveButton).not.toBeNull();
-    expect((saveButton as HTMLButtonElement).disabled).toBe(true);
-
-    await click(getCheckbox('deleted'));
     expect((saveButton as HTMLButtonElement).disabled).toBe(false);
 
+    await click(getCheckbox('deleted'));
     await clickButton('save');
 
     expect(testState.publishAuthorEditMock).toHaveBeenCalledOnce();
@@ -302,6 +300,35 @@ describe('EditMenu', () => {
     expect(testState.authorOptions?.spoiler).toBeUndefined();
     expect(testState.authorOptions).not.toHaveProperty('author');
     expect(testState.authorOptions).not.toHaveProperty('signer');
+  });
+
+  it('lets pseudonymous delete-only users undo an existing deletion', async () => {
+    testState.pseudonymityMode = 'per-post';
+    testState.privileges = {
+      isAccountCommentAuthor: false,
+      isAccountMod: false,
+      isCommentAuthorMod: false,
+    };
+
+    await renderMenu({
+      ...basePost,
+      deleted: true,
+    });
+    await openMenu();
+
+    const deletedCheckbox = getCheckbox('deleted');
+    expect(deletedCheckbox?.checked).toBe(true);
+
+    await click(deletedCheckbox);
+    await clickButton('save');
+
+    expect(testState.publishAuthorEditMock).toHaveBeenCalledOnce();
+    expect(testState.publishCommentModerationMock).not.toHaveBeenCalled();
+    expect(testState.authorOptions).toMatchObject({
+      commentCid: 'comment-1',
+      communityAddress: 'music-posting.eth',
+      deleted: false,
+    });
   });
 
   it("does not allow delete-only access when pseudonymity mode is 'none'", async () => {
