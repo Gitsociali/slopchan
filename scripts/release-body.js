@@ -54,10 +54,11 @@ const linkTo = (file) => `https://github.com/bitsocialnet/5chan/releases/downloa
 const has = (s, sub) => s.toLowerCase().includes(sub);
 const isArm = (s) => has(s, 'arm64') || has(s, 'aarch64');
 const isX64 = (s) => has(s, 'x64') || has(s, 'x86_64') || !isArm(s);
+const isHtmlArchive = (file) => file.toLowerCase().endsWith('.zip') && (has(file, '5chan-html') || has(file, '-html'));
 
 // buckets
 const androidApk = files.find((f) => f.endsWith('.apk'));
-const htmlZip = files.find((f) => f.includes('5chan-html') && f.endsWith('.zip'));
+const htmlZip = files.find(isHtmlArchive);
 
 const linux = files.filter((f) => f.endsWith('.AppImage'));
 const mac = files.filter((f) => f.endsWith('.dmg'));
@@ -98,7 +99,7 @@ const linuxSection = section('Linux', [
 
 const androidSection = section('Android', [androidApk && `- APK: [Download](${linkTo(androidApk)})`]);
 
-const htmlSection = section('Static HTML build', [htmlZip && `- 5chan-html (zip): [Download](${linkTo(htmlZip)})`]);
+const htmlSection = section('Static HTML build', [htmlZip && `- Static HTML archive (zip): [Download](${linkTo(htmlZip)})`]);
 
 const downloads = [macSection, winSection, linuxSection, androidSection, htmlSection].filter(Boolean).join('\n\n');
 

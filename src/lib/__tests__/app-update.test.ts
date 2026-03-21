@@ -332,8 +332,8 @@ describe('app-update', () => {
     await applyAvailableAppUpdate({
       runtime: 'electron',
       targetVersion: '9.9.9',
-      assetName: '5chan-9.9.9.Setup.exe',
-      downloadUrl: 'https://github.com/bitsocialnet/5chan/releases/download/v9.9.9/5chan-9.9.9.Setup.exe',
+      assetName: '5chan-9.9.9-x64.Setup.exe',
+      downloadUrl: 'https://github.com/bitsocialnet/5chan/releases/download/v9.9.9/5chan-9.9.9-x64.Setup.exe',
       releaseUrl: 'https://github.com/bitsocialnet/5chan/releases/tag/v9.9.9',
     });
     await applyAvailableAppUpdate({
@@ -345,8 +345,8 @@ describe('app-update', () => {
     });
 
     expect(testState.electronDownloadAndInstallUpdateMock).toHaveBeenCalledWith({
-      url: 'https://github.com/bitsocialnet/5chan/releases/download/v9.9.9/5chan-9.9.9.Setup.exe',
-      fileName: '5chan-9.9.9.Setup.exe',
+      url: 'https://github.com/bitsocialnet/5chan/releases/download/v9.9.9/5chan-9.9.9-x64.Setup.exe',
+      fileName: '5chan-9.9.9-x64.Setup.exe',
     });
     expect(testState.androidDownloadAndInstallUpdateMock).toHaveBeenCalledWith({
       url: 'https://github.com/bitsocialnet/5chan/releases/download/v9.9.9/5chan-9.9.9.apk',

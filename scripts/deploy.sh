@@ -17,7 +17,7 @@ if [ -z "${DEPLOY_PASSWORD+xxx}" ]; then echo "DEPLOY_PASSWORD not set" && exit;
 
 # save version
 FIVECHAN_VERSION=$(node -e "console.log(require('../package.json').version)")
-FIVECHAN_HTML_NAME="5chan-html-$FIVECHAN_VERSION"
+FIVECHAN_HTML_NAME="5chan-$FIVECHAN_VERSION-html"
 
 SCRIPT="
 # download html
