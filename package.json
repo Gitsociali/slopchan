@@ -52,6 +52,7 @@
     "prebuild": "corepack yarn sync:directories && corepack yarn generate:assets",
     "prestart": "corepack yarn sync:directories && corepack yarn generate:assets",
     "start": "node scripts/start-dev.js",
+    "start:android-usb": "node scripts/start-android-usb.mjs",
     "build": "cross-env PUBLIC_URL=./ GENERATE_SOURCEMAP=false vite build",
     "build:preload": "vite build --config electron/vite.preload.config.js",
     "build-vercel": "cross-env NODE_OPTIONS=\"--max_old_space_size=4096\" PUBLIC_URL=./ GENERATE_SOURCEMAP=true VITE_COMMIT_REF=$COMMIT_REF CI='' vite build",

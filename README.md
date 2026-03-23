@@ -106,9 +106,14 @@ To have your board appear in a directory on the 5chan homepage:
 
 The dev server runs at http://5chan.localhost:1355 via [Portless](https://port1355.dev/), which gives each Bitsocial project a stable, named URL instead of a random port. To bypass Portless and use a plain Vite dev server: `PORTLESS=0 yarn start`
 
+For device testing on a USB-connected Android phone (without relying on `5chan.localhost` DNS from the device):
+
+- `yarn start:android-usb` starts Vite bound to `127.0.0.1` and runs `adb reverse`, so the phone can load the dev site at `http://localhost:1355` in Chrome (or another browser). Requires [Android platform-tools](https://developer.android.com/tools/releases/platform-tools) (`adb` on your `PATH`), USB debugging enabled, and the device showing as `device` in `adb devices`.
+
 ### Scripts
 
 - **Web client**: `yarn start` (http://5chan.localhost:1355)
+- **Web client (Android phone over USB)**: `yarn start:android-usb` (see above)
 - **Electron client** (must start web client first): `yarn electron`
 - **Electron client** (don't delete data): `yarn electron:no-delete-data`
 - **Web client and electron client**: `yarn electron:start`

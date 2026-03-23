@@ -175,11 +175,14 @@ This project uses [Portless](https://github.com/vercel-labs/portless) for local 
 
 To bypass Portless: `PORTLESS=0 yarn start`
 
+Android phone over USB (Chrome on device → dev server via `adb reverse`): `yarn start:android-usb`
+
 ## Common Commands
 
 ```bash
 corepack yarn install
 yarn start                # http://5chan.localhost:1355
+yarn start:android-usb    # Vite + adb reverse for USB Android (http://localhost:1355 on device)
 yarn build
 yarn test
 yarn test:coverage
