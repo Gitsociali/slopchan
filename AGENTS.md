@@ -175,7 +175,7 @@ This project uses [Portless](https://github.com/vercel-labs/portless) for local 
 
 To bypass Portless: `PORTLESS=0 yarn start`
 
-Android phone over USB (Chrome on device → dev server via `adb reverse`): `yarn start:android-usb`
+Android phone over USB (default browser opens via `adb`; `ANDROID_USB_OPEN_BROWSER=0` to skip): `yarn start:android-usb`
 
 ## Common Commands
 

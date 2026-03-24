@@ -108,7 +108,7 @@ The dev server runs at http://5chan.localhost:1355 via [Portless](https://port13
 
 For device testing on a USB-connected Android phone (without relying on `5chan.localhost` DNS from the device):
 
-- `yarn start:android-usb` starts Vite bound to `127.0.0.1` and runs `adb reverse`, so the phone can load the dev site at `http://localhost:1355` in Chrome (or another browser). Requires [Android platform-tools](https://developer.android.com/tools/releases/platform-tools) (`adb` on your `PATH`), USB debugging enabled, and the device showing as `device` in `adb devices`.
+- `yarn start:android-usb` starts Vite bound to `127.0.0.1` and runs `adb reverse`, so the phone can load the dev site at `http://localhost:1355`. When the server is up, it opens that URL in each connected device’s default browser via `adb`. Set `ANDROID_USB_OPEN_BROWSER=0` to skip auto-open. Requires [Android platform-tools](https://developer.android.com/tools/releases/platform-tools) (`adb` on your `PATH`), USB debugging enabled, and the device showing as `device` in `adb devices`.
 
 ### Scripts
 

@@ -33,6 +33,30 @@ export async function resolvePort(requestedPort) {
   return port;
 }
 
+export async function waitForPort(host, port, timeoutMs = 30_000) {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < timeoutMs) {
+    const ready = await new Promise((resolve) => {
+      const socket = net.connect({ host, port });
+
+      socket.once('connect', () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.once('error', () => resolve(false));
+    });
+
+    if (ready) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  throw new Error(`Timed out waiting for dev server on http://${host}:${port}`);
+}
+
 export function startVite(host, port) {
   const child = spawn('corepack', ['yarn', 'exec', 'vite', '--host', host, '--port', String(port), '--strictPort'], {
     cwd: repoRoot,
