@@ -1,24 +1,34 @@
-const DEFAULT_FAVICON = '/favicon.ico';
-const SFW_FAVICON = '/favicon2.ico';
+const DEFAULT_FAVICON = '/favicon.ico?variant=nsfw';
+const SFW_FAVICON = '/favicon2.ico?variant=sfw';
+const FAVICON_RELS = ['icon', 'shortcut icon'] as const;
+const FAVICON_SELECTOR = FAVICON_RELS.map((rel) => `link[rel="${rel}"]`).join(', ');
 
 let currentHref: string | null = null;
 
+const hasExpectedFaviconLinks = (href: string): boolean => FAVICON_RELS.every((rel) => document.querySelector(`link[rel="${rel}"][href="${href}"]`));
+
+const createFaviconLink = (rel: (typeof FAVICON_RELS)[number], href: string): HTMLLinkElement => {
+  const link = document.createElement('link');
+  link.rel = rel;
+  link.type = 'image/png';
+  link.sizes = '16x16';
+  link.href = href;
+  return link;
+};
+
 /**
  * Swap the tab favicon between the default (NSFW/home) and SFW variants.
- * Uses remove-and-recreate to bypass aggressive browser favicon caching.
+ * Uses remove-and-recreate plus cache-busted URLs to bypass sticky favicon caching.
  */
 export const updateFavicon = (isSfw: boolean): void => {
   const href = isSfw ? SFW_FAVICON : DEFAULT_FAVICON;
-  if (href === currentHref) return;
+  if (href === currentHref && hasExpectedFaviconLinks(href)) return;
   currentHref = href;
 
-  const existing = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-  if (existing) existing.remove();
-
-  const link = document.createElement('link');
-  link.rel = 'icon';
-  link.href = href;
-  document.head.appendChild(link);
+  document.querySelectorAll<HTMLLinkElement>(FAVICON_SELECTOR).forEach((link) => link.remove());
+  FAVICON_RELS.forEach((rel) => {
+    document.head.appendChild(createFaviconLink(rel, href));
+  });
 };
 
 /**

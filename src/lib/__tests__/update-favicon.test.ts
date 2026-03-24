@@ -7,19 +7,23 @@ describe('update-favicon', () => {
     vi.resetModules();
   });
 
-  it('creates a favicon link and replaces it only when the target icon changes', async () => {
+  it('replaces managed icon links and keeps both icon rel variants in sync', async () => {
     const { updateFavicon } = await import('../update-favicon');
 
-    updateFavicon(false);
-    expect(document.querySelectorAll('link[rel="icon"]')).toHaveLength(1);
-    expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/favicon.ico');
+    document.head.innerHTML = '<link rel="icon" href="/favicon.ico"><link rel="shortcut icon" href="/favicon.ico">';
 
     updateFavicon(false);
-    expect(document.querySelectorAll('link[rel="icon"]')).toHaveLength(1);
+    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]')).toHaveLength(2);
+    expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/favicon.ico?variant=nsfw');
+    expect(document.querySelector('link[rel="shortcut icon"]')?.getAttribute('href')).toBe('/favicon.ico?variant=nsfw');
+
+    updateFavicon(false);
+    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]')).toHaveLength(2);
 
     updateFavicon(true);
-    expect(document.querySelectorAll('link[rel="icon"]')).toHaveLength(1);
-    expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/favicon2.ico');
+    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]')).toHaveLength(2);
+    expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/favicon2.ico?variant=sfw');
+    expect(document.querySelector('link[rel="shortcut icon"]')?.getAttribute('href')).toBe('/favicon2.ico?variant=sfw');
   });
 
   it('marks only non-special, non-routing aggregate sfw boards as sfw', async () => {
