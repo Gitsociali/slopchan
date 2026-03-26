@@ -23,6 +23,8 @@ Use the already-running Portless dev server at `http://5chan.localhost:1355` unl
 
 Do not start, restart, or stop the dev server yourself. If the app is unreachable, report the failure and stop.
 
+Default to a fresh isolated `playwright-cli` browser session. If the requested verification depends on auth, cookies, extensions, open tabs, or other existing browser state and the parent agent did not specify session mode, stop and ask whether to use a fresh browser or the contributor's current browser session.
+
 ### Step 2: Navigate and Snapshot
 
 Use playwright-cli to check the relevant page:
@@ -74,4 +76,6 @@ playwright-cli snapshot
 - Only check what the parent agent asked you to verify — don't audit the entire app
 - If playwright-cli is not installed, report it immediately and stop
 - If the dev server is unreachable, report the error and stop
+- Never attach to a live personal browser session without explicit permission
+- If current-session reuse is requested, use the supported attach path only when available; otherwise report the limitation instead of silently switching to a fresh session
 - Don't modify any code — you are read-only, verification only

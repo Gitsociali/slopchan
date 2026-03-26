@@ -32,6 +32,13 @@ npx skills add https://github.com/vercel-labs/skills --skill find-skills
 
 Use `playwright-cli` for browser automation (navigation, interaction, screenshots, tests, extraction).
 
+Default to a fresh isolated browser session for normal verification. If the task depends on the contributor's existing browser state, ask whether they want:
+
+- a fresh isolated `playwright-cli` session
+- their current browser session reused
+
+Do not attach to a live personal browser session without explicit confirmation.
+
 ```bash
 npm install -g @playwright/cli@latest
 playwright-cli install --skills
@@ -48,3 +55,4 @@ Avoid GitHub MCP and browser MCP servers for this project because they add signi
 
 - GitHub operations: use `gh` CLI.
 - Browser operations: use `playwright-cli`.
+- If current browser reuse is needed, keep using Playwright-based attach paths rather than browser MCP servers.
