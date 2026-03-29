@@ -111,10 +111,15 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
   const nodeRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  const [{ left, top }, api] = useSpring(() => ({
-    left: Math.round(window.innerWidth / 2 - 150),
-    top: Math.round(window.innerHeight / 2 - 200),
-  }));
+  const [{ left, top }, api] = useSpring(
+    () => ({
+      from: {
+        left: Math.round(window.innerWidth / 2 - 150),
+        top: Math.round(window.innerHeight / 2 - 200),
+      },
+    }),
+    [],
+  );
 
   const bind = useDrag(
     ({ active, event, offset: [ox, oy] }) => {
