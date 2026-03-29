@@ -39,6 +39,7 @@ const testState = vi.hoisted(() => ({
   setAccountMock: vi.fn(),
   setPublishReplyOptionsMock: vi.fn(),
   springStartMock: vi.fn(),
+  useSpringMock: vi.fn(),
   communities: {
     'music-posting.eth': {
       address: 'music-posting.eth',
@@ -182,7 +183,7 @@ vi.mock('@react-spring/web', async () => {
     animated: {
       div: React.forwardRef(({ style, ...props }: any, ref) => React.createElement('div', { ...props, ref, style: normalizeStyle(style) })),
     },
-    useSpring: () => [
+    useSpring: testState.useSpringMock.mockImplementation(() => [
       {
         left: { get: () => 120 },
         top: { get: () => 80 },
@@ -190,7 +191,7 @@ vi.mock('@react-spring/web', async () => {
       {
         start: testState.springStartMock,
       },
-    ],
+    ]),
   };
 });
 
@@ -286,6 +287,16 @@ describe('ReplyModal', () => {
     testState.setAccountMock.mockReset();
     testState.setPublishReplyOptionsMock.mockReset();
     testState.springStartMock.mockReset();
+    testState.useSpringMock.mockReset();
+    testState.useSpringMock.mockImplementation(() => [
+      {
+        left: { get: () => 120 },
+        top: { get: () => 80 },
+      },
+      {
+        start: testState.springStartMock,
+      },
+    ]);
     testState.communities = {
       'music-posting.eth': {
         address: 'music-posting.eth',
@@ -458,5 +469,20 @@ describe('ReplyModal', () => {
     expect(modal?.style.top).toBe('80px');
     expect(modal?.style.transform).toBe('');
     expect(modal?.style.touchAction).toBe('none');
+  });
+
+  it('initializes the drag spring once so typing rerenders do not recenter the modal', async () => {
+    await renderReplyModal('/mu/thread/post-1');
+
+    expect(testState.useSpringMock).toHaveBeenCalledWith(expect.any(Function), []);
+
+    const [configFactory, deps] = testState.useSpringMock.mock.calls[0] as [() => Record<string, unknown>, unknown[]];
+    expect(deps).toEqual([]);
+    expect(configFactory()).toEqual({
+      from: {
+        left: expect.any(Number),
+        top: expect.any(Number),
+      },
+    });
   });
 });
