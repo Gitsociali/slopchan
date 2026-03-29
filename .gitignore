@@ -167,7 +167,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .vscode
-.claude
 .playwright-cli
 .firecrawl/
 
