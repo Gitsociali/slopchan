@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { resolvePort } from './dev-server-utils.mjs';
 
 const isWindows = process.platform === 'win32';
@@ -13,11 +13,71 @@ const fallbackHost = '127.0.0.1';
 const fallbackUrlHost = '5chan.localhost';
 const fallbackRequestedPort = 1355;
 
+function sanitizeLabel(value) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-');
+}
+
+function getCurrentBranch() {
+  const result = spawnSync('git', ['branch', '--show-current'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  });
+
+  if (result.status !== 0) {
+    return null;
+  }
+
+  const branch = result.stdout.trim();
+
+  return branch || null;
+}
+
+function isCanonicalRouteBusy() {
+  const result = spawnSync(portlessBin, ['list'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: process.env,
+  });
+
+  if (result.status !== 0) {
+    return false;
+  }
+
+  return result.stdout.includes('http://5chan.localhost:1355');
+}
+
+function getPortlessAppName() {
+  const branch = getCurrentBranch();
+  const branchLabel = sanitizeLabel(branch || 'current');
+
+  if (branch && branch !== 'master' && branch !== 'main') {
+    return `${branchLabel}.5chan`;
+  }
+
+  if (isCanonicalRouteBusy()) {
+    return `${branchLabel}.5chan`;
+  }
+
+  return '5chan';
+}
+
 const command = usePortless && existsSync(portlessBin) ? portlessBin : viteBin;
 let args;
+let publicUrl = null;
 
 if (command === portlessBin) {
-  args = ['5chan', 'vite'];
+  const appName = getPortlessAppName();
+
+  publicUrl = `http://${appName}.localhost:1355`;
+  args = [appName, 'vite'];
+
+  if (appName !== '5chan') {
+    console.log(`Starting Portless dev server at ${publicUrl}`);
+  }
 } else {
   const port = await resolvePort(fallbackRequestedPort);
   const fallbackUrl = `http://${fallbackUrlHost}:${port}`;
