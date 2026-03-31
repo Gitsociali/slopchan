@@ -75,5 +75,5 @@ If uncertain, ask the developer before adding an entry.
 - **Context:** Starting `yarn start` in one 5chan worktree while another 5chan worktree was already serving through Portless
 - **What was surprising:** Using the literal Portless app name `5chan` in every worktree makes the route itself collide, even when the backing ports are different, so the second process fails with `"5chan.localhost" is already registered`.
 - **Impact:** Parallel 5chan branches can block each other even though Portless is meant to let them coexist safely.
-- **Mitigation:** Keep Portless startup behind `scripts/start-dev.js`, which now uses a branch-scoped `*.5chan.localhost:1355` route outside the canonical case and falls back to a branch-scoped route when the bare `5chan.localhost` name is already occupied.
+- **Mitigation:** Keep Portless startup behind `scripts/start-dev.js`, which now uses a branch-scoped `*.5chan.localhost:1355` route outside the canonical case and automatically increments a `-2`, `-3`, ... suffix when that branch-scoped route is already occupied.
 - **Status:** confirmed
