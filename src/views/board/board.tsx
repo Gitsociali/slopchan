@@ -24,6 +24,7 @@ import LoadingEllipsis from '../../components/loading-ellipsis';
 import BoardPagination from '../../components/board-pagination';
 import { CatalogButton } from '../../components/board-buttons/board-buttons';
 import { PageFooterDesktop, PageFooterMobile } from '../../components/footer';
+import useIsMobile from '../../hooks/use-is-mobile';
 import { Post } from '../post';
 
 const lastVirtuosoStates: { [key: string]: StateSnapshot } = {};
@@ -139,6 +140,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
 
   const enableInfiniteScroll = useFeedViewSettingsStore((state) => state.enableInfiniteScroll);
   const setEnableInfiniteScroll = useFeedViewSettingsStore((state) => state.setEnableInfiniteScroll);
+  const isMobile = useIsMobile();
   const isForcedInfiniteScroll = isInAllView || isInSubscriptionsView || isInModView;
   const effectiveInfiniteScroll = enableInfiniteScroll || isForcedInfiniteScroll;
   const communityDirectory = useDirectoryByAddress(isInAllView || isInSubscriptionsView || isInModView ? undefined : communityAddress);
@@ -378,6 +380,10 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
   const virtuosoStateKey = feedCacheKey ? `${feedCacheKey}-${BOARD_SORT_TYPE}` : `${location.pathname}-${BOARD_SORT_TYPE}`;
   const navigationType = useNavigationType();
+  const isMultiboardView = isInAllView || isInSubscriptionsView || isInModView;
+  const defaultBoardItemHeight = isMobile ? 420 : 300;
+  const boardViewportBuffer = isMultiboardView ? (isMobile ? { bottom: 1400, top: 2400 } : { bottom: 600, top: 600 }) : { bottom: 1200, top: 1200 };
+  const boardMinOverscanItemCount = isMultiboardView && isMobile ? { bottom: 4, top: 8 } : undefined;
 
   const boardItemContent = useCallback((index: number, post: Comment | undefined) => <Post index={index} post={post} />, []);
 
@@ -395,15 +401,20 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
     if (!isVisible) return;
 
     const currentKey = virtuosoStateKey;
-    const setLastVirtuosoState = () => {
+    // Saving the snapshot on every scroll tick makes board scrolling do extra work
+    // in the hottest path. Capturing on teardown still preserves POP restores.
+    const saveVirtuosoState = () => {
       virtuosoRef.current?.getState((snapshot: StateSnapshot) => {
         if (snapshot?.ranges?.length) {
           lastVirtuosoStates[currentKey] = snapshot;
         }
       });
     };
-    window.addEventListener('scroll', setLastVirtuosoState);
-    return () => window.removeEventListener('scroll', setLastVirtuosoState);
+    window.addEventListener('pagehide', saveVirtuosoState);
+    return () => {
+      saveVirtuosoState();
+      window.removeEventListener('pagehide', saveVirtuosoState);
+    };
   }, [virtuosoStateKey, isVisible]);
 
   const lastVirtuosoState = navigationType === 'POP' ? lastVirtuosoStates?.[virtuosoStateKey] : undefined;
@@ -442,8 +453,9 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
         )}
         {effectiveInfiniteScroll ? (
           <Virtuoso
-            defaultItemHeight={300}
-            increaseViewportBy={isInAllView || isInSubscriptionsView || isInModView ? { bottom: 600, top: 600 } : { bottom: 1200, top: 1200 }}
+            defaultItemHeight={defaultBoardItemHeight}
+            increaseViewportBy={boardViewportBuffer}
+            minOverscanItemCount={boardMinOverscanItemCount}
             totalCount={displayFeed.length}
             data={displayFeed}
             computeItemKey={(index, post) => post?.cid || `post-${index}`}
