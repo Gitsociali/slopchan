@@ -16,15 +16,16 @@ import useFeedResetStore from '../../stores/use-feed-reset-store';
 import useFeedViewSettingsStore from '../../stores/use-feed-view-settings-store';
 import usePostNumberStore from '../../stores/use-post-number-store';
 import { useBoardFeedPageSize } from '../../hooks/use-board-feed-page-size';
+import useIsMobile from '../../hooks/use-is-mobile';
 import { getPageSlice } from '../../lib/utils/board-feed-pagination';
 import { getPageFromFeedPath, getSubplebbitAddress, isDirectoryBoard, normalizeMultiboardFeedPath, stripPageFromFeedPath } from '../../lib/utils/route-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
+import { getPretextItemSizeFromElement, resolveFeedVirtualizationMode } from '../../lib/utils/pretext-height-estimates';
 import ErrorDisplay from '../../components/error-display/error-display';
 import LoadingEllipsis from '../../components/loading-ellipsis';
 import BoardPagination from '../../components/board-pagination';
 import { CatalogButton } from '../../components/board-buttons/board-buttons';
 import { PageFooterDesktop, PageFooterMobile } from '../../components/footer';
-import useIsMobile from '../../hooks/use-is-mobile';
 import { Post } from '../post';
 
 const lastVirtuosoStates: { [key: string]: StateSnapshot } = {};
@@ -234,24 +235,34 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
   );
 
   const navigate = useNavigate();
+  const isMultiboardView = isInAllView || isInSubscriptionsView || isInModView;
+  const defaultFeedVirtualizationMode = isMobile && isMultiboardView ? 'off' : 'item-size';
+  const feedVirtualizationMode = useMemo(
+    () => resolveFeedVirtualizationMode(location.search, defaultFeedVirtualizationMode),
+    [defaultFeedVirtualizationMode, location.search],
+  );
+  const defaultBoardItemHeight = feedVirtualizationMode === 'item-size' ? (isMobile ? 420 : 480) : isMobile ? 420 : 300;
+  // Omit the prop entirely in fallback mode. Passing `itemSize={undefined}` overrides
+  // Virtuoso's internal DOM measurer and leaves multiboard items stuck on the default height.
+  const boardSizingProps = useMemo(() => (feedVirtualizationMode === 'item-size' ? { itemSize: getPretextItemSizeFromElement } : {}), [feedVirtualizationMode]);
 
   // Redirect multiboard paths with page-number segments to normalized path (infinite-scroll only)
   useEffect(() => {
     if (!isVisible || !isForcedInfiniteScroll) return;
     const normalized = normalizeMultiboardFeedPath(location.pathname);
     if (normalized !== location.pathname) {
-      navigate(normalized, { replace: true });
+      navigate({ pathname: normalized, search: location.search }, { replace: true });
     }
-  }, [isVisible, isForcedInfiniteScroll, location.pathname, navigate]);
+  }, [isVisible, isForcedInfiniteScroll, location.pathname, location.search, navigate]);
 
   useEffect(() => {
     if (!isVisible) return;
     if (!effectiveInfiniteScroll && currentPage > totalPages && totalPages > 0) {
       const targetPage = totalPages;
       const targetPath = targetPage === 1 ? paginationBasePath : `${paginationBasePath}/${targetPage}`;
-      navigate(targetPath, { replace: true });
+      navigate({ pathname: targetPath, search: location.search }, { replace: true });
     }
-  }, [isVisible, effectiveInfiniteScroll, currentPage, totalPages, paginationBasePath, navigate]);
+  }, [isVisible, effectiveInfiniteScroll, currentPage, totalPages, paginationBasePath, location.search, navigate]);
 
   // Scroll to top instantly when page changes in pagination mode
   useEffect(() => {
@@ -301,7 +312,14 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
           />
           <PageFooterDesktop
             firstRow={
-              <BoardPagination basePath={paginationBasePath} currentPage={currentPage} totalPages={totalPages} footerStyle isMultiboard={isForcedInfiniteScroll} />
+              <BoardPagination
+                basePath={paginationBasePath}
+                currentPage={currentPage}
+                search={location.search}
+                totalPages={totalPages}
+                footerStyle
+                isMultiboard={isForcedInfiniteScroll}
+              />
             }
           />
           <PageFooterMobile>
@@ -329,7 +347,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
                       <span key={page}>
                         [
                         <Link
-                          to={page === 1 ? paginationBasePath : `${paginationBasePath}/${page}`}
+                          to={{ pathname: page === 1 ? paginationBasePath : `${paginationBasePath}/${page}`, search: location.search }}
                           className={page === currentPage ? mobileFooterStyles.mobileFooterPaginationCurrent : undefined}
                         >
                           {page}
@@ -373,6 +391,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
       totalPages,
       setEnableInfiniteScroll,
       reset,
+      location.search,
       t,
     ],
   );
@@ -380,12 +399,13 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
   const virtuosoStateKey = feedCacheKey ? `${feedCacheKey}-${BOARD_SORT_TYPE}` : `${location.pathname}-${BOARD_SORT_TYPE}`;
   const navigationType = useNavigationType();
-  const isMultiboardView = isInAllView || isInSubscriptionsView || isInModView;
-  const defaultBoardItemHeight = isMobile ? 420 : 300;
   const boardViewportBuffer = isMultiboardView ? (isMobile ? { bottom: 1400, top: 2400 } : { bottom: 600, top: 600 }) : { bottom: 1200, top: 1200 };
   const boardMinOverscanItemCount = isMultiboardView && isMobile ? { bottom: 4, top: 8 } : undefined;
 
-  const boardItemContent = useCallback((index: number, post: Comment | undefined) => <Post index={index} post={post} />, []);
+  const boardItemContent = useCallback(
+    (index: number, post: Comment | undefined) => <Post feedVirtualizationModeOverride={feedVirtualizationMode} index={index} post={post} />,
+    [feedVirtualizationMode],
+  );
 
   const hasBeenVisibleRef = useRef(false);
   useEffect(() => {
@@ -401,8 +421,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
     if (!isVisible) return;
 
     const currentKey = virtuosoStateKey;
-    // Saving the snapshot on every scroll tick makes board scrolling do extra work
-    // in the hottest path. Capturing on teardown still preserves POP restores.
+    // Avoid state snapshot work on every scroll tick in the hottest board path.
     const saveVirtuosoState = () => {
       virtuosoRef.current?.getState((snapshot: StateSnapshot) => {
         if (snapshot?.ranges?.length) {
@@ -454,6 +473,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
         {effectiveInfiniteScroll ? (
           <Virtuoso
             defaultItemHeight={defaultBoardItemHeight}
+            {...boardSizingProps}
             increaseViewportBy={boardViewportBuffer}
             minOverscanItemCount={boardMinOverscanItemCount}
             totalCount={displayFeed.length}

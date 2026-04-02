@@ -17,6 +17,7 @@ import PostDesktop from '../../components/post-desktop';
 import PostMobile from '../../components/post-mobile';
 import { getRequestedThreadTopCid, scrollThreadContainerToTop } from '../../lib/utils/thread-scroll-utils';
 import useThreadLiveUpdatesStore from '../../stores/use-thread-live-updates-store';
+import type { ReplyVirtualizationMode } from '../../lib/utils/pretext-height-estimates';
 import styles from './post.module.css';
 
 type CommentWithRefresh = Comment & {
@@ -25,6 +26,13 @@ type CommentWithRefresh = Comment & {
   error?: Error;
   errors?: Error[];
 };
+
+export interface ReplyPaginationOverride {
+  hasMore?: boolean;
+  loadMore?: () => void;
+  replies: Comment[];
+  reset?: () => Promise<void>;
+}
 
 // useComment may not return cached feed data immediately due to its updatedAt comparison logic.
 // This hook falls back to the communities pages store (populated by useFeed) so content
@@ -46,12 +54,15 @@ const useCommentWithFeedCache = (options: { commentCid: string | undefined; auto
 };
 
 export interface PostProps {
+  feedVirtualizationModeOverride?: ReplyVirtualizationMode;
   index?: number;
   isHidden?: boolean;
   hasThumbnail?: boolean;
   post?: any;
   postReplyCount?: number;
   reply?: any;
+  replyPaginationOverride?: ReplyPaginationOverride;
+  replyVirtualizationModeOverride?: ReplyVirtualizationMode;
   roles?: Role[];
   showAllReplies?: boolean;
   showReplies?: boolean;
@@ -67,7 +78,21 @@ export interface PostProps {
 }
 
 export const Post = memo(
-  ({ post, showAllReplies = false, showReplies = true, targetReplyCid, isModQueue, modQueueStatus, modQueueError, isPublishing, onApprove, onReject }: PostProps) => {
+  ({
+    post,
+    showAllReplies = false,
+    showReplies = true,
+    targetReplyCid,
+    isModQueue,
+    modQueueStatus,
+    modQueueError,
+    isPublishing,
+    onApprove,
+    onReject,
+    feedVirtualizationModeOverride,
+    replyPaginationOverride,
+    replyVirtualizationModeOverride,
+  }: PostProps) => {
     // Only subscribe to roles field to avoid rerenders from updatingState changes
     const communityAddress = post?.communityAddress || post?.subplebbitAddress;
     const roles = useCommunityField(communityAddress, (community) => community?.roles);
@@ -86,7 +111,10 @@ export const Post = memo(
         <div className={styles.postContainer}>
           {isMobile ? (
             <PostMobile
+              feedVirtualizationModeOverride={feedVirtualizationModeOverride}
               post={comment}
+              replyPaginationOverride={replyPaginationOverride}
+              replyVirtualizationModeOverride={replyVirtualizationModeOverride}
               roles={roles}
               showAllReplies={showAllReplies}
               showReplies={showReplies}
@@ -100,7 +128,10 @@ export const Post = memo(
             />
           ) : (
             <PostDesktop
+              feedVirtualizationModeOverride={feedVirtualizationModeOverride}
               post={comment}
+              replyPaginationOverride={replyPaginationOverride}
+              replyVirtualizationModeOverride={replyVirtualizationModeOverride}
               roles={roles}
               showAllReplies={showAllReplies}
               showReplies={showReplies}
@@ -133,6 +164,9 @@ export const Post = memo(
       prevProps.showAllReplies === nextProps.showAllReplies &&
       prevProps.showReplies === nextProps.showReplies &&
       prevProps.targetReplyCid === nextProps.targetReplyCid &&
+      prevProps.feedVirtualizationModeOverride === nextProps.feedVirtualizationModeOverride &&
+      prevProps.replyPaginationOverride === nextProps.replyPaginationOverride &&
+      prevProps.replyVirtualizationModeOverride === nextProps.replyVirtualizationModeOverride &&
       prevProps.isModQueue === nextProps.isModQueue &&
       prevProps.modQueueStatus === nextProps.modQueueStatus &&
       prevProps.modQueueError === nextProps.modQueueError &&

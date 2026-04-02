@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle, StateSnapshot } from 'react-virtuoso';
@@ -45,6 +45,7 @@ import useChallengesStore from '../../stores/use-challenges-store';
 import useFeedResetStore from '../../stores/use-feed-reset-store';
 import useThreadLiveUpdatesStore from '../../stores/use-thread-live-updates-store';
 import useRegisterFreshReplies from '../../hooks/use-register-fresh-replies';
+import useReplyHeightEstimates from '../../hooks/use-reply-height-estimates';
 import { alertChallengeVerificationFailed } from '../../lib/utils/challenge-utils';
 import { usePublishCommentModeration } from '@bitsocialnet/bitsocial-react-hooks';
 import useQuotedByMap from '../../hooks/use-quoted-by-map';
@@ -63,6 +64,7 @@ import { getThreadTopNavigationState, scrollThreadContainerToTop } from '../../l
 import useDeleteFailedPost from '../../hooks/use-delete-failed-post';
 import { getThreadPostCountsByAuthor } from '../../lib/utils/author-post-counts';
 import { withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
+import { getFeedPostHeightEstimate, getReplyHeightEstimates, reportReplyHeightAuditSample } from '../../lib/utils/pretext-height-estimates';
 
 const { addChallenge } = useChallengesStore.getState();
 
@@ -714,7 +716,8 @@ const Reply = ({
   quotedByMap,
   directRepliesByParentCid,
   postsByAuthorInThread,
-}: PostProps & { directRepliesByParentCid?: Map<string, Comment[]>; postsByAuthorInThread?: Map<string, number> }) => {
+  disableDeferredLayout,
+}: PostProps & { directRepliesByParentCid?: Map<string, Comment[]>; postsByAuthorInThread?: Map<string, number>; disableDeferredLayout?: boolean }) => {
   const accountReply = useSafeAccountComment({
     commentIndex: typeof reply?.index === 'number' ? reply.index : undefined,
   });
@@ -748,7 +751,7 @@ const Reply = ({
   const failedPublishNotice = canDeleteFailedPost ? <FailedPublishNotice isDeleting={isDeletingFailedPost} onDelete={onDeleteFailedPost} /> : undefined;
 
   return (
-    <div className={styles.replyDesktop}>
+    <div className={`${styles.replyDesktop} ${disableDeferredLayout ? styles.pretextVirtualizedReply : ''}`}>
       <div className={styles.sideArrows}>{'>>'}</div>
       <div className={`${styles.reply} ${isRouteLinkToReply && styles.highlight}`} data-cid={cid} data-author-address={author?.shortAddress} data-post-cid={postCid}>
         <PostInfo
@@ -787,8 +790,11 @@ const Reply = ({
 };
 
 const PostDesktop = ({
+  feedVirtualizationModeOverride,
   post,
   roles,
+  replyPaginationOverride,
+  replyVirtualizationModeOverride,
   showAllReplies,
   showReplies = true,
   targetReplyCid,
@@ -829,8 +835,9 @@ const PostDesktop = ({
 
   const { showOmittedReplies, setShowOmittedReplies } = useShowOmittedReplies();
 
-  const shouldUsePreview = showReplies && !isModQueue && !showAllReplies;
-  const shouldFetchFull = showReplies && !isModQueue && (showAllReplies || showOmittedReplies[cid]);
+  const hasReplyPaginationOverride = !!replyPaginationOverride;
+  const shouldUsePreview = showReplies && !isModQueue && !showAllReplies && !hasReplyPaginationOverride;
+  const shouldFetchFull = showReplies && !isModQueue && !hasReplyPaginationOverride && (showAllReplies || showOmittedReplies[cid]);
 
   const cachedPreviewRepliesResult = useReplies({
     comment: shouldUsePreview ? resolvedPost : undefined,
@@ -866,15 +873,18 @@ const PostDesktop = ({
   const livePreviewReplies = (previewRepliesResult as { updatedReplies?: Comment[] }).updatedReplies?.length
     ? (previewRepliesResult as { updatedReplies?: Comment[] }).updatedReplies!
     : previewRepliesResult.replies || [];
-  const previewReplies = hasEnoughCachedPreview ? cachedPreviewReplies : livePreviewReplies;
-  const fullReplies = (fullRepliesResult as { updatedReplies?: Comment[] }).updatedReplies?.length
-    ? (fullRepliesResult as { updatedReplies?: Comment[] }).updatedReplies!
-    : fullRepliesResult.replies || [];
+  const previewReplies = hasReplyPaginationOverride ? replyPaginationOverride.replies : hasEnoughCachedPreview ? cachedPreviewReplies : livePreviewReplies;
+  const fullReplies = hasReplyPaginationOverride
+    ? replyPaginationOverride.replies
+    : (fullRepliesResult as { updatedReplies?: Comment[] }).updatedReplies?.length
+      ? (fullRepliesResult as { updatedReplies?: Comment[] }).updatedReplies!
+      : fullRepliesResult.replies || [];
 
-  const { hasMore, loadMore } = fullRepliesResult;
-  const reset = (fullRepliesResult as { reset?: () => Promise<void> }).reset;
+  const hasMore = replyPaginationOverride?.hasMore ?? fullRepliesResult.hasMore;
+  const loadMore = replyPaginationOverride?.loadMore ?? fullRepliesResult.loadMore;
+  const reset = replyPaginationOverride?.reset ?? (fullRepliesResult as { reset?: () => Promise<void> }).reset;
 
-  const fullIsFetching = shouldFetchFull && fullReplies.length === 0 && fullRepliesResult.hasMore;
+  const fullIsFetching = shouldFetchFull && !hasReplyPaginationOverride && fullReplies.length === 0 && fullRepliesResult.hasMore;
 
   const repliesForRender = showAllReplies
     ? fullReplies
@@ -924,9 +934,9 @@ const PostDesktop = ({
   const hasThumbnail = getHasThumbnail(commentMediaInfo, link);
 
   // Author-deleted replies are hidden from thread replies; moderator removals still render their placeholder.
-  const filteredReplies = filterRepliesForDisplay(freshRepliesForRender);
-  const postsByAuthorInThread = getThreadPostCountsByAuthor(resolvedPost, filteredReplies);
-  const directRepliesByParentCid = (() => {
+  const filteredReplies = useMemo(() => filterRepliesForDisplay(freshRepliesForRender), [freshRepliesForRender]);
+  const postsByAuthorInThread = useMemo(() => getThreadPostCountsByAuthor(resolvedPost, filteredReplies), [resolvedPost, filteredReplies]);
+  const directRepliesByParentCid = useMemo(() => {
     const map = new Map<string, Comment[]>();
     for (const reply of filteredReplies) {
       const directParentCid = reply?.parentCid;
@@ -941,9 +951,92 @@ const PostDesktop = ({
       }
     }
     return map;
-  })();
+  }, [filteredReplies]);
 
   const quotedByMap = useQuotedByMap(filteredReplies, communityAddress);
+  const {
+    defaultItemHeight: defaultReplyItemHeight,
+    heightEstimates: replyHeightEstimates,
+    itemSize: replyItemSize,
+    metrics,
+    windowWidth,
+  } = useReplyHeightEstimates({
+    directRepliesByParentCid,
+    enabled: showAllReplies,
+    isMobile: false,
+    maxContentChars: showAllReplies ? 2000 : 1000,
+    mode: replyVirtualizationModeOverride,
+    quotedByMap,
+    replies: filteredReplies,
+  });
+  const replyVirtualizationProps = replyItemSize ? { itemSize: replyItemSize } : {};
+  const shouldUseFeedHeightEstimate = !showAllReplies;
+  const shouldUsePretextFeedHeightEstimate = shouldUseFeedHeightEstimate && feedVirtualizationModeOverride !== 'off';
+  const previewReplyHeightEstimates = useMemo(
+    () =>
+      !shouldUsePretextFeedHeightEstimate || filteredReplies.length === 0
+        ? []
+        : getReplyHeightEstimates({
+            context: 'preview',
+            directRepliesByParentCid,
+            isMobile: false,
+            maxContentChars: 1000,
+            metrics,
+            quotedByMap,
+            replies: filteredReplies,
+            windowWidth,
+          }),
+    [directRepliesByParentCid, filteredReplies, metrics, quotedByMap, shouldUsePretextFeedHeightEstimate, windowWidth],
+  );
+  const getPreviewReplyDebugProps = useCallback(
+    (index: number) => {
+      if (!import.meta.env.DEV || !shouldUsePretextFeedHeightEstimate) {
+        return {};
+      }
+
+      const reply = filteredReplies[index];
+      return {
+        'data-pretext-reply-estimate': previewReplyHeightEstimates[index],
+        'data-pretext-reply-content-length': reply?.content?.length || 0,
+        'data-pretext-reply-has-media': reply?.link ? '1' : '0',
+        'data-pretext-reply-number': reply?.number,
+        'data-pretext-reply-title-length': reply?.title?.trim().length || 0,
+      };
+    },
+    [filteredReplies, previewReplyHeightEstimates, shouldUsePretextFeedHeightEstimate],
+  );
+  const feedHeightEstimate = useMemo(
+    () =>
+      !shouldUsePretextFeedHeightEstimate
+        ? undefined
+        : getFeedPostHeightEstimate({
+            directRepliesByParentCid,
+            isMobile: false,
+            metrics,
+            post: resolvedPost,
+            previewReplies: filteredReplies,
+            previewReplyEstimates: previewReplyHeightEstimates,
+            quotedByMap,
+            showBoardLabel: isMultiboardView && Boolean(boardPath),
+            showSummary: showReplies && repliesCount > 0 && !isInPostPageView,
+            windowWidth,
+          }),
+    [
+      directRepliesByParentCid,
+      filteredReplies,
+      isInPostPageView,
+      metrics,
+      boardPath,
+      previewReplyHeightEstimates,
+      quotedByMap,
+      repliesCount,
+      resolvedPost,
+      shouldUsePretextFeedHeightEstimate,
+      showReplies,
+      isMultiboardView,
+      windowWidth,
+    ],
+  );
 
   const visibleReplies = useProgressiveRender(filteredReplies, {
     batchSize: 50,
@@ -986,7 +1079,7 @@ const PostDesktop = ({
   const virtuosoFooter = useCallback(() => <RepliesFooter hasMore={hasMore} loadingString={t('loading')} />, [hasMore, t]);
 
   return (
-    <div className={styles.postDesktop}>
+    <div className={styles.postDesktop} data-pretext-height={shouldUsePretextFeedHeightEstimate ? feedHeightEstimate : undefined}>
       {showReplies || isModQueue ? (
         <div className={styles.hrWrapper}>
           <hr />
@@ -1098,12 +1191,20 @@ const PostDesktop = ({
         {/* Virtuoso infinite scroll for post page view when there's more content to paginate */}
         {!isHidden && showAllReplies && !isInPendingPostView && showReplies && hasMore && !!resolvedPost?.replyCount && (
           <Virtuoso
+            defaultItemHeight={defaultReplyItemHeight}
+            heightEstimates={replyHeightEstimates}
+            {...replyVirtualizationProps}
             increaseViewportBy={{ bottom: 1200, top: 1200 }}
             totalCount={filteredReplies.length}
             data={filteredReplies}
             itemContent={(index, reply) => (
-              <div className={styles.replyContainer}>
+              <div
+                className={styles.replyContainer}
+                data-pretext-height={replyHeightEstimates?.[index]}
+                ref={(element) => reportReplyHeightAuditSample(element, replyHeightEstimates?.[index], reply.cid)}
+              >
                 <Reply
+                  disableDeferredLayout={Boolean(replyItemSize)}
                   reply={reply}
                   roles={roles}
                   postReplyCount={replyCount}
@@ -1147,9 +1248,10 @@ const PostDesktop = ({
           !isInPendingPostView &&
           freshRepliesForRender &&
           showReplies &&
-          filteredReplies.map((reply) => (
-            <div key={reply.cid} className={styles.replyContainer}>
+          filteredReplies.map((reply, index) => (
+            <div key={reply.cid} className={styles.replyContainer} {...getPreviewReplyDebugProps(index)}>
               <Reply
+                disableDeferredLayout={feedVirtualizationModeOverride === 'item-size'}
                 reply={reply}
                 roles={roles}
                 postReplyCount={replyCount}

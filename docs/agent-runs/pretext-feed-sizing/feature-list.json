@@ -1,0 +1,78 @@
+{
+  "task": "pretext-feed-sizing",
+  "last_updated": "2026-04-02",
+  "items": [
+    {
+      "id": "F001",
+      "priority": 1,
+      "status": "completed",
+      "description": "Benchmark and harden Pretext-backed reply virtualization on the real thread reply Virtuoso path so the branch has trustworthy baseline data.",
+      "verification": [
+        "Open `?e2e=pretext-benchmark&variant=production&mode=dom&count=1200&seed=42` and run the scroll scenario on desktop and mobile.",
+        "Open `?e2e=pretext-benchmark&variant=production&mode=item-size&count=1200&seed=42` and compare rect calls, duration, long tasks, and visible estimate error."
+      ],
+      "files": [
+        "src/components/post-desktop/post-desktop.tsx",
+        "src/components/post-mobile/post-mobile.tsx",
+        "src/e2e/pretext-benchmark-harness.tsx",
+        "src/hooks/use-reply-height-estimates.ts",
+        "src/lib/utils/pretext-height-estimates.ts",
+        "src/views/post/post.tsx"
+      ],
+      "notes": "Reply virtualization is now production-credible on both desktop and mobile. Desktop production harness: `dom` -> `item-size` reduced rect reads from 2875 to 472 while keeping visible error low (`11.3px` mean, `30px` max). Mobile production harness: `dom` -> `item-size` reduced rect reads from 5059 to 1433, duration from 16863ms to 13452ms, max frame from 100.1ms to 59ms, and slow frames over 16ms from 227 to 99. The mobile follow-up audit sampled all 1200 replies and found `722411px` estimated vs `726218px` actual total height, so the Pretext reply tree is within about `0.5%` of the rendered total."
+    },
+    {
+      "id": "F002",
+      "priority": 2,
+      "status": "completed",
+      "description": "Add a benchmarkable Pretext experiment for board feed Virtuoso items and determine whether feed cards are a better production target than thread replies.",
+      "verification": [
+        "Run a deterministic board-feed benchmark on `board.tsx` item virtualization for `dom`, `estimates`, and `item-size` modes.",
+        "Confirm whether item measurement reads and frame metrics improve materially on desktop and mobile."
+      ],
+      "files": [
+        "src/lib/utils/pretext-height-estimates.ts",
+        "src/hooks/use-reply-height-estimates.ts",
+        "src/views/board/board.tsx",
+        "src/views/post/post.tsx",
+        "src/components/post-desktop/post-desktop.tsx",
+        "src/components/post-mobile/post-mobile.tsx",
+        "src/e2e/pretext-benchmark-harness.tsx"
+      ],
+      "notes": "The board path was the hardest rollout surface, but it is now in a shippable state. Earlier live profiling found multiple board issues that are now addressed: desktop feed cards were still subtracting `14px` per preview reply even after the preview-reply estimator itself had become accurate, board preview replies were still rendering under `content-visibility:auto` while the feed card relied on Pretext sizing, the branch had lost `master` commit `99c0bbfac perf(board): reduce mobile reverse-scroll jank`, the mobile board-card preview calibration was massively over-subtracting once preview replies were present, and mobile multiboard `off` mode was still passing `itemSize={undefined}`, which overrides React Virtuoso's default DOM measurer. Board and catalog now only pass `itemSize` when explicit `item-size` mode is active, so the fallback path measures correctly again. Final matched live mobile A/B probes show the worktree no longer trails master on `/all`, and `/biz` keeps the Pretext sizing path active while matching the same visible card heights and total scroll height as master."
+    },
+    {
+      "id": "F003",
+      "priority": 3,
+      "status": "completed",
+      "description": "Evaluate catalog virtualization for a Pretext-backed sizing strategy if board feed results are promising or if catalog-specific card layout needs a separate model.",
+      "verification": [
+        "Benchmark catalog Virtuoso rows under the same `dom` vs Pretext sizing modes.",
+        "Verify desktop and mobile catalog scrolling in a fresh browser session."
+      ],
+      "files": [
+        "src/views/catalog/catalog.tsx",
+        "src/components/catalog-row/catalog-row.tsx",
+        "src/e2e/pretext-benchmark-harness.tsx"
+      ],
+      "notes": "Catalog rows now use a dedicated Pretext estimator plus `item-size` by default, with pure derived matched-filter colors instead of render-time store writes. Benchmark pass: desktop catalog reduced rect reads from 439 to 73 with a small duration win (2272ms -> 2010ms), and mobile reduced rect reads from 1349 to 217 with comparable scroll timing."
+    },
+    {
+      "id": "F004",
+      "priority": 4,
+      "status": "completed",
+      "description": "Prepare a production-safe rollout plan once a Pretext path shows a clear performance win, including feature-flag strategy, regression checks, and default-mode decisions.",
+      "verification": [
+        "Run `corepack yarn build`, `corepack yarn lint`, `corepack yarn type-check`, `corepack yarn doctor`, and the relevant browser benchmark flows.",
+        "Document whether the winning mode should remain opt-in, ship mobile-first, or replace DOM sizing by default."
+      ],
+      "files": [
+        "src/lib/utils/pretext-height-estimates.ts",
+        "src/hooks/use-reply-height-estimates.ts",
+        "src/views/board/board.tsx",
+        "src/views/catalog/catalog.tsx"
+      ],
+      "notes": "The rollout decision is now clear. The current verification set passes (`corepack yarn build`, `corepack yarn lint` with existing warnings only, `corepack yarn type-check`, `corepack yarn doctor` at the repo baseline `86/100`, and `corepack yarn test --run`), deterministic benchmark matrices still show the Pretext wins on catalog/replies/board, and the last board-specific fallback bug on mobile multiboard feeds is fixed. Final live A/B on the RPC-backed mobile `/all` sessions shows the worktree at parity or slightly better than master on the same visible cards, while `/biz` keeps the Pretext path active without the earlier stutter regression. The retained query flags (`pretextFeed`, `pretextCatalog`, `pretextReplies`) still provide an escape hatch, but the branch itself is ready for merge review."
+    }
+  ]
+}
