@@ -3,7 +3,7 @@ import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import Catalog, { type CatalogProps } from '../catalog';
+import Catalog, { getCatalogRenderFeed, type CatalogProps } from '../catalog';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -62,6 +62,7 @@ const testState = vi.hoisted(() => ({
   setResetFunctionMock: vi.fn(),
   showOPComment: true,
   sortType: 'new' as 'active' | 'new',
+  virtuosoInitialScrollTops: [] as Array<number | undefined>,
   windowWidth: 900,
   community: {
     error: undefined as Error | undefined,
@@ -142,11 +143,13 @@ vi.mock('react-virtuoso', () => ({
         components,
         data = [],
         endReached,
+        initialScrollTop,
         itemContent,
       }: {
         components?: { Footer?: React.ComponentType };
         data?: Array<TestComment[]>;
         endReached?: ((index: number) => void) | undefined;
+        initialScrollTop?: number;
         itemContent: (index: number, item: TestComment[]) => React.ReactNode;
       },
       ref: React.ForwardedRef<{ getState: (cb: (snapshot: { ranges: number[]; scrollTop: number }) => void) => void }>,
@@ -154,6 +157,7 @@ vi.mock('react-virtuoso', () => ({
       React.useImperativeHandle(ref, () => ({
         getState: (cb) => cb({ ranges: [0], scrollTop: 24 }),
       }));
+      testState.virtuosoInitialScrollTops.push(initialScrollTop);
 
       return createElement(
         'div',
@@ -323,6 +327,7 @@ describe('Catalog', () => {
     testState.searchText = '';
     testState.showOPComment = true;
     testState.sortType = 'new';
+    testState.virtuosoInitialScrollTops = [];
     testState.windowWidth = 900;
     testState.community = {
       error: undefined,
@@ -385,6 +390,13 @@ describe('Catalog', () => {
     expect(Array.from(container.querySelectorAll('[data-testid="catalog-row"]')).map((element) => element.textContent)).toEqual(['row:board-post-1,board-post-2']);
   });
 
+  it('prefers the immediate feed until deferred catalog rows exist', () => {
+    const immediateFeed = [{ cid: 'all-post', title: 'one', communityAddress: 'music-posting.eth' }];
+
+    expect(getCatalogRenderFeed(immediateFeed, [])).toBe(immediateFeed);
+    expect(getCatalogRenderFeed(immediateFeed, immediateFeed)).toBe(immediateFeed);
+  });
+
   it('canonicalizes multiboard catalog paths and keeps load-more wired for infinite scrolling', async () => {
     testState.feed = [{ cid: 'all-post', title: 'one', communityAddress: 'music-posting.eth' }];
     testState.hasMore = true;
@@ -426,6 +438,30 @@ describe('Catalog', () => {
     removeEventListenerSpy.mockRestore();
 
     root = createRoot(container);
+  });
+
+  it('restores multiboard catalog state after remounting', async () => {
+    testState.feed = [{ cid: 'all-post', title: 'one', communityAddress: 'music-posting.eth' }];
+    const catalogProps = { feedCacheKey: 'restore-check', viewType: 'all' as const };
+
+    await renderCatalog({
+      catalogProps,
+      initialEntry: '/all/catalog',
+      routePath: '/all/*',
+    });
+
+    expect(testState.virtuosoInitialScrollTops.at(-1)).toBeUndefined();
+
+    act(() => root.unmount());
+    root = createRoot(container);
+
+    await renderCatalog({
+      catalogProps,
+      initialEntry: '/all/catalog',
+      routePath: '/all/*',
+    });
+
+    expect(testState.virtuosoInitialScrollTops.at(-1)).toBe(24);
   });
 
   it('shows the empty subscriptions state when there are no subscribed boards to browse', async () => {

@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useCallback, useLayoutEffect } from 'react';
 import { useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Comment, useAccount, useCommunity, useFeed, useAccountComments } from '@bitsocialnet/bitsocial-react-hooks';
@@ -37,6 +37,8 @@ const lastVirtuosoStates: { [key: string]: StateSnapshot } = {};
 const RECENT_ACCOUNT_COMMENT_WINDOW_SECONDS = 60 * 60;
 // Keep the hook on its indexed fast path when this view should not inject local posts.
 const EMPTY_ACCOUNT_COMMENT_LOOKUP = { commentIndices: [-1] };
+export const getCatalogRenderFeed = <T,>(processedFeed: readonly T[], deferredProcessedFeed: readonly T[]): readonly T[] =>
+  deferredProcessedFeed.length === 0 && processedFeed.length > 0 ? processedFeed : deferredProcessedFeed;
 
 interface CatalogFooterProps {
   communityAddresses: string[];
@@ -464,6 +466,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   }, [sortedFeed, filterItems]);
 
   const deferredProcessedFeed = useDeferredValue(processedFeed);
+  const catalogRenderFeed = getCatalogRenderFeed(processedFeed, deferredProcessedFeed);
 
   const matchedFilterColors = useMemo(() => {
     const nextMatchedFilterColors = new Map<string, string>();
@@ -473,7 +476,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
       return nextMatchedFilterColors;
     }
 
-    for (const comment of deferredProcessedFeed) {
+    for (const comment of catalogRenderFeed) {
       const cid = comment?.cid;
       if (!cid) {
         continue;
@@ -486,7 +489,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     }
 
     return nextMatchedFilterColors;
-  }, [deferredProcessedFeed, filterItems]);
+  }, [catalogRenderFeed, filterItems]);
 
   const rowCacheRef = useRef(new Map<string, Comment[]>());
   const rows = useMemo(() => {
@@ -498,8 +501,8 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     const effectiveColumnCount = Math.max(columnCount, 1);
     const nextRows: Comment[][] = [];
     const nextRowCache = new Map<string, Comment[]>();
-    for (let i = 0; i < deferredProcessedFeed.length; i += effectiveColumnCount) {
-      const nextRow = deferredProcessedFeed.slice(i, i + effectiveColumnCount);
+    for (let i = 0; i < catalogRenderFeed.length; i += effectiveColumnCount) {
+      const nextRow = catalogRenderFeed.slice(i, i + effectiveColumnCount);
       const rowKey = nextRow.map((post) => post?.cid || '').join('\u0000');
       const cachedRow = rowCacheRef.current.get(rowKey);
       const stableRow = cachedRow && cachedRow.length === nextRow.length && cachedRow.every((post, index) => post === nextRow[index]) ? cachedRow : nextRow;
@@ -508,7 +511,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     }
     rowCacheRef.current = nextRowCache;
     return nextRows;
-  }, [columnCount, deferredProcessedFeed, isFeedLoaded]);
+  }, [catalogRenderFeed, columnCount, isFeedLoaded]);
 
   const catalogMetrics = useMemo(() => readReplyTypographyMetrics(), [themeKey, windowWidth]);
   const rowHeightEstimates = useMemo(
@@ -545,7 +548,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     }
   }, [isVisible, navigationType]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isVisible || !shouldVirtualizeCatalog) return;
 
     const currentKey = virtuosoStateKey;
@@ -592,7 +595,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     <div className={styles.content}>
       <hr />
       <div className={styles.catalog}>
-        {processedFeed?.length !== 0 ? (
+        {catalogRenderFeed.length !== 0 ? (
           <>
             {shouldVirtualizeCatalog ? (
               <Virtuoso
