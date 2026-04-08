@@ -77,3 +77,13 @@ If uncertain, ask the developer before adding an entry.
 - **Impact:** Parallel 5chan branches can block each other even though Portless is meant to let them coexist safely.
 - **Mitigation:** Keep Portless startup behind `scripts/start-dev.js`, which now uses a branch-scoped `*.5chan.localhost:1355` route outside the canonical case and automatically increments a `-2`, `-3`, ... suffix when that branch-scoped route is already occupied.
 - **Status:** confirmed
+
+### Toolchain model names are not interchangeable
+
+- **Date:** 2026-04-08
+- **Observed by:** contributor + Codex
+- **Context:** Reviewing repo-managed agent configs under `.codex/agents`, `.cursor/agents`, and `.claude/agents`
+- **What was surprising:** `composer-2` is only available for Cursor in this repo, while Codex agents using `gpt-5.3-codex` or `gpt-5.3-codex-spark` perform poorly enough that they should not be configured by default.
+- **Impact:** Agents can silently inherit invalid or weak model settings, leading to broken subagent runs or degraded implementation quality.
+- **Mitigation:** Keep `.cursor` agent configs on Cursor-supported models only, never use `composer-2` in `.claude`, and standardize `.codex/agents/*.toml` on `gpt-5.4` unless a contributor explicitly requests an override.
+- **Status:** confirmed
