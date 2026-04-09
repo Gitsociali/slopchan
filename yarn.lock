@@ -16,7 +16,7 @@ __metadata:
     "@capacitor/core": "npm:7.4.5"
     "@capacitor/status-bar": "npm:7.0.1"
     "@capawesome/capacitor-android-edge-to-edge-support": "npm:7.2.2"
-    "@chenglou/pretext": "npm:0.0.3"
+    "@chenglou/pretext": "npm:0.0.5"
     "@electron-forge/cli": "npm:7.8.0"
     "@electron-forge/maker-dmg": "npm:7.8.0"
     "@electron-forge/maker-squirrel": "npm:7.8.0"
@@ -1736,10 +1736,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chenglou/pretext@npm:0.0.3":
-  version: 0.0.3
-  resolution: "@chenglou/pretext@npm:0.0.3"
-  checksum: 10c0/0822bfb99fa6e052b5eefc66adffb51c8c9a4de494879ec7584f533161b0718d6e6f8bdde88ba0897686751c3f96f0f0f255be8b45cebc46c7cf5f705e1cb464
+"@chenglou/pretext@npm:0.0.5":
+  version: 0.0.5
+  resolution: "@chenglou/pretext@npm:0.0.5"
+  checksum: 10c0/5139b39a166fbe7d1e0cf31c95f83125cc0658d8951b19dff3ac14b94d08c2bb53e954801c0325dac79c5b2b21157fa7763e0c561d46773baa37253f1a526242
   languageName: node
   linkType: hard
 
