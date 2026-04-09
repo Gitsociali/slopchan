@@ -572,11 +572,11 @@
 }
 
 .capcodeModIcon {
-  background-image: url('assets/icons/board-mod.png');
+  background-image: url('/assets/icons/board-mod.png');
 }
 
 .capcodeAdminIcon {
-  background-image: url('assets/icons/board-admin.png');
+  background-image: url('/assets/icons/board-admin.png');
 }
 
 .pendingCid {
