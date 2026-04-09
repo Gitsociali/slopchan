@@ -105,7 +105,7 @@ const downloads = [macSection, winSection, linuxSection, androidSection, htmlSec
 
 // One-liner summary of what changed in this release. Update before each release.
 const oneLinerDescription =
-  'This release adds an in-app update flow for desktop, makes thread auto-updates opt-in, adapts to compact account history hooks, and includes Yarn 4 migration and CI reliability fixes.';
+  'This release finalizes the pretext feed sizing rollout, improves mobile reverse-scroll performance, adds an Android USB dev preview, and fixes several catalog, reply modal, and dev server issues.';
 
 const releaseBody = `${oneLinerDescription}
 

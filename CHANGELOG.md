@@ -1,3 +1,33 @@
+## [0.7.4](https://github.com/bitsocialnet/5chan/compare/v0.7.3...v0.7.4) (2026-04-09)
+
+
+### Bug Fixes
+
+* **catalog-search:** clear stale query filter ([4fb7739](https://github.com/bitsocialnet/5chan/commit/4fb7739991830464a43a72ea7597410cc94afa80))
+* **catalog:** address missed review findings ([a35ec83](https://github.com/bitsocialnet/5chan/commit/a35ec8396654515de913a40b34ba22a0cdce873b))
+* **catalog:** avoid stretching unknown-size thumbnails ([eeb288e](https://github.com/bitsocialnet/5chan/commit/eeb288e2dc47b26d298f81ed9562fb2504745cc3))
+* **catalog:** stop virtualizing single-board catalogs ([#1121](https://github.com/bitsocialnet/5chan/issues/1121)) ([7ba28be](https://github.com/bitsocialnet/5chan/commit/7ba28becc59c079ae44b987b649ef9210d8be549))
+* **deps:** patch vulnerable transitive packages ([315505f](https://github.com/bitsocialnet/5chan/commit/315505fb8d9989b316a29311cf39d5a64580ca3d))
+* **dev server:** fall forward from port 1355 without portless ([75958ac](https://github.com/bitsocialnet/5chan/commit/75958ac0c5ed607d9b6cb6137cfeaab838898ba1))
+* **favicon:** harden sfw board icon swapping ([0b844e6](https://github.com/bitsocialnet/5chan/commit/0b844e60601528a1aecf48d016eca67e23a66c7d))
+* **portless:** avoid route collisions across worktrees ([8078d10](https://github.com/bitsocialnet/5chan/commit/8078d10441c37d811096afa7f7fb6a18f6453596))
+* **portless:** fall forward when branch route is occupied ([6a3040d](https://github.com/bitsocialnet/5chan/commit/6a3040dc551cae7bd80bb8ab25bac07bfbbf6535))
+* **post:** load capcode icons from public asset root ([74f8fae](https://github.com/bitsocialnet/5chan/commit/74f8fae496831a2bc6042a128269e014b7e4c482))
+* **release:** normalize asset names ([85e81aa](https://github.com/bitsocialnet/5chan/commit/85e81aae2e6ee7e67744fbe206bc0d1ff0328a78))
+* **reply modal:** stop recentering on input ([e345935](https://github.com/bitsocialnet/5chan/commit/e345935aacc98b787198ff87e3645751afc708c3))
+
+
+### Features
+
+* finalize pretext feed sizing rollout ([#1120](https://github.com/bitsocialnet/5chan/issues/1120)) ([251e103](https://github.com/bitsocialnet/5chan/commit/251e103db3349143ddc4aaaec3a577c53741ee87))
+
+
+### Performance Improvements
+
+* **board:** reduce mobile reverse-scroll jank ([99c0bbf](https://github.com/bitsocialnet/5chan/commit/99c0bbfac5a0372e36c53cf809688efe0fece17c))
+
+
+
 ## [0.7.3](https://github.com/bitsocialnet/5chan/compare/v0.7.2...v0.7.3) (2026-03-20)
 
 
