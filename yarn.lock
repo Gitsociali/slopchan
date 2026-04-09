@@ -25,7 +25,7 @@ __metadata:
     "@floating-ui/react": "npm:0.26.1"
     "@react-spring/web": "npm:10.0.3"
     "@reforged/maker-appimage": "npm:5.1.1"
-    "@types/lodash": "npm:4.17.23"
+    "@types/lodash": "npm:4.17.24"
     "@types/memoizee": "npm:0.4.9"
     "@types/node": "npm:20.19.37"
     "@types/react": "npm:18.2.25"
@@ -46,7 +46,7 @@ __metadata:
     crypto-browserify: "npm:3.12.1"
     cz-conventional-changelog: "npm:3.3.0"
     decompress: "npm:4.2.1"
-    electron: "npm:36.9.5"
+    electron: "npm:39.8.7"
     electron-context-menu: "npm:3.3.0"
     electron-is-dev: "npm:2.0.0"
     element-source: "npm:0.0.4"
@@ -62,7 +62,7 @@ __metadata:
     json-stringify-pretty-compact: "npm:4.0.0"
     knip: "npm:6.1.0"
     lint-staged: "npm:12.3.8"
-    lodash: "npm:4.17.23"
+    lodash: "npm:4.18.0"
     memoizee: "npm:0.4.15"
     node-fetch: "npm:3.3.2"
     oxfmt: "npm:0.20.0"
@@ -6715,10 +6715,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.17.23":
-  version: 4.17.23
-  resolution: "@types/lodash@npm:4.17.23"
-  checksum: 10c0/9d9cbfb684e064a2b78aab9e220d398c9c2a7d36bc51a07b184ff382fa043a99b3d00c16c7f109b4eb8614118f4869678dbae7d5c6700ed16fb9340e26cc0bf6
+"@types/lodash@npm:4.17.24":
+  version: 4.17.24
+  resolution: "@types/lodash@npm:4.17.24"
+  checksum: 10c0/b72f60d4daacdad1fa643edb3faba204c02a01eb1ac00a83ff73496a6d236fc55e459c06106e8ced42277dba932d087d8fc090f8de4ef590d3f91e6d6f7ce85a
   languageName: node
   linkType: hard
 
@@ -7225,10 +7225,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmldom/xmldom@npm:^0.8.8":
-  version: 0.8.11
-  resolution: "@xmldom/xmldom@npm:0.8.11"
-  checksum: 10c0/e768623de72c95d3dae6b5da8e33dda0d81665047811b5498d23a328d45b13feb5536fe921d0308b96a4a8dd8addf80b1f6ef466508051c0b581e63e0dc74ed5
+"@xmldom/xmldom@npm:0.8.12":
+  version: 0.8.12
+  resolution: "@xmldom/xmldom@npm:0.8.12"
+  checksum: 10c0/b733c84292d1bee32ef21a05aba8f9063456b51a54068d0b4a1abf5545156ee0b9894b7ae23775b5881b11c35a8a03871d1b514fb7e1b11654cdbee57e1c2707
   languageName: node
   linkType: hard
 
@@ -9956,16 +9956,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:36.9.5":
-  version: 36.9.5
-  resolution: "electron@npm:36.9.5"
+"electron@npm:39.8.7":
+  version: 39.8.7
+  resolution: "electron@npm:39.8.7"
   dependencies:
     "@electron/get": "npm:^2.0.0"
     "@types/node": "npm:^22.7.7"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 10c0/85f7239e6912dba8dcab133b51c12e730e3da083877226d8f783d938779023f76b6a1012e8587a21944cd84491b69b376c3ab9d334ee81e4b7e87301ccfa0c44
+  checksum: 10c0/cec8fd0842f565fa5c6acf909e141bab269df1e78ff5eb2fcaf256e7f073060872f6a18dc2aced4888606445d15b79f9ef971c011e5c06b6bd7a0247ae104cdb
   languageName: node
   linkType: hard
 
@@ -14382,10 +14382,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.23":
-  version: 4.17.23
-  resolution: "lodash@npm:4.17.23"
-  checksum: 10c0/1264a90469f5bb95d4739c43eb6277d15b6d9e186df4ac68c3620443160fc669e2f14c11e7d8b2ccf078b81d06147c01a8ccced9aab9f9f63d50dcf8cace6bf6
+"lodash@npm:4.18.0":
+  version: 4.18.0
+  resolution: "lodash@npm:4.18.0"
+  checksum: 10c0/0c5a7c5a4ea1db59ade40ff03cc8bfc7ea79806f5639ff4c7ee581811c8d88248bf1da608199b9d3614d8db133088bd434f3307c3951a96a821044f72a5ba810
   languageName: node
   linkType: hard
 
