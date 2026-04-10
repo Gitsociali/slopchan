@@ -519,8 +519,15 @@ const Reply = ({
   const route = boardPath ? `/${boardPath}/thread/${cid}` : `/thread/${cid}`;
   const isRouteLinkToReply = cid ? location.pathname.startsWith(route) : false;
   const { hidden } = useHide({ cid });
-  const { canDeleteFailedPost, isDeletingFailedPost, onDeleteFailedPost } = useDeleteFailedPost(post);
-  const failedPublishNotice = canDeleteFailedPost ? <FailedPublishNotice isDeleting={isDeletingFailedPost} onDelete={onDeleteFailedPost} /> : undefined;
+  const { canDeleteFailedPost, canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, onDeleteFailedPost, onRetryFailedPost } = useDeleteFailedPost(post);
+  const failedPublishNotice = canDeleteFailedPost ? (
+    <FailedPublishNotice
+      isDeleting={isDeletingFailedPost}
+      isRetrying={isRetryingFailedPost}
+      onDelete={onDeleteFailedPost}
+      onRetry={canRetryFailedPost ? onRetryFailedPost : undefined}
+    />
+  ) : undefined;
 
   return (
     <div className={`${styles.replyMobile} ${disableDeferredLayout ? styles.pretextVirtualizedReply : ''}`}>
@@ -648,8 +655,16 @@ const PostMobile = ({
   const stateString = useStateString(resolvedPost) || t('loading_post');
   const hasFailedState = state === 'failed';
   const isReply = !!parentCid;
-  const { canDeleteFailedPost, isDeletingFailedPost, onDeleteFailedPost } = useDeleteFailedPost(resolvedPost);
-  const failedPublishNotice = canDeleteFailedPost ? <FailedPublishNotice isDeleting={isDeletingFailedPost} onDelete={onDeleteFailedPost} /> : undefined;
+  const { canDeleteFailedPost, canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, onDeleteFailedPost, onRetryFailedPost } =
+    useDeleteFailedPost(resolvedPost);
+  const failedPublishNotice = canDeleteFailedPost ? (
+    <FailedPublishNotice
+      isDeleting={isDeletingFailedPost}
+      isRetrying={isRetryingFailedPost}
+      onDelete={onDeleteFailedPost}
+      onRetry={canRetryFailedPost ? onRetryFailedPost : undefined}
+    />
+  ) : undefined;
 
   // Author-deleted replies are hidden from thread replies; moderator removals still render their placeholder.
   const filteredReplies = useMemo(() => filterRepliesForDisplay(freshRepliesForRender), [freshRepliesForRender]);

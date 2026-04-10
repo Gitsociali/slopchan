@@ -747,8 +747,15 @@ const Reply = ({
 
   const commentMediaInfo = useCommentMediaInfo(link, thumbnailUrl, linkWidth, linkHeight);
   const hasThumbnail = getHasThumbnail(commentMediaInfo, link);
-  const { canDeleteFailedPost, isDeletingFailedPost, onDeleteFailedPost } = useDeleteFailedPost(post);
-  const failedPublishNotice = canDeleteFailedPost ? <FailedPublishNotice isDeleting={isDeletingFailedPost} onDelete={onDeleteFailedPost} /> : undefined;
+  const { canDeleteFailedPost, canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, onDeleteFailedPost, onRetryFailedPost } = useDeleteFailedPost(post);
+  const failedPublishNotice = canDeleteFailedPost ? (
+    <FailedPublishNotice
+      isDeleting={isDeletingFailedPost}
+      isRetrying={isRetryingFailedPost}
+      onDelete={onDeleteFailedPost}
+      onRetry={canRetryFailedPost ? onRetryFailedPost : undefined}
+    />
+  ) : undefined;
 
   return (
     <div className={`${styles.replyDesktop} ${disableDeferredLayout ? styles.pretextVirtualizedReply : ''}`}>
@@ -927,8 +934,16 @@ const PostDesktop = ({
 
   const stateString = useStateString(resolvedPost) || t('downloading_board');
   const hasFailedState = state === 'failed';
-  const { canDeleteFailedPost, isDeletingFailedPost, onDeleteFailedPost } = useDeleteFailedPost(resolvedPost);
-  const failedPublishNotice = canDeleteFailedPost ? <FailedPublishNotice isDeleting={isDeletingFailedPost} onDelete={onDeleteFailedPost} /> : undefined;
+  const { canDeleteFailedPost, canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, onDeleteFailedPost, onRetryFailedPost } =
+    useDeleteFailedPost(resolvedPost);
+  const failedPublishNotice = canDeleteFailedPost ? (
+    <FailedPublishNotice
+      isDeleting={isDeletingFailedPost}
+      isRetrying={isRetryingFailedPost}
+      onDelete={onDeleteFailedPost}
+      onRetry={canRetryFailedPost ? onRetryFailedPost : undefined}
+    />
+  ) : undefined;
 
   const commentMediaInfo = useCommentMediaInfo(link, thumbnailUrl, linkWidth, linkHeight);
   const hasThumbnail = getHasThumbnail(commentMediaInfo, link);

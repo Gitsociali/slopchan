@@ -115,4 +115,33 @@ describe('useFreshReplies', () => {
 
     expect(latestValue[0]?.number).toBe(28);
   });
+
+  it('dedupes retried local replies when a stale reply and fresh reply share index 0', () => {
+    testState.replies = [
+      {
+        content: 'stale failed reply',
+        index: 0,
+        subplebbitAddress: 'music.eth',
+      },
+      {
+        content: 'duplicate stale failed reply',
+        index: 0,
+        subplebbitAddress: 'music.eth',
+      },
+    ];
+    testState.accountComments = [
+      {
+        content: 'retried pending reply',
+        index: 0,
+        number: 99,
+        subplebbitAddress: 'music.eth',
+      },
+    ];
+
+    renderHook();
+
+    expect(latestValue).toHaveLength(1);
+    expect(latestValue[0]).toBe(testState.accountComments[0] as never);
+    expect(testState.accountCommentsCalls).toContainEqual({ commentIndices: [0] });
+  });
 });

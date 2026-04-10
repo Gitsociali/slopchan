@@ -39,7 +39,27 @@ const useFreshReplies = (replies: Comment[] = []) => {
       return freshReply;
     });
 
-    return hasFreshReplies ? nextReplies : replies;
+    if (!hasFreshReplies) {
+      return replies;
+    }
+
+    const seenReplyIndices = new Set<number>();
+    let hasDuplicateReplyIndices = false;
+    const dedupedReplies = nextReplies.filter((reply) => {
+      if (typeof reply?.index !== 'number') {
+        return true;
+      }
+
+      if (seenReplyIndices.has(reply.index)) {
+        hasDuplicateReplyIndices = true;
+        return false;
+      }
+
+      seenReplyIndices.add(reply.index);
+      return true;
+    });
+
+    return hasDuplicateReplyIndices ? dedupedReplies : nextReplies;
   }, [accountComments, replies]);
 };
 

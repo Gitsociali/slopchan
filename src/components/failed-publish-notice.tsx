@@ -3,11 +3,14 @@ import useIsMobile from '../hooks/use-is-mobile';
 
 interface FailedPublishNoticeProps {
   isDeleting: boolean;
+  isRetrying?: boolean;
   onDelete: () => void;
+  onRetry?: () => void;
 }
 
-const FailedPublishNotice = ({ isDeleting, onDelete }: FailedPublishNoticeProps) => {
+const FailedPublishNotice = ({ isDeleting, isRetrying = false, onDelete, onRetry }: FailedPublishNoticeProps) => {
   const isMobile = useIsMobile();
+  const isBusy = isDeleting || isRetrying;
 
   return (
     <span className={styles.failedPublishNotice}>
@@ -18,9 +21,18 @@ const FailedPublishNotice = ({ isDeleting, onDelete }: FailedPublishNoticeProps)
           <br />
         </>
       )}
+      {onRetry && (
+        <span className={styles.failedDeletePostAction}>
+          [
+          <button type='button' className={styles.failedDeletePostButton} disabled={isBusy} onClick={onRetry}>
+            Retry Publish
+          </button>
+          ]
+        </span>
+      )}{' '}
       <span className={styles.failedDeletePostAction}>
         [
-        <button type='button' className={styles.failedDeletePostButton} disabled={isDeleting} onClick={onDelete}>
+        <button type='button' className={styles.failedDeletePostButton} disabled={isBusy} onClick={onDelete}>
           Delete Post
         </button>
         ]
