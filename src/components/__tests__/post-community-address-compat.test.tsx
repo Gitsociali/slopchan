@@ -356,8 +356,11 @@ vi.mock('../../lib/utils/thread-scroll-utils', () => ({
 vi.mock('../../hooks/use-delete-failed-post', () => ({
   default: () => ({
     canDeleteFailedPost: false,
+    canRetryFailedPost: false,
     isDeletingFailedPost: false,
+    isRetryingFailedPost: false,
     onDeleteFailedPost: vi.fn(),
+    onRetryFailedPost: vi.fn(),
   }),
 }));
 

@@ -1,17 +1,108 @@
-import { useCallback, useState } from 'react';
-import { deleteComment } from '@bitsocialnet/bitsocial-react-hooks';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { ChallengeVerification, Comment, PublishCommentOptions, deleteComment, usePublishComment } from '@bitsocialnet/bitsocial-react-hooks';
+import { alertChallengeVerificationFailed } from '../lib/utils/challenge-utils';
+import useChallengesStore from '../stores/use-challenges-store';
 
-const useDeleteFailedPost = (post?: { cid?: string; index?: number; state?: string }) => {
+const retryExcludedFields = new Set([
+  'accountId',
+  'cid',
+  'clients',
+  'depth',
+  'error',
+  'errors',
+  'index',
+  'publishingState',
+  'shortCommunityAddress',
+  'state',
+  'timestamp',
+]);
+
+type FailedPost = Partial<Comment> & {
+  cid?: string;
+  index?: number;
+  state?: string;
+};
+
+const cloneRetryValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return [...value];
+  }
+
+  if (value && typeof value === 'object') {
+    return { ...(value as Record<string, unknown>) };
+  }
+
+  return value;
+};
+
+const getDeleteTarget = (post?: FailedPost) => post?.cid ?? post?.index;
+
+export const getFailedPostRetryPublishOptions = (post?: FailedPost): PublishCommentOptions | undefined => {
+  if (post?.state !== 'failed') {
+    return undefined;
+  }
+
+  const retryOptions = Object.entries(post).reduce((acc, [key, value]) => {
+    if (retryExcludedFields.has(key) || typeof value === 'undefined') {
+      return acc;
+    }
+
+    acc[key] = cloneRetryValue(value);
+    return acc;
+  }, {} as PublishCommentOptions);
+
+  if (retryOptions.author && typeof retryOptions.author === 'object' && !Array.isArray(retryOptions.author)) {
+    const author = { ...retryOptions.author };
+    delete author.shortAddress;
+    retryOptions.author = author;
+  }
+
+  if (!retryOptions.communityAddress && !retryOptions.subplebbitAddress) {
+    return undefined;
+  }
+
+  return retryOptions;
+};
+
+const useDeleteFailedPost = (post?: FailedPost) => {
   const [isDeletingFailedPost, setIsDeletingFailedPost] = useState(false);
+  const [isRetryingFailedPost, setIsRetryingFailedPost] = useState(false);
+  const addChallenge = useChallengesStore((state) => state.addChallenge);
+  const abandonPublishRef = useRef<(() => Promise<void>) | undefined>();
+  const abandonCurrentPublish = useCallback(async () => {
+    await abandonPublishRef.current?.();
+  }, []);
 
   const canDeleteFailedPost = post?.state === 'failed' && typeof post?.index === 'number';
+  const retryPublishOptions = useMemo(() => getFailedPostRetryPublishOptions(post), [post]);
+  const publishOptionsWithCallbacks = useMemo<PublishCommentOptions | undefined>(
+    () =>
+      retryPublishOptions
+        ? {
+            ...retryPublishOptions,
+            onChallenge: async (...args: any[]) => {
+              addChallenge(args, abandonCurrentPublish);
+            },
+            onChallengeVerification: async (challengeVerification: ChallengeVerification, comment: Comment) => {
+              alertChallengeVerificationFailed(challengeVerification, comment);
+            },
+            onError: (error: Error) => {
+              console.error('Failed to retry failed post:', error);
+              alert(`Failed to retry post: ${error.message}`);
+            },
+          }
+        : undefined,
+    [abandonCurrentPublish, addChallenge, retryPublishOptions],
+  );
+  const { abandonPublish, publishComment } = usePublishComment(publishOptionsWithCallbacks);
+  abandonPublishRef.current = abandonPublish;
 
   const onDeleteFailedPost = useCallback(() => {
-    if (isDeletingFailedPost || !canDeleteFailedPost) {
+    if (isDeletingFailedPost || isRetryingFailedPost || !canDeleteFailedPost) {
       return;
     }
 
-    const targetComment = post?.cid ?? post?.index;
+    const targetComment = getDeleteTarget(post);
     if (typeof targetComment === 'undefined') {
       return;
     }
@@ -26,12 +117,40 @@ const useDeleteFailedPost = (post?: { cid?: string; index?: number; state?: stri
         alert(`Failed to delete post: ${error instanceof Error ? error.message : 'Unknown error'}`);
         setIsDeletingFailedPost(false);
       });
-  }, [canDeleteFailedPost, isDeletingFailedPost, post?.cid, post?.index]);
+  }, [canDeleteFailedPost, isDeletingFailedPost, isRetryingFailedPost, post]);
+
+  const canRetryFailedPost = canDeleteFailedPost && Boolean(retryPublishOptions);
+
+  const onRetryFailedPost = useCallback(async () => {
+    if (isDeletingFailedPost || isRetryingFailedPost || !canRetryFailedPost) {
+      return;
+    }
+
+    const targetComment = getDeleteTarget(post);
+    if (typeof targetComment === 'undefined') {
+      return;
+    }
+
+    setIsRetryingFailedPost(true);
+
+    try {
+      await deleteComment(targetComment);
+      await publishComment();
+    } catch (error) {
+      console.error('Failed to retry failed post:', error);
+      alert(`Failed to retry post: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsRetryingFailedPost(false);
+    }
+  }, [canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, post, publishComment]);
 
   return {
     canDeleteFailedPost,
+    canRetryFailedPost,
     isDeletingFailedPost,
+    isRetryingFailedPost,
     onDeleteFailedPost,
+    onRetryFailedPost,
   };
 };
 
