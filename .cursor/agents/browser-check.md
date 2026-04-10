@@ -1,7 +1,7 @@
 ---
 name: browser-check
 model: composer-2
-description: Verifies UI changes in the browser using playwright-cli. Use after making visual or interaction changes to React components, CSS, layouts, or routing to confirm they render and behave correctly.
+description: Verifies UI changes in the browser using playwright-cli across Blink, Gecko, and WebKit. Use after making visual or interaction changes to React components, CSS, layouts, or routing to confirm they render and behave correctly.
 ---
 
 You are a browser tester for the 5chan project. You verify that UI changes work correctly by checking the running dev server with playwright-cli.
@@ -27,14 +27,15 @@ Default to a fresh isolated `playwright-cli` browser session. If the requested v
 
 ### Step 2: Navigate and Snapshot
 
-Use playwright-cli to check the relevant page:
+Use playwright-cli to check the relevant page in all three browser engines with separate sessions:
 
 ```bash
-playwright-cli open http://5chan.localhost:1355
-playwright-cli snapshot
+playwright-cli -s=verify-chrome open http://5chan.localhost:1355 --browser=chrome
+playwright-cli -s=verify-firefox open http://5chan.localhost:1355 --browser=firefox
+playwright-cli -s=verify-webkit open http://5chan.localhost:1355 --browser=webkit
 ```
 
-Navigate to the specific page/route where the change should be visible.
+Navigate each engine session to the specific page/route where the change should be visible.
 
 ### Step 3: Verify the Changes
 
@@ -43,11 +44,16 @@ Based on what the parent agent asked you to check:
 - Take snapshots of the relevant UI state
 - Check that elements are present and visible
 - Interact with elements if needed (click buttons, open modals, etc.)
-- Check mobile viewport if the change is layout-related:
+- Repeat the requested checks in `chrome`, `firefox`, and `webkit`
+- Check mobile viewport in each engine if the change is layout-related:
 
 ```bash
-playwright-cli resize 375 812
-playwright-cli snapshot
+playwright-cli -s=verify-chrome resize 375 812
+playwright-cli -s=verify-chrome snapshot
+playwright-cli -s=verify-firefox resize 375 812
+playwright-cli -s=verify-firefox snapshot
+playwright-cli -s=verify-webkit resize 375 812
+playwright-cli -s=verify-webkit snapshot
 ```
 
 ### Step 4: Report Back
@@ -62,8 +68,9 @@ playwright-cli snapshot
 - description of each verification
 
 ### Results
-- [PASS/FAIL] description of what was verified
-- [PASS/FAIL] description of what was verified
+- [PASS/FAIL] `chrome` - description of what was verified
+- [PASS/FAIL] `firefox` - description of what was verified
+- [PASS/FAIL] `webkit` - description of what was verified
 
 ### Screenshots
 - Describe what the screenshots show (if taken)

@@ -32,7 +32,7 @@ Only record items that are repo-specific, likely to recur, and have a concrete m
 | Translation key/value changed | Use `docs/agent-playbooks/translations.md` |
 | Bug report in a specific file/line | Start with git history scan from `docs/agent-playbooks/bug-investigation.md` before editing |
 | `CHANGELOG.md` or package version changed | Run `yarn blotter:check`; if needed add a concise release one-liner |
-| UI/visual behavior changed | Verify in browser with `playwright-cli`; test desktop and mobile viewport; if existing browser state matters, confirm whether to use a fresh session or the contributor's current browser session |
+| UI/visual behavior changed | Verify in browser with `playwright-cli` across Chrome/Blink, Firefox/Gecko, and WebKit/Safari; test desktop and mobile viewport; if existing browser state matters, confirm whether to use a fresh session or the contributor's current browser session |
 | Long-running task spans multiple sessions, handoffs, or spawned agents | Use `docs/agent-playbooks/long-running-agent-workflow.md`, keep a machine-readable feature list plus a progress log, and run `./scripts/agent-init.sh --smoke` before starting a fresh feature slice |
 | New reviewable feature/fix started while on `master` | Create a short-lived `codex/feature/*`, `codex/fix/*`, `codex/docs/*`, or `codex/chore/*` branch from `master` before editing; use a separate worktree only for parallel tasks |
 | New unrelated task started while another task branch is already checked out or being worked on by another agent | Create a separate worktree from `master`, create a new short-lived task branch there, and keep each agent on its own worktree/branch/PR |
@@ -118,7 +118,8 @@ src/
 - Do not commit or force-add local rebuild output. `build/` is the main generated build output in this repo; remove or restore generated output directories after local verification before committing.
 - After React UI logic changes, run: `yarn doctor`.
 - Treat React Doctor output as actionable guidance; prioritize `error` then `warning`.
-- For UI/visual changes, verify with `playwright-cli` on desktop and mobile viewport.
+- For UI/visual changes, verify with `playwright-cli` across Chrome/Blink, Firefox/Gecko, and WebKit/Safari.
+- Cover desktop and a mobile viewport flow in each browser engine when the change affects layout, touch behavior, or responsiveness.
 - For browser automation and verification, default to a fresh isolated `playwright-cli` session for reproducibility.
 - If the task depends on existing auth, cookies, extensions, open tabs, or another live browser state, explicitly confirm whether to use a fresh isolated session or the contributor's current browser session.
 - Do not assume permission to drive the contributor's active personal browser session.

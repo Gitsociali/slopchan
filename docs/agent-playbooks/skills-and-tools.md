@@ -39,6 +39,14 @@ Default to a fresh isolated browser session for normal verification. If the task
 
 Do not attach to a live personal browser session without explicit confirmation.
 
+When using `playwright-cli` for repo UI verification, run the relevant flow in all three main browser engines:
+
+- `chrome` for Blink
+- `firefox` for Gecko
+- `webkit` for Safari/WebKit coverage
+
+Use separate named sessions per engine so results stay isolated. If an engine is intentionally skipped, record why.
+
 ```bash
 npm install -g @playwright/cli@latest
 playwright-cli install --skills

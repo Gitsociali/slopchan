@@ -55,6 +55,8 @@ exit $status
 
 By default, `scripts/agent-hooks/verify.sh` exits non-zero when `corepack yarn build`, `corepack yarn lint`, or `corepack yarn type-check` fails. Set `AGENT_VERIFY_MODE=advisory` only when you intentionally need signal from a broken tree without blocking the hook.
 
+Lifecycle hooks do not replace manual browser verification. For UI or visual changes, still run `playwright-cli` checks across `chrome`, `firefox`, and `webkit`, plus a mobile viewport flow in each engine when responsiveness or touch behavior changed.
+
 ### Yarn Install Hook
 
 ```bash
