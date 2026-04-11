@@ -2,13 +2,13 @@ import { ChallengeVerification } from '@bitsocialnet/bitsocial-react-hooks';
 import directoriesData from '../../data/5chan-directories.json';
 import { getBoardPath } from './route-utils';
 
-const resolveBoardIdentifier = (subplebbitAddress: unknown): string => {
-  if (typeof subplebbitAddress !== 'string' || !subplebbitAddress) {
+const resolveBoardIdentifier = (communityAddress: unknown): string => {
+  if (typeof communityAddress !== 'string' || !communityAddress) {
     return 'unknown board';
   }
 
-  const boardPath = getBoardPath(subplebbitAddress, directoriesData.communities);
-  return boardPath === subplebbitAddress ? subplebbitAddress : `/${boardPath}/`;
+  const boardPath = getBoardPath(communityAddress, directoriesData.communities);
+  return boardPath === communityAddress ? communityAddress : `/${boardPath}/`;
 };
 
 export const alertChallengeVerificationFailed = (challengeVerification: ChallengeVerification, publication: any) => {
@@ -35,8 +35,9 @@ export const alertChallengeVerificationFailed = (challengeVerification: Challeng
     }
 
     const finalMessage = errorMessages.filter(Boolean).join(' ');
+    const publicationCommunityAddress = publication?.communityAddress || publication?.subplebbitAddress;
 
-    alert(`Error from ${resolveBoardIdentifier(publication?.subplebbitAddress)}: ${finalMessage || 'unknown error'}`);
+    alert(`Error from ${resolveBoardIdentifier(publicationCommunityAddress)}: ${finalMessage || 'unknown error'}`);
   } else {
     console.log('Challenge verification succeeded:', challengeVerification);
   }

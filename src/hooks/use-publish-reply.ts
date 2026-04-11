@@ -50,7 +50,6 @@ const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, sub
   const createBaseOptions = useCallback(() => {
     const baseOptions: Comment = {
       communityAddress,
-      subplebbitAddress: communityAddress,
       parentCid,
       postCid: postCid ?? parentCid,
       content,
@@ -77,7 +76,17 @@ const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, sub
         {} as Partial<Comment>,
       );
 
-      const newOptions = { ...baseOptions, ...sanitizedOptions };
+      const {
+        communityAddress: nextCommunityAddress,
+        subplebbitAddress: legacyCommunityAddress,
+        ...restOptions
+      } = sanitizedOptions as Partial<Comment> & { subplebbitAddress?: string };
+      const resolvedCommunityAddress = nextCommunityAddress ?? legacyCommunityAddress ?? baseOptions.communityAddress;
+      const newOptions = {
+        ...baseOptions,
+        ...restOptions,
+        ...(resolvedCommunityAddress ? { communityAddress: resolvedCommunityAddress } : {}),
+      };
       setPublishReplyStore(newOptions);
     },
     [createBaseOptions, setPublishReplyStore],

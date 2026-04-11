@@ -50,6 +50,18 @@ describe('challenge-utils', () => {
     expect(alertMock).toHaveBeenCalledWith('Error from unknown-board.eth: first error second error');
   });
 
+  it('uses communityAddress when the upgraded publication no longer exposes subplebbitAddress', () => {
+    alertChallengeVerificationFailed(
+      {
+        challengeErrors: ['first error'],
+        challengeSuccess: false,
+      } as never,
+      { communityAddress: 'business-and-finance.bso' },
+    );
+
+    expect(alertMock).toHaveBeenCalledWith('Error from /biz/: first error');
+  });
+
   it('warns about invalid challenge error payloads and falls back to an unknown error', () => {
     alertChallengeVerificationFailed(
       {

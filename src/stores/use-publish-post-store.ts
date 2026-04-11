@@ -40,7 +40,6 @@ const usePublishPostStore = create<SubmitState>((set) => ({
 
       const publishCommentOptions: PublishCommentOptions = {
         communityAddress,
-        subplebbitAddress: communityAddress,
         title,
         content,
         link,
