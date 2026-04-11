@@ -76,10 +76,10 @@ describe('usePublishPost', () => {
     expect(latestValue.publishPost).toBe(testState.publishCommentMock);
     expect(latestValue.publishPostOptions).toMatchObject({
       author: { displayName: 'Alice' },
+      communityAddress: 'music.eth',
       content: undefined,
       link: undefined,
       spoiler: true,
-      subplebbitAddress: 'music.eth',
       title: 'Hello world',
     });
     expect(typeof latestValue.publishPostOptions.onChallengeVerification).toBe('function');

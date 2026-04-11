@@ -51,7 +51,7 @@ describe('publish stores', () => {
     expect(state.displayName).toBe('Poster Alias');
     expect(state.author).toEqual({ address: '0x123', role: 'mod', displayName: 'Poster Alias' });
     expect(state.publishCommentOptions.author).toEqual({ address: '0x123', role: 'mod', displayName: 'Poster Alias' });
-    expect(state.publishCommentOptions.subplebbitAddress).toBe('music-posting.eth');
+    expect(state.publishCommentOptions.communityAddress).toBe('music-posting.eth');
     expect(state.publishCommentOptions.title).toBe('Hello');
 
     state.publishCommentOptions.onChallengeVerification?.({} as never, comment);
@@ -82,6 +82,7 @@ describe('publish stores', () => {
     const state = usePublishReplyStore.getState();
     expect(state.displayName['parent-1']).toBe('Reply Alias');
     expect(state.author['parent-1']).toEqual({ address: '0x123', role: 'mod', displayName: 'Reply Alias' });
+    expect(state.publishCommentOptions['parent-1']?.communityAddress).toBe('music-posting.eth');
     expect(state.publishCommentOptions['parent-1']?.parentCid).toBe('parent-1');
     expect(state.publishCommentOptions['parent-1']?.postCid).toBe('parent-1');
 

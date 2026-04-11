@@ -104,13 +104,13 @@ describe('usePublishReply', () => {
     expect(typeof latestValue.publishReply).toBe('function');
     expect(testState.lastPublishOptions).toMatchObject({
       author: { displayName: 'Bob' },
+      communityAddress: 'music.eth',
       content: 'Replying to >>12',
       link: undefined,
       parentCid: 'parent-cid',
       postCid: 'parent-cid',
       quotedCids: ['quoted-cid'],
       spoiler: true,
-      subplebbitAddress: 'music.eth',
     });
   });
 

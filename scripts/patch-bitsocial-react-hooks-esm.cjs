@@ -5,6 +5,7 @@ const path = require('path');
 
 const packageDistPath = path.join(__dirname, '..', 'node_modules', '@bitsocialnet', 'bitsocial-react-hooks', 'dist');
 const logPrefix = '[patch-bitsocial-react-hooks-esm]';
+const packageIndexPath = path.join(packageDistPath, 'index.js');
 
 if (!fs.existsSync(packageDistPath)) {
   console.log(`${logPrefix} Skip: @bitsocialnet/bitsocial-react-hooks dist not found.`);
@@ -14,6 +15,10 @@ if (!fs.existsSync(packageDistPath)) {
 const relativeImportPattern = /(from\s+|import\s+)(['"])(\.\.?\/[^'"]+)\2/g;
 let touchedFiles = 0;
 let rewrittenImports = 0;
+let removedNodeDebugPatches = 0;
+
+const nodeDebugPatchPattern =
+  /\/\/ fix DEBUG_DEPTH bug https:\/\/github\.com\/debug-js\/debug\/issues\/746\s*try\s*\{\s*if \(process\.env\.DEBUG_DEPTH\) \{\s*require\("util"\)\.inspect\.defaultOptions\.depth = process\.env\.DEBUG_DEPTH;\s*\}\s*if \(process\.env\.DEBUG_ARRAY\) \{\s*require\("util"\)\.inspect\.defaultOptions\.maxArrayLength = process\.env\.DEBUG_ARRAY;\s*\}\s*\}\s*catch \(e\) \{ \}/m;
 
 const splitSpecifier = (specifier) => {
   const suffixStart = specifier.search(/[?#]/);
@@ -52,7 +57,7 @@ const patchFile = (filePath) => {
   const source = fs.readFileSync(filePath, 'utf8');
   let fileImportCount = 0;
 
-  const updated = source.replace(relativeImportPattern, (match, prefix, quote, specifier) => {
+  let updated = source.replace(relativeImportPattern, (match, prefix, quote, specifier) => {
     const resolvedSpecifier = resolveSpecifier(filePath, specifier);
 
     if (!resolvedSpecifier || resolvedSpecifier === specifier) {
@@ -63,7 +68,19 @@ const patchFile = (filePath) => {
     return `${prefix}${quote}${resolvedSpecifier}${quote}`;
   });
 
-  if (!fileImportCount) {
+  if (filePath === packageIndexPath) {
+    const nextUpdated = updated.replace(
+      nodeDebugPatchPattern,
+      '// Browser bundle: skip Node-only util DEBUG_DEPTH/DEBUG_ARRAY tuning.\n',
+    );
+
+    if (nextUpdated !== updated) {
+      updated = nextUpdated;
+      removedNodeDebugPatches += 1;
+    }
+  }
+
+  if (!fileImportCount && updated === source) {
     return;
   }
 
@@ -94,4 +111,6 @@ if (!touchedFiles) {
   process.exit(0);
 }
 
-console.log(`${logPrefix} Patched ${rewrittenImports} imports across ${touchedFiles} files.`);
+console.log(
+  `${logPrefix} Patched ${rewrittenImports} imports across ${touchedFiles} files${removedNodeDebugPatches ? ` and removed ${removedNodeDebugPatches} browser-incompatible debug util block(s)` : ''}.`,
+);

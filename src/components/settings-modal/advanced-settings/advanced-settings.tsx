@@ -1,5 +1,5 @@
 import { memo, RefObject, useRef, useState } from 'react';
-import { setAccount, useAccount, usePlebbitRpcSettings } from '@bitsocialnet/bitsocial-react-hooks';
+import { setAccount, useAccount, usePkcRpcSettings } from '@bitsocialnet/bitsocial-react-hooks';
 import { useTranslation } from 'react-i18next';
 import styles from './advanced-settings.module.css';
 
@@ -14,12 +14,47 @@ interface SettingsProps {
   p2pDataPathRef?: RefObject<HTMLInputElement>;
 }
 
+type AccountProtocolOptions = {
+  chainProviders?: Record<string, { urls?: string[]; chainId: number }>;
+  dataPath?: string;
+  httpRoutersOptions?: string[];
+  ipfsGatewayUrls?: string[];
+  pkcRpcClientsOptions?: string[];
+  plebbitRpcClientsOptions?: string[];
+  pubsubHttpClientsOptions?: string[];
+  pubsubKuboRpcClientsOptions?: string[];
+};
+
+type AccountShape = {
+  chainProviders?: AccountProtocolOptions['chainProviders'];
+  mediaIpfsGatewayUrl?: string;
+  pkcOptions?: AccountProtocolOptions;
+  plebbitOptions?: AccountProtocolOptions;
+};
+
+type RpcSettingsShape = {
+  pkcOptions?: { dataPath?: string };
+  plebbitOptions?: { dataPath?: string };
+};
+
+const getProtocolOptions = (account?: AccountShape) => account?.pkcOptions ?? account?.plebbitOptions;
+
+const getChainProviders = (account?: AccountShape) => account?.chainProviders ?? getProtocolOptions(account)?.chainProviders;
+
+const getNodeRpcClientsOptions = (protocolOptions?: AccountProtocolOptions) => protocolOptions?.pkcRpcClientsOptions ?? protocolOptions?.plebbitRpcClientsOptions;
+
+const getPubsubRpcClientsOptions = (protocolOptions?: AccountProtocolOptions) =>
+  protocolOptions?.pubsubKuboRpcClientsOptions ?? protocolOptions?.pubsubHttpClientsOptions;
+
+const getRpcSettingsDataPath = (rpcSettings?: RpcSettingsShape) => rpcSettings?.pkcOptions?.dataPath ?? rpcSettings?.plebbitOptions?.dataPath ?? '';
+
 const IPFSGatewaysSettings = ({ ipfsGatewayUrlsRef, mediaIpfsGatewayUrlRef }: SettingsProps) => {
-  const account = useAccount();
-  const { plebbitOptions, mediaIpfsGatewayUrl } = account || {};
-  const { ipfsGatewayUrls } = plebbitOptions || {};
-  const plebbitRpc = usePlebbitRpcSettings();
-  const isConnectedToRpc = plebbitRpc?.state === 'connected';
+  const account = useAccount() as AccountShape | undefined;
+  const protocolOptions = getProtocolOptions(account);
+  const { ipfsGatewayUrls } = protocolOptions || {};
+  const { mediaIpfsGatewayUrl } = account || {};
+  const pkcRpc = usePkcRpcSettings();
+  const isConnectedToRpc = pkcRpc?.state === 'connected';
   const ipfsGatewayUrlsDefaultValue = ipfsGatewayUrls?.join('\n');
 
   return (
@@ -52,12 +87,12 @@ const IPFSGatewaysSettings = ({ ipfsGatewayUrlsRef, mediaIpfsGatewayUrlRef }: Se
 };
 
 const PubsubProvidersSettings = ({ pubsubProvidersRef }: SettingsProps) => {
-  const account = useAccount();
-  const { plebbitOptions } = account || {};
-  const { pubsubHttpClientsOptions } = plebbitOptions || {};
-  const plebbitRpc = usePlebbitRpcSettings();
-  const isConnectedToRpc = plebbitRpc?.state === 'connected';
-  const pubsubProvidersDefaultValue = pubsubHttpClientsOptions?.join('\n');
+  const account = useAccount() as AccountShape | undefined;
+  const protocolOptions = getProtocolOptions(account);
+  const pubsubKuboRpcClientsOptions = getPubsubRpcClientsOptions(protocolOptions);
+  const pkcRpc = usePkcRpcSettings();
+  const isConnectedToRpc = pkcRpc?.state === 'connected';
+  const pubsubProvidersDefaultValue = pubsubKuboRpcClientsOptions?.join('\n');
 
   return (
     <div className={styles.pubsubProvidersSettings}>
@@ -69,18 +104,18 @@ const PubsubProvidersSettings = ({ pubsubProvidersRef }: SettingsProps) => {
         autoCapitalize='off'
         autoComplete='off'
         spellCheck='false'
-        rows={pubsubHttpClientsOptions?.length || 1}
+        rows={pubsubKuboRpcClientsOptions?.length || 1}
       />
     </div>
   );
 };
 
 const HttpRoutersSettings = ({ httpRoutersRef }: SettingsProps) => {
-  const account = useAccount();
-  const { plebbitOptions } = account || {};
-  const { httpRoutersOptions } = plebbitOptions || {};
-  const plebbitRpc = usePlebbitRpcSettings();
-  const isConnectedToRpc = plebbitRpc?.state === 'connected';
+  const account = useAccount() as AccountShape | undefined;
+  const protocolOptions = getProtocolOptions(account);
+  const { httpRoutersOptions } = protocolOptions || {};
+  const pkcRpc = usePkcRpcSettings();
+  const isConnectedToRpc = pkcRpc?.state === 'connected';
   const httpRoutersDefaultValue = httpRoutersOptions?.join('\n');
 
   return (
@@ -100,11 +135,10 @@ const HttpRoutersSettings = ({ httpRoutersRef }: SettingsProps) => {
 };
 
 const BlockchainProvidersSettings = ({ ethRpcRef, solRpcRef }: SettingsProps) => {
-  const account = useAccount();
-  const { plebbitOptions } = account || {};
-  const { chainProviders } = plebbitOptions || {};
-  const ethRpcDefaultValue = chainProviders?.['eth']?.urls.join('\n');
-  const solRpcDefaultValue = chainProviders?.['sol']?.urls.join('\n');
+  const account = useAccount() as AccountShape | undefined;
+  const chainProviders = getChainProviders(account);
+  const ethRpcDefaultValue = chainProviders?.['eth']?.urls?.join('\n');
+  const solRpcDefaultValue = chainProviders?.['sol']?.urls?.join('\n');
 
   return (
     <div className={styles.blockchainProvidersSettings}>
@@ -136,14 +170,14 @@ const BlockchainProvidersSettings = ({ ethRpcRef, solRpcRef }: SettingsProps) =>
 
 const P2pRPCSettings = ({ p2pRpcRef }: SettingsProps) => {
   const [showInfo, setShowInfo] = useState(false);
-  const account = useAccount();
-  const { plebbitOptions } = account || {};
-  const { plebbitRpcClientsOptions } = plebbitOptions || {};
+  const account = useAccount() as AccountShape | undefined;
+  const protocolOptions = getProtocolOptions(account);
+  const pkcRpcClientsOptions = getNodeRpcClientsOptions(protocolOptions);
 
   return (
     <div className={styles.p2pRPCSettings}>
       <div>
-        <input type='text' defaultValue={plebbitRpcClientsOptions} ref={p2pRpcRef} autoCorrect='off' autoCapitalize='off' spellCheck='false' />
+        <input type='text' defaultValue={pkcRpcClientsOptions} ref={p2pRpcRef} autoCorrect='off' autoCapitalize='off' spellCheck='false' />
         <button onClick={() => setShowInfo(!showInfo)}>{showInfo ? 'X' : '?'}</button>
       </div>
       {showInfo && (
@@ -165,10 +199,10 @@ const P2pRPCSettings = ({ p2pRpcRef }: SettingsProps) => {
 };
 
 const P2pDataPathSettings = ({ p2pDataPathRef }: SettingsProps) => {
-  const plebbitRpc = usePlebbitRpcSettings();
-  const { plebbitRpcSettings } = plebbitRpc || {};
-  const isConnectedToRpc = plebbitRpc?.state === 'connected';
-  const path = plebbitRpcSettings?.plebbitOptions?.dataPath || '';
+  const pkcRpc = usePkcRpcSettings();
+  const { pkcRpcSettings } = pkcRpc || {};
+  const isConnectedToRpc = pkcRpc?.state === 'connected';
+  const path = getRpcSettingsDataPath(pkcRpcSettings as RpcSettingsShape | undefined);
 
   return (
     <div className={styles.p2pDataPathSettings}>
@@ -183,8 +217,8 @@ const isElectron = window.electronApi?.isElectron === true;
 
 const AdvancedSettings = () => {
   const { t } = useTranslation();
-  const account = useAccount();
-  const { plebbitOptions } = account || {};
+  const account = useAccount() as AccountShape | undefined;
+  const protocolOptions = getProtocolOptions(account);
 
   const ipfsGatewayUrlsRef = useRef<HTMLTextAreaElement>(null);
   const mediaIpfsGatewayUrlRef = useRef<HTMLInputElement>(null);
@@ -223,7 +257,7 @@ const AdvancedSettings = () => {
       .map((url) => url.trim())
       .filter((url) => url !== '');
 
-    const plebbitRpcClientsOptions = p2pRpcRef.current?.value.trim() ? [p2pRpcRef.current.value.trim()] : undefined;
+    const pkcRpcClientsOptions = p2pRpcRef.current?.value.trim() ? [p2pRpcRef.current.value.trim()] : undefined;
     const dataPath = p2pDataPathRef.current?.value.trim() || undefined;
 
     const chainProviders: Record<string, { urls: string[] | undefined; chainId: number }> = {};
@@ -238,13 +272,13 @@ const AdvancedSettings = () => {
       await setAccount({
         ...account,
         mediaIpfsGatewayUrl,
-        plebbitOptions: {
-          ...plebbitOptions,
+        pkcOptions: {
+          ...protocolOptions,
           ipfsGatewayUrls,
-          pubsubHttpClientsOptions,
+          pubsubKuboRpcClientsOptions: pubsubHttpClientsOptions,
           chainProviders,
           httpRoutersOptions,
-          plebbitRpcClientsOptions,
+          pkcRpcClientsOptions,
           dataPath,
         },
       });

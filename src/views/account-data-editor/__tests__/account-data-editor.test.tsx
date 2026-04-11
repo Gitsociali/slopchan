@@ -71,6 +71,8 @@ vi.mock('react-ace', async () => {
 
 vi.mock('ace-builds/src-noconflict/mode-json', () => ({}));
 vi.mock('ace-builds/src-noconflict/theme-monokai', () => ({}));
+vi.mock('ace-builds/esm-resolver', () => ({}));
+vi.mock('ace-builds/src-noconflict/worker-json?url', () => ({ default: '/worker-json.js' }));
 
 let root: Root;
 let container: HTMLDivElement;

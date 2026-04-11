@@ -7,12 +7,29 @@ import styles from './account-data-editor.module.css';
 
 const DEFAULT_RETURN_TO = '/subs/settings#account-settings';
 
+type AceModuleLoadResult = {
+  Editor: React.ComponentType<any>;
+  onBeforeLoad: (ace: { config?: { setModuleUrl?: (name: string, value: string) => void } }) => void;
+};
+
 const loadAce = async () => {
-  const aceModule = await import('react-ace');
-  await Promise.all([import('ace-builds/src-noconflict/mode-json'), import('ace-builds/src-noconflict/theme-monokai')]);
+  const [aceModule, workerJsonModule] = await Promise.all([
+    import('react-ace'),
+    import('ace-builds/src-noconflict/worker-json?url'),
+    import('ace-builds/esm-resolver'),
+    import('ace-builds/src-noconflict/mode-json'),
+    import('ace-builds/src-noconflict/theme-monokai'),
+  ]);
   // Vite CJS interop can double-wrap the default export
   const mod = aceModule.default;
-  return typeof mod === 'function' ? mod : (mod as unknown as { default: typeof mod }).default;
+  const Editor = typeof mod === 'function' ? mod : (mod as unknown as { default: typeof mod }).default;
+
+  return {
+    Editor,
+    onBeforeLoad: (ace) => {
+      ace.config?.setModuleUrl?.('ace/mode/json_worker', workerJsonModule.default);
+    },
+  } satisfies AceModuleLoadResult;
 };
 
 const AccountDataEditor = () => {
@@ -25,17 +42,20 @@ const AccountDataEditor = () => {
   const [phase, setPhase] = useState<'warning' | 'loading' | 'editor' | 'fallback'>('warning');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [AceEditor, setAceEditor] = useState<React.ComponentType<any> | null>(null);
+  const [aceOnBeforeLoad, setAceOnBeforeLoad] = useState<AceModuleLoadResult['onBeforeLoad'] | undefined>(undefined);
   const [text, setText] = useState('');
 
   useEffect(() => {
     if (phase !== 'loading') return;
     loadAce()
-      .then((Editor) => {
+      .then(({ Editor, onBeforeLoad }) => {
         setAceEditor(() => Editor);
+        setAceOnBeforeLoad(() => onBeforeLoad);
         setText(buildEditableAccountJson(account));
         setPhase('editor');
       })
       .catch(() => {
+        setAceOnBeforeLoad(undefined);
         setText(buildEditableAccountJson(account));
         setPhase('fallback');
       });
@@ -94,7 +114,17 @@ const AccountDataEditor = () => {
       {phase === 'fallback' && <div className={styles.fallbackWarning}>{t('editor_fallback_warning')}</div>}
       <div className={styles.editorContainer}>
         {phase === 'editor' && AceEditor ? (
-          <AceEditor mode='json' theme='monokai' width='100%' height='500px' fontSize={13} showPrintMargin={false} value={text} onChange={setText} />
+          <AceEditor
+            mode='json'
+            theme='monokai'
+            width='100%'
+            height='500px'
+            fontSize={13}
+            showPrintMargin={false}
+            value={text}
+            onChange={setText}
+            onBeforeLoad={aceOnBeforeLoad}
+          />
         ) : (
           <textarea
             value={text}

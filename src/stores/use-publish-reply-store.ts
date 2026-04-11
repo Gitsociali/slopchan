@@ -35,7 +35,6 @@ const usePublishReplyStore = create<ReplyState>((set) => ({
 
       const publishCommentOptions: PublishCommentOptions = {
         communityAddress,
-        subplebbitAddress: communityAddress,
         parentCid,
         postCid: comment?.postCid || parentCid,
         content,

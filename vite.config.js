@@ -199,9 +199,9 @@ export default defineConfig({
       'node:events': 'events',
       'node:process': 'process',
       'node:stream': 'stream-browserify',
-      'node:util': 'util',
-      'util/': 'util',
-      util: 'util',
+      'node:util': 'util/',
+      'util/': 'util/',
+      util: 'util/',
     },
   },
   server: {
