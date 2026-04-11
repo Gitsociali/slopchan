@@ -2,7 +2,7 @@ import { useEffect, useState, FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCommunity } from '@bitsocialnet/bitsocial-react-hooks';
 import { Footer, HomeLogo } from '../home';
-import { useDirectories, DirectoryCommunity } from '../../hooks/use-directories';
+import { useDirectories, DirectoryCommunity, findDirectoryByAddress } from '../../hooks/use-directories';
 import { getSubplebbitAddress, getBoardPath } from '../../lib/utils/route-utils';
 import Markdown from '../../components/markdown';
 import styles from './rules.module.css';
@@ -103,6 +103,8 @@ const BoardSelector = ({
   onSelect: (address: string) => void;
 }) => {
   const [customAddress, setCustomAddress] = useState('');
+  const selectedDefaultBoard = findDirectoryByAddress(directories, selectedAddress);
+  const selectedBoardValue = selectedDefaultBoard?.address ?? '';
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
@@ -129,7 +131,7 @@ const BoardSelector = ({
       </div>
       <div className={styles.boxContent}>
         <div className={styles.selectorRow}>
-          <select value={selectedAddress} onChange={handleSelectChange} className={styles.boardSelect}>
+          <select value={selectedBoardValue} onChange={handleSelectChange} className={styles.boardSelect}>
             <option value=''>Select board...</option>
             {[...directories]
               .sort((a, b) => getBoardShortCode(a.title).localeCompare(getBoardShortCode(b.title)))
@@ -142,7 +144,6 @@ const BoardSelector = ({
                   </option>
                 );
               })}
-            {selectedAddress && !directories.some((sub) => sub.address === selectedAddress) && <option value={selectedAddress}>{selectedAddress}</option>}
           </select>
           <span className={styles.orSeparator}>or</span>
           <form onSubmit={handleCustomSubmit} className={styles.customAddressForm}>
