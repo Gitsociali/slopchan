@@ -172,7 +172,7 @@
     "portless": "0.7.0"
   },
   "resolutions": {
-    "axios": "1.13.5",
+    "axios": "1.15.0",
     "js-yaml": "4.1.1",
     "baseline-browser-mapping": "^2.9.11",
     "vite": "8.0.5",
