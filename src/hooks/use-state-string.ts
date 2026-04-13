@@ -178,14 +178,6 @@ export const useFeedStateString = (communityAddresses?: string[]): string | unde
       stateString += ' via IPFS';
     }
 
-    if (!stateString && communityAddresses?.length) {
-      const count = communityAddresses.length;
-      stateString = `downloading ${count} ${count === 1 ? 'board' : 'boards'}`;
-      if (count <= 5) {
-        stateString += ` (${communityAddresses.map((a) => getShortAddress(a) || a).join(', ')})`;
-      }
-    }
-
     // capitalize first letter
     stateString = stateString.charAt(0).toUpperCase() + stateString.slice(1);
 
