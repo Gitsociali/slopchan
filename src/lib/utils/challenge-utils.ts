@@ -1,5 +1,5 @@
 import { ChallengeVerification } from '@bitsocialnet/bitsocial-react-hooks';
-import directoriesData from '../../data/5chan-directories.json';
+import { getFallbackDirectoriesData } from '../../hooks/use-directories';
 import { getBoardPath } from './route-utils';
 
 const resolveBoardIdentifier = (communityAddress: unknown): string => {
@@ -7,7 +7,7 @@ const resolveBoardIdentifier = (communityAddress: unknown): string => {
     return 'unknown board';
   }
 
-  const boardPath = getBoardPath(communityAddress, directoriesData.communities);
+  const boardPath = getBoardPath(communityAddress, getFallbackDirectoriesData().communities);
   return boardPath === communityAddress ? communityAddress : `/${boardPath}/`;
 };
 

@@ -18,6 +18,10 @@ let cachedAddressToDirectoryMap: Map<string, string> | null = null;
 
 const getDirectoryCode = (community: DirectoryCommunity): string | null => community.directoryCode ?? extractDirectoryFromTitle(community.title ?? '');
 
+const getCommunityLookupAddresses = (community: DirectoryCommunity): string[] => [
+  ...new Set([community.address, community.name, community.publicKey].filter((value): value is string => typeof value === 'string' && value.length > 0)),
+];
+
 /**
  * Create a map from directory codes to community addresses
  * Uses caching to avoid recreating the map when communities array hasn't changed
@@ -58,7 +62,9 @@ const getAddressToDirectoryMap = (communities: DirectoryCommunity[]): Map<string
     if (!community.address) continue;
     const directory = getDirectoryCode(community);
     if (directory) {
-      map.set(community.address, directory);
+      for (const address of getCommunityLookupAddresses(community)) {
+        map.set(address, directory);
+      }
     }
   }
 

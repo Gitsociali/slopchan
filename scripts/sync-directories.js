@@ -2,14 +2,15 @@
 // Updates the vendored fallback in src/data/ so production builds ship a fresh snapshot.
 // Never fails the build — if the fetch fails (offline, rate-limited, etc.), the existing file is kept.
 
-import { writeFileSync, readFileSync } from 'fs';
-import { join, dirname } from 'path';
+import { existsSync, writeFileSync, readFileSync } from 'fs';
+import { isAbsolute, join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const GITHUB_URL = 'https://raw.githubusercontent.com/bitsocialnet/lists/master/5chan-directories.json';
+const DIRECTORIES_SOURCE_PATH = process.env.DIRECTORIES_SOURCE_PATH;
 const OUTPUT_PATH = join(__dirname, '..', 'src', 'data', '5chan-directories.json');
 const TIMEOUT_MS = 5000;
 const DEFAULT_METADATA = {
@@ -20,6 +21,8 @@ const DEFAULT_METADATA = {
 };
 
 const isRecord = (value) => typeof value === 'object' && value !== null;
+
+const getStringValue = (...values) => values.find((value) => typeof value === 'string' && value.length > 0);
 
 const normalizeFeatures = (value) => {
   if (!isRecord(value)) {
@@ -36,21 +39,33 @@ const normalizeFeatures = (value) => {
   return Object.keys(normalizedFeatures).length > 0 ? normalizedFeatures : undefined;
 };
 
-const toCanonicalCommunity = ({ address, title, nsfw, directoryCode, features }) => {
-  if (typeof address !== 'string') {
+const deriveNsfw = (value) => {
+  const features = value.features;
+  const safeForWork = typeof features?.safeForWork === 'boolean' ? features.safeForWork : undefined;
+  if (safeForWork !== undefined) {
+    return !safeForWork;
+  }
+  const featuresNsfw = typeof features?.nsfw === 'boolean' ? features.nsfw : undefined;
+  const topLevelNsfw = typeof value.nsfw === 'boolean' ? value.nsfw : undefined;
+  return topLevelNsfw ?? featuresNsfw;
+};
+
+const toCanonicalCommunity = ({ address, communityAddress, name, publicKey, title, nsfw, directoryCode, features }) => {
+  const normalizedName = getStringValue(name, address, communityAddress);
+  if (!normalizedName) {
     return null;
   }
 
   const normalizedFeatures = normalizeFeatures(features);
-  const topLevelNsfw = typeof nsfw === 'boolean' ? nsfw : undefined;
-  const featuresNsfw = typeof normalizedFeatures?.nsfw === 'boolean' ? normalizedFeatures.nsfw : undefined;
+  const normalizedNsfw = deriveNsfw({ nsfw, features: normalizedFeatures });
 
   return {
-    address,
+    name: normalizedName,
+    ...(typeof publicKey === 'string' ? { publicKey } : {}),
     ...(typeof title === 'string' ? { title } : {}),
     ...(typeof directoryCode === 'string' ? { directoryCode } : {}),
     ...(normalizedFeatures ? { features: normalizedFeatures } : {}),
-    ...((topLevelNsfw ?? featuresNsfw) !== undefined ? { nsfw: topLevelNsfw ?? featuresNsfw } : {}),
+    ...(normalizedNsfw !== undefined ? { nsfw: normalizedNsfw } : {}),
   };
 };
 
@@ -59,10 +74,11 @@ const dedupeCommunities = (entries) => {
   const normalized = [];
 
   for (const entry of entries) {
-    if (seenAddresses.has(entry.address)) {
+    const dedupeKey = entry.publicKey || entry.name;
+    if (seenAddresses.has(dedupeKey)) {
       continue;
     }
-    seenAddresses.add(entry.address);
+    seenAddresses.add(dedupeKey);
     normalized.push(entry);
   }
 
@@ -81,9 +97,10 @@ const adaptV2Directories = (value) => {
       }
       const features = isRecord(directory.features) ? directory.features : null;
       return toCanonicalCommunity({
-        address: directory.communityAddress,
+        communityAddress: directory.communityAddress,
+        name: directory.name,
+        publicKey: directory.publicKey,
         title: directory.title,
-        nsfw: features?.nsfw,
         directoryCode: directory.directoryCode,
         features,
       });
@@ -105,6 +122,8 @@ const adaptV1Communities = (value) => {
       }
       return toCanonicalCommunity({
         address: community.address,
+        name: community.name,
+        publicKey: community.publicKey,
         title: community.title,
         nsfw: community.nsfw,
         directoryCode: community.directoryCode,
@@ -138,6 +157,30 @@ const normalizeDirectoriesData = (value, fallbackMetadata = DEFAULT_METADATA) =>
 
 const getErrorMessage = (error) => (error instanceof Error ? error.message : String(error));
 
+const loadDirectoriesSource = async () => {
+  if (DIRECTORIES_SOURCE_PATH) {
+    const resolvedSourcePath = isAbsolute(DIRECTORIES_SOURCE_PATH) ? DIRECTORIES_SOURCE_PATH : resolve(process.cwd(), DIRECTORIES_SOURCE_PATH);
+    console.log(`ℹ️  Syncing vendored directories from local file: ${resolvedSourcePath}`);
+    if (!existsSync(resolvedSourcePath)) {
+      throw new Error(`Local directories source not found: ${resolvedSourcePath}`);
+    }
+    return JSON.parse(readFileSync(resolvedSourcePath, 'utf8'));
+  }
+
+  console.log(`ℹ️  Syncing vendored directories from URL: ${GITHUB_URL}`);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const response = await fetch(GITHUB_URL, { signal: controller.signal });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return await response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 const sync = async () => {
   try {
     let existing = '';
@@ -158,20 +201,7 @@ const sync = async () => {
       // file doesn't exist yet or is invalid JSON
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    let response;
-    try {
-      response = await fetch(GITHUB_URL, { signal: controller.signal });
-    } finally {
-      clearTimeout(timeout);
-    }
-
-    if (!response || !response.ok) {
-      throw new Error(`HTTP ${response?.status ?? 'unknown'}`);
-    }
-
-    const data = normalizeDirectoriesData(await response.json(), fallbackMetadata);
+    const data = normalizeDirectoriesData(await loadDirectoriesSource(), fallbackMetadata);
     if (!data) {
       throw new Error('Invalid directories payload');
     }

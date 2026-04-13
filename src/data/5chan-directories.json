@@ -2,10 +2,11 @@
   "title": "/all/ - All 5chan Directories",
   "description": "Each 5chan directory is assigned to a board handpicked by the team, until DAO curation is implemented.\n\nhttps://github.com/bitsocialnet/lists/blob/master/5chan-directories.json",
   "createdAt": 1762179811,
-  "updatedAt": 1771140295,
+  "updatedAt": 1776065598,
   "communities": [
     {
-      "address": "anime-and-manga.bso",
+      "name": "anime-and-manga.bso",
+      "publicKey": "12D3KooWMDt3RMVMHrm2pEEyfraBtHP86dmkim7EVAapDj3Mchdy",
       "title": "/a/ - Anime & Manga",
       "directoryCode": "a",
       "features": {
@@ -21,7 +22,8 @@
       }
     },
     {
-      "address": "food-and-cooking.bso",
+      "name": "food-and-cooking.bso",
+      "publicKey": "12D3KooWFfANpSeemwvqqGsXNPHDuyDMCK6wE8cxGTuNw7xoWUp7",
       "title": "/ck/ - Food & Cooking",
       "directoryCode": "ck",
       "features": {
@@ -37,7 +39,8 @@
       }
     },
     {
-      "address": "politically-incorrect.bso",
+      "name": "politically-incorrect.bso",
+      "publicKey": "12D3KooWMVob74DQoTLGZ4B8kWgPwDfbtiWqdJE4DrGtf2rmVw36",
       "title": "/pol/ - Politically Incorrect",
       "directoryCode": "pol",
       "features": {
@@ -53,7 +56,8 @@
       }
     },
     {
-      "address": "business-and-finance.bso",
+      "name": "business-and-finance.bso",
+      "publicKey": "12D3KooWNMybS8JqELi38ZBX897PrjWbCrGoMKfw3bgoqzC2n1Dh",
       "title": "/biz/ - Business & Finance",
       "directoryCode": "biz",
       "features": {
@@ -69,7 +73,8 @@
       }
     },
     {
-      "address": "science-and-math.bso",
+      "name": "science-and-math.bso",
+      "publicKey": "12D3KooWEtHqwtEpgHsXS8VSFcGDt2DhzeqaLm9tTCRFucXaWp62",
       "title": "/sci/ - Science & Math",
       "directoryCode": "sci",
       "features": {
@@ -85,7 +90,8 @@
       }
     },
     {
-      "address": "technology-posting.bso",
+      "name": "technology-posting.bso",
+      "publicKey": "12D3KooWFnLrUYHpvqki7gbL4w9JzdxjpQPKE2JBDEd23Ly6X82X",
       "title": "/g/ - Technology",
       "directoryCode": "g",
       "features": {
@@ -101,7 +107,8 @@
       }
     },
     {
-      "address": "videogame-generals.bso",
+      "name": "videogame-generals.bso",
+      "publicKey": "12D3KooWMvAcJFV45CS3hSZcx7EFhwhQrXfXhVHXQJFPfKeakWfq",
       "title": "/vg/ - Video Game Generals",
       "directoryCode": "vg",
       "features": {
@@ -117,7 +124,8 @@
       }
     },
     {
-      "address": "fitness-posting.bso",
+      "name": "fitness-posting.bso",
+      "publicKey": "12D3KooWHcqcJJmjAiBJA3uyhSW6ep4HFadUfteDrzU1Pn9ALkkw",
       "title": "/fit/ - Fitness",
       "directoryCode": "fit",
       "features": {
@@ -133,7 +141,8 @@
       }
     },
     {
-      "address": "advice-posting.bso",
+      "name": "advice-posting.bso",
+      "publicKey": "12D3KooWH5UFNs9yfwJVsSUhEW5bYrtF8KmzfeJzwg84qWMoFJVY",
       "title": "/adv/ - Advice",
       "directoryCode": "adv",
       "features": {
@@ -149,7 +158,8 @@
       }
     },
     {
-      "address": "worksafe-gif.bso",
+      "name": "worksafe-gif.bso",
+      "publicKey": "12D3KooWAGHV9th2FN48KPvHMJwxen8h5mSM39pkaZWvvzcWMPr9",
       "title": "/wsg/ - Worksafe GIF",
       "directoryCode": "wsg",
       "features": {
@@ -165,7 +175,8 @@
       }
     },
     {
-      "address": "do-it-yourself.bso",
+      "name": "do-it-yourself.bso",
+      "publicKey": "12D3KooWKKbiaFu7x2EwueN6wxw3DJRQsvCv8KVRGbTTYpsGZXVa",
       "title": "/diy/ - Do It Yourself",
       "directoryCode": "diy",
       "features": {
@@ -181,7 +192,8 @@
       }
     },
     {
-      "address": "outdoors-posting.bso",
+      "name": "outdoors-posting.bso",
+      "publicKey": "12D3KooWQ2nPGxQxuSMY92kM3zKu1rBekJsXxXb5uNkHLDfSSxTm",
       "title": "/out/ - Outdoors",
       "directoryCode": "out",
       "features": {
@@ -197,7 +209,8 @@
       }
     },
     {
-      "address": "artwork-critique.bso",
+      "name": "artwork-critique.bso",
+      "publicKey": "12D3KooWQZ5HkAspHUPGEVoSaAZgqachZGtxCXxAXYBDTreR4uWJ",
       "title": "/ic/ - Artwork/Critique",
       "directoryCode": "ic",
       "features": {
@@ -213,7 +226,8 @@
       }
     },
     {
-      "address": "music-posting.bso",
+      "name": "music-posting.bso",
+      "publicKey": "12D3KooWQdQ6TkVA1Xe9zzaFP6vXBgsLeMAewpLpLwbsAYKivnQy",
       "title": "/mu/ - Music",
       "directoryCode": "mu",
       "features": {
@@ -229,7 +243,8 @@
       }
     },
     {
-      "address": "international-sfw.bso",
+      "name": "international-sfw.bso",
+      "publicKey": "12D3KooWMSUYcergS2BwbRzFynR5hQURc962W9iR81eTJKz89Q6n",
       "title": "/int/ - International",
       "directoryCode": "int",
       "features": {
@@ -245,7 +260,8 @@
       }
     },
     {
-      "address": "literature-posting.bso",
+      "name": "literature-posting.bso",
+      "publicKey": "12D3KooWKXimxiZWtgF3LoTdaW3btHhDzJN7P3qrsgHwRkow186x",
       "title": "/lit/ - Literature",
       "directoryCode": "lit",
       "features": {
@@ -261,7 +277,8 @@
       }
     },
     {
-      "address": "television-and-film.bso",
+      "name": "television-and-film.bso",
+      "publicKey": "12D3KooWGSRg4crzV5vXEya1ghXD7UBTqimqXTQvNUqy9NdzZNyd",
       "title": "/tv/ - Television & Film",
       "directoryCode": "tv",
       "features": {
@@ -277,7 +294,8 @@
       }
     },
     {
-      "address": "very-important-posts.bso",
+      "name": "very-important-posts.bso",
+      "publicKey": "12D3KooWNMnBJ5phkBWrcjfdnzdqPwCARmXwGWeZDKNJvCVPR8GT",
       "title": "/vip/ - Very Important Posts",
       "directoryCode": "vip",
       "features": {
@@ -293,7 +311,8 @@
       }
     },
     {
-      "address": "adult-gif.bso",
+      "name": "adult-gif.bso",
+      "publicKey": "12D3KooWJP8v5VUzKUfxr38BbhQPb5yidF3WapGQ6CjLctBV6QC1",
       "title": "/gif/ - Adult GIF",
       "directoryCode": "gif",
       "features": {
@@ -309,7 +328,8 @@
       }
     },
     {
-      "address": "international-nsfw.bso",
+      "name": "international-nsfw.bso",
+      "publicKey": "12D3KooWPuYtTzrq8gFnv6yM1r4egy1rd4cxLr1nsXTjfdYkfwcN",
       "title": "/bant/ - International/Random",
       "directoryCode": "bant",
       "features": {
@@ -325,7 +345,8 @@
       }
     },
     {
-      "address": "random-nsfw.bso",
+      "name": "random-nsfw.bso",
+      "publicKey": "12D3KooWJkJYkuVbJQhapcVGpo8oNmsXsKmFRrFqc1SHezZW9fX8",
       "title": "/b/ - Random",
       "directoryCode": "b",
       "features": {

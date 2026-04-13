@@ -23,6 +23,8 @@ export interface DirectoryFeatures {
 export interface DirectoryCommunity {
   title?: string;
   address: string;
+  name?: string;
+  publicKey?: string;
   nsfw?: boolean;
   directoryCode?: string;
   features?: DirectoryFeatures;
@@ -62,6 +64,8 @@ export const __resetDirectoriesModuleStateForTests = () => {
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 
+const getStringValue = (...values: unknown[]): string | undefined => values.find((value): value is string => typeof value === 'string' && value.length > 0);
+
 const normalizeFeatures = (value: unknown): DirectoryFeatures | undefined => {
   if (!isRecord(value)) {
     return undefined;
@@ -88,8 +92,22 @@ const deriveNsfw = (value: { nsfw?: unknown; features?: { nsfw?: boolean; safeFo
   return topLevelNsfw ?? featuresNsfw;
 };
 
-const toCanonicalCommunity = (value: { address: unknown; title?: unknown; nsfw?: unknown; directoryCode?: unknown; features?: unknown }): DirectoryCommunity | null => {
-  if (typeof value.address !== 'string') {
+const getDirectoryIdentifiers = (community: DirectoryCommunity): string[] => [
+  ...new Set([community.address, community.name, community.publicKey].filter((value): value is string => typeof value === 'string' && value.length > 0)),
+];
+
+const toCanonicalCommunity = (value: {
+  address?: unknown;
+  communityAddress?: unknown;
+  name?: unknown;
+  publicKey?: unknown;
+  title?: unknown;
+  nsfw?: unknown;
+  directoryCode?: unknown;
+  features?: unknown;
+}): DirectoryCommunity | null => {
+  const name = getStringValue(value.name, value.address, value.communityAddress);
+  if (!name) {
     return null;
   }
 
@@ -97,7 +115,9 @@ const toCanonicalCommunity = (value: { address: unknown; title?: unknown; nsfw?:
   const nsfw = deriveNsfw({ ...value, features });
 
   return {
-    address: value.address,
+    address: name,
+    name,
+    ...(typeof value.publicKey === 'string' ? { publicKey: value.publicKey } : {}),
     ...(typeof value.title === 'string' ? { title: value.title } : {}),
     ...(typeof value.directoryCode === 'string' ? { directoryCode: value.directoryCode } : {}),
     ...(features ? { features } : {}),
@@ -110,10 +130,11 @@ const dedupeCommunities = (entries: DirectoryCommunity[]): DirectoryCommunity[] 
   const normalizedEntries: DirectoryCommunity[] = [];
 
   for (const entry of entries) {
-    if (seenAddresses.has(entry.address)) {
+    const dedupeKey = entry.publicKey ?? entry.address;
+    if (seenAddresses.has(dedupeKey)) {
       continue;
     }
-    seenAddresses.add(entry.address);
+    seenAddresses.add(dedupeKey);
     normalizedEntries.push(entry);
   }
 
@@ -132,7 +153,9 @@ const adaptV2Directories = (value: Record<string, unknown>): DirectoryCommunity[
       }
       const features = isRecord(directory.features) ? directory.features : null;
       return toCanonicalCommunity({
-        address: directory.communityAddress,
+        communityAddress: directory.communityAddress,
+        name: directory.name,
+        publicKey: directory.publicKey,
         title: directory.title,
         directoryCode: directory.directoryCode,
         features,
@@ -163,8 +186,13 @@ export const findDirectoryByAddress = (directories: DirectoryCommunity[], addres
     return exactMatch;
   }
 
+  const exactIdentifierMatch = directories.find((community) => getDirectoryIdentifiers(community).includes(address));
+  if (exactIdentifierMatch) {
+    return exactIdentifierMatch;
+  }
+
   const normalizedAddress = normalizeBoardAddress(address);
-  return directories.find((community) => normalizeBoardAddress(community.address) === normalizedAddress);
+  return directories.find((community) => getDirectoryIdentifiers(community).some((identifier) => normalizeBoardAddress(identifier) === normalizedAddress));
 };
 
 const adaptV1Communities = (value: Record<string, unknown>): DirectoryCommunity[] => {
@@ -179,6 +207,8 @@ const adaptV1Communities = (value: Record<string, unknown>): DirectoryCommunity[
       }
       return toCanonicalCommunity({
         address: community.address,
+        name: community.name,
+        publicKey: community.publicKey,
         title: community.title,
         nsfw: community.nsfw,
         directoryCode: community.directoryCode,
@@ -188,6 +218,24 @@ const adaptV1Communities = (value: Record<string, unknown>): DirectoryCommunity[
     .filter((community): community is DirectoryCommunity => community !== null);
 
   return dedupeCommunities(communities);
+};
+
+const getDirectoriesMetadata = (value: unknown): DirectoriesMetadata => {
+  if (!isRecord(value)) {
+    return {
+      title: '',
+      description: '',
+      createdAt: 0,
+      updatedAt: 0,
+    };
+  }
+
+  return {
+    title: typeof value.title === 'string' ? value.title : '',
+    description: typeof value.description === 'string' ? value.description : '',
+    createdAt: typeof value.createdAt === 'number' ? value.createdAt : 0,
+    updatedAt: typeof value.updatedAt === 'number' ? value.updatedAt : 0,
+  };
 };
 
 const normalizeDirectoriesData = (value: unknown): DirectoriesData | null => {
@@ -202,30 +250,26 @@ const normalizeDirectoriesData = (value: unknown): DirectoriesData | null => {
     return null;
   }
 
-  const raw = directoriesData as DirectoriesData;
+  const fallbackMetadata = getDirectoriesMetadata(directoriesData as unknown);
   return {
-    title: typeof value.title === 'string' ? value.title : (raw.title ?? ''),
-    description: typeof value.description === 'string' ? value.description : (raw.description ?? ''),
-    createdAt: typeof value.createdAt === 'number' ? value.createdAt : (raw.createdAt ?? 0),
-    updatedAt: typeof value.updatedAt === 'number' ? value.updatedAt : (raw.updatedAt ?? 0),
+    title: typeof value.title === 'string' ? value.title : fallbackMetadata.title,
+    description: typeof value.description === 'string' ? value.description : fallbackMetadata.description,
+    createdAt: typeof value.createdAt === 'number' ? value.createdAt : fallbackMetadata.createdAt,
+    updatedAt: typeof value.updatedAt === 'number' ? value.updatedAt : fallbackMetadata.updatedAt,
     communities,
   };
 };
 
 let fallbackDirectoriesData: DirectoriesData | null = null;
 
-const getFallbackDirectoriesData = (): DirectoriesData => {
+export const getFallbackDirectoriesData = (): DirectoriesData => {
   if (fallbackDirectoriesData) return fallbackDirectoriesData;
   const normalized = normalizeDirectoriesData(directoriesData as unknown);
-  fallbackDirectoriesData =
-    normalized ??
-    ({
-      title: (directoriesData as DirectoriesData).title ?? '',
-      description: (directoriesData as DirectoriesData).description ?? '',
-      createdAt: (directoriesData as DirectoriesData).createdAt ?? 0,
-      updatedAt: (directoriesData as DirectoriesData).updatedAt ?? 0,
-      communities: (directoriesData as DirectoriesData).communities ?? [],
-    } as DirectoriesData);
+  const metadata = getDirectoriesMetadata(directoriesData as unknown);
+  fallbackDirectoriesData = normalized ?? {
+    ...metadata,
+    communities: [],
+  };
   return fallbackDirectoriesData;
 };
 
