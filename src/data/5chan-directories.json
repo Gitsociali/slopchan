@@ -277,6 +277,23 @@
       }
     },
     {
+      "name": "history-posting.bso",
+      "publicKey": "12D3KooWN7bzigSgU4rxayrPCjvq2ETJMN9Zv3cyazpRYh36QWiN",
+      "title": "/his/ - History & Humanities",
+      "directoryCode": "his",
+      "features": {
+        "pseudonymityMode": "per-reply",
+        "safeForWork": true,
+        "hasFlags": false,
+        "requirePostLink": true,
+        "requirePostLinkIsMedia": true,
+        "bumpLimit": 300,
+        "noSpoilers": true,
+        "noSpoilerReplies": true,
+        "postsPerPage": 15
+      }
+    },
+    {
       "name": "television-and-film.bso",
       "publicKey": "12D3KooWGSRg4crzV5vXEya1ghXD7UBTqimqXTQvNUqy9NdzZNyd",
       "title": "/tv/ - Television & Film",
