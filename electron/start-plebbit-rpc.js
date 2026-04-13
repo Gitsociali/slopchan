@@ -2,7 +2,7 @@ import tcpPortUsed from 'tcp-port-used';
 import EnvPaths from 'env-paths';
 import { randomBytes } from 'crypto';
 import fs from 'fs-extra';
-import PlebbitRpc from '@plebbit/plebbit-js/rpc';
+import PlebbitRpc from '@pkcprotocol/pkc-js/rpc';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
