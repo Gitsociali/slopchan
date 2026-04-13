@@ -23,7 +23,12 @@ import {
 
 const communities = [
   { address: 'business.eth', title: '/biz/ - Business & Finance' },
-  { address: 'music-posting.bso', title: '/mu/ - Music' },
+  {
+    address: 'music-posting.bso',
+    name: 'music-posting.bso',
+    publicKey: '12D3KooWQdQ6TkVA1Xe9zzaFP6vXBgsLeMAewpLpLwbsAYKivnQy',
+    title: '/mu/ - Music',
+  },
   { address: 'random.eth', directoryCode: 'b', title: 'Random' },
 ];
 
@@ -36,6 +41,7 @@ describe('directory mapping helpers', () => {
   it('maps addresses to canonical board paths and back', () => {
     expect(getBoardPath('business.eth', communities)).toBe('biz');
     expect(getBoardPath('music-posting.eth', communities)).toBe('mu');
+    expect(getBoardPath('12D3KooWQdQ6TkVA1Xe9zzaFP6vXBgsLeMAewpLpLwbsAYKivnQy', communities)).toBe('mu');
     expect(getBoardPath('unknown.example', communities)).toBe('unknown.example');
 
     expect(getSubplebbitAddress('biz', communities)).toBe('business.eth');

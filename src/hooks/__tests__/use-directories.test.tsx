@@ -117,7 +117,12 @@ describe('use-directories', () => {
 
   it('normalizes aliases and finds matching directories by exact or alias address', () => {
     const communities = [
-      { address: 'music-posting.bso', title: '/mu/ - Music' },
+      {
+        address: 'music-posting.bso',
+        name: 'music-posting.bso',
+        publicKey: '12D3KooWQdQ6TkVA1Xe9zzaFP6vXBgsLeMAewpLpLwbsAYKivnQy',
+        title: '/mu/ - Music',
+      },
       { address: 'business.eth', title: '/biz/ - Business & Finance' },
     ];
 
@@ -127,6 +132,7 @@ describe('use-directories', () => {
 
     expect(findDirectoryByAddress(communities, 'music-posting.bso')?.address).toBe('music-posting.bso');
     expect(findDirectoryByAddress(communities, 'music-posting.eth')?.address).toBe('music-posting.bso');
+    expect(findDirectoryByAddress(communities, '12D3KooWQdQ6TkVA1Xe9zzaFP6vXBgsLeMAewpLpLwbsAYKivnQy')?.address).toBe('music-posting.bso');
     expect(findDirectoryByAddress(communities, undefined)).toBeUndefined();
   });
 
@@ -149,19 +155,22 @@ describe('use-directories', () => {
       updatedAt: 4,
       directories: [
         {
-          communityAddress: 'music-posting.bso',
+          name: 'music-posting.bso',
+          publicKey: 'music-public-key',
           title: '/mu/ - Music',
           directoryCode: 'mu',
           features: { safeForWork: true, postsPerPage: 25, nested: { ignore: true } },
         },
         {
-          communityAddress: 'flash.bso',
+          name: 'flash.bso',
+          publicKey: 'flash-public-key',
           title: '/f/ - Flash',
           directoryCode: 'f',
           features: { nsfw: true, postsPerPage: 10 },
         },
         {
-          communityAddress: 'flash.bso',
+          name: 'flash.bso',
+          publicKey: 'flash-public-key',
           title: '/f/ - Duplicate Flash',
           directoryCode: 'f',
         },
@@ -196,6 +205,8 @@ describe('use-directories', () => {
     expect(latestSnapshot?.directories).toEqual([
       {
         address: 'music-posting.bso',
+        name: 'music-posting.bso',
+        publicKey: 'music-public-key',
         title: '/mu/ - Music',
         directoryCode: 'mu',
         features: { safeForWork: true, postsPerPage: 25 },
@@ -203,6 +214,8 @@ describe('use-directories', () => {
       },
       {
         address: 'flash.bso',
+        name: 'flash.bso',
+        publicKey: 'flash-public-key',
         title: '/f/ - Flash',
         directoryCode: 'f',
         features: { nsfw: true, postsPerPage: 10 },
