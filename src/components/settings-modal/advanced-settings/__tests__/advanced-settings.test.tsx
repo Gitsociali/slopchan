@@ -9,11 +9,11 @@ const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise
 const testState = vi.hoisted(() => ({
   account: {
     mediaIpfsGatewayUrl: 'https://media.old.example',
+    chainProviders: {
+      eth: { chainId: 1, urls: ['https://eth.old.example'] },
+      sol: { chainId: 101, urls: ['https://sol.old.example'] },
+    },
     pkcOptions: {
-      chainProviders: {
-        eth: { chainId: 1, urls: ['https://eth.old.example'] },
-        sol: { chainId: 101, urls: ['https://sol.old.example'] },
-      },
       httpRoutersOptions: ['https://router.old.example'],
       ipfsGatewayUrls: ['https://ipfs.old.example'],
       pkcRpcClientsOptions: ['ws://old.example/key'],
@@ -86,11 +86,11 @@ describe('AdvancedSettings', () => {
     vi.clearAllMocks();
     testState.account = {
       mediaIpfsGatewayUrl: 'https://media.old.example',
+      chainProviders: {
+        eth: { chainId: 1, urls: ['https://eth.old.example'] },
+        sol: { chainId: 101, urls: ['https://sol.old.example'] },
+      },
       pkcOptions: {
-        chainProviders: {
-          eth: { chainId: 1, urls: ['https://eth.old.example'] },
-          sol: { chainId: 101, urls: ['https://sol.old.example'] },
-        },
         httpRoutersOptions: ['https://router.old.example'],
         ipfsGatewayUrls: ['https://ipfs.old.example'],
         pkcRpcClientsOptions: ['ws://old.example/key'],
@@ -154,11 +154,11 @@ describe('AdvancedSettings', () => {
 
     expect(testState.setAccountMock).toHaveBeenCalledWith({
       mediaIpfsGatewayUrl: 'https://media.new.example',
+      chainProviders: {
+        eth: { chainId: 1, urls: ['https://eth.one.example'] },
+        sol: { chainId: 101, urls: ['https://sol.one.example'] },
+      },
       pkcOptions: {
-        chainProviders: {
-          eth: { chainId: 1, urls: ['https://eth.one.example'] },
-          sol: { chainId: 101, urls: ['https://sol.one.example'] },
-        },
         dataPath: '/tmp/next-plebbit',
         httpRoutersOptions: ['https://router.one.example'],
         ipfsGatewayUrls: ['https://ipfs.one.example', 'https://ipfs.two.example'],

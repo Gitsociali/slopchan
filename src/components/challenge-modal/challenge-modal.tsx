@@ -9,6 +9,7 @@ import styles from './challenge-modal.module.css';
 import capitalize from 'lodash/capitalize';
 import { useSpring, animated } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
+import getShortAddress from '../../lib/get-short-address';
 
 const useParentAddress = (parentCid?: string) => {
   const parentComment = useComment({ commentCid: parentCid, onlyIfCached: true });
@@ -24,6 +25,17 @@ interface ChallengeProps {
 const TextChallenge = ({ challenge }: { challenge: string }) => <div className={styles.challengeMedia}>{challenge}</div>;
 
 const ImageChallenge = ({ challenge }: { challenge: string }) => <img alt='' className={styles.challengeMedia} src={`data:image/png;base64,${challenge}`} />;
+
+const isLocalIframeHostname = (hostname: string) => hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]' || hostname.endsWith('.localhost');
+
+const getReadableIframeUrl = (challengeUrl: string) => {
+  try {
+    const url = new URL(challengeUrl);
+    return url.host || url.hostname;
+  } catch {
+    return '';
+  }
+};
 
 interface IframeChallengeProps {
   challenge: string;
@@ -42,6 +54,7 @@ const IframeChallenge = ({ challenge, shortCommunityAddress, communityAddress, r
   const [iframeUrlState, setIframeUrl] = useState('');
   const [iframeOrigin, setIframeOrigin] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const displayCommunityAddress = shortCommunityAddress || (communityAddress ? getShortAddress(communityAddress) : '') || communityAddress || 'unknown board';
 
   const handleLoadIframe = useCallback(() => {
     const iframeUrl = challenge;
@@ -60,8 +73,10 @@ const IframeChallenge = ({ challenge, shortCommunityAddress, communityAddress, r
 
     try {
       const validatedUrl = new URL(replacedUrl);
-      if (validatedUrl.protocol !== 'https:') {
-        throw new Error('Only HTTPS iframe challenges are supported');
+      const isHttps = validatedUrl.protocol === 'https:';
+      const isLocalHttp = validatedUrl.protocol === 'http:' && isLocalIframeHostname(validatedUrl.hostname);
+      if (!isHttps && !isLocalHttp) {
+        throw new Error('Only HTTPS iframe challenges or localhost HTTP challenges are supported');
       }
       validatedUrl.pathname = validatedUrl.pathname.replace(/\/{2,}/g, '/');
       validatedUrl.searchParams.set('theme', theme);
@@ -101,7 +116,7 @@ const IframeChallenge = ({ challenge, shortCommunityAddress, communityAddress, r
         {publicationDetails}
         <div className={styles.challengeMediaWrapper}>
           <div className={`${styles.challengeMedia} ${styles.iframeChallengeWarning}`}>
-            {shortCommunityAddress || communityAddress || 'unknown board'} wants to open {readableUrl || 'an external site'}
+            {displayCommunityAddress} wants to open {readableUrl || 'an external site'}
           </div>
         </div>
         <div className={`${styles.challengeFooter} ${styles.iframeFooter}`}>
@@ -235,26 +250,11 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
   }, [abandonModal]);
 
   const getChallengeUrl = useCallback(() => {
-    try {
-      const iframeUrl = currentChallenge?.challenge;
-      if (!iframeUrl) return '';
-      const url = new URL(iframeUrl);
-      if (url.hostname === 'mintpass.org') return url.hostname;
-      return url.href;
-    } catch {
-      return '';
-    }
+    const iframeUrl = currentChallenge?.challenge;
+    if (!iframeUrl) return '';
+    return getReadableIframeUrl(iframeUrl);
   }, [currentChallenge]);
-
-  const readableUrl = (() => {
-    const url = getChallengeUrl();
-    if (!url) return '';
-    try {
-      return decodeURIComponent(url);
-    } catch {
-      return url;
-    }
-  })();
+  const readableUrl = getChallengeUrl();
 
   if (!challenges?.length || !publication || !currentChallenge) {
     return null;

@@ -112,6 +112,7 @@ describe('usePublishReply', () => {
       quotedCids: ['quoted-cid'],
       spoiler: true,
     });
+    expect('subplebbitAddress' in (testState.lastPublishOptions || {})).toBe(false);
   });
 
   it('resolves same-board external quote references before triggering publish', async () => {

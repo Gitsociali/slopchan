@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/95b46a8350ed5a2f96721f0dc14f2aaf26d410bf"
+    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/648d789ff2c42feec208156a6c03af6e3825f45d"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/cli": "npm:7.4.5"
@@ -1519,22 +1519,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocial/bso-resolver@https://github.com/bitsocialnet/bso-resolver.git#a005e4b507435c0f399328800d6c421bf62b14ed":
-  version: 0.0.2
-  resolution: "@bitsocial/bso-resolver@https://github.com/bitsocialnet/bso-resolver.git#commit=a005e4b507435c0f399328800d6c421bf62b14ed"
+"@bitsocial/bso-resolver@npm:0.0.4":
+  version: 0.0.4
+  resolution: "@bitsocial/bso-resolver@npm:0.0.4"
   dependencies:
     "@pkc/pkc-logger": "github:pkcprotocol/pkc-logger#cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a"
     better-sqlite3: "npm:12.6.2"
     viem: "npm:2.47.0"
-  checksum: 10c0/64f86a126ba3c3f4c9516bafa895dfbb4f18f72c9e9cd0e1f9584755291e768f8ff33b08988ce01fa0fcce0cafd987b79547e31770d5e4f038b7b8b74422e778
+  checksum: 10c0/39cf1f3381343591e98ae149c682acd245403bde5608135d849dd31904c6b539f3accdc46e1e6a3978ddf6dea71f85814be8792ce5f5e0d7526399f1eb23ac48
   languageName: node
   linkType: hard
 
-"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/95b46a8350ed5a2f96721f0dc14f2aaf26d410bf":
+"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/648d789ff2c42feec208156a6c03af6e3825f45d":
   version: 0.1.0
-  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/95b46a8350ed5a2f96721f0dc14f2aaf26d410bf"
+  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/648d789ff2c42feec208156a6c03af6e3825f45d"
   dependencies:
-    "@bitsocial/bso-resolver": "https://github.com/bitsocialnet/bso-resolver.git#a005e4b507435c0f399328800d6c421bf62b14ed"
+    "@bitsocial/bso-resolver": "npm:0.0.4"
     "@pkc/pkc-logger": "https://github.com/pkcprotocol/pkc-logger.git"
     "@pkcprotocol/pkc-js": "https://github.com/pkcprotocol/pkc-js.git#e63026e6cd33df5af3a3b5e6473b1e364d89fbdb"
     assert: "npm:2.0.0"
@@ -1551,7 +1551,7 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/48a658a76f77d9febd6a11b6c8cb027574999acd6189beee5b121cae81653f123b06cebad134b10a36ca70ec3d5adbbf80c4c3e5de8e81d745d0430c95dfcf08
+  checksum: 10c0/e4acb68b8b1cc50e8fffaa9245cb47f7496164b98c38ec7891f7cedaac7d80e8b58e341cef1e591995e70854ed32a7320f55d2bd3cb94064df165a24f4f1aba0
   languageName: node
   linkType: hard
 

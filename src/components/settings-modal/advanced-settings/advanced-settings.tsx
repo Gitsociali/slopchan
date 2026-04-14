@@ -237,7 +237,7 @@ const AdvancedSettings = () => {
 
     const mediaIpfsGatewayUrl = mediaIpfsGatewayUrlRef.current?.value.trim();
 
-    const pubsubHttpClientsOptions = pubsubProvidersRef.current?.value
+    const pubsubKuboRpcClientsOptions = pubsubProvidersRef.current?.value
       .split('\n')
       .map((url) => url.trim())
       .filter((url) => url !== '');
@@ -272,11 +272,11 @@ const AdvancedSettings = () => {
       await setAccount({
         ...account,
         mediaIpfsGatewayUrl,
+        chainProviders,
         pkcOptions: {
           ...protocolOptions,
           ipfsGatewayUrls,
-          pubsubKuboRpcClientsOptions: pubsubHttpClientsOptions,
-          chainProviders,
+          pubsubKuboRpcClientsOptions,
           httpRoutersOptions,
           pkcRpcClientsOptions,
           dataPath,

@@ -82,6 +82,7 @@ describe('usePublishPost', () => {
       spoiler: true,
       title: 'Hello world',
     });
+    expect('subplebbitAddress' in latestValue.publishPostOptions).toBe(false);
     expect(typeof latestValue.publishPostOptions.onChallengeVerification).toBe('function');
     expect(typeof latestValue.publishPostOptions.onError).toBe('function');
   });
