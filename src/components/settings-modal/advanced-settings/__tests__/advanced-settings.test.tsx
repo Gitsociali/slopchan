@@ -9,20 +9,20 @@ const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise
 const testState = vi.hoisted(() => ({
   account: {
     mediaIpfsGatewayUrl: 'https://media.old.example',
-    plebbitOptions: {
-      chainProviders: {
-        eth: { chainId: 1, urls: ['https://eth.old.example'] },
-        sol: { chainId: 101, urls: ['https://sol.old.example'] },
-      },
+    chainProviders: {
+      eth: { chainId: 1, urls: ['https://eth.old.example'] },
+      sol: { chainId: 101, urls: ['https://sol.old.example'] },
+    },
+    pkcOptions: {
       httpRoutersOptions: ['https://router.old.example'],
       ipfsGatewayUrls: ['https://ipfs.old.example'],
-      plebbitRpcClientsOptions: ['ws://old.example/key'],
-      pubsubHttpClientsOptions: ['https://pubsub.old.example'],
+      pkcRpcClientsOptions: ['ws://old.example/key'],
+      pubsubKuboRpcClientsOptions: ['https://pubsub.old.example'],
     },
   } as Record<string, any>,
   rpcSettings: {
-    plebbitRpcSettings: {
-      plebbitOptions: {
+    pkcRpcSettings: {
+      pkcOptions: {
         dataPath: '/tmp/plebbit-data',
       },
     },
@@ -40,7 +40,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   setAccount: (account: unknown) => testState.setAccountMock(account),
   useAccount: () => testState.account,
-  usePlebbitRpcSettings: () => testState.rpcSettings,
+  usePkcRpcSettings: () => testState.rpcSettings,
 }));
 
 let alertSpy: ReturnType<typeof vi.spyOn>;
@@ -86,20 +86,20 @@ describe('AdvancedSettings', () => {
     vi.clearAllMocks();
     testState.account = {
       mediaIpfsGatewayUrl: 'https://media.old.example',
-      plebbitOptions: {
-        chainProviders: {
-          eth: { chainId: 1, urls: ['https://eth.old.example'] },
-          sol: { chainId: 101, urls: ['https://sol.old.example'] },
-        },
+      chainProviders: {
+        eth: { chainId: 1, urls: ['https://eth.old.example'] },
+        sol: { chainId: 101, urls: ['https://sol.old.example'] },
+      },
+      pkcOptions: {
         httpRoutersOptions: ['https://router.old.example'],
         ipfsGatewayUrls: ['https://ipfs.old.example'],
-        plebbitRpcClientsOptions: ['ws://old.example/key'],
-        pubsubHttpClientsOptions: ['https://pubsub.old.example'],
+        pkcRpcClientsOptions: ['ws://old.example/key'],
+        pubsubKuboRpcClientsOptions: ['https://pubsub.old.example'],
       },
     };
     testState.rpcSettings = {
-      plebbitRpcSettings: {
-        plebbitOptions: {
+      pkcRpcSettings: {
+        pkcOptions: {
           dataPath: '/tmp/plebbit-data',
         },
       },
@@ -154,16 +154,16 @@ describe('AdvancedSettings', () => {
 
     expect(testState.setAccountMock).toHaveBeenCalledWith({
       mediaIpfsGatewayUrl: 'https://media.new.example',
-      plebbitOptions: {
-        chainProviders: {
-          eth: { chainId: 1, urls: ['https://eth.one.example'] },
-          sol: { chainId: 101, urls: ['https://sol.one.example'] },
-        },
+      chainProviders: {
+        eth: { chainId: 1, urls: ['https://eth.one.example'] },
+        sol: { chainId: 101, urls: ['https://sol.one.example'] },
+      },
+      pkcOptions: {
         dataPath: '/tmp/next-plebbit',
         httpRoutersOptions: ['https://router.one.example'],
         ipfsGatewayUrls: ['https://ipfs.one.example', 'https://ipfs.two.example'],
-        plebbitRpcClientsOptions: ['ws://127.0.0.1:9138/secret'],
-        pubsubHttpClientsOptions: ['https://pubsub.one.example'],
+        pkcRpcClientsOptions: ['ws://127.0.0.1:9138/secret'],
+        pubsubKuboRpcClientsOptions: ['https://pubsub.one.example'],
       },
     });
     expect(alertSpy).toHaveBeenCalledWith('Options saved, reloading...');
@@ -172,8 +172,8 @@ describe('AdvancedSettings', () => {
 
   it('disables remote-managed textareas and shows the electron data path when RPC is connected', async () => {
     testState.rpcSettings = {
-      plebbitRpcSettings: {
-        plebbitOptions: {
+      pkcRpcSettings: {
+        pkcOptions: {
           dataPath: '/tmp/connected-node',
         },
       },

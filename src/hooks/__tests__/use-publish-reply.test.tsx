@@ -104,14 +104,15 @@ describe('usePublishReply', () => {
     expect(typeof latestValue.publishReply).toBe('function');
     expect(testState.lastPublishOptions).toMatchObject({
       author: { displayName: 'Bob' },
+      communityAddress: 'music.eth',
       content: 'Replying to >>12',
       link: undefined,
       parentCid: 'parent-cid',
       postCid: 'parent-cid',
       quotedCids: ['quoted-cid'],
       spoiler: true,
-      subplebbitAddress: 'music.eth',
     });
+    expect('subplebbitAddress' in (testState.lastPublishOptions || {})).toBe(false);
   });
 
   it('resolves same-board external quote references before triggering publish', async () => {

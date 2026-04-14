@@ -76,12 +76,13 @@ describe('usePublishPost', () => {
     expect(latestValue.publishPost).toBe(testState.publishCommentMock);
     expect(latestValue.publishPostOptions).toMatchObject({
       author: { displayName: 'Alice' },
+      communityAddress: 'music.eth',
       content: undefined,
       link: undefined,
       spoiler: true,
-      subplebbitAddress: 'music.eth',
       title: 'Hello world',
     });
+    expect('subplebbitAddress' in latestValue.publishPostOptions).toBe(false);
     expect(typeof latestValue.publishPostOptions.onChallengeVerification).toBe('function');
     expect(typeof latestValue.publishPostOptions.onError).toBe('function');
   });

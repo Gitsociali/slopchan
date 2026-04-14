@@ -3,6 +3,7 @@ import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ChallengeModal from '../challenge-modal';
+import getShortAddress from '../../../lib/get-short-address';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -88,7 +89,7 @@ let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 let postMessageMock: ReturnType<typeof vi.fn>;
 let root: Root;
 
-const createPublication = () => ({
+const createPublication = (): Record<string, any> => ({
   author: { displayName: 'Alice' },
   content: 'Publication content',
   link: 'https://example.com/link',
@@ -283,6 +284,63 @@ describe('ChallengeModal', () => {
     await clickButton('Done');
     expect(publication.publishChallengeAnswers).toHaveBeenCalledWith(['']);
     expect(testState.removeChallengeMock).toHaveBeenCalledOnce();
+  });
+
+  it('allows localhost http iframe challenges for local spam blocker testing', async () => {
+    const publication = createPublication();
+    testState.challenges = [
+      createStoredChallenge(
+        {
+          challenge: 'http://localhost:3000/api/v1/iframe/session-123?foo=bar',
+          type: 'url/iframe',
+        },
+        publication,
+      ),
+    ];
+
+    await renderModal();
+    expect(container.textContent).toContain('mu wants to open localhost:3000');
+
+    await clickButton('Open');
+
+    const iframe = container.querySelector('iframe');
+    expect(iframe).not.toBeNull();
+    expect(iframe?.getAttribute('src')).toContain('http://localhost:3000/api/v1/iframe/session-123?foo=bar&theme=dark');
+
+    await act(async () => {
+      iframe?.dispatchEvent(new Event('load', { bubbles: true }));
+    });
+
+    expect(postMessageMock).toHaveBeenCalledWith(
+      {
+        source: 'plebbit-5chan',
+        theme: 'dark',
+        type: 'plebbit-theme',
+      },
+      'http://localhost:3000',
+    );
+  });
+
+  it('uses the shortened community address when shortCommunityAddress is unavailable', async () => {
+    const longCommunityAddress = '12D3KooWS6yKc5N7o6JcAYHZpaQwAwyh1VddYatarU75Se3HXEeD';
+    const publication = {
+      ...createPublication(),
+      shortCommunityAddress: undefined,
+      communityAddress: longCommunityAddress,
+    };
+    testState.challenges = [
+      createStoredChallenge(
+        {
+          challenge: 'http://localhost:3000/api/v1/iframe/session-123?foo=bar',
+          type: 'url/iframe',
+        },
+        publication,
+      ),
+    ];
+
+    await renderModal();
+    expect(container.textContent).toContain(`${getShortAddress(longCommunityAddress)} wants to open localhost:3000`);
+    expect(container.textContent).not.toContain(`${longCommunityAddress} wants to open localhost:3000`);
   });
 
   it('alerts when iframe challenges need a signer address and the account is missing one', async () => {

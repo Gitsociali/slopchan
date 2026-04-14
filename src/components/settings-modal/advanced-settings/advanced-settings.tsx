@@ -1,5 +1,5 @@
 import { memo, RefObject, useRef, useState } from 'react';
-import { setAccount, useAccount, usePlebbitRpcSettings } from '@bitsocialnet/bitsocial-react-hooks';
+import { setAccount, useAccount, usePkcRpcSettings } from '@bitsocialnet/bitsocial-react-hooks';
 import { useTranslation } from 'react-i18next';
 import styles from './advanced-settings.module.css';
 
@@ -16,10 +16,10 @@ interface SettingsProps {
 
 const IPFSGatewaysSettings = ({ ipfsGatewayUrlsRef, mediaIpfsGatewayUrlRef }: SettingsProps) => {
   const account = useAccount();
-  const { plebbitOptions, mediaIpfsGatewayUrl } = account || {};
-  const { ipfsGatewayUrls } = plebbitOptions || {};
-  const plebbitRpc = usePlebbitRpcSettings();
-  const isConnectedToRpc = plebbitRpc?.state === 'connected';
+  const { pkcOptions, mediaIpfsGatewayUrl } = account || {};
+  const { ipfsGatewayUrls } = pkcOptions || {};
+  const pkcRpc = usePkcRpcSettings();
+  const isConnectedToRpc = pkcRpc?.state === 'connected';
   const ipfsGatewayUrlsDefaultValue = ipfsGatewayUrls?.join('\n');
 
   return (
@@ -53,11 +53,11 @@ const IPFSGatewaysSettings = ({ ipfsGatewayUrlsRef, mediaIpfsGatewayUrlRef }: Se
 
 const PubsubProvidersSettings = ({ pubsubProvidersRef }: SettingsProps) => {
   const account = useAccount();
-  const { plebbitOptions } = account || {};
-  const { pubsubHttpClientsOptions } = plebbitOptions || {};
-  const plebbitRpc = usePlebbitRpcSettings();
-  const isConnectedToRpc = plebbitRpc?.state === 'connected';
-  const pubsubProvidersDefaultValue = pubsubHttpClientsOptions?.join('\n');
+  const { pkcOptions } = account || {};
+  const { pubsubKuboRpcClientsOptions } = pkcOptions || {};
+  const pkcRpc = usePkcRpcSettings();
+  const isConnectedToRpc = pkcRpc?.state === 'connected';
+  const pubsubProvidersDefaultValue = pubsubKuboRpcClientsOptions?.join('\n');
 
   return (
     <div className={styles.pubsubProvidersSettings}>
@@ -69,7 +69,7 @@ const PubsubProvidersSettings = ({ pubsubProvidersRef }: SettingsProps) => {
         autoCapitalize='off'
         autoComplete='off'
         spellCheck='false'
-        rows={pubsubHttpClientsOptions?.length || 1}
+        rows={pubsubKuboRpcClientsOptions?.length || 1}
       />
     </div>
   );
@@ -77,10 +77,10 @@ const PubsubProvidersSettings = ({ pubsubProvidersRef }: SettingsProps) => {
 
 const HttpRoutersSettings = ({ httpRoutersRef }: SettingsProps) => {
   const account = useAccount();
-  const { plebbitOptions } = account || {};
-  const { httpRoutersOptions } = plebbitOptions || {};
-  const plebbitRpc = usePlebbitRpcSettings();
-  const isConnectedToRpc = plebbitRpc?.state === 'connected';
+  const { pkcOptions } = account || {};
+  const { httpRoutersOptions } = pkcOptions || {};
+  const pkcRpc = usePkcRpcSettings();
+  const isConnectedToRpc = pkcRpc?.state === 'connected';
   const httpRoutersDefaultValue = httpRoutersOptions?.join('\n');
 
   return (
@@ -101,8 +101,7 @@ const HttpRoutersSettings = ({ httpRoutersRef }: SettingsProps) => {
 
 const BlockchainProvidersSettings = ({ ethRpcRef, solRpcRef }: SettingsProps) => {
   const account = useAccount();
-  const { plebbitOptions } = account || {};
-  const { chainProviders } = plebbitOptions || {};
+  const { chainProviders } = account || {};
   const ethRpcDefaultValue = chainProviders?.['eth']?.urls.join('\n');
   const solRpcDefaultValue = chainProviders?.['sol']?.urls.join('\n');
 
@@ -137,13 +136,13 @@ const BlockchainProvidersSettings = ({ ethRpcRef, solRpcRef }: SettingsProps) =>
 const P2pRPCSettings = ({ p2pRpcRef }: SettingsProps) => {
   const [showInfo, setShowInfo] = useState(false);
   const account = useAccount();
-  const { plebbitOptions } = account || {};
-  const { plebbitRpcClientsOptions } = plebbitOptions || {};
+  const { pkcOptions } = account || {};
+  const { pkcRpcClientsOptions } = pkcOptions || {};
 
   return (
     <div className={styles.p2pRPCSettings}>
       <div>
-        <input type='text' defaultValue={plebbitRpcClientsOptions} ref={p2pRpcRef} autoCorrect='off' autoCapitalize='off' spellCheck='false' />
+        <input type='text' defaultValue={pkcRpcClientsOptions} ref={p2pRpcRef} autoCorrect='off' autoCapitalize='off' spellCheck='false' />
         <button onClick={() => setShowInfo(!showInfo)}>{showInfo ? 'X' : '?'}</button>
       </div>
       {showInfo && (
@@ -165,10 +164,10 @@ const P2pRPCSettings = ({ p2pRpcRef }: SettingsProps) => {
 };
 
 const P2pDataPathSettings = ({ p2pDataPathRef }: SettingsProps) => {
-  const plebbitRpc = usePlebbitRpcSettings();
-  const { plebbitRpcSettings } = plebbitRpc || {};
-  const isConnectedToRpc = plebbitRpc?.state === 'connected';
-  const path = plebbitRpcSettings?.plebbitOptions?.dataPath || '';
+  const pkcRpc = usePkcRpcSettings();
+  const { pkcRpcSettings } = pkcRpc || {};
+  const isConnectedToRpc = pkcRpc?.state === 'connected';
+  const path = pkcRpcSettings?.pkcOptions?.dataPath || '';
 
   return (
     <div className={styles.p2pDataPathSettings}>
@@ -184,7 +183,7 @@ const isElectron = window.electronApi?.isElectron === true;
 const AdvancedSettings = () => {
   const { t } = useTranslation();
   const account = useAccount();
-  const { plebbitOptions } = account || {};
+  const { pkcOptions } = account || {};
 
   const ipfsGatewayUrlsRef = useRef<HTMLTextAreaElement>(null);
   const mediaIpfsGatewayUrlRef = useRef<HTMLInputElement>(null);
@@ -203,7 +202,7 @@ const AdvancedSettings = () => {
 
     const mediaIpfsGatewayUrl = mediaIpfsGatewayUrlRef.current?.value.trim();
 
-    const pubsubHttpClientsOptions = pubsubProvidersRef.current?.value
+    const pubsubKuboRpcClientsOptions = pubsubProvidersRef.current?.value
       .split('\n')
       .map((url) => url.trim())
       .filter((url) => url !== '');
@@ -223,7 +222,7 @@ const AdvancedSettings = () => {
       .map((url) => url.trim())
       .filter((url) => url !== '');
 
-    const plebbitRpcClientsOptions = p2pRpcRef.current?.value.trim() ? [p2pRpcRef.current.value.trim()] : undefined;
+    const pkcRpcClientsOptions = p2pRpcRef.current?.value.trim() ? [p2pRpcRef.current.value.trim()] : undefined;
     const dataPath = p2pDataPathRef.current?.value.trim() || undefined;
 
     const chainProviders: Record<string, { urls: string[] | undefined; chainId: number }> = {};
@@ -238,13 +237,13 @@ const AdvancedSettings = () => {
       await setAccount({
         ...account,
         mediaIpfsGatewayUrl,
-        plebbitOptions: {
-          ...plebbitOptions,
+        chainProviders,
+        pkcOptions: {
+          ...pkcOptions,
           ipfsGatewayUrls,
-          pubsubHttpClientsOptions,
-          chainProviders,
+          pubsubKuboRpcClientsOptions,
           httpRoutersOptions,
-          plebbitRpcClientsOptions,
+          pkcRpcClientsOptions,
           dataPath,
         },
       });
