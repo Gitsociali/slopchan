@@ -40,6 +40,8 @@
   border: none;
   image-rendering: pixelated;
   background-image: var(--close-button-background-image);
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .container input, .container textarea {
