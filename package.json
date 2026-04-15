@@ -8,7 +8,7 @@
   "license": "GPL-2.0-only",
   "private": true,
   "dependencies": {
-    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/9ebb84bd12ca95a10b426f44d43b0e73e740146d",
+    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/8480b4276ca77588bfc2e3b45702ec80729adc3c",
     "@capacitor/app": "7.0.1",
     "@capacitor/status-bar": "7.0.1",
     "@capawesome/capacitor-android-edge-to-edge-support": "7.2.2",
@@ -50,7 +50,7 @@
   "scripts": {
     "generate:assets": "node scripts/generate-asset-manifest.js",
     "sync:directories": "node scripts/sync-directories.js",
-    "postinstall": "node scripts/patch-capacitor-cli-tar.cjs && node scripts/patch-bitsocial-react-hooks-esm.cjs",
+    "postinstall": "node scripts/patch-capacitor-cli-tar.cjs",
     "prebuild": "corepack yarn sync:directories && corepack yarn generate:assets",
     "prestart": "corepack yarn sync:directories && corepack yarn generate:assets",
     "start": "node scripts/start-dev.js",

@@ -28,14 +28,14 @@ If uncertain, ask the developer before adding an entry.
 
 ## Entries
 
-### 5chan patches its installed hooks tarball instead of using the local hooks repo
+### 5chan consumes a pinned hooks tarball instead of using the local hooks repo
 
 - **Date:** 2026-04-15
 - **Observed by:** Codex
-- **Context:** Debugging strict `{name, publicKey}` community refs and the temporary `scripts/patch-bitsocial-react-hooks-esm.cjs` workaround
-- **What was surprising:** 5chan does not consume the nearby `/Users/Tommaso/Desktop/bitsocial/bitsocial-react-hooks` checkout; `package.json` installs a pinned GitHub tarball of `@bitsocialnet/bitsocial-react-hooks` and then mutates its `dist/` files in `postinstall`.
-- **Impact:** Agents can wrongly assume local hooks source changes are already active in 5chan, or treat the postinstall patch as app logic instead of a temporary package-level workaround.
-- **Mitigation:** Before debugging hooks behavior from 5chan, check `package.json` to see whether the app points at a tarball commit or a local path. If `scripts/patch-bitsocial-react-hooks-esm.cjs` is involved, fix the underlying issue in `bitsocial-react-hooks`, rebuild its `dist/`, update 5chan to the fixed commit/path, and then remove the patch script.
+- **Context:** Debugging strict `{name, publicKey}` community refs after upstream fixes landed in `bitsocial-react-hooks`
+- **What was surprising:** 5chan does not consume the nearby `/Users/Tommaso/Desktop/bitsocial/bitsocial-react-hooks` checkout by default; `package.json` installs a pinned GitHub tarball of `@bitsocialnet/bitsocial-react-hooks`.
+- **Impact:** Agents can wrongly assume local hooks source changes are already active in 5chan, or debug the wrong package build when the app is really running a tarball revision from GitHub.
+- **Mitigation:** Before debugging hooks behavior from 5chan, check `package.json` to see whether the app points at a tarball commit or a local path. If you need fresh hooks behavior, update the tarball commit or temporarily switch 5chan to a local path intentionally.
 - **Status:** confirmed
 
 ### Portless breaks Windows installs
