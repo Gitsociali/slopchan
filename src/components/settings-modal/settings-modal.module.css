@@ -34,7 +34,7 @@
   top: 25px;
   left: 50%;
   transform: translateX(-50%);
-  width: 394px;
+  width: 395px;
   height: auto;
   max-height: 80%;
   overflow-y: auto;
@@ -78,11 +78,12 @@
   width: 18px;
   height: 18px;
   display: block;
-  background-size: 100%;
   position: absolute;
   top: 5px;
   image-rendering: pixelated;
   background-image: var(--settings-modal-close-button-background-image);
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .expandAllSettings {
@@ -151,7 +152,7 @@
 
 @media (max-width: 640px) {
   .settingsModal {
-    width: 350px !important;
+    width: 351px !important;
     max-height: 60% !important;
     left: calc(50% - 2px) !important;
   }
