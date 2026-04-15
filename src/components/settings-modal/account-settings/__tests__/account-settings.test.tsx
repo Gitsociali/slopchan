@@ -7,6 +7,7 @@ import AccountSettings from '../account-settings';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
+const IMPORTED_ACCOUNT_ADDRESSES_STORAGE_KEY = 'importedAccountAddresses';
 
 const hookMocks = vi.hoisted(() => ({
   deleteAccount: vi.fn(),
@@ -177,6 +178,34 @@ describe('AccountSettings', () => {
     expect(buttonTexts.some((text) => text.includes('delete_account'))).toBe(true);
   });
 
+  it('shows generated-account copy for app-created accounts', () => {
+    render();
+
+    const infoText = container.querySelector('select')?.parentElement?.querySelector('div')?.textContent ?? '';
+    expect(infoText).toContain('account_auto_generated');
+    expect(infoText).toContain('stored_locally');
+  });
+
+  it('shows only the stored-locally copy for imported accounts', () => {
+    localStorage.setItem(IMPORTED_ACCOUNT_ADDRESSES_STORAGE_KEY, JSON.stringify(['0x123']));
+
+    render();
+
+    const infoText = container.querySelector('select')?.parentElement?.querySelector('div')?.textContent ?? '';
+    expect(infoText).toContain('stored_locally');
+    expect(infoText).not.toContain('account_auto_generated');
+  });
+
+  it('treats the legacy imported account storage key as imported state', () => {
+    localStorage.setItem('importedAccountAddress', '0x123');
+
+    render();
+
+    const infoText = container.querySelector('select')?.parentElement?.querySelector('div')?.textContent ?? '';
+    expect(infoText).toContain('stored_locally');
+    expect(infoText).not.toContain('account_auto_generated');
+  });
+
   it('deletes the account only after both confirmations succeed', async () => {
     confirmSpy.mockReturnValueOnce(true).mockReturnValueOnce(true);
 
@@ -314,6 +343,7 @@ describe('AccountSettings', () => {
     expect(hookMocks.importAccount).toHaveBeenCalledOnce();
     const importedPayload = JSON.parse(hookMocks.importAccount.mock.calls[0][0]);
     expect(importedPayload.account.subscriptions).toEqual(['business.eth', 'music-posting.bso']);
+    expect(localStorage.getItem(IMPORTED_ACCOUNT_ADDRESSES_STORAGE_KEY)).toBe(JSON.stringify(['0x999']));
     expect(localStorage.getItem('importedAccountAddress')).toBe('0x999');
     expect(hookMocks.setActiveAccount).toHaveBeenCalledWith('Imported');
     expect(alertSpy).toHaveBeenCalledWith('Imported Imported');

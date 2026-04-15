@@ -6,6 +6,8 @@ import { Capacitor } from '@capacitor/core';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const isAndroid = Capacitor.getPlatform() === 'android';
+const IMPORTED_ACCOUNT_ADDRESSES_STORAGE_KEY = 'importedAccountAddresses';
+const IMPORTED_ACCOUNT_ADDRESS_LEGACY_STORAGE_KEY = 'importedAccountAddress';
 
 const safeParseJSON = <T,>(value: string): T | null => {
   try {
@@ -21,6 +23,32 @@ const withErrorHandling = async <T,>(fn: () => Promise<T>, onError: (e: unknown)
   } catch (e) {
     onError(e);
     return undefined;
+  }
+};
+
+const readImportedAccountAddresses = (): string[] => {
+  try {
+    const storedAddresses = localStorage.getItem(IMPORTED_ACCOUNT_ADDRESSES_STORAGE_KEY);
+    const parsedAddresses = storedAddresses ? safeParseJSON<unknown>(storedAddresses) : null;
+    const normalizedAddresses = Array.isArray(parsedAddresses)
+      ? parsedAddresses.filter((address): address is string => typeof address === 'string' && address.length > 0)
+      : [];
+    const legacyAddress = localStorage.getItem(IMPORTED_ACCOUNT_ADDRESS_LEGACY_STORAGE_KEY);
+    return [...new Set(legacyAddress ? [...normalizedAddresses, legacyAddress] : normalizedAddresses)];
+  } catch (error) {
+    console.warn('Failed to read imported account addresses from localStorage:', error);
+    return [];
+  }
+};
+
+const rememberImportedAccountAddress = (address: string) => {
+  try {
+    const importedAddresses = readImportedAccountAddresses();
+    const nextImportedAddresses = [...new Set([...importedAddresses, address])];
+    localStorage.setItem(IMPORTED_ACCOUNT_ADDRESSES_STORAGE_KEY, JSON.stringify(nextImportedAddresses));
+    localStorage.setItem(IMPORTED_ACCOUNT_ADDRESS_LEGACY_STORAGE_KEY, address);
+  } catch (error) {
+    console.warn('Failed to save imported account address to localStorage:', error);
   }
 };
 
@@ -125,7 +153,7 @@ const AccountSettingsEditor = ({
           async () => {
             await importAccount(modifiedAccountJson);
             if (accountData.account?.author?.address) {
-              localStorage.setItem('importedAccountAddress', accountData.account.author.address);
+              rememberImportedAccountAddress(accountData.account.author.address);
             }
             if (accountData.account?.name) {
               await setActiveAccount(accountData.account.name);
@@ -163,6 +191,10 @@ const AccountSettingsEditor = ({
   ));
 
   const host = window.electronApi?.isElectron ? 'this desktop app' : isAndroid ? 'this mobile app' : window.location.hostname;
+  const isImportedAccount = typeof account?.author?.address === 'string' && readImportedAccountAddresses().includes(account.author.address);
+  const accountStorageInfo = isImportedAccount
+    ? t('stored_locally', { location: host, interpolation: { escapeValue: false } })
+    : `${t('account_auto_generated')} ${t('stored_locally', { location: host, interpolation: { escapeValue: false } })}`;
 
   return (
     <div className={styles.setting}>
@@ -172,9 +204,7 @@ const AccountSettingsEditor = ({
         </select>{' '}
         <button onClick={() => navigate('/settings/account-data', { state: { returnTo: location.pathname + location.hash } })}>{t('edit')}</button>{' '}
         <button onClick={handleExportAccount}>{t('download_backup')}</button>
-        <div className={styles.info}>
-          {t('account_auto_generated')} {t('stored_locally', { location: host, interpolation: { escapeValue: false } })}
-        </div>
+        <div className={styles.info}>{accountStorageInfo}</div>
       </div>
       <div>
         <button onClick={handleImportAccount}>{t('import_account_backup')}</button>
