@@ -7,6 +7,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { isAllView } from '../../lib/utils/view-utils';
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
 import { useDirectories } from '../../hooks/use-directories';
+import { useCommunityIdentifier } from '../../hooks/use-community-identifiers';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import { areSameBoardAddress, isDirectoryBoard } from '../../lib/utils/route-utils';
 import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
@@ -193,6 +194,7 @@ const PostPage = () => {
   const comment = useCommentWithFeedCache({ commentCid, autoUpdate: autoUpdateEnabled });
   const commentCommunityAddress = getCommentCommunityAddress(comment);
   const communityAddress = resolvedCommunityAddress ?? commentCommunityAddress;
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
   const consumedThreadTopScrollRef = useRef<string | null>(null);
   const previousThreadCidRef = useRef<string>();
   const lastProcessedUpdateRequestIdRef = useRef(0);
@@ -204,7 +206,7 @@ const PostPage = () => {
     }
   }, [commentCommunityAddress, resolvedCommunityAddress, navigate]);
 
-  const community = useCommunity({ communityAddress });
+  const community = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
   const { error: communityError, shortAddress, title } = community || {};
   const directories = useDirectories();
 

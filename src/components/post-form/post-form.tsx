@@ -304,7 +304,9 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
   const accountComment = useSafeAccountComment({ commentIndex: params?.accountCommentIndex });
   const resolvedAddress = useResolvedCommunityAddress();
   const communityAddress = resolvedAddress || accountComment?.communityAddress;
-  const { setPublishPostOptions, postIndex, publishPost, publishPostOptions, resetPublishPostOptions } = usePublishPost({ subplebbitAddress: communityAddress });
+  const { setPublishPostOptions, postIndex, publishPost, publishPostError, publishPostOptions, resetPublishPostOptions } = usePublishPost({
+    subplebbitAddress: communityAddress,
+  });
   const effectiveBoardAddress = communityAddress || publishPostOptions.communityAddress;
 
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -499,6 +501,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
           />
         </tbody>
       </table>
+      {publishPostError && <div className={styles.error}>{publishPostError}</div>}
       {publishReplyError && <div className={styles.error}>{publishReplyError}</div>}
       {publishReplyStateMessage && <div className={styles.status}>{publishReplyStateMessage}</div>}
     </>

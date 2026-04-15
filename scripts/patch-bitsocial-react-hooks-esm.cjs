@@ -6,6 +6,7 @@ const path = require('path');
 const packageDistPath = path.join(__dirname, '..', 'node_modules', '@bitsocialnet', 'bitsocial-react-hooks', 'dist');
 const logPrefix = '[patch-bitsocial-react-hooks-esm]';
 const packageIndexPath = path.join(packageDistPath, 'index.js');
+const communitiesPagesStorePath = path.join(packageDistPath, 'stores', 'communities-pages', 'communities-pages-store.js');
 
 if (!fs.existsSync(packageDistPath)) {
   console.log(`${logPrefix} Skip: @bitsocialnet/bitsocial-react-hooks dist not found.`);
@@ -16,9 +17,12 @@ const relativeImportPattern = /(from\s+|import\s+)(['"])(\.\.?\/[^'"]+)\2/g;
 let touchedFiles = 0;
 let rewrittenImports = 0;
 let removedNodeDebugPatches = 0;
+let patchedCommunityFirstPageGuards = 0;
 
 const nodeDebugPatchPattern =
   /\/\/ fix DEBUG_DEPTH bug https:\/\/github\.com\/debug-js\/debug\/issues\/746\s*try\s*\{\s*if \(process\.env\.DEBUG_DEPTH\) \{\s*require\("util"\)\.inspect\.defaultOptions\.depth = process\.env\.DEBUG_DEPTH;\s*\}\s*if \(process\.env\.DEBUG_ARRAY\) \{\s*require\("util"\)\.inspect\.defaultOptions\.maxArrayLength = process\.env\.DEBUG_ARRAY;\s*\}\s*\}\s*catch \(e\) \{ \}/m;
+const communityFirstPageAssertNeedle =
+  "    assert(community === null || community === void 0 ? void 0 : community.address, `getCommunityFirstPageCid community '${community}' invalid`);\n";
 
 const splitSpecifier = (specifier) => {
   const suffixStart = specifier.search(/[?#]/);
@@ -80,6 +84,18 @@ const patchFile = (filePath) => {
     }
   }
 
+  if (filePath === communitiesPagesStorePath) {
+    const nextUpdated = updated.replace(
+      communityFirstPageAssertNeedle,
+      "    if (!(community === null || community === void 0 ? void 0 : community.address)) {\n        return;\n    }\n",
+    );
+
+    if (nextUpdated !== updated) {
+      updated = nextUpdated;
+      patchedCommunityFirstPageGuards += 1;
+    }
+  }
+
   if (!fileImportCount && updated === source) {
     return;
   }
@@ -112,5 +128,5 @@ if (!touchedFiles) {
 }
 
 console.log(
-  `${logPrefix} Patched ${rewrittenImports} imports across ${touchedFiles} files${removedNodeDebugPatches ? ` and removed ${removedNodeDebugPatches} browser-incompatible debug util block(s)` : ''}.`,
+  `${logPrefix} Patched ${rewrittenImports} imports across ${touchedFiles} files${removedNodeDebugPatches ? `, removed ${removedNodeDebugPatches} browser-incompatible debug util block(s)` : ''}${patchedCommunityFirstPageGuards ? `, and relaxed ${patchedCommunityFirstPageGuards} community first-page guard(s)` : ''}.`,
 );

@@ -28,6 +28,16 @@ If uncertain, ask the developer before adding an entry.
 
 ## Entries
 
+### 5chan patches its installed hooks tarball instead of using the local hooks repo
+
+- **Date:** 2026-04-15
+- **Observed by:** Codex
+- **Context:** Debugging strict `{name, publicKey}` community refs and the temporary `scripts/patch-bitsocial-react-hooks-esm.cjs` workaround
+- **What was surprising:** 5chan does not consume the nearby `/Users/Tommaso/Desktop/bitsocial/bitsocial-react-hooks` checkout; `package.json` installs a pinned GitHub tarball of `@bitsocialnet/bitsocial-react-hooks` and then mutates its `dist/` files in `postinstall`.
+- **Impact:** Agents can wrongly assume local hooks source changes are already active in 5chan, or treat the postinstall patch as app logic instead of a temporary package-level workaround.
+- **Mitigation:** Before debugging hooks behavior from 5chan, check `package.json` to see whether the app points at a tarball commit or a local path. If `scripts/patch-bitsocial-react-hooks-esm.cjs` is involved, fix the underlying issue in `bitsocial-react-hooks`, rebuild its `dist/`, update 5chan to the fixed commit/path, and then remove the patch script.
+- **Status:** confirmed
+
 ### Portless breaks Windows installs
 
 - **Date:** 2026-03-04

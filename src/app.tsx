@@ -12,6 +12,7 @@ import useIsMobile from './hooks/use-is-mobile';
 import { useAccountCommunityAddresses } from './hooks/use-account-community-addresses';
 import useTheme from './hooks/use-theme';
 import { useDirectories } from './hooks/use-directories';
+import { useCommunityIdentifier } from './hooks/use-community-identifiers';
 import { useResolvedCommunityAddress } from './hooks/use-resolved-community-address';
 import useSafeAccountComment from './hooks/use-safe-account-comment';
 import {
@@ -245,7 +246,8 @@ const ModQueueRoute = () => {
   const account = useAccount();
   const accountAddress = account?.author?.address;
   const communityAddress = useResolvedCommunityAddress();
-  const community = useCommunity({ communityAddress });
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
+  const community = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
   const accountCommunityAddresses = useAccountCommunityAddresses();
 
   if (!account) {

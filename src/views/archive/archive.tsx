@@ -14,6 +14,7 @@ import { getSubplebbitAddress, getBoardPath } from '../../lib/utils/route-utils'
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import { removeMarkdown } from '../../lib/utils/post-utils';
 import { useDirectories } from '../../hooks/use-directories';
+import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
 import styles from './archive.module.css';
 
 type BoardFeedComment = {
@@ -176,19 +177,21 @@ const Archive = () => {
   );
 
   const communityAddresses = useMemo(() => (subplebbitAddress ? [subplebbitAddress] : []), [subplebbitAddress]);
+  const communities = useCommunityIdentifiers(communityAddresses);
+  const communityIdentifier = useCommunityIdentifier(subplebbitAddress);
 
   const feedOptions = useMemo(
     () => ({
-      communityAddresses,
+      communities,
       sortType: BOARD_SORT_TYPE,
       filter: archiveFilter,
     }),
-    [communityAddresses, archiveFilter],
+    [communities, archiveFilter],
   );
 
   const { feed, hasMore, loadMore } = useFeed(feedOptions);
   const loadingState = useFeedStateString(communityAddresses) || (hasMore ? t('loading_feed') : t('no_threads'));
-  const community = useCommunity({ communityAddress: subplebbitAddress });
+  const community = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
   const { error: communityError } = community || {};
   const archiveWindowInDays = useMemo(() => getArchiveWindowInDays(feed), [feed]);
   const isLoading = feed.length === 0 && hasMore;

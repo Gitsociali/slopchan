@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Comment, useAccount, useCommunity, useFeed, useAccountComments } from '@bitsocialnet/bitsocial-react-hooks';
 import { Virtuoso, VirtuosoHandle, StateSnapshot } from 'react-virtuoso';
 import { useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';
+import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
 import { useBoardFeedPageSize } from '../../hooks/use-board-feed-page-size';
 import { useFilteredDirectoryAddresses } from '../../hooks/use-filtered-directory-addresses';
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
@@ -232,6 +233,8 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     // Only include communityAddress if it's defined
     return communityAddress ? [communityAddress] : [];
   }, [isInAllView, isInSubscriptionsView, communityAddress, filteredDirectoryAddresses, subscriptions]);
+  const communities = useCommunityIdentifiers(communityAddresses);
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
 
   const { imageSize, showOPComment } = useCatalogStyleStore();
   const columnWidth = imageSize === 'Large' ? 270 : 180;
@@ -272,22 +275,12 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
 
   const feedOptions = useMemo(() => {
     return {
-      communityAddresses,
+      communities,
       sortType: feedSortType,
       postsPerPage: isMultiboard ? multiboardCatalogPostsPerPage : paginationFeedPostsPerPage,
       filter: createCombinedFilter(filterItems, searchText, communityAddress || 'all', handleFilterMatch),
     };
-  }, [
-    communityAddresses,
-    feedSortType,
-    isMultiboard,
-    paginationFeedPostsPerPage,
-    multiboardCatalogPostsPerPage,
-    filterItems,
-    searchText,
-    communityAddress,
-    handleFilterMatch,
-  ]);
+  }, [communities, feedSortType, isMultiboard, paginationFeedPostsPerPage, multiboardCatalogPostsPerPage, filterItems, searchText, communityAddress, handleFilterMatch]);
 
   const { feed, hasMore, loadMore, reset } = useFeed(feedOptions);
   const accountCommentLookupOptions = useMemo(
@@ -370,7 +363,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     }
   }, [reset, setResetFunction, isVisible]);
 
-  const community = useCommunity({ communityAddress });
+  const community = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
   const { error, shortAddress, state, title } = community || {};
 
   // Memoize footer component to preserve identity across renders (Virtuoso optimization)

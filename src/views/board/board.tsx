@@ -8,7 +8,8 @@ import styles from './board.module.css';
 import mobileFooterStyles from '../../components/footer/footer.module.css';
 import { shouldShowSnow } from '../../lib/snow';
 import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
-import { useDirectoryAddresses, useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';
+import { useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';
+import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
 import { useFilteredDirectoryAddresses } from '../../hooks/use-filtered-directory-addresses';
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
 import { useFeedStateString } from '../../hooks/use-state-string';
@@ -118,7 +119,6 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
     return resolvedAddressFromUrl;
   }, [boardIdentifierProp, directories, resolvedAddressFromUrl]);
 
-  const directoryAddresses = useDirectoryAddresses();
   const filteredDirectoryAddresses = useFilteredDirectoryAddresses();
 
   const account = useAccount();
@@ -137,7 +137,9 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
       return accountCommunityAddresses;
     }
     return [communityAddress];
-  }, [isInAllView, isInSubscriptionsView, isInModView, communityAddress, directoryAddresses, filteredDirectoryAddresses, subscriptions, accountCommunityAddresses]);
+  }, [isInAllView, isInSubscriptionsView, isInModView, communityAddress, filteredDirectoryAddresses, subscriptions, accountCommunityAddresses]);
+  const communities = useCommunityIdentifiers(communityAddresses);
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
 
   const enableInfiniteScroll = useFeedViewSettingsStore((state) => state.enableInfiniteScroll);
   const setEnableInfiniteScroll = useFeedViewSettingsStore((state) => state.setEnableInfiniteScroll);
@@ -157,12 +159,12 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
 
   const feedOptions = useMemo(
     () => ({
-      communityAddresses,
+      communities,
       sortType: BOARD_SORT_TYPE,
       postsPerPage: effectiveInfiniteScroll ? infiniteFeedPostsPerPage : paginationFeedPostsPerPage,
       filter: excludeArchivedFilter,
     }),
-    [communityAddresses, effectiveInfiniteScroll, infiniteFeedPostsPerPage, paginationFeedPostsPerPage, excludeArchivedFilter],
+    [communities, effectiveInfiniteScroll, infiniteFeedPostsPerPage, paginationFeedPostsPerPage, excludeArchivedFilter],
   );
 
   const { feed, hasMore, loadMore, reset } = useFeed(feedOptions);
@@ -288,7 +290,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
   const communityTitle = useCommunityField(communityAddress, (community) => community?.title);
   const shortAddress = useCommunityField(communityAddress, (community) => community?.shortAddress);
   // useCommunityField only reads from store, doesn't trigger fetching
-  const communityData = useCommunity({ communityAddress });
+  const communityData = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
   const { error: communityError, state: communityState } = communityData || {};
   const title = isInAllView ? t('all') : isInSubscriptionsView ? t('subscriptions') : isInModView ? t('mod') : communityTitle;
 

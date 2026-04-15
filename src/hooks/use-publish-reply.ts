@@ -8,6 +8,7 @@ import { getQuotedCidsFromContent, mergeQuotedCids } from '../lib/utils/reply-qu
 import { extractUnresolvedExternalQuoteReferences, getExternalQuoteStatusMessage } from '../lib/utils/external-quote-utils';
 import { resolveExternalQuoteTarget } from '../lib/utils/external-quote-resolver';
 import useChallengesStore from '../stores/use-challenges-store';
+import usePublishAuthorDomainGuard, { getPublishAuthorDomainErrorMessage } from './use-publish-author-domain-guard';
 
 type UsePublishReplyOptions = {
   cid: string;
@@ -36,6 +37,7 @@ const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, sub
   const setPublishReplyStore = usePublishReplyStore((state) => state.setPublishReplyStore);
   const resetPublishReplyStore = usePublishReplyStore((state) => state.resetPublishReplyStore);
   const addChallenge = useChallengesStore((state) => state.addChallenge);
+  const { blockedReason } = usePublishAuthorDomainGuard();
   const abandonPublishRef = useRef<(() => Promise<void>) | undefined>();
   const startedPublishRequestIdRef = useRef(0);
   const [resolvedExternalQuotedCids, setResolvedExternalQuotedCids] = useState<string[] | undefined>();
@@ -143,7 +145,7 @@ const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, sub
     setPublishReplyError(null);
     setPublishReplyStateMessage(null);
     setIsResolvingExternalQuotes(false);
-  }, [content, communityAddress]);
+  }, [blockedReason, content, communityAddress]);
 
   useEffect(() => {
     if (pendingPublishRequestId === 0 || pendingPublishRequestId === startedPublishRequestIdRef.current) {
@@ -156,6 +158,12 @@ const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, sub
 
   const publishReply = useCallback(async () => {
     setPublishReplyError(null);
+
+    if (blockedReason) {
+      setPublishReplyStateMessage(null);
+      setPublishReplyError(getPublishAuthorDomainErrorMessage(blockedReason));
+      return;
+    }
 
     if (publishResolvableQuoteReferences.length === 0) {
       setResolvedExternalQuotedCids(undefined);
@@ -205,7 +213,7 @@ const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, sub
     } finally {
       setIsResolvingExternalQuotes(false);
     }
-  }, [account, directories, publishResolvableQuoteReferences, t]);
+  }, [account, blockedReason, directories, publishResolvableQuoteReferences, t]);
 
   return {
     isResolvingExternalQuotes,

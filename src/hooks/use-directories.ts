@@ -53,7 +53,6 @@ let cacheCommunities: DirectoryCommunity[] | null = null;
 let cacheMetadata: DirectoriesMetadata | null = null;
 let inFlightGitHubFetch: Promise<DirectoriesData> | null = null;
 const DIRECTORY_ALIAS_SUFFIXES = ['.bso', '.eth'] as const;
-const MULTIBOARD_PUBLIC_KEY_FALLBACK_NAMES = new Set(['business-and-finance.bso', 'politically-incorrect.bso']);
 
 // Exposed for deterministic unit tests around module-level cache state.
 export const __resetDirectoriesModuleStateForTests = () => {
@@ -96,14 +95,6 @@ const deriveNsfw = (value: { nsfw?: unknown; features?: { nsfw?: boolean; safeFo
 const getDirectoryIdentifiers = (community: DirectoryCommunity): string[] => [
   ...new Set([community.address, community.name, community.publicKey].filter((value): value is string => typeof value === 'string' && value.length > 0)),
 ];
-
-export const getDirectoryFetchAddress = (community: DirectoryCommunity): string => {
-  if (community.name && MULTIBOARD_PUBLIC_KEY_FALLBACK_NAMES.has(community.name) && community.publicKey) {
-    return community.publicKey;
-  }
-
-  return community.address;
-};
 
 const toCanonicalCommunity = (value: {
   address?: unknown;
@@ -473,7 +464,7 @@ export const useDirectoriesState = () => {
 
 export const useDirectoryAddresses = () => {
   const directories = useDirectories();
-  const directoryAddresses = useMemo(() => (Array.isArray(directories) ? directories.map((community) => getDirectoryFetchAddress(community)) : []), [directories]);
+  const directoryAddresses = useMemo(() => (Array.isArray(directories) ? directories.map((community) => community.address) : []), [directories]);
 
   return directoryAddresses;
 };

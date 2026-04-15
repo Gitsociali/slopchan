@@ -3,6 +3,7 @@ import { useFeed } from '@bitsocialnet/bitsocial-react-hooks';
 import useFeedsStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/feeds';
 import { useDirectoryByAddress } from './use-directories';
 import { useBoardFeedPageSize } from './use-board-feed-page-size';
+import { useCommunityIdentifier } from './use-community-identifiers';
 import { findPostPageInFeed, findPostPageInLoadedBoardFeeds, type FeedsOptionsLike, type LoadedFeedsLike } from '../lib/utils/post-page-resolution';
 
 interface UsePostPageNumberOptions {
@@ -29,6 +30,7 @@ export function usePostPageNumber({
   enabled = true,
 }: UsePostPageNumberOptions): number | undefined {
   const communityAddress = requestedCommunityAddress ?? legacyCommunityAddress;
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
 
   const community = useDirectoryByAddress(communityAddress);
   const { guiPostsPerPage, paginationFeedPostsPerPage } = useBoardFeedPageSize(community);
@@ -52,12 +54,12 @@ export function usePostPageNumber({
     () =>
       canResolve
         ? {
-            communityAddresses: [communityAddress!],
+            communities: communityIdentifier ? [communityIdentifier] : [],
             sortType: 'active' as const,
             postsPerPage: paginationFeedPostsPerPage,
           }
         : undefined,
-    [canResolve, communityAddress, paginationFeedPostsPerPage],
+    [canResolve, communityIdentifier, paginationFeedPostsPerPage],
   );
 
   const { feed: preloadFeed } = useFeed(preloadOptions);

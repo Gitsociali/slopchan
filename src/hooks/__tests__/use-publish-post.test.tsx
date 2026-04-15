@@ -13,6 +13,7 @@ const testState = vi.hoisted(() => ({
   abandonPublishMock: vi.fn(async () => undefined),
   index: 12,
   lastPublishOptions: undefined as Record<string, any> | undefined,
+  publishAuthorBlockedReason: undefined as 'resolving' | 'unresolved' | 'mismatch' | undefined,
   publishCommentMock: vi.fn(),
 }));
 
@@ -25,6 +26,14 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
       publishComment: testState.publishCommentMock,
     };
   },
+}));
+
+vi.mock('../use-publish-author-domain-guard', () => ({
+  __esModule: true,
+  default: () => ({
+    blockedReason: testState.publishAuthorBlockedReason,
+  }),
+  getPublishAuthorDomainErrorMessage: (reason: string) => `blocked:${reason}`,
 }));
 
 let container: HTMLDivElement;
@@ -47,6 +56,7 @@ describe('usePublishPost', () => {
     vi.clearAllMocks();
     testState.index = 12;
     testState.lastPublishOptions = undefined;
+    testState.publishAuthorBlockedReason = undefined;
     useChallengesStore.setState({ challenges: [] });
     usePublishPostStore.getState().resetPublishPostStore();
 
@@ -73,7 +83,7 @@ describe('usePublishPost', () => {
     });
 
     expect(latestValue.postIndex).toBe(12);
-    expect(latestValue.publishPost).toBe(testState.publishCommentMock);
+    expect(typeof latestValue.publishPost).toBe('function');
     expect(latestValue.publishPostOptions).toMatchObject({
       author: { displayName: 'Alice' },
       communityAddress: 'music.eth',
@@ -115,5 +125,17 @@ describe('usePublishPost', () => {
     });
 
     expect(latestValue.publishPostOptions).toEqual({});
+  });
+
+  it('blocks publish when the active account address is a domain that is not verified yet', async () => {
+    testState.publishAuthorBlockedReason = 'unresolved';
+    renderHook();
+
+    await act(async () => {
+      latestValue.publishPost();
+    });
+
+    expect(latestValue.publishPostError).toBe('blocked:unresolved');
+    expect(testState.publishCommentMock).not.toHaveBeenCalled();
   });
 });

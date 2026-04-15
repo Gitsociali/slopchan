@@ -1,7 +1,8 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Comment, usePublishComment } from '@bitsocialnet/bitsocial-react-hooks';
 import usePublishPostStore from '../stores/use-publish-post-store';
 import useChallengesStore from '../stores/use-challenges-store';
+import usePublishAuthorDomainGuard, { getPublishAuthorDomainErrorMessage } from './use-publish-author-domain-guard';
 
 type UsePublishPostOptions = {
   communityAddress?: string;
@@ -23,6 +24,8 @@ const usePublishPost = ({ communityAddress: requestedCommunityAddress, subplebbi
   const resetPublishPostStore = usePublishPostStore((state) => state.resetPublishPostStore);
   const addChallenge = useChallengesStore((state) => state.addChallenge);
   const abandonPublishRef = useRef<(() => Promise<void>) | undefined>();
+  const [publishPostError, setPublishPostError] = useState<string | null>(null);
+  const { blockedReason } = usePublishAuthorDomainGuard();
   const abandonCurrentPublish = useCallback(async () => {
     await abandonPublishRef.current?.();
   }, []);
@@ -88,11 +91,26 @@ const usePublishPost = ({ communityAddress: requestedCommunityAddress, subplebbi
   const { index, publishComment, abandonPublish } = usePublishComment(publishOptionsWithAbandon);
   abandonPublishRef.current = abandonPublish;
 
+  useEffect(() => {
+    setPublishPostError(null);
+  }, [author?.displayName, blockedReason, communityAddress, content, link, spoiler, title]);
+
+  const publishPost = useCallback(() => {
+    if (blockedReason) {
+      setPublishPostError(getPublishAuthorDomainErrorMessage(blockedReason));
+      return;
+    }
+
+    setPublishPostError(null);
+    return publishComment();
+  }, [blockedReason, publishComment]);
+
   return {
     setPublishPostOptions,
     resetPublishPostOptions,
     postIndex: index,
-    publishPost: publishComment,
+    publishPost,
+    publishPostError,
     publishPostOptions: publishCommentOptions,
   };
 };

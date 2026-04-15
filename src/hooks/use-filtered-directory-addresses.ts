@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { getDirectoryFetchAddress, useDirectories } from './use-directories';
+import { useDirectories } from './use-directories';
 import useAllFeedFilterStore from '../stores/use-all-feed-filter-store';
 
 export const useFilteredDirectoryAddresses = () => {
@@ -8,13 +8,13 @@ export const useFilteredDirectoryAddresses = () => {
 
   const filteredAddresses = useMemo(() => {
     if (filter === 'all') {
-      return directories.map((community) => getDirectoryFetchAddress(community));
+      return directories.map((community) => community.address);
     }
     if (filter === 'nsfw') {
-      return directories.filter((community) => community.nsfw === true).map((community) => getDirectoryFetchAddress(community));
+      return directories.filter((community) => community.nsfw === true).map((community) => community.address);
     }
     // filter === 'sfw'
-    return directories.filter((community) => community.nsfw !== true).map((community) => getDirectoryFetchAddress(community));
+    return directories.filter((community) => community.nsfw !== true).map((community) => community.address);
   }, [directories, filter]);
 
   return filteredAddresses;

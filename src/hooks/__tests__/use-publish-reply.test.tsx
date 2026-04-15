@@ -16,6 +16,7 @@ const testState = vi.hoisted(() => ({
   directories: [] as Array<Record<string, unknown>>,
   index: 7,
   lastPublishOptions: undefined as Record<string, any> | undefined,
+  publishAuthorBlockedReason: undefined as 'resolving' | 'unresolved' | 'mismatch' | undefined,
   publishCommentMock: vi.fn(),
   resolveExternalQuoteTargetMock: vi.fn(),
 }));
@@ -46,6 +47,14 @@ vi.mock('../../lib/utils/external-quote-resolver', () => ({
   resolveExternalQuoteTarget: (...args: any[]) => testState.resolveExternalQuoteTargetMock(...args),
 }));
 
+vi.mock('../use-publish-author-domain-guard', () => ({
+  __esModule: true,
+  default: () => ({
+    blockedReason: testState.publishAuthorBlockedReason,
+  }),
+  getPublishAuthorDomainErrorMessage: (reason: string) => `blocked:${reason}`,
+}));
+
 let container: HTMLDivElement;
 let latestValue: ReturnType<typeof usePublishReply>;
 let root: Root;
@@ -68,6 +77,7 @@ describe('usePublishReply', () => {
     testState.directories = [];
     testState.index = 7;
     testState.lastPublishOptions = undefined;
+    testState.publishAuthorBlockedReason = undefined;
     useChallengesStore.setState({ challenges: [] });
     usePostNumberStore.setState({ cidToNumber: {}, numberToCid: { 'music.eth': { 12: 'quoted-cid' } } });
     usePublishReplyStore.setState({
@@ -172,6 +182,18 @@ describe('usePublishReply', () => {
     });
 
     expect(latestValue.publishReplyError).toContain('external_quote_publish_missing');
+    expect(testState.publishCommentMock).not.toHaveBeenCalled();
+  });
+
+  it('blocks publish when the active account address is a domain that is not verified yet', async () => {
+    testState.publishAuthorBlockedReason = 'unresolved';
+    renderHook();
+
+    await act(async () => {
+      await latestValue.publishReply();
+    });
+
+    expect(latestValue.publishReplyError).toBe('blocked:unresolved');
     expect(testState.publishCommentMock).not.toHaveBeenCalled();
   });
 

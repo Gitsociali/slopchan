@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { create } from 'zustand';
 import { useCommunityStats } from '@bitsocialnet/bitsocial-react-hooks';
+import { useCommunityIdentifier } from './use-community-identifiers';
 
 type CommunityStatsState = {
   communityStats: { [communityAddress: string]: any };
@@ -16,7 +17,8 @@ export const useCommunitiesStatsStore = create<CommunityStatsState>((set) => ({
 }));
 
 export const CommunityStatsCollector = ({ communityAddress }: { communityAddress: string }) => {
-  const stats = useCommunityStats({ communityAddress });
+  const community = useCommunityIdentifier(communityAddress);
+  const stats = useCommunityStats(community ? { community } : undefined);
   const setCommunityStats = useCommunitiesStatsStore((state) => state.setCommunityStats);
 
   useEffect(() => {

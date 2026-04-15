@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useCommunity } from '@bitsocialnet/bitsocial-react-hooks';
 import { Footer, HomeLogo } from '../home';
 import { useDirectories, DirectoryCommunity, findDirectoryByAddress } from '../../hooks/use-directories';
+import { useCommunityIdentifier } from '../../hooks/use-community-identifiers';
 import { getSubplebbitAddress, getBoardPath } from '../../lib/utils/route-utils';
 import Markdown from '../../components/markdown';
 import styles from './rules.module.css';
@@ -22,7 +23,8 @@ const getBoardName = (title?: string): string => {
 };
 
 const BoardRulesDisplay = ({ communityAddress, directories }: { communityAddress: string; directories: DirectoryCommunity[] }) => {
-  const community = useCommunity({ communityAddress });
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
+  const community = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
   const { rules, state, title, shortAddress } = community || {};
 
   let loadingText: string | null = null;

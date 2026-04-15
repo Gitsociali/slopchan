@@ -10,6 +10,11 @@ export interface CommentWithCid {
 }
 
 /** Minimal FeedOptions shape for board-feed filtering */
+type CommunityIdentifierLike = {
+  name?: string;
+  publicKey?: string;
+};
+
 type LegacyFeedOptionsLike = {
   subplebbitAddresses?: string[];
   sortType: string;
@@ -21,6 +26,7 @@ type LegacyFeedOptionsLike = {
 };
 
 export interface FeedOptionsLike {
+  communities?: CommunityIdentifierLike[];
   communityAddresses?: string[];
   sortType: string;
   postsPerPage?: number;
@@ -59,26 +65,29 @@ export function findPostPageInFeed(feed: CommentWithCid[], postCid: string, guiP
  * - single-board feed (one community)
  * - no filter, no newerThan, no modQueue, no accountComments
  */
-const getCommunityAddresses = (opts: FeedOptionsLike | LegacyFeedOptionsLike): string[] => {
+const getCommunityIdentifiers = (opts: FeedOptionsLike | LegacyFeedOptionsLike): CommunityIdentifierLike[] => {
+  if ('communities' in opts && Array.isArray(opts.communities)) {
+    return opts.communities;
+  }
   if ('communityAddresses' in opts && Array.isArray(opts.communityAddresses)) {
-    return opts.communityAddresses;
+    return opts.communityAddresses.map((communityAddress) => ({ name: communityAddress }));
   }
   if ('subplebbitAddresses' in opts && Array.isArray(opts.subplebbitAddresses)) {
-    return opts.subplebbitAddresses;
+    return opts.subplebbitAddresses.map((communityAddress) => ({ name: communityAddress }));
   }
   return [];
 };
 
 /**
- * Supports both canonical `communityAddresses` and legacy `subplebbitAddresses`.
+ * Supports canonical `communities` and legacy string-array feed options.
  */
 export function isBoardFeedOptions(opts: FeedOptionsLike | LegacyFeedOptionsLike, communityAddress: string): boolean {
-  const communityAddresses = getCommunityAddresses(opts);
+  const communities = getCommunityIdentifiers(opts);
 
   return (
     opts.sortType === 'active' &&
-    communityAddresses.length === 1 &&
-    communityAddresses[0] === communityAddress &&
+    communities.length === 1 &&
+    (communities[0]?.name === communityAddress || communities[0]?.publicKey === communityAddress) &&
     !opts.filter &&
     opts.newerThan == null &&
     !opts.modQueue &&

@@ -25,6 +25,7 @@ import useChallengesStore from '../../stores/use-challenges-store';
 import { alertChallengeVerificationFailed } from '../../lib/utils/challenge-utils';
 import Tooltip from '../../components/tooltip';
 import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
+import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
 import useIsMobile from '../../hooks/use-is-mobile';
 import { useCurrentTime } from '../../hooks/use-current-time';
 import { Post } from '../post/post';
@@ -728,7 +729,8 @@ export const ModQueueButton = ({ boardIdentifier, isMobile }: ModQueueButtonProp
     }
     return undefined;
   }, [boardIdentifier, directories]);
-  const community = useCommunity({ communityAddress: resolvedAddress });
+  const resolvedCommunity = useCommunityIdentifier(resolvedAddress);
+  const community = useCommunity(resolvedCommunity ? { community: resolvedCommunity } : undefined);
 
   const communityAddresses = useMemo(() => {
     if (resolvedAddress) {
@@ -758,14 +760,15 @@ export const ModQueueButton = ({ boardIdentifier, isMobile }: ModQueueButtonProp
   const shouldFetch = !isBoardAccessLoading && communityAddresses.length > 0 && hasBoardAccess;
 
   const feedAddresses = shouldFetch ? communityAddresses : [];
+  const feedCommunities = useCommunityIdentifiers(feedAddresses);
   const feedOptions = useMemo(
     () => ({
-      communityAddresses: feedAddresses,
+      communities: feedCommunities,
       modQueue: ['pendingApproval'],
       sortType: 'new' as const,
       postsPerPage: 200,
     }),
-    [feedAddresses],
+    [feedCommunities],
   );
   const { feed } = useFeed(feedOptions);
 
@@ -802,18 +805,20 @@ const ModQueueView = ({ boardIdentifier: propBoardIdentifier }: ModQueueViewProp
     if (resolvedAddress) return [resolvedAddress];
     return accountCommunityAddresses;
   }, [resolvedAddress, accountCommunityAddresses]);
+  const communities = useCommunityIdentifiers(communityAddresses);
 
   const communityAddress = communityAddresses[0];
-  const community = useCommunity({ communityAddress });
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
+  const community = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
   const { error: communityError } = community || {};
 
   const feedOptions = useMemo(
     () => ({
-      communityAddresses,
+      communities,
       modQueue: ['pendingApproval'],
       postsPerPage: 50,
     }),
-    [communityAddresses],
+    [communities],
   );
   const { feed, hasMore, loadMore, reset } = useFeed(feedOptions);
 
