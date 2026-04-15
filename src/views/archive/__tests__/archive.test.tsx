@@ -58,6 +58,8 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
 
 vi.mock('../../../hooks/use-directories', () => ({
   useDirectories: () => testState.directories,
+  findDirectoryByAddress: (directories: Array<{ address: string; title?: string; directoryCode?: string }>, address: string | undefined) =>
+    directories.find((entry) => entry.address === address || entry.directoryCode === address || entry.title === address),
 }));
 
 vi.mock('../../../hooks/use-resolved-subplebbit-address', () => ({

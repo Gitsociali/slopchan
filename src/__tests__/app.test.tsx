@@ -48,7 +48,10 @@ const testState = vi.hoisted(() => ({
 vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountComment: ({ commentIndex }: { commentIndex?: number }) => (typeof commentIndex === 'number' ? testState.accountComments[commentIndex] : undefined),
-  useCommunity: ({ communityAddress }: { communityAddress?: string }) => (communityAddress ? testState.subplebbits[communityAddress] : undefined),
+  useCommunity: (options?: { communityAddress?: string; community?: { name?: string; publicKey?: string } }) => {
+    const communityAddress = options?.communityAddress ?? options?.community?.name ?? options?.community?.publicKey;
+    return communityAddress ? testState.subplebbits[communityAddress] : undefined;
+  },
   useAccountCommunities: () => ({
     accountCommunities: Object.fromEntries(testState.accountSubplebbitAddresses.map((address) => [address, { address }])),
   }),

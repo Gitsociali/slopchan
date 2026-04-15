@@ -159,6 +159,8 @@ vi.mock('../../../hooks/use-directories', () => ({
   useDirectories: () => testState.directories,
   useDirectoryAddresses: () => testState.directories.map((entry) => entry.address),
   useDirectoryByAddress: (address: string | undefined) => (address ? testState.directoryByAddress[address] : undefined),
+  findDirectoryByAddress: (directories: Array<{ address: string; title?: string; directoryCode?: string }>, address: string | undefined) =>
+    directories.find((entry) => entry.address === address || entry.directoryCode === address || entry.title === address),
 }));
 
 vi.mock('../../../hooks/use-filtered-directory-addresses', () => ({

@@ -35,7 +35,10 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
-  useCommunity: ({ communityAddress }: { communityAddress?: string }) => (communityAddress ? testState.communities[communityAddress] : undefined),
+  useCommunity: (options?: { communityAddress?: string; community?: { name?: string; publicKey?: string } }) => {
+    const communityAddress = options?.communityAddress ?? options?.community?.name ?? options?.community?.publicKey;
+    return communityAddress ? testState.communities[communityAddress] : undefined;
+  },
 }));
 
 vi.mock('../../../hooks/use-directories', async () => {

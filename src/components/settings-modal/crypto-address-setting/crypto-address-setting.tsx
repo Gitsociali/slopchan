@@ -12,114 +12,153 @@ const withErrorHandling = async <T,>(fn: () => Promise<T>, onError: (e: unknown)
   }
 };
 
-const CryptoAddressSetting = () => {
-  const { t } = useTranslation();
-  const account = useAccount();
+const getInitialCryptoAddress = (address?: string) => (address?.includes('.') ? address : '');
 
-  const [cryptoState, setCryptoState] = useState({
-    cryptoAddress: account?.author?.shortAddress.includes('.') ? account.author.shortAddress : '',
-    checkingCryptoAddress: false,
-    showResolvingMessage: true,
-    resolveString: t('crypto_address_verification'),
-    resolveClass: '',
+const getDefaultResolutionStatus = (t: (key: string) => string) => ({
+  resolveClass: '',
+  resolveString: t('crypto_address_verification'),
+});
+
+const getResolutionStatus = ({
+  checkedAddress,
+  chainProviderUrls,
+  error,
+  resolvedAddress,
+  signerAddress,
+  state,
+  t,
+}: {
+  chainProviderUrls?: string[];
+  checkedAddress?: string;
+  error?: unknown;
+  resolvedAddress?: string | null;
+  signerAddress?: string;
+  state?: string;
+  t: (key: string) => string;
+}) => {
+  if (!checkedAddress) {
+    return getDefaultResolutionStatus(t);
+  }
+
+  if (state === 'failed') {
+    return {
+      resolveClass: styles.red,
+      resolveString: error instanceof Error ? `failed to resolve crypto address, error: ${error.message}` : 'cannot resolve crypto address, unknown error',
+    };
+  }
+
+  if (state === 'resolving' || state === 'ready' || state === 'initializing') {
+    return {
+      resolveClass: styles.yellow,
+      resolveString: chainProviderUrls ? `resolving from ${chainProviderUrls.join(', ')}` : t('loading'),
+    };
+  }
+
+  if (resolvedAddress && resolvedAddress === signerAddress) {
+    return {
+      resolveClass: styles.green,
+      resolveString: t('crypto_address_yours'),
+    };
+  }
+
+  if (resolvedAddress && resolvedAddress !== signerAddress) {
+    return {
+      resolveClass: styles.red,
+      resolveString: t('crypto_address_not_yours'),
+    };
+  }
+
+  if (resolvedAddress === null || state === 'succeeded') {
+    return {
+      resolveClass: styles.red,
+      resolveString: t('crypto_address_not_resolved'),
+    };
+  }
+
+  return getDefaultResolutionStatus(t);
+};
+
+const showSavedIndicator = (setSavedCryptoAddress: (value: boolean) => void) => {
+  setSavedCryptoAddress(true);
+  setTimeout(() => {
+    setSavedCryptoAddress(false);
+  }, 2000);
+};
+
+const CryptoAddressSettingContent = ({ account }: { account: ReturnType<typeof useAccount> }) => {
+  const { t } = useTranslation();
+  const [cryptoAddress, setCryptoAddress] = useState(() => getInitialCryptoAddress(account?.author?.address));
+  const [checkedAddress, setCheckedAddress] = useState<string>();
+  const [savedCryptoAddress, setSavedCryptoAddress] = useState(false);
+  const [showCryptoAddressInfo, setShowCryptoAddressInfo] = useState(false);
+
+  const signerAddress = account?.signer?.address;
+  const authorToResolve = checkedAddress ? { ...account?.author, address: checkedAddress } : undefined;
+  const { resolvedAddress, state, error, chainProvider } = useResolvedAuthorAddress({ author: authorToResolve, cache: false });
+  const resolutionStatus = getResolutionStatus({
+    chainProviderUrls: chainProvider?.urls,
+    checkedAddress,
+    error,
+    resolvedAddress,
+    signerAddress,
+    state,
+    t,
   });
 
-  const [savedCryptoAddress, setSavedCryptoAddress] = useState(false);
-  const [shouldResolve, setShouldResolve] = useState(false);
-
-  const authorToResolve = shouldResolve ? { ...account?.author, address: cryptoState.cryptoAddress } : undefined;
-  const { resolvedAddress, state, error, chainProvider } = useResolvedAuthorAddress({ author: authorToResolve, cache: false });
-
-  const [inputValue, setInputValue] = useState(account?.author?.shortAddress.includes('.') ? account.author.shortAddress : '');
-
   const checkCryptoAddress = () => {
-    setShouldResolve(true);
-    const addressToCheck = inputValue || cryptoState.cryptoAddress;
+    const addressToCheck = cryptoAddress.trim();
     if (!addressToCheck || !addressToCheck.includes('.')) {
       alert(t('enter_crypto_address'));
       return;
     }
 
-    let resolveString = '';
-    let resolveClass = '';
-
-    if (state === 'failed') {
-      resolveString = error instanceof Error ? `failed to resolve crypto address, error: ${error.message}` : 'cannot resolve crypto address, unknown error';
-      resolveClass = styles.red;
-    } else if (state === 'resolving') {
-      resolveString = `resolving from ${chainProvider?.urls}`;
-      resolveClass = styles.yellow;
-    } else if (resolvedAddress && resolvedAddress === account?.signer?.address) {
-      resolveString = t('crypto_address_yours');
-      resolveClass = styles.green;
-    } else if (resolvedAddress && resolvedAddress !== account?.signer?.address) {
-      resolveString = t('crypto_address_not_yours');
-      resolveClass = styles.red;
-    } else {
-      resolveString = t('crypto_address_verification');
-      resolveClass = '';
-    }
-
-    setCryptoState((prevState) => ({
-      ...prevState,
-      cryptoAddress: addressToCheck,
-      showResolvingMessage: true,
-      resolveString,
-      resolveClass,
-    }));
+    setCryptoAddress(addressToCheck);
+    setCheckedAddress(addressToCheck);
   };
 
   const saveCryptoAddress = async () => {
-    if (!cryptoState.cryptoAddress || !cryptoState.cryptoAddress.includes('.')) {
+    const addressToSave = cryptoAddress.trim();
+
+    if (!addressToSave || !addressToSave.includes('.')) {
       alert(t('enter_crypto_address'));
       return;
-    } else if (cryptoState.cryptoAddress === account?.author?.address) {
-      setSavedCryptoAddress(true);
-      setTimeout(() => {
-        setSavedCryptoAddress(false);
-      }, 2000);
+    }
+
+    if (addressToSave === account?.author?.address) {
+      showSavedIndicator(setSavedCryptoAddress);
       return;
-    } else if (resolvedAddress && resolvedAddress !== account?.signer?.address) {
-      alert(t('crypto_address_not_yours'));
-      return;
-    } else if (cryptoState.cryptoAddress && !resolvedAddress) {
+    }
+
+    if (checkedAddress !== addressToSave || !resolvedAddress) {
       alert(t('crypto_address_not_resolved'));
       return;
-    } else if (resolvedAddress && resolvedAddress === account?.signer?.address) {
-      const result = await withErrorHandling(
-        () => setAccount({ ...account, author: { ...account?.author, address: cryptoState.cryptoAddress } }),
-        (error) => {
-          if (error instanceof Error) {
-            alert(error.message);
-            console.log(error);
-          } else {
-            console.error('An unknown error occurred:', error);
-          }
-        },
-      );
-      if (result !== undefined) {
-        setShouldResolve(false);
-        setSavedCryptoAddress(true);
-        setTimeout(() => setSavedCryptoAddress(false), 2000);
-        setCryptoState((prevState) => ({
-          ...prevState,
-          savedCryptoAddress: true,
-          cryptoAddress: '',
-          checkingCryptoAddress: false,
-        }));
-      }
-      setSavedCryptoAddress(true);
-      setCryptoState((prevState) => ({
-        ...prevState,
-        checkingCryptoAddress: false,
-        showResolvingMessage: false,
-        resolveString: t('crypto_address_verification'),
-        resolveClass: '',
-      }));
     }
-  };
 
-  const [showCryptoAddressInfo, setShowCryptoAddressInfo] = useState(false);
+    if (resolvedAddress !== signerAddress) {
+      alert(t('crypto_address_not_yours'));
+      return;
+    }
+
+    const result = await withErrorHandling(
+      () => setAccount({ ...account, author: { ...account?.author, address: addressToSave } }),
+      (publishError) => {
+        if (publishError instanceof Error) {
+          alert(publishError.message);
+          console.log(publishError);
+        } else {
+          console.error('An unknown error occurred:', publishError);
+        }
+      },
+    );
+
+    if (result === undefined) {
+      return;
+    }
+
+    setCheckedAddress(undefined);
+    setCryptoAddress(addressToSave);
+    showSavedIndicator(setSavedCryptoAddress);
+  };
 
   return (
     <div className={styles.setting}>
@@ -127,10 +166,10 @@ const CryptoAddressSetting = () => {
         <input
           type='text'
           placeholder='myaddress.bso'
-          value={cryptoState.cryptoAddress}
+          value={cryptoAddress}
           onChange={(e) => {
-            setInputValue(e.target.value);
-            setCryptoState((prevState) => ({ ...prevState, cryptoAddress: e.target.value }));
+            setCheckedAddress(undefined);
+            setCryptoAddress(e.target.value);
           }}
         />
         <button className={styles.saveButton} onClick={saveCryptoAddress}>
@@ -162,10 +201,17 @@ const CryptoAddressSetting = () => {
         <button className={styles.button} onClick={checkCryptoAddress}>
           {t('check')}
         </button>{' '}
-        <span className={cryptoState.resolveClass}>{cryptoState.resolveString}</span>
+        <span className={resolutionStatus.resolveClass}>{resolutionStatus.resolveString}</span>
       </div>
     </div>
   );
+};
+
+const CryptoAddressSetting = () => {
+  const account = useAccount();
+  const accountResetKey = account?.id ?? account?.name ?? account?.signer?.address ?? account?.author?.address ?? 'default-account';
+
+  return <CryptoAddressSettingContent key={accountResetKey} account={account} />;
 };
 
 export default memo(CryptoAddressSetting);

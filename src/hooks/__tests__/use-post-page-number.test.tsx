@@ -35,7 +35,9 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/feeds', () => ({
 }));
 
 vi.mock('../use-directories', () => ({
+  useDirectories: () => [],
   useDirectoryByAddress: () => testState.community,
+  findDirectoryByAddress: () => undefined,
 }));
 
 vi.mock('../use-board-feed-page-size', () => ({
@@ -95,9 +97,9 @@ describe('usePostPageNumber', () => {
 
     expect(renderHook({ postCid: 'post-3', subplebbitAddress: 'music.eth' })).toBe(2);
     expect(testState.preloadOptions).toEqual({
+      communities: [{ name: 'music.eth' }],
       postsPerPage: 20,
       sortType: 'active',
-      communityAddresses: ['music.eth'],
     });
   });
 
@@ -106,9 +108,9 @@ describe('usePostPageNumber', () => {
 
     expect(renderHook({ postCid: 'post-4', subplebbitAddress: 'music.eth' })).toBe(2);
     expect(testState.preloadOptions).toEqual({
+      communities: [{ name: 'music.eth' }],
       postsPerPage: 20,
       sortType: 'active',
-      communityAddresses: ['music.eth'],
     });
   });
 
