@@ -65,14 +65,18 @@ vi.mock('../../../stores/use-challenges-store', () => ({
 
 vi.mock('@react-spring/web', async () => {
   const React = await vi.importActual<typeof import('react')>('react');
+  const createSpringValue = (value: number) => ({
+    get: () => value,
+    to: (mapper: (input: number) => unknown) => mapper(value),
+  });
   return {
     animated: {
       div: React.forwardRef(({ children, style, ...props }: any, ref) => createElement('div', { ...props, ref, style: { touchAction: style?.touchAction } }, children)),
     },
     useSpring: () => [
       {
-        x: { get: () => 120 },
-        y: { get: () => 60 },
+        x: createSpringValue(120),
+        y: createSpringValue(60),
       },
       { start: testState.springStartMock },
     ],
