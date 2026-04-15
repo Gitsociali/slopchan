@@ -8,13 +8,16 @@ If your AI coding assistant supports lifecycle hooks, configure these for this r
 |---|---|---|
 | `afterFileEdit` | `scripts/agent-hooks/format.sh` | Auto-format files after AI edits |
 | `afterFileEdit` | `scripts/agent-hooks/yarn-install.sh` | Run `corepack yarn install` when `package.json` changes |
+| `afterFileEdit` | `scripts/agent-hooks/react-pattern-review.sh` | When a diff adds `useEffect`/memo primitives in `src/`, remind the agent to reconsider with the React review skills |
 | `stop` | `scripts/agent-hooks/sync-git-branches.sh` | Prune stale refs and delete integrated temporary task branches |
+| `stop` | `scripts/agent-hooks/react-pattern-review.sh` | Re-scan the current diff for new React effects/memos before the final verify gate |
 | `stop` | `scripts/agent-hooks/verify.sh` | Hard-gate build, lint, and type-check; keep `yarn audit` informational |
 
 ## Why
 
 - Consistent formatting
 - Lockfile stays in sync
+- New `useEffect`/memo additions get an explicit second look before the agent finishes
 - Build/lint/type issues caught early
 - Security visibility via `corepack yarn npm audit`
 - One shared hook implementation for both Codex and Cursor
