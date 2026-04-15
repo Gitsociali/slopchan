@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Comment, Community } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, useCommunities } from '@bitsocialnet/bitsocial-react-hooks';
 import styles from '../home.module.css';
 import usePopularPosts from '../../../hooks/use-popular-posts';
 import { useFeedStateString } from '../../../hooks/use-state-string';
@@ -11,6 +11,7 @@ import { CatalogPostMedia } from '../../../components/catalog-row';
 import LoadingEllipsis from '../../../components/loading-ellipsis';
 import BoxModal from '../box-modal';
 import { DirectoryCommunity, findDirectoryByAddress } from '../../../hooks/use-directories';
+import { useCommunityIdentifiers } from '../../../hooks/use-community-identifiers';
 import { getBoardPath } from '../../../lib/utils/route-utils';
 import { removeMarkdown } from '../../../lib/utils/post-utils';
 
@@ -55,18 +56,12 @@ const PopularThreadCard = memo(
   (prevProps, nextProps) => prevProps.post?.cid === nextProps.post?.cid && prevProps.boardTitle === nextProps.boardTitle && prevProps.boardPath === nextProps.boardPath,
 );
 
-const PopularThreadsBox = ({
-  directories,
-  directoryAddresses,
-  communities,
-}: {
-  directories: DirectoryCommunity[];
-  directoryAddresses: string[];
-  communities: Array<Community | undefined>;
-}) => {
+const PopularThreadsBox = ({ directories, directoryAddresses }: { directories: DirectoryCommunity[]; directoryAddresses: string[] }) => {
   const { t } = useTranslation();
   const { showWorksafeContentOnly, showNsfwContentOnly } = usePopularThreadsOptionsStore();
   const getCommentCommunityAddress = (post: Comment) => post.communityAddress || post.subplebbitAddress;
+  const directoryCommunities = useCommunityIdentifiers(directoryAddresses);
+  const { communities } = useCommunities({ communities: directoryCommunities });
 
   const { filteredBoardAddresses, filteredCommunities } = useMemo(() => {
     const filteredEntries = directoryAddresses.flatMap((address, index) => {

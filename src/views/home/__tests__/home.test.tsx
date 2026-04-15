@@ -60,8 +60,8 @@ vi.mock('../boards-list', () => ({
 }));
 
 vi.mock('../popular-threads-box', () => ({
-  default: ({ directories, communities }: { directories: unknown[]; communities: Record<string, unknown> }) =>
-    createElement('div', { 'data-testid': 'popular-threads-box' }, `popular:${directories.length}:${Object.keys(communities).length}`),
+  default: ({ directories, directoryAddresses }: { directories: unknown[]; directoryAddresses: string[] }) =>
+    createElement('div', { 'data-testid': 'popular-threads-box' }, `popular:${directories.length}:${directoryAddresses.length}`),
 }));
 
 vi.mock('../../../components/site-legal-meta', () => ({

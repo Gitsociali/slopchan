@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useRef, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
-import { useCommunities } from '@bitsocialnet/bitsocial-react-hooks';
 import styles from './home.module.css';
 import { useDirectories, useDirectoryAddresses } from '../../hooks/use-directories';
-import { useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
 import { CommunityStatsCollector, useCommunitiesStatsStore } from '../../hooks/use-communities-stats';
 import PopularThreadsBox from './popular-threads-box';
 import BoardsList from './boards-list';
@@ -190,8 +188,6 @@ export const HomeLogo = () => {
 const Home = () => {
   const directories = useDirectories();
   const directoryAddresses = useDirectoryAddresses();
-  const directoryCommunities = useCommunityIdentifiers(directoryAddresses);
-  const { communities } = useCommunities({ communities: directoryCommunities });
   const { closeDirectoryModal } = useDirectoryModalStore();
 
   useEffect(() => {
@@ -214,7 +210,7 @@ const Home = () => {
         <SearchBar />
         <InfoBox />
         <BoardsList multisub={directories} />
-        <PopularThreadsBox directories={directories} directoryAddresses={directoryAddresses} communities={communities} />
+        <PopularThreadsBox directories={directories} directoryAddresses={directoryAddresses} />
         <Stats directoryAddresses={directoryAddresses} />
         <Footer />
       </div>

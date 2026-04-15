@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAccountCommunityAddresses } from '../../../hooks/use-account-community-addresses';
-import { useDirectoriesState, useDirectories, DirectoryCommunity } from '../../../hooks/use-directories';
+import { useDirectoriesState, DirectoryCommunity } from '../../../hooks/use-directories';
 import { getBoardPath } from '../../../lib/utils/route-utils';
 import useDisclaimerModalStore from '../../../stores/use-disclaimer-modal-store';
 import useDirectoryModalStore from '../../../stores/use-directory-modal-store';
@@ -55,20 +55,37 @@ const BoardLink = ({ boardName, address, getBoardLink, onLinkClick, onPlaceholde
   );
 };
 
+const DirectoriesErrorMessage = () => {
+  const error = useDirectoriesState().error;
+  return error?.message ? <div className='red'>{error.message}</div> : null;
+};
+
+const ModeratedBoardsLink = () => {
+  const { t } = useTranslation();
+  const accountCommunityAddresses = useAccountCommunityAddresses();
+
+  if (accountCommunityAddresses.length === 0) {
+    return null;
+  }
+
+  return (
+    <li>
+      <Link to='/mod'>{t('boards_you_moderate_nav')}</Link>
+    </li>
+  );
+};
+
 const BoardsList = ({ multisub }: { multisub: DirectoryCommunity[] }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { error } = useDirectoriesState();
-  const { showDisclaimerModal } = useDisclaimerModalStore();
-  const { openDirectoryModal } = useDirectoryModalStore();
-  const { useCatalogLinks, boardFilter } = useBoardsFilterStore();
-  const directories = useDirectories();
-
-  const accountCommunityAddresses = useAccountCommunityAddresses();
+  const showDisclaimerModal = useDisclaimerModalStore((state) => state.showDisclaimerModal);
+  const openDirectoryModal = useDirectoryModalStore((state) => state.openDirectoryModal);
+  const useCatalogLinks = useBoardsFilterStore((state) => state.useCatalogLinks);
+  const boardFilter = useBoardsFilterStore((state) => state.boardFilter);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, address: string) => {
     e.preventDefault();
-    const boardPath = getBoardPath(address, directories);
+    const boardPath = getBoardPath(address, multisub);
     const targetPath = boardPath + (useCatalogLinks ? '/catalog' : '');
     showDisclaimerModal(address, navigate, targetPath);
   };
@@ -76,7 +93,7 @@ const BoardsList = ({ multisub }: { multisub: DirectoryCommunity[] }) => {
   // Helper to generate link URL with optional catalog suffix
   const getBoardLink = (address: string | null): string => {
     if (!address) return '#';
-    const boardPath = getBoardPath(address, directories);
+    const boardPath = getBoardPath(address, multisub);
     return `/${boardPath}${useCatalogLinks ? '/catalog' : ''}`;
   };
 
@@ -101,8 +118,6 @@ const BoardsList = ({ multisub }: { multisub: DirectoryCommunity[] }) => {
     onPlaceholderClick: handlePlaceholderClick,
   };
 
-  const errorMessage = error?.message;
-
   // Filtering logic: determine which categories to show
   const showAll = boardFilter === 'all';
   const showNsfwOnly = boardFilter === 'nsfw';
@@ -125,7 +140,7 @@ const BoardsList = ({ multisub }: { multisub: DirectoryCommunity[] }) => {
         <BoardsFilterModal />
       </div>
       <div className={`${styles.boxContent} ${styles.boardsContent}`}>
-        {errorMessage && <div className='red'>{errorMessage}</div>}
+        <DirectoriesErrorMessage />
         {/* Column 1: Japanese Culture + Video Games */}
         {(showJapaneseCulture || showVideoGames) && (
           <div className={styles.boardsColumn}>
@@ -598,11 +613,7 @@ const BoardsList = ({ multisub }: { multisub: DirectoryCommunity[] }) => {
               <li>
                 <Link to='/subs'>Subscriptions</Link>
               </li>
-              {accountCommunityAddresses.length > 0 && (
-                <li>
-                  <Link to='/mod'>{t('boards_you_moderate_nav')}</Link>
-                </li>
-              )}
+              <ModeratedBoardsLink />
             </ul>
           </div>
         )}
