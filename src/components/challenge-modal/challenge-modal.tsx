@@ -304,8 +304,8 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
       className={containerClasses.join(' ')}
       ref={nodeRef}
       style={{
-        x: isMobile ? mobileX : x,
-        y: isMobile ? mobileY : y,
+        x: isMobile ? mobileX : x.to((value) => Math.round(value)),
+        y: isMobile ? mobileY : y.to((value) => Math.round(value)),
         touchAction: 'none',
       }}
     >
