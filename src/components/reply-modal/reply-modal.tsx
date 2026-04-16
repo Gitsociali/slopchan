@@ -44,7 +44,7 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
   const { isResolvingExternalQuotes, publishReply, publishReplyError, publishReplyStateMessage, resetPublishReplyOptions, replyIndex, setPublishReplyOptions } =
     usePublishReply({
       cid: parentCid,
-      subplebbitAddress: communityAddress,
+      communityAddress,
       postCid,
     });
   const account = useAccount();

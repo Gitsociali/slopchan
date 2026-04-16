@@ -6,11 +6,9 @@ import usePublishAuthorDomainGuard, { getPublishAuthorDomainErrorMessage } from 
 
 type UsePublishPostOptions = {
   communityAddress?: string;
-  /** legacy compatibility */
-  subplebbitAddress?: string;
 };
 
-const usePublishPost = ({ communityAddress: requestedCommunityAddress, subplebbitAddress }: UsePublishPostOptions) => {
+const usePublishPost = ({ communityAddress }: UsePublishPostOptions) => {
   const { author, title, content, link, spoiler, publishCommentOptions } = usePublishPostStore((state) => ({
     author: state.author,
     title: state.title || undefined,
@@ -29,8 +27,6 @@ const usePublishPost = ({ communityAddress: requestedCommunityAddress, subplebbi
   const abandonCurrentPublish = useCallback(async () => {
     await abandonPublishRef.current?.();
   }, []);
-
-  const communityAddress = requestedCommunityAddress ?? subplebbitAddress;
 
   const createBaseOptions = useCallback(() => {
     const baseOptions: Comment = {
@@ -60,12 +56,8 @@ const usePublishPost = ({ communityAddress: requestedCommunityAddress, subplebbi
         {} as Partial<Comment>,
       );
 
-      const {
-        communityAddress: nextCommunityAddress,
-        subplebbitAddress: legacyCommunityAddress,
-        ...restOptions
-      } = sanitizedOptions as Partial<Comment> & { subplebbitAddress?: string };
-      const resolvedCommunityAddress = nextCommunityAddress ?? legacyCommunityAddress ?? baseOptions.communityAddress;
+      const { communityAddress: nextCommunityAddress, ...restOptions } = sanitizedOptions;
+      const resolvedCommunityAddress = nextCommunityAddress ?? baseOptions.communityAddress;
       const newOptions = {
         ...baseOptions,
         ...restOptions,

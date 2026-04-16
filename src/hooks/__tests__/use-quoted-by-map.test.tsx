@@ -72,4 +72,32 @@ describe('useQuotedByMap', () => {
 
     expect(latestValue.get('op-cid')?.[0]?.number).toBe(42);
   });
+
+  it('matches same-board quote numbers across .eth and .bso aliases', () => {
+    usePostNumberStore.setState({
+      cidToNumber: { 'op-cid': 1 },
+      numberToCid: { 'music.eth': { 1: 'op-cid' } },
+    });
+
+    testState.replies = [
+      {
+        cid: 'reply-cid',
+        content: 'replying to >>1',
+        number: 42,
+        state: 'succeeded',
+        subplebbitAddress: 'music.bso',
+      },
+    ];
+
+    act(() => {
+      root.render(
+        createElement(() => {
+          latestValue = useQuotedByMap(testState.replies as never, 'music.bso');
+          return null;
+        }),
+      );
+    });
+
+    expect(latestValue.get('op-cid')?.[0]?.cid).toBe('reply-cid');
+  });
 });

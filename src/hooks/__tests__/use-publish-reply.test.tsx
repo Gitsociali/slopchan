@@ -41,6 +41,7 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
 
 vi.mock('../../hooks/use-directories', () => ({
   useDirectories: () => testState.directories,
+  normalizeBoardAddress: (address?: string) => address?.replace(/(\.bso|\.eth)$/u, ''),
 }));
 
 vi.mock('../../lib/utils/external-quote-resolver', () => ({
@@ -60,7 +61,7 @@ let latestValue: ReturnType<typeof usePublishReply>;
 let root: Root;
 
 const HookHarness = () => {
-  latestValue = usePublishReply({ cid: 'parent-cid', subplebbitAddress: 'music.eth' });
+  latestValue = usePublishReply({ cid: 'parent-cid', communityAddress: 'music.eth' });
   return null;
 };
 
@@ -122,14 +123,13 @@ describe('usePublishReply', () => {
       quotedCids: ['quoted-cid'],
       spoiler: true,
     });
-    expect('subplebbitAddress' in (testState.lastPublishOptions || {})).toBe(false);
   });
 
   it('resolves same-board external quote references before triggering publish', async () => {
     testState.resolveExternalQuoteTargetMock.mockResolvedValue({
       cid: 'external-cid',
       route: '/music/thread/external-cid',
-      subplebbitAddress: 'music.eth',
+      communityAddress: 'music.eth',
     });
 
     await act(async () => {

@@ -12,7 +12,7 @@ import { canEmbed } from '../embed';
 import { is5chanLink, transform5chanLinkToInternal, isValidCrossboardPattern } from '../../lib/utils/url-utils';
 import { CROSSBOARD_NUMBER_QUOTE_TOKEN_REGEX, type ExternalQuoteReference } from '../../lib/utils/external-quote-utils';
 import { isUnavailableQuoteTarget } from '../../lib/utils/quote-link-utils';
-import usePostNumberStore from '../../stores/use-post-number-store';
+import usePostNumberStore, { getCidForPostNumber } from '../../stores/use-post-number-store';
 import useCommunitiesPagesStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/communities-pages';
 import { useComment } from '@bitsocialnet/bitsocial-react-hooks';
 import ReplyQuotePreview from '../reply-quote-preview';
@@ -299,11 +299,12 @@ interface MarkdownProps {
 }
 
 const NumberQuoteLink = ({ number, threadPostCid, communityAddress }: { number: number; threadPostCid?: string; communityAddress?: string }) => {
-  const cid = usePostNumberStore((state) => (communityAddress ? state.numberToCid[communityAddress]?.[number] : undefined));
+  const cid = usePostNumberStore((state) => getCidForPostNumber(state.numberToCid, communityAddress, number));
+  const threadPostNumber = usePostNumberStore((state) => (threadPostCid ? state.cidToNumber[threadPostCid] : undefined));
   const commentFromStore = useCommunitiesPagesStore((state) => (cid ? state.comments[cid] : undefined));
   const commentFromHook = useComment({ commentCid: cid, onlyIfCached: true });
   const comment = commentFromHook?.number !== undefined ? commentFromHook : commentFromStore;
-  const isOP = Boolean(threadPostCid && cid === threadPostCid);
+  const isOP = Boolean((threadPostCid && cid === threadPostCid) || (threadPostNumber !== undefined && number === threadPostNumber));
 
   if (isUnavailableQuoteTarget(comment)) {
     return (
@@ -314,11 +315,12 @@ const NumberQuoteLink = ({ number, threadPostCid, communityAddress }: { number: 
   if (!cid && communityAddress) {
     return (
       <ExternalNumberQuoteLink
+        isOP={isOP}
         reference={{
           kind: 'same-board',
           number,
           raw: `>>${number}`,
-          subplebbitAddress: communityAddress,
+          communityAddress,
         }}
       />
     );

@@ -1,5 +1,6 @@
 import type { DirectoryCommunity } from '../../hooks/use-directories';
-import { getBoardPath, getCommunityAddress, getSubplebbitAddress } from './route-utils';
+import { findDirectoryByAddress } from '../../hooks/use-directories';
+import { getBoardPath, getCommunityAddress } from './route-utils';
 import { QUOTE_NUMBER_REGEX } from './url-utils';
 
 const CROSSBOARD_NUMBER_BOARD_PART = '(?:[a-zA-Z0-9]{1,10}|12D3KooW[a-zA-Z0-9]{44}|[a-zA-Z0-9\\-.]+)';
@@ -12,8 +13,6 @@ export type SameBoardExternalQuoteReference = {
   number: number;
   raw: string;
   communityAddress?: string;
-  // legacy compatibility alias
-  subplebbitAddress?: string;
 };
 
 export type CrossBoardExternalQuoteReference = {
@@ -30,23 +29,27 @@ const getAddressForCanonicalReference = (reference: ExternalQuoteReference, dire
     return resolveLegacyCommunityAddress(reference.boardIdentifier, directories);
   }
 
-  return resolveLegacyCommunityAddress(reference.communityAddress || reference.subplebbitAddress || '', directories);
+  return resolveLegacyCommunityAddress(reference.communityAddress || '', directories);
 };
 
 const getExternalQuoteKey = (reference: ExternalQuoteReference) =>
   reference.kind === 'cross-board'
     ? `${reference.kind}:${reference.boardIdentifier}:${reference.number}`
-    : `${reference.kind}:${reference.communityAddress || reference.subplebbitAddress}:${reference.number}`;
+    : `${reference.kind}:${reference.communityAddress}:${reference.number}`;
 
 const resolveLegacyCommunityAddress = (boardIdentifier: string, communities: DirectoryCommunity[]) => {
+  const matchingDirectory = findDirectoryByAddress(communities, boardIdentifier);
+  if (matchingDirectory?.address) {
+    return matchingDirectory.address;
+  }
+
   // Canonical resolver in route utils handles directory or address mapping.
   const address = getCommunityAddress(boardIdentifier, communities);
   if (address) {
     return address;
   }
 
-  // Backward-compat helper alias if needed by callers with older util behavior.
-  return getSubplebbitAddress(boardIdentifier, communities);
+  return boardIdentifier;
 };
 
 export const getExternalQuoteBoardAddress = (reference: ExternalQuoteReference, directories: DirectoryCommunity[]) =>
@@ -61,23 +64,18 @@ export const extractUnresolvedExternalQuoteReferences = ({
   content,
   scopedNumberToCid,
   communityAddress,
-  subplebbitAddress,
 }: {
   content?: string;
   scopedNumberToCid?: Record<number, string>;
-  // canonical input
   communityAddress?: string;
-  // backward-compatible input name
-  subplebbitAddress?: string;
 }) => {
-  const effectiveCommunityAddress = communityAddress || subplebbitAddress;
   if (!content) {
     return [] as ExternalQuoteReference[];
   }
 
   const references = new Map<string, ExternalQuoteReference>();
 
-  if (effectiveCommunityAddress) {
+  if (communityAddress) {
     for (const match of content.matchAll(new RegExp(QUOTE_NUMBER_REGEX.source, 'g'))) {
       const number = Number.parseInt(match[1], 10);
       if (Number.isNaN(number) || scopedNumberToCid?.[number]) {
@@ -88,8 +86,7 @@ export const extractUnresolvedExternalQuoteReferences = ({
         kind: 'same-board',
         number,
         raw: `>>${number}`,
-        communityAddress: effectiveCommunityAddress,
-        subplebbitAddress: effectiveCommunityAddress,
+        communityAddress,
       };
       references.set(getExternalQuoteKey(reference), reference);
     }

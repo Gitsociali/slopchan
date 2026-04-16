@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import { normalizeBoardAddress } from '../hooks/use-directories';
 
 interface PostNumberState {
   // Post numbers are only unique within a board, so scope by canonical community address.
@@ -7,6 +8,38 @@ interface PostNumberState {
   cidToNumber: Record<string, number>;
   registerComments: (comments: Comment[]) => void;
 }
+
+export const getScopedNumberToCidMap = (numberToCid: Record<string, Record<number, string>>, communityAddress?: string) => {
+  if (!communityAddress) {
+    return undefined;
+  }
+
+  const normalizedCommunityAddress = normalizeBoardAddress(communityAddress);
+  const exactMatch = numberToCid[communityAddress];
+  const matchingEntries = Object.entries(numberToCid).filter(([address]) => normalizeBoardAddress(address) === normalizedCommunityAddress);
+
+  if (matchingEntries.length === 0) {
+    return exactMatch;
+  }
+
+  if (!exactMatch && matchingEntries.length === 1) {
+    return matchingEntries[0][1];
+  }
+
+  if (!exactMatch) {
+    return matchingEntries.reduce<Record<number, string>>((mergedMap, [, scopedMap]) => ({ ...mergedMap, ...scopedMap }), {});
+  }
+
+  if (matchingEntries.length === 1) {
+    return exactMatch;
+  }
+
+  const aliasEntries = matchingEntries.filter(([address]) => address !== communityAddress);
+  return aliasEntries.reduce<Record<number, string>>((mergedMap, [, scopedMap]) => ({ ...mergedMap, ...scopedMap }), { ...exactMatch });
+};
+
+export const getCidForPostNumber = (numberToCid: Record<string, Record<number, string>>, communityAddress: string | undefined, postNumber: number) =>
+  getScopedNumberToCidMap(numberToCid, communityAddress)?.[postNumber];
 
 const usePostNumberStore = create<PostNumberState>((set) => ({
   numberToCid: {},

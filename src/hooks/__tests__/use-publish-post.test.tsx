@@ -41,7 +41,7 @@ let latestValue: ReturnType<typeof usePublishPost>;
 let root: Root;
 
 const HookHarness = () => {
-  latestValue = usePublishPost({ subplebbitAddress: 'music.eth' });
+  latestValue = usePublishPost({ communityAddress: 'music.eth' });
   return null;
 };
 
@@ -92,7 +92,6 @@ describe('usePublishPost', () => {
       spoiler: true,
       title: 'Hello world',
     });
-    expect('subplebbitAddress' in latestValue.publishPostOptions).toBe(false);
     expect(typeof latestValue.publishPostOptions.onChallengeVerification).toBe('function');
     expect(typeof latestValue.publishPostOptions.onError).toBe('function');
   });

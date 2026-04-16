@@ -15,7 +15,13 @@ type TestComment = {
 
 const testState = vi.hoisted(() => ({
   comments: {} as Record<string, TestComment>,
+  directories: [{ address: 'music-posting.eth', name: 'music-posting.bso', title: '/mu/ - Music' }] as Array<{
+    address: string;
+    name?: string;
+    title?: string;
+  }>,
   embeddableHosts: new Set<string>(),
+  cidToNumber: {} as Record<string, number>,
   internalPathByHref: {} as Record<string, string | null>,
   isMobile: false,
   mediaInfoByHref: {} as Record<string, { thumbnail?: string; type: string; url: string }>,
@@ -88,9 +94,46 @@ vi.mock('../../../lib/utils/url-utils', () => ({
   transform5chanLinkToInternal: (href: string) => testState.internalPathByHref[href] ?? null,
 }));
 
+vi.mock('../../../hooks/use-directories', () => ({
+  findDirectoryByAddress: (directories: Array<{ address: string; name?: string }>, address: string | undefined) => {
+    if (!address) {
+      return undefined;
+    }
+
+    const normalize = (value: string) => value.replace(/(\.bso|\.eth)$/, '');
+    return directories.find((directory) => [directory.address, directory.name].some((identifier) => identifier && normalize(identifier) === normalize(address)));
+  },
+  useDirectories: () => testState.directories,
+}));
+
 vi.mock('../../../stores/use-post-number-store', () => ({
-  default: (selector: (state: { numberToCid: typeof testState.numberToCid }) => unknown) =>
+  getCidForPostNumber: (numberToCid: typeof testState.numberToCid, communityAddress: string | undefined, postNumber: number) => {
+    if (!communityAddress) {
+      return undefined;
+    }
+
+    const normalize = (value: string) => value.replace(/(\.bso|\.eth)$/, '');
+    const exactMatch = numberToCid[communityAddress];
+    const matchingEntries = Object.entries(numberToCid).filter(([address]) => normalize(address) === normalize(communityAddress));
+    const scoped =
+      exactMatch && matchingEntries.length <= 1
+        ? exactMatch
+        : matchingEntries.reduce<Record<number, string>>(
+            (mergedMap, [address, scopedMap]) => {
+              if (address === communityAddress) {
+                return { ...mergedMap, ...scopedMap };
+              }
+
+              return { ...scopedMap, ...mergedMap };
+            },
+            exactMatch ? { ...exactMatch } : {},
+          );
+
+    return scoped?.[postNumber];
+  },
+  default: (selector: (state: { cidToNumber: typeof testState.cidToNumber; numberToCid: typeof testState.numberToCid }) => unknown) =>
     selector({
+      cidToNumber: testState.cidToNumber,
       numberToCid: testState.numberToCid,
     }),
 }));
@@ -129,7 +172,8 @@ vi.mock('../../reply-quote-preview', () => ({
 }));
 
 vi.mock('../external-number-quote-link', () => ({
-  default: ({ reference }: { reference: { raw: string } }) => createElement('a', { 'data-testid': 'external-number-quote-link', href: '#' }, reference.raw),
+  default: ({ isOP, reference }: { isOP?: boolean; reference: { raw: string } }) =>
+    createElement('a', { 'data-op': String(Boolean(isOP)), 'data-testid': 'external-number-quote-link', href: '#' }, `${reference.raw}${isOP ? ' (OP)' : ''}`),
 }));
 
 let container: HTMLDivElement;
@@ -145,7 +189,9 @@ describe('Markdown', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     testState.comments = {};
+    testState.directories = [{ address: 'music-posting.eth', name: 'music-posting.bso', title: '/mu/ - Music' }];
     testState.embeddableHosts = new Set<string>();
+    testState.cidToNumber = {};
     testState.internalPathByHref = {};
     testState.isMobile = false;
     testState.mediaInfoByHref = {};
@@ -188,6 +234,9 @@ describe('Markdown', () => {
     testState.comments = {
       'comment-42': { cid: 'comment-42', number: 42 },
     };
+    testState.cidToNumber = {
+      'comment-42': 42,
+    };
     testState.numberToCid = {
       'music-posting.eth': {
         42: 'comment-42',
@@ -206,6 +255,80 @@ describe('Markdown', () => {
     expect(quotePreview?.getAttribute('data-op')).toBe('true');
     expect(quotePreview?.getAttribute('data-unavailable')).toBe('true');
     expect(quotePreview?.textContent).toBe('comment-42');
+  });
+
+  it('resolves same-board OP quotes across alias-scoped post number store entries', async () => {
+    testState.comments = {
+      'thread-cid': { cid: 'thread-cid', number: 42 },
+    };
+    testState.cidToNumber = {
+      'thread-cid': 42,
+    };
+    testState.numberToCid = {
+      'music-posting.eth': {
+        42: 'thread-cid',
+      },
+    };
+    testState.directories = [{ address: 'music-posting.bso', title: '/mu/ - Music' }];
+
+    await renderMarkdown({
+      content: '>>42',
+      postCid: 'thread-cid',
+      communityAddress: 'music-posting.bso',
+    });
+
+    expect(container.querySelector('[data-testid="external-number-quote-link"]')).toBeNull();
+    const quotePreview = container.querySelector('[data-testid="reply-quote-preview"]');
+    expect(quotePreview?.getAttribute('data-number')).toBe('42');
+    expect(quotePreview?.getAttribute('data-op')).toBe('true');
+    expect(quotePreview?.textContent).toBe('thread-cid');
+  });
+
+  it('resolves board-preview quotes when the exact alias scope exists but another alias owns the quoted number', async () => {
+    testState.comments = {
+      'thread-cid': { cid: 'thread-cid', number: 3 },
+    };
+    testState.cidToNumber = {
+      'thread-cid': 3,
+    };
+    testState.numberToCid = {
+      'music-posting.eth': {
+        3: 'thread-cid',
+        6: 'reply-cid',
+      },
+      'music-posting.bso': {
+        28: 'later-reply-cid',
+      },
+    };
+
+    await renderMarkdown({
+      content: '>>3',
+      postCid: 'thread-cid',
+      communityAddress: 'music-posting.bso',
+    });
+
+    expect(container.querySelector('[data-testid="external-number-quote-link"]')).toBeNull();
+    const quotePreview = container.querySelector('[data-testid="reply-quote-preview"]');
+    expect(quotePreview?.getAttribute('data-number')).toBe('3');
+    expect(quotePreview?.getAttribute('data-op')).toBe('true');
+    expect(quotePreview?.textContent).toBe('thread-cid');
+  });
+
+  it('preserves the OP label when a same-board quote still falls back to external resolution', async () => {
+    testState.cidToNumber = {
+      'thread-cid': 42,
+    };
+    testState.directories = [{ address: 'music-posting.bso', title: '/mu/ - Music' }];
+
+    await renderMarkdown({
+      content: '>>42',
+      postCid: 'thread-cid',
+      communityAddress: 'music-posting.bso',
+    });
+
+    const externalLink = container.querySelector('[data-testid="external-number-quote-link"]');
+    expect(externalLink?.getAttribute('data-op')).toBe('true');
+    expect(externalLink?.textContent).toBe('>>42 (OP)');
   });
 
   it('renders lazy same-board and cross-board number quotes when the cid is not cached', async () => {

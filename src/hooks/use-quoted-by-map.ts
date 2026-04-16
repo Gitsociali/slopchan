@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { Comment } from '@bitsocialnet/bitsocial-react-hooks';
 import { QUOTE_NUMBER_REGEX } from '../lib/utils/url-utils';
-import usePostNumberStore from '../stores/use-post-number-store';
+import usePostNumberStore, { getScopedNumberToCidMap } from '../stores/use-post-number-store';
 
 interface ReplyQuoteTargets {
   reply: Comment;
@@ -61,27 +61,27 @@ const extractReplyQuoteTargets = (replies: Comment[]) => {
   };
 };
 
-const useQuotedByMap = (replies: Comment[] = [], subplebbitAddress?: string) => {
+const useQuotedByMap = (replies: Comment[] = [], communityAddress?: string) => {
   const stableQuotedByMapRef = useRef<Map<string, Comment[]>>(new Map());
   const { replyQuoteTargets, quotedPostNumbers } = useMemo(() => extractReplyQuoteTargets(replies), [replies]);
 
   const quotedNumbersSignature = usePostNumberStore(
     useCallback(
       (state) => {
-        const scoped = subplebbitAddress ? state.numberToCid[subplebbitAddress] : undefined;
+        const scoped = getScopedNumberToCidMap(state.numberToCid, communityAddress);
         return quotedPostNumbers.map((postNumber) => `${postNumber}:${scoped?.[postNumber] ?? ''}`).join('|');
       },
-      [quotedPostNumbers, subplebbitAddress],
+      [quotedPostNumbers, communityAddress],
     ),
   );
 
   const quotedNumberToCid = useMemo(() => {
-    if (quotedPostNumbers.length === 0 || !subplebbitAddress) {
+    if (quotedPostNumbers.length === 0 || !communityAddress) {
       return {} as Record<number, string>;
     }
 
     const { numberToCid } = usePostNumberStore.getState();
-    const scoped = numberToCid[subplebbitAddress];
+    const scoped = getScopedNumberToCidMap(numberToCid, communityAddress);
     if (!scoped) return {} as Record<number, string>;
 
     const nextQuotedNumberToCid: Record<number, string> = {};
@@ -94,7 +94,7 @@ const useQuotedByMap = (replies: Comment[] = [], subplebbitAddress?: string) => 
     }
 
     return nextQuotedNumberToCid;
-  }, [quotedPostNumbers, subplebbitAddress, quotedNumbersSignature]);
+  }, [quotedPostNumbers, communityAddress, quotedNumbersSignature]);
 
   return useMemo(() => {
     const map = new Map<string, Comment[]>();

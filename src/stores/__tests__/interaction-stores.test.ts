@@ -4,7 +4,7 @@ import useCreateBoardModalStore from '../use-create-board-modal-store';
 import useDirectoryModalStore from '../use-directory-modal-store';
 import useDisclaimerModalStore, { DISCLAIMER_ACCEPTED_KEY } from '../use-disclaimer-modal-store';
 import useFeedResetStore from '../use-feed-reset-store';
-import usePostNumberStore from '../use-post-number-store';
+import usePostNumberStore, { getCidForPostNumber, getScopedNumberToCidMap } from '../use-post-number-store';
 import useReplyModalStore from '../use-reply-modal-store';
 import useSelectedTextStore from '../use-selected-text-store';
 import useSortingStore from '../use-sorting-store';
@@ -233,6 +233,26 @@ describe('interaction stores', () => {
     const numberToCidRef = firstState.numberToCid;
     usePostNumberStore.getState().registerComments(comments);
     expect(usePostNumberStore.getState().numberToCid).toBe(numberToCidRef);
+  });
+
+  it('merges alias-scoped post number maps when the exact board scope is only partially populated', () => {
+    const numberToCid = {
+      'music.eth': {
+        1: 'op-cid',
+        2: 'reply-cid',
+      },
+      'music.bso': {
+        30: 'late-reply-cid',
+      },
+    };
+
+    expect(getScopedNumberToCidMap(numberToCid, 'music.bso')).toEqual({
+      1: 'op-cid',
+      2: 'reply-cid',
+      30: 'late-reply-cid',
+    });
+    expect(getCidForPostNumber(numberToCid, 'music.bso', 1)).toBe('op-cid');
+    expect(getCidForPostNumber(numberToCid, 'music.bso', 30)).toBe('late-reply-cid');
   });
 
   it('opens reply modals with quoted selection and mobile scroll state', () => {

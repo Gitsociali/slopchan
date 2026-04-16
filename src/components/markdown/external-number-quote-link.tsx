@@ -15,6 +15,7 @@ import { Post } from '../../views/post';
 import styles from './markdown.module.css';
 
 interface ExternalNumberQuoteLinkProps {
+  isOP?: boolean;
   reference: ExternalQuoteReference;
 }
 
@@ -42,7 +43,7 @@ type PreviewPosition = {
   top: number;
 };
 
-const ExternalNumberQuoteLink = ({ reference }: ExternalNumberQuoteLinkProps) => {
+const ExternalNumberQuoteLink = ({ isOP = false, reference }: ExternalNumberQuoteLinkProps) => {
   const { t } = useTranslation();
   const account = useAccount();
   const directories = useDirectories();
@@ -61,6 +62,7 @@ const ExternalNumberQuoteLink = ({ reference }: ExternalNumberQuoteLinkProps) =>
   const latestStatusMessageRef = useRef('');
 
   const boardLabel = getExternalQuoteBoardLabel(reference, directories);
+  const linkLabel = isOP ? `${reference.raw} (OP)` : reference.raw;
 
   const updatePreviewPosition = (anchor: HTMLElement | null) => {
     if (!anchor || isMobile) {
@@ -276,7 +278,7 @@ const ExternalNumberQuoteLink = ({ reference }: ExternalNumberQuoteLinkProps) =>
         onMouseLeave={handleMouseLeave}
         ref={anchorRef}
       >
-        {reference.raw}
+        {linkLabel}
       </a>
       {!isMobile &&
         isPreviewOpen &&

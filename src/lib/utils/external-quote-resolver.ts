@@ -155,7 +155,7 @@ const loadBoardThreads = async ({
   const feedName = getBoardFeedName(accountId, communityAddress);
   const feedState = feedsStore.getState();
   if (!feedState.feedsOptions[feedName]) {
-    await feedState.addFeedToStore(feedName, [communityAddress], BOARD_FEED_SORT_TYPE, account, false, BOARD_SEARCH_POSTS_PER_PAGE);
+    await feedState.addFeedToStore(feedName, [{ address: communityAddress }], [communityAddress], BOARD_FEED_SORT_TYPE, account, false, BOARD_SEARCH_POSTS_PER_PAGE);
   }
 
   await waitForBoardFeedPage(feedName, 0, 1);

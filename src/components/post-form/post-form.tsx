@@ -305,7 +305,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
   const resolvedAddress = useResolvedCommunityAddress();
   const communityAddress = resolvedAddress || accountComment?.communityAddress;
   const { setPublishPostOptions, postIndex, publishPost, publishPostError, publishPostOptions, resetPublishPostOptions } = usePublishPost({
-    subplebbitAddress: communityAddress,
+    communityAddress,
   });
   const effectiveBoardAddress = communityAddress || publishPostOptions.communityAddress;
 
@@ -396,7 +396,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
   const isInPostView = isPostPageView(location.pathname, params);
   const cid = params?.commentCid as string;
   const { isResolvingExternalQuotes, publishReply, publishReplyError, publishReplyStateMessage, resetPublishReplyOptions, replyIndex, setPublishReplyOptions } =
-    usePublishReply({ cid, subplebbitAddress: communityAddress, postCid });
+    usePublishReply({ cid, communityAddress, postCid });
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const content = e.target.value;

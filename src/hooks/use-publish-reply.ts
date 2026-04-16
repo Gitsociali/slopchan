@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Comment, useAccount, usePublishComment } from '@bitsocialnet/bitsocial-react-hooks';
 import { useDirectories } from './use-directories';
 import usePublishReplyStore from '../stores/use-publish-reply-store';
-import usePostNumberStore from '../stores/use-post-number-store';
+import usePostNumberStore, { getScopedNumberToCidMap } from '../stores/use-post-number-store';
 import { getQuotedCidsFromContent, mergeQuotedCids } from '../lib/utils/reply-quote-utils';
 import { extractUnresolvedExternalQuoteReferences, getExternalQuoteStatusMessage } from '../lib/utils/external-quote-utils';
 import { resolveExternalQuoteTarget } from '../lib/utils/external-quote-resolver';
@@ -13,14 +13,10 @@ import usePublishAuthorDomainGuard, { getPublishAuthorDomainErrorMessage } from 
 type UsePublishReplyOptions = {
   cid: string;
   communityAddress?: string;
-  /** legacy compatibility */
-  subplebbitAddress?: string;
   postCid?: string;
 };
 
-const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, subplebbitAddress, postCid }: UsePublishReplyOptions) => {
-  const communityAddress = requestedCommunityAddress ?? subplebbitAddress;
-
+const usePublishReply = ({ cid, communityAddress, postCid }: UsePublishReplyOptions) => {
   const { t } = useTranslation();
   const parentCid = cid;
   const account = useAccount();
@@ -78,12 +74,8 @@ const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, sub
         {} as Partial<Comment>,
       );
 
-      const {
-        communityAddress: nextCommunityAddress,
-        subplebbitAddress: legacyCommunityAddress,
-        ...restOptions
-      } = sanitizedOptions as Partial<Comment> & { subplebbitAddress?: string };
-      const resolvedCommunityAddress = nextCommunityAddress ?? legacyCommunityAddress ?? baseOptions.communityAddress;
+      const { communityAddress: nextCommunityAddress, ...restOptions } = sanitizedOptions;
+      const resolvedCommunityAddress = nextCommunityAddress ?? baseOptions.communityAddress;
       const newOptions = {
         ...baseOptions,
         ...restOptions,
@@ -96,7 +88,7 @@ const usePublishReply = ({ cid, communityAddress: requestedCommunityAddress, sub
 
   const resetPublishReplyOptions = useCallback(() => resetPublishReplyStore(parentCid), [parentCid, resetPublishReplyStore]);
 
-  const scopedNumberToCid = usePostNumberStore((state) => (communityAddress ? state.numberToCid[communityAddress] : undefined));
+  const scopedNumberToCid = usePostNumberStore((state) => getScopedNumberToCidMap(state.numberToCid, communityAddress));
   const quotedCids = useMemo(() => getQuotedCidsFromContent(content, scopedNumberToCid), [content, scopedNumberToCid]);
   const unresolvedExternalQuoteReferences = useMemo(
     () =>
