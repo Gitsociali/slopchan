@@ -325,6 +325,70 @@ describe('ChallengeModal', () => {
     );
   });
 
+  it('auto-submits iframe challenges when the iframe posts a completion message', async () => {
+    const publication = createPublication();
+    testState.challenges = [
+      createStoredChallenge(
+        {
+          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+          type: 'url/iframe',
+        },
+        publication,
+      ),
+    ];
+
+    await renderModal();
+    await clickButton('Open');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'challengeAnswer',
+            challengeAnswers: [''],
+            sessionId: 'session-123',
+          },
+          origin: 'https://spamblocker.bitsocial.net',
+        }),
+      );
+    });
+
+    expect(publication.publishChallengeAnswers).toHaveBeenCalledWith(['']);
+    expect(testState.removeChallengeMock).toHaveBeenCalledOnce();
+  });
+
+  it('ignores iframe completion messages with the wrong session id', async () => {
+    const publication = createPublication();
+    testState.challenges = [
+      createStoredChallenge(
+        {
+          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+          type: 'url/iframe',
+        },
+        publication,
+      ),
+    ];
+
+    await renderModal();
+    await clickButton('Open');
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: {
+            type: 'challengeAnswer',
+            challengeAnswers: [''],
+            sessionId: 'session-999',
+          },
+          origin: 'https://spamblocker.bitsocial.net',
+        }),
+      );
+    });
+
+    expect(publication.publishChallengeAnswers).not.toHaveBeenCalled();
+    expect(testState.removeChallengeMock).not.toHaveBeenCalled();
+  });
+
   it('uses the shortened community address when shortCommunityAddress is unavailable', async () => {
     const longCommunityAddress = '12D3KooWS6yKc5N7o6JcAYHZpaQwAwyh1VddYatarU75Se3HXEeD';
     const publication = {

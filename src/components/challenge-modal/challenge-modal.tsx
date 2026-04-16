@@ -37,6 +37,16 @@ const getReadableIframeUrl = (challengeUrl: string) => {
   }
 };
 
+const getIframeSessionId = (challengeUrl: string) => {
+  try {
+    const url = new URL(challengeUrl);
+    const match = url.pathname.match(/\/iframe\/([^/?#]+)/);
+    return match?.[1] ?? '';
+  } catch {
+    return '';
+  }
+};
+
 interface IframeChallengeProps {
   challenge: string;
   shortCommunityAddress?: string;
@@ -44,17 +54,29 @@ interface IframeChallengeProps {
   readableUrl: string;
   onCancel: () => void;
   onDone: () => void;
+  onAutoComplete: (challengeAnswers: string[]) => void;
   publicationDetails: React.ReactNode;
 }
 
-const IframeChallenge = ({ challenge, shortCommunityAddress, communityAddress, readableUrl, onCancel, onDone, publicationDetails }: IframeChallengeProps) => {
+const IframeChallenge = ({
+  challenge,
+  shortCommunityAddress,
+  communityAddress,
+  readableUrl,
+  onCancel,
+  onDone,
+  onAutoComplete,
+  publicationDetails,
+}: IframeChallengeProps) => {
   const account = useAccount();
   const [theme] = useTheme();
   const [showIframeConfirmation, setShowIframeConfirmation] = useState(true);
   const [iframeUrlState, setIframeUrl] = useState('');
   const [iframeOrigin, setIframeOrigin] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const handledAutoCompleteRef = useRef(false);
   const displayCommunityAddress = shortCommunityAddress || (communityAddress ? getShortAddress(communityAddress) : '') || communityAddress || 'unknown board';
+  const expectedSessionId = getIframeSessionId(challenge);
 
   const handleLoadIframe = useCallback(() => {
     const iframeUrl = challenge;
@@ -109,6 +131,30 @@ const IframeChallenge = ({ challenge, shortCommunityAddress, communityAddress, r
       sendThemeToIframe();
     }
   }, [iframeOrigin, iframeUrlState, sendThemeToIframe, showIframeConfirmation]);
+
+  useEffect(() => {
+    if (showIframeConfirmation || !iframeOrigin || !expectedSessionId) {
+      handledAutoCompleteRef.current = false;
+      return;
+    }
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== iframeOrigin) return;
+      if (handledAutoCompleteRef.current) return;
+      const data = event.data;
+      if (!data || typeof data !== 'object') return;
+      if ((data as { type?: string }).type !== 'challengeAnswer') return;
+      const challengeAnswers = (data as { challengeAnswers?: unknown }).challengeAnswers;
+      if (!Array.isArray(challengeAnswers)) return;
+      const sessionId = (data as { sessionId?: unknown }).sessionId;
+      if (sessionId !== expectedSessionId) return;
+      handledAutoCompleteRef.current = true;
+      onAutoComplete(challengeAnswers.filter((answer): answer is string => typeof answer === 'string'));
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [expectedSessionId, iframeOrigin, onAutoComplete, showIframeConfirmation]);
 
   if (showIframeConfirmation) {
     return (
@@ -229,6 +275,15 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
     closeModal();
   }, [closeModal, publication]);
 
+  const onIframeAutoComplete = useCallback(
+    (challengeAnswers: string[]) => {
+      if (!publication) return;
+      publication.publishChallengeAnswers(challengeAnswers);
+      closeModal();
+    },
+    [closeModal, publication],
+  );
+
   const onEnterKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') return;
     if (!isValidAnswer(currentChallengeIndex)) return;
@@ -323,6 +378,7 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
             readableUrl={readableUrl}
             onCancel={abandonModal}
             onDone={onIframeDone}
+            onAutoComplete={onIframeAutoComplete}
             publicationDetails={publicationDetails}
           />
         ) : (
