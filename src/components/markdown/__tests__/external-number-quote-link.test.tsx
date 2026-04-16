@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ExternalNumberQuoteLink from '../external-number-quote-link';
+import postStyles from '../../../views/post/post.module.css';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -145,5 +146,42 @@ describe('ExternalNumberQuoteLink', () => {
     });
 
     expect(document.body.querySelector('[data-testid="post-preview"]')?.textContent).toBe('cid-77');
+  });
+
+  it('uses the OP preview width class for resolved external OP previews', async () => {
+    testState.resolveExternalQuoteTargetMock.mockResolvedValue({
+      boardPath: 'fit',
+      cid: 'cid-77',
+      comment: { cid: 'cid-77' },
+      isUnavailable: false,
+      route: '/fit/thread/cid-77',
+      communityAddress: 'fit',
+    });
+
+    await act(async () => {
+      root.render(
+        createElement(
+          MemoryRouter,
+          {},
+          createElement(ExternalNumberQuoteLink, {
+            reference: {
+              boardIdentifier: 'fit',
+              kind: 'cross-board',
+              number: 77,
+              raw: '>>>/fit/77',
+            },
+          }),
+        ),
+      );
+    });
+
+    await act(async () => {
+      container.querySelector('a')?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      await Promise.resolve();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const preview = document.body.querySelector(`.${postStyles.replyQuotePreview}`);
+    expect(preview?.classList.contains(postStyles.replyQuotePreviewOp)).toBe(true);
   });
 });

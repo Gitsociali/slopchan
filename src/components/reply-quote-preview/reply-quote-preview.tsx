@@ -24,6 +24,9 @@ interface ReplyQuotePreviewProps {
   showTrailingBreak?: boolean;
 }
 
+const getQuotePreviewClassName = (previewPost?: Comment) =>
+  !previewPost?.parentCid ? `${styles.replyQuotePreview} ${styles.replyQuotePreviewOp}` : styles.replyQuotePreview;
+
 const handleQuoteHover = (cid: string, onElementOutOfView: () => void) => {
   const targetElements = document.querySelectorAll(`[data-cid="${cid}"]`);
   const isOpElement = (element: HTMLElement) => element.getAttribute('data-post-cid') === cid;
@@ -209,7 +212,7 @@ const DesktopQuotePreview = ({
       {hoveredCid === normalizedBacklinkReply?.cid &&
         outOfViewCid === normalizedBacklinkReply?.cid &&
         createPortal(
-          <div className={styles.replyQuotePreview} data-thread-scroll-preview='true' ref={refs.setFloating} style={floatingStyles}>
+          <div className={getQuotePreviewClassName(normalizedBacklinkReply)} data-thread-scroll-preview='true' ref={refs.setFloating} style={floatingStyles}>
             <Post post={normalizedBacklinkReply} showReplies={false} />
           </div>,
           document.body,
@@ -265,7 +268,7 @@ const DesktopQuotePreview = ({
       {showTrailingBreak && <br />}
       {shouldShowQuotelinkPreview &&
         createPortal(
-          <div className={styles.replyQuotePreview} data-thread-scroll-preview='true' ref={refs.setFloating} style={floatingStyles}>
+          <div className={getQuotePreviewClassName(normalizedQuotelinkReply)} data-thread-scroll-preview='true' ref={refs.setFloating} style={floatingStyles}>
             <Post post={normalizedQuotelinkReply} showReplies={false} />
           </div>,
           document.body,
@@ -373,7 +376,7 @@ const MobileQuotePreview = ({
       {hoveredCid === normalizedBacklinkReply?.cid &&
         outOfViewCid === normalizedBacklinkReply?.cid &&
         createPortal(
-          <div className={styles.replyQuotePreview} data-thread-scroll-preview='true' ref={refs.setFloating} style={floatingStyles}>
+          <div className={getQuotePreviewClassName(normalizedBacklinkReply)} data-thread-scroll-preview='true' ref={refs.setFloating} style={floatingStyles}>
             <Post post={normalizedBacklinkReply} showReplies={false} />
           </div>,
           document.body,
@@ -427,7 +430,7 @@ const MobileQuotePreview = ({
       {showTrailingBreak && <br />}
       {shouldShowQuotelinkPreview &&
         createPortal(
-          <div className={styles.replyQuotePreview} data-thread-scroll-preview='true' ref={refs.setFloating} style={floatingStyles}>
+          <div className={getQuotePreviewClassName(normalizedQuotelinkReply)} data-thread-scroll-preview='true' ref={refs.setFloating} style={floatingStyles}>
             <Post post={normalizedQuotelinkReply} showReplies={false} />
           </div>,
           document.body,

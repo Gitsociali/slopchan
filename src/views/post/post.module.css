@@ -672,6 +672,8 @@
   border: var(--quote-preview-border);
   border-right: var(--quote-preview-border-right);
   border-bottom: var(--quote-preview-border-bottom);
+  box-sizing: border-box;
+  max-width: calc(100vw - 20px);
 }
 
 .postDesktop .replyQuotePreviewSpacer {
@@ -722,6 +724,10 @@
   .replyQuotePreview {
     padding-right: 7px;
     padding-left: 2px;
+  }
+
+  .replyQuotePreviewOp {
+    width: min(520px, calc(100vw - 20px));
   }
 
   .postMobile {

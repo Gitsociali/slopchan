@@ -260,6 +260,10 @@ const ExternalNumberQuoteLink = ({ reference }: ExternalNumberQuoteLinkProps) =>
     ) : (
       <div className={`${styles.externalQuotePreviewState} ${styles.externalQuotePreviewError}`}>{previewState.message}</div>
     );
+  const previewClassName =
+    previewState.kind === 'resolved' && previewState.target.comment && !previewState.target.comment.parentCid
+      ? `${postStyles.replyQuotePreview} ${postStyles.replyQuotePreviewOp}`
+      : postStyles.replyQuotePreview;
 
   return (
     <>
@@ -280,7 +284,7 @@ const ExternalNumberQuoteLink = ({ reference }: ExternalNumberQuoteLinkProps) =>
         previewContent &&
         createPortal(
           <div
-            className={postStyles.replyQuotePreview}
+            className={previewClassName}
             data-thread-scroll-preview='true'
             ref={previewRef}
             style={{ left: previewPosition.left, position: 'fixed', top: previewPosition.top, zIndex: 1000 }}

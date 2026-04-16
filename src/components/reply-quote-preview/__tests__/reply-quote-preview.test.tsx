@@ -401,6 +401,36 @@ describe('ReplyQuotePreview', () => {
     outOfView.remove();
   });
 
+  it('uses the OP preview width class for floating desktop OP quotelinks', async () => {
+    const outOfView = appendReplyElement({ cid: 'thread-cid', inViewport: false, isThreadCard: true });
+
+    await renderPreview({
+      isOP: true,
+      isQuotelinkReply: true,
+      quotelinkReply: {
+        cid: 'thread-cid',
+        number: 1,
+        communityAddress: 'music-posting.eth',
+      },
+    });
+
+    const link = queryAnchorByText('>>1 (OP)');
+    expect(link).toBeTruthy();
+
+    await act(async () => {
+      link?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    });
+
+    const preview = document.querySelector(`.${styles.replyQuotePreview}`);
+    expect(preview?.classList.contains(styles.replyQuotePreviewOp)).toBe(true);
+
+    await act(async () => {
+      link?.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+    });
+
+    outOfView.remove();
+  });
+
   it('marks quotelinks as your own via the direct account comment lookup before author fallback', async () => {
     testState.account = {
       id: 'account-1',
