@@ -5,7 +5,7 @@
   "description": "A Bitsocial client with an imageboard UI",
   "type": "module",
   "author": "Bitsocial Forge",
-  "license": "GPL-2.0-only",
+  "license": "GPL-3.0-or-later",
   "private": true,
   "dependencies": {
     "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/263d19076e43e14703f4416991249746cbccc77d",
