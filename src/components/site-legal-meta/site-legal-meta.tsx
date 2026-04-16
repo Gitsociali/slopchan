@@ -1,4 +1,5 @@
 import Version from '../version';
+import { useTranslation } from 'react-i18next';
 
 type SiteLegalMetaOrder = 'version-first' | 'license-first';
 
@@ -7,7 +8,11 @@ type SiteLegalMetaProps = {
   order?: SiteLegalMetaOrder;
 };
 
-const LicenseText = () => <span>5chan is free and open-source software under GPL-3.0-or-later.</span>;
+const LicenseText = () => {
+  const { t } = useTranslation();
+
+  return <span>{t('site_legal_meta_license_text')}</span>;
+};
 
 const VersionFeedbackContact = () => (
   <>

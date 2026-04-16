@@ -323,5 +323,6 @@
   "unmute_video_sound": "Автоматично вмикати звук під час відтворення відео",
   "download": "завантажити",
   "checking_for_updates": "Перевірка оновлень...",
-  "new_version_found": "знайдено нову версію"
+  "new_version_found": "знайдено нову версію",
+  "site_legal_meta_license_text": "5chan — це вільне програмне забезпечення з відкритим кодом за GPL-3.0-or-later."
 }

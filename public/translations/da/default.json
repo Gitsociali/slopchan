@@ -323,5 +323,6 @@
   "unmute_video_sound": "Slå automatisk lyd til under videoafspilning",
   "download": "hent",
   "checking_for_updates": "Tjekker for opdateringer...",
-  "new_version_found": "ny version fundet"
+  "new_version_found": "ny version fundet",
+  "site_legal_meta_license_text": "5chan er fri software med åben kildekode under GPL-3.0-or-later."
 }

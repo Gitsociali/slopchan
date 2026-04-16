@@ -323,5 +323,6 @@
   "unmute_video_sound": "Geluid automatisch aanzetten bij videoweergave",
   "download": "downloaden",
   "checking_for_updates": "Controleren op updates...",
-  "new_version_found": "nieuwe versie gevonden"
+  "new_version_found": "nieuwe versie gevonden",
+  "site_legal_meta_license_text": "5chan is vrije en open-source software onder GPL-3.0-or-later."
 }

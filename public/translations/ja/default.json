@@ -323,5 +323,6 @@
   "unmute_video_sound": "動画再生時に自動で音声をオンにする",
   "download": "ダウンロード",
   "checking_for_updates": "更新を確認しています...",
-  "new_version_found": "新しいバージョンが見つかりました"
+  "new_version_found": "新しいバージョンが見つかりました",
+  "site_legal_meta_license_text": "5chanはGPL-3.0-or-laterのもとで提供される自由かつオープンソースのソフトウェアです。"
 }

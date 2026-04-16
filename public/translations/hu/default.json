@@ -323,5 +323,6 @@
   "unmute_video_sound": "Hang automatikus bekapcsolása videólejátszáskor",
   "download": "letöltés",
   "checking_for_updates": "Frissítések keresése...",
-  "new_version_found": "új verzió található"
+  "new_version_found": "új verzió található",
+  "site_legal_meta_license_text": "Az 5chan szabad és nyílt forráskódú szoftver a GPL-3.0-or-later alatt."
 }

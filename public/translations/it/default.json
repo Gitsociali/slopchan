@@ -323,5 +323,6 @@
   "unmute_video_sound": "Attiva l'audio automaticamente durante la riproduzione video",
   "download": "scarica",
   "checking_for_updates": "Controllo aggiornamenti...",
-  "new_version_found": "nuova versione trovata"
+  "new_version_found": "nuova versione trovata",
+  "site_legal_meta_license_text": "5chan è software libero e open-source sotto GPL-3.0-or-later."
 }

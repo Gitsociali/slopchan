@@ -323,5 +323,6 @@
   "unmute_video_sound": "Automaticky zapnout zvuk při přehrávání videa",
   "download": "stáhnout",
   "checking_for_updates": "Kontroluji aktualizace...",
-  "new_version_found": "nalezena nová verze"
+  "new_version_found": "nalezena nová verze",
+  "site_legal_meta_license_text": "5chan je svobodný software s otevřeným zdrojovým kódem pod licencí GPL-3.0-or-later."
 }

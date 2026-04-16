@@ -323,5 +323,6 @@
   "unmute_video_sound": "הפעל אוטומטית את הצליל בעת השמעת וידאו",
   "download": "הורדה",
   "checking_for_updates": "בודק עדכונים...",
-  "new_version_found": "נמצאה גרסה חדשה"
+  "new_version_found": "נמצאה גרסה חדשה",
+  "site_legal_meta_license_text": "5chan היא תוכנה חופשית וקוד פתוח תחת GPL-3.0-or-later."
 }

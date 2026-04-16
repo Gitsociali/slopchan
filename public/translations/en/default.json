@@ -323,5 +323,6 @@
   "view": "View",
   "download": "download",
   "checking_for_updates": "checking for updates...",
-  "new_version_found": "new version found"
+  "new_version_found": "new version found",
+  "site_legal_meta_license_text": "5chan is free and open-source software under GPL-3.0-or-later."
 }

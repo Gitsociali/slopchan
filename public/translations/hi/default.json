@@ -323,5 +323,6 @@
   "unmute_video_sound": "वीडियो चलाने पर स्वचालित रूप से साउंड अनम्यूट करें",
   "download": "डाउनलोड",
   "checking_for_updates": "अपडेट जाँच रहा है...",
-  "new_version_found": "नया संस्करण मिला"
+  "new_version_found": "नया संस्करण मिला",
+  "site_legal_meta_license_text": "5chan GPL-3.0-or-later के तहत मुक्त और ओपन-सोर्स सॉफ़्टवेयर है।"
 }

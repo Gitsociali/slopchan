@@ -323,5 +323,6 @@
   "unmute_video_sound": "Ota ääni automaattisesti päälle videotoiston yhteydessä",
   "download": "lataa",
   "checking_for_updates": "Tarkistetaan päivityksiä...",
-  "new_version_found": "uusi versio löytyi"
+  "new_version_found": "uusi versio löytyi",
+  "site_legal_meta_license_text": "5chan on vapaata ja avoimen lähdekoodin ohjelmistoa GPL-3.0-or-later -lisenssillä."
 }

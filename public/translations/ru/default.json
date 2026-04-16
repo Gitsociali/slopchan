@@ -323,5 +323,6 @@
   "unmute_video_sound": "Автоматически включать звук при воспроизведении видео",
   "download": "скачать",
   "checking_for_updates": "Проверка обновлений...",
-  "new_version_found": "найдена новая версия"
+  "new_version_found": "найдена новая версия",
+  "site_legal_meta_license_text": "5chan — свободное программное обеспечение с открытым исходным кодом под GPL-3.0-or-later."
 }

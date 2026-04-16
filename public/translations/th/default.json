@@ -323,5 +323,6 @@
   "unmute_video_sound": "เปิดเสียงอัตโนมัติเมื่อเล่นวิดีโอ",
   "download": "ดาวน์โหลด",
   "checking_for_updates": "กำลังตรวจสอบการอัปเดต...",
-  "new_version_found": "พบเวอร์ชันใหม่"
+  "new_version_found": "พบเวอร์ชันใหม่",
+  "site_legal_meta_license_text": "5chan เป็นซอฟต์แวร์เสรีและโอเพนซอร์สภายใต้ GPL-3.0-or-later"
 }

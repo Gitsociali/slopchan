@@ -323,5 +323,6 @@
   "unmute_video_sound": "Αυτόματη ενεργοποίηση ήχου κατά την αναπαραγωγή βίντεο",
   "download": "λήψη",
   "checking_for_updates": "Έλεγχος για ενημερώσεις...",
-  "new_version_found": "βρέθηκε νέα έκδοση"
+  "new_version_found": "βρέθηκε νέα έκδοση",
+  "site_legal_meta_license_text": "Το 5chan είναι ελεύθερο λογισμικό ανοιχτού κώδικα υπό την GPL-3.0-or-later."
 }

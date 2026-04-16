@@ -323,5 +323,6 @@
   "unmute_video_sound": "동영상 재생 시 자동으로 소리 켜기",
   "download": "다운로드",
   "checking_for_updates": "업데이트 확인 중...",
-  "new_version_found": "새 버전을 찾았습니다"
+  "new_version_found": "새 버전을 찾았습니다",
+  "site_legal_meta_license_text": "5chan은 GPL-3.0-or-later에 따른 자유 오픈 소스 소프트웨어입니다."
 }

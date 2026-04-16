@@ -323,5 +323,6 @@
   "unmute_video_sound": "Aktivizo zërin automatikisht gjatë riprodhimit të videos",
   "download": "shkarko",
   "checking_for_updates": "Duke kontrolluar për përditësime...",
-  "new_version_found": "u gjet version i ri"
+  "new_version_found": "u gjet version i ri",
+  "site_legal_meta_license_text": "5chan është softuer i lirë dhe me burim të hapur nën GPL-3.0-or-later."
 }
