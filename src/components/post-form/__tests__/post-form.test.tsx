@@ -67,6 +67,10 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   setAccount: (account: unknown) => testState.setAccountMock(account),
   useAccount: () => testState.account,
   useAccountComment: () => testState.accountComment,
+  useCommunity: (options?: { community?: { name?: string; publicKey?: string } }) => {
+    const communityKey = options?.community?.name ?? options?.community?.publicKey;
+    return communityKey ? testState.communities[communityKey] : undefined;
+  },
   useEditedComment: () => ({ editedComment: testState.editedComment }),
 }));
 
@@ -86,6 +90,10 @@ vi.mock('../../../hooks/use-directories', () => ({
   useDirectories: () => testState.directories,
   useDirectoryByAddress: (address: string | undefined) => testState.directories.find((entry) => entry.address === address),
   normalizeBoardAddress: (address: string) => address.replace(/\.(bso|eth)$/, ''),
+}));
+
+vi.mock('../../../hooks/use-community-identifiers', () => ({
+  useCommunityIdentifier: (address?: string) => (address ? { name: address } : undefined),
 }));
 
 vi.mock('../../../hooks/use-resolved-community-address', () => ({

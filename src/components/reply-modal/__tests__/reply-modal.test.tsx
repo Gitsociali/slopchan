@@ -73,6 +73,10 @@ vi.mock('react-i18next', () => ({
 vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   setAccount: (account: unknown) => testState.setAccountMock(account),
   useAccount: () => testState.account,
+  useCommunity: (options?: { community?: { name?: string; publicKey?: string } }) => {
+    const communityKey = options?.community?.name ?? options?.community?.publicKey;
+    return communityKey ? testState.communities[communityKey] : undefined;
+  },
 }));
 
 vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/communities', () => ({
@@ -124,6 +128,10 @@ vi.mock('../../../stores/use-media-hosting-store', () => ({
 vi.mock('../../../hooks/use-directories', () => ({
   useDirectoryByAddress: (address: string) => testState.directoryByAddress[address],
   normalizeBoardAddress: (address: string) => address.replace(/\.(bso|eth)$/, ''),
+}));
+
+vi.mock('../../../hooks/use-community-identifiers', () => ({
+  useCommunityIdentifier: (address?: string) => (address ? { name: address } : undefined),
 }));
 
 vi.mock('../../../hooks/use-resolved-community-address', () => ({

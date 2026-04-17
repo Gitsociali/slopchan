@@ -5,25 +5,33 @@ import { getFormattedTimeAgo } from '../lib/utils/time-utils';
 import useCommunityOfflineStore from '../stores/use-community-offline-store';
 import useCommunitiesLoadingStartTimestamps from '../stores/use-communities-loading-start-timestamps-store';
 
-const useIsCommunityOffline = (community?: Community | undefined) => {
+const getCommunityOfflineKey = (community?: Community, communityAddressHint?: string) =>
+  communityAddressHint || community?.address || community?.name || community?.publicKey;
+
+const useIsCommunityOffline = (community?: Community | undefined, communityAddressHint?: string) => {
   const { t } = useTranslation();
-  const { address, state, updatedAt, updatingState } = community || {};
+  const { state, updatedAt, updatingState } = community || {};
+  const communityKey = getCommunityOfflineKey(community, communityAddressHint);
   const { communityOfflineState, setCommunityOfflineState, initializeCommunityOfflineState } = useCommunityOfflineStore();
-  const communitiesLoadingStartTimestamps = useCommunitiesLoadingStartTimestamps([address]);
+  const communitiesLoadingStartTimestamps = useCommunitiesLoadingStartTimestamps(communityKey ? [communityKey] : undefined);
 
   useEffect(() => {
-    if (address && !communityOfflineState[address]) {
-      initializeCommunityOfflineState(address);
+    if (communityKey && !communityOfflineState[communityKey]) {
+      initializeCommunityOfflineState(communityKey);
     }
-  }, [address, communityOfflineState, initializeCommunityOfflineState]);
+  }, [communityKey, communityOfflineState, initializeCommunityOfflineState]);
 
   useEffect(() => {
-    if (address) {
-      setCommunityOfflineState(address, { state, updatedAt, updatingState });
+    if (communityKey) {
+      setCommunityOfflineState(communityKey, { state, updatedAt, updatingState });
     }
-  }, [address, state, updatedAt, updatingState, setCommunityOfflineState]);
+  }, [communityKey, state, updatedAt, updatingState, setCommunityOfflineState]);
 
-  const offlineState = communityOfflineState[address] || { initialLoad: true };
+  if (!communityKey) {
+    return { isOffline: false, isOnlineStatusLoading: false, offlineIconClass: '', offlineTitle: false };
+  }
+
+  const offlineState = communityOfflineState[communityKey] || { initialLoad: true };
   const loadingStartTimestamp = communitiesLoadingStartTimestamps[0] || 0;
   const isLoading = offlineState.initialLoad && (!updatedAt || Date.now() / 1000 - updatedAt >= 120 * 120) && Date.now() / 1000 - loadingStartTimestamp < 30;
   const isOffline = !isLoading && ((updatedAt && updatedAt < Date.now() / 1000 - 120 * 120) || (!updatedAt && Date.now() / 1000 - loadingStartTimestamp >= 30));

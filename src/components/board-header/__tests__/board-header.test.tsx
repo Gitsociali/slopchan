@@ -10,6 +10,8 @@ const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise
 
 const testState = vi.hoisted(() => ({
   accountComment: undefined as { communityAddress?: string } | undefined,
+  community: { address: 'music-posting.eth' } as { address?: string; name?: string; publicKey?: string } | undefined,
+  communityIdentifier: { name: 'music-posting.eth' } as { name?: string; publicKey?: string } | undefined,
   directories: [{ address: 'music-posting.eth', title: '/mu/ - Music' }] as Array<{ address: string; title?: string }>,
   directoriesMetadata: { title: '/all/ - Directories' } as { title?: string } | undefined,
   isMobile: false,
@@ -52,6 +54,7 @@ vi.mock('react-router-dom', async () => {
 vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useAccount: () => undefined,
   useAccountComment: () => testState.accountComment,
+  useCommunity: () => testState.community,
 }));
 
 vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/accounts', () => ({
@@ -80,6 +83,10 @@ vi.mock('../../../hooks/use-stable-community', () => ({
 vi.mock('../../../hooks/use-directories', () => ({
   useDirectories: () => testState.directories,
   useDirectoriesMetadata: () => testState.directoriesMetadata,
+}));
+
+vi.mock('../../../hooks/use-community-identifiers', () => ({
+  useCommunityIdentifier: () => testState.communityIdentifier,
 }));
 
 vi.mock('../../../hooks/use-resolved-community-address', () => ({
@@ -122,6 +129,8 @@ describe('BoardHeader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     testState.accountComment = undefined;
+    testState.community = { address: 'music-posting.eth' };
+    testState.communityIdentifier = { name: 'music-posting.eth' };
     testState.directories = [{ address: 'music-posting.eth', title: '/mu/ - Music' }];
     testState.directoriesMetadata = { title: '/all/ - Directories' };
     testState.isMobile = false;

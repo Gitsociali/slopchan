@@ -49,8 +49,14 @@ let latestValue: ReturnType<typeof useIsCommunityOffline>;
 let container: HTMLDivElement;
 let root: Root;
 
-const HookHarness = ({ community }: { community?: { address?: string; state?: string; updatedAt?: number; updatingState?: string } }) => {
-  latestValue = useIsCommunityOffline(community as never);
+const HookHarness = ({
+  community,
+  communityAddressHint,
+}: {
+  community?: { address?: string; name?: string; publicKey?: string; state?: string; updatedAt?: number; updatingState?: string };
+  communityAddressHint?: string;
+}) => {
+  latestValue = useIsCommunityOffline(community as never, communityAddressHint);
   return null;
 };
 
@@ -62,9 +68,12 @@ const flushEffects = async (count = 3) => {
   }
 };
 
-const renderHook = async (community?: { address?: string; state?: string; updatedAt?: number; updatingState?: string }) => {
+const renderHook = async (
+  community?: { address?: string; name?: string; publicKey?: string; state?: string; updatedAt?: number; updatingState?: string },
+  communityAddressHint?: string,
+) => {
   await act(async () => {
-    root.render(createElement(HookHarness, { community }));
+    root.render(createElement(HookHarness, { community, communityAddressHint }));
   });
   await flushEffects();
 };
@@ -150,6 +159,24 @@ describe('useIsCommunityOffline', () => {
       isOnlineStatusLoading: false,
       offlineIconClass: 'redOfflineIcon',
       offlineTitle: 'community_offline_info',
+    });
+  });
+
+  it('tracks strict-community objects with a canonical address hint instead of the undefined key', async () => {
+    await renderHook({ name: 'music.eth', publicKey: '12D3KooWBoardKey', state: 'updating', updatingState: 'fetching' }, 'music.eth');
+
+    expect(testState.requestedAddresses).toEqual(['music.eth']);
+    expect(testState.initializeMock).toHaveBeenCalledWith('music.eth');
+    expect(testState.setOfflineStateMock).toHaveBeenCalledWith('music.eth', {
+      state: 'updating',
+      updatedAt: undefined,
+      updatingState: 'fetching',
+    });
+    expect(latestValue).toEqual({
+      isOffline: false,
+      isOnlineStatusLoading: true,
+      offlineIconClass: 'yellowOfflineIcon',
+      offlineTitle: 'downloading board...',
     });
   });
 

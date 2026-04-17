@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import { useCommunity } from '@bitsocialnet/bitsocial-react-hooks';
 import useAccountsStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/accounts';
-import useCommunitiesStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/communities';
 import getShortAddress from '../../lib/get-short-address';
+import { useCommunityIdentifier } from '../../hooks/use-community-identifiers';
 import { useStableCommunity } from '../../hooks/use-stable-community';
 import { isAllView, isSubscriptionsView, isModView } from '../../lib/utils/view-utils';
 import { isArchiveRoute } from '../../lib/utils/route-utils';
@@ -27,9 +28,9 @@ const ImageBanner = () => {
 // Separate component for offline indicator to isolate rerenders from updatingState
 // Only this component will rerender when updatingState changes, not the whole BoardHeader
 const OfflineIndicator = ({ communityAddress }: { communityAddress: string | undefined }) => {
-  // Subscribe to full community including transient state for offline detection
-  const community = useCommunitiesStore((state) => (communityAddress ? state.communities[communityAddress] : undefined));
-  const { isOffline, isOnlineStatusLoading, offlineIconClass, offlineTitle } = useIsCommunityOffline(community);
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
+  const community = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
+  const { isOffline, isOnlineStatusLoading, offlineIconClass, offlineTitle } = useIsCommunityOffline(community, communityAddress);
 
   if (!isOffline && !isOnlineStatusLoading) {
     return null;
