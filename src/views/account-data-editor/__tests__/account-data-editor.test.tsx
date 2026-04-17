@@ -58,6 +58,16 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
 
 vi.mock('react-ace', async () => {
   const ReactModule = await vi.importActual<typeof import('react')>('react');
+  await Promise.resolve();
+  (
+    globalThis as typeof globalThis & {
+      ace?: { config?: { setModuleUrl?: ReturnType<typeof vi.fn> } };
+    }
+  ).ace = {
+    config: {
+      setModuleUrl: vi.fn(),
+    },
+  };
 
   return {
     default: ({ value, onChange }: { value: string; onChange: (nextValue: string) => void }) =>
@@ -71,7 +81,13 @@ vi.mock('react-ace', async () => {
 
 vi.mock('ace-builds/src-noconflict/mode-json', () => ({}));
 vi.mock('ace-builds/src-noconflict/theme-monokai', () => ({}));
-vi.mock('ace-builds/esm-resolver', () => ({}));
+vi.mock('ace-builds/esm-resolver', () => {
+  if (!(globalThis as typeof globalThis & { ace?: unknown }).ace) {
+    throw new Error('ace is not defined');
+  }
+
+  return {};
+});
 vi.mock('ace-builds/src-noconflict/worker-json?url', () => ({ default: '/worker-json.js' }));
 
 let root: Root;
@@ -135,6 +151,7 @@ describe('AccountDataEditor', () => {
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
+    delete (globalThis as typeof globalThis & { ace?: unknown }).ace;
     AccountDataEditor = (await import('../account-data-editor')).default;
     testState.account = { id: 'test-id', name: 'Account 1', author: { address: '0x123', shortAddress: '0x1...3' } };
     testState.alertMock.mockReset();
@@ -183,7 +200,8 @@ describe('AccountDataEditor', () => {
     await waitForEditor();
 
     expect(container.textContent).not.toContain('loading_editor');
-    expect(queryEditor()).toBeTruthy();
+    expect(container.textContent).not.toContain('editor_fallback_warning');
+    expect(container.querySelector('[data-testid="ace-editor"]')).toBeTruthy();
 
     await clickButton('return_to_settings');
 
