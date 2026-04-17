@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import useCreateBoardModalStore from '../../stores/use-create-board-modal-store';
 import styles from './create-board-modal.module.css';
 
@@ -57,14 +58,10 @@ const CreateBoardModal = () => {
           </div>
 
           <div className={styles.section}>
-            <h3>Future: DAO Voting</h3>
+            <h3>Future: Directory Voting</h3>
             <p>
-              Directory assignments will use gasless pubsub voting—communities vote, highest-voted board wins the slot. <strong>Voting pages = discovery:</strong> Each
-              directory&apos;s voting page lists all competing boards (even low-voted ones), giving visibility without winning or dev approval. See{' '}
-              <a href='https://github.com/pkcprotocol/pkc-js/issues/25' target='_blank' rel='noopener noreferrer'>
-                design draft
-              </a>
-              .
+              Each directory will have its own voting page listing the boards competing for that slot. Only 5chan users who purchased <Link to='/pass'>5chan Pass</Link>{' '}
+              will be able to vote.
             </p>
           </div>
 

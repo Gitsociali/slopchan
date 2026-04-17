@@ -40,6 +40,7 @@ import Archive from './views/archive/archive';
 import ModQueueView from './views/mod-queue';
 import NotAllowed from './views/not-allowed';
 import NotFound from './views/not-found';
+import Pass from './views/pass';
 import PendingPost from './views/pending-post';
 import Post from './views/post';
 import Rules from './views/rules';
@@ -285,6 +286,7 @@ const App = () => {
         <Route element={<GlobalLayout />}>
           <Route path='/' element={<Home />} />
           <Route path='/faq' element={<FAQ />} />
+          <Route path='/pass' element={<Pass />} />
           <Route path='/rules/:boardIdentifier?' element={<Rules />} />
           <Route path='/blotter' element={<Blotter />} />
           <Route
