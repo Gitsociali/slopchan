@@ -131,6 +131,11 @@
   border-bottom: solid #006 1px;
 }
 
+.rightBox dd:last-of-type {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
 @media (max-width: 640px) {
   .content {
     min-width: 0;

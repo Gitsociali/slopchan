@@ -1,15 +1,46 @@
 import * as React from 'react';
-import { createElement } from 'react';
+import { Fragment, cloneElement, createElement, isValidElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import en from '../../../../public/translations/en/default.json';
 import Pass from '../pass';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
 
+const renderTransTemplate = (template: string, components?: Record<string, React.ReactElement>, keyPrefix = 'trans'): React.ReactNode => {
+  const match = template.match(/<(\w+)>(.*?)<\/\1>/s);
+  if (!match || match.index === undefined) {
+    return template;
+  }
+
+  const before = template.slice(0, match.index);
+  const [, componentName, inner] = match;
+  const after = template.slice(match.index + match[0].length);
+  const component = components?.[componentName];
+
+  return createElement(
+    Fragment,
+    {},
+    before,
+    component && isValidElement(component)
+      ? cloneElement(component, { key: `${keyPrefix}-${componentName}` }, renderTransTemplate(inner, components, `${keyPrefix}-${componentName}`))
+      : inner,
+    renderTransTemplate(after, components, `${keyPrefix}-after`),
+  );
+};
+
 vi.mock('react-router-hash-link', () => ({
   HashLink: ({ children, to }: { children: React.ReactNode; to: string }) => createElement('a', { href: to }, children),
+}));
+
+vi.mock('react-i18next', () => ({
+  Trans: ({ components, i18nKey }: { components?: Record<string, React.ReactElement>; i18nKey: string }) =>
+    createElement(Fragment, {}, renderTransTemplate((en as Record<string, string>)[i18nKey] ?? i18nKey, components)),
+  useTranslation: () => ({
+    t: (key: string) => (en as Record<string, string>)[key] ?? key,
+  }),
 }));
 
 vi.mock('../../home', () => ({
@@ -47,7 +78,7 @@ describe('Pass', () => {
 
     expect(container.querySelector('[data-testid="home-logo"]')).toBeTruthy();
     expect(container.querySelector('[data-testid="footer"]')).toBeTruthy();
-    expect(container.textContent).toContain('Support 5chan with 5chan Pass');
+    expect(container.textContent).toContain((en as Record<string, string>).pass_heading);
     expect(container.textContent).toContain('not available yet');
     expect(container.textContent).toContain('crypto only');
     expect(container.textContent).toContain('directory voting');
@@ -65,6 +96,6 @@ describe('Pass', () => {
     expect(container.querySelector('a[href="https://github.com/bitsocialnet/mintpass"]')?.textContent).toBe('MintPass');
     expect(container.querySelector('a[href="https://bitsocial.net"]')?.textContent).toBe('Bitsocial');
     expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
-    expect(document.title).toBe('Pass - 5chan');
+    expect(document.title).toBe((en as Record<string, string>).pass_document_title);
   });
 });
