@@ -6,6 +6,7 @@ import type { DirectoryCommunity } from '../../hooks/use-directories';
 import usePostNumberStore from '../../stores/use-post-number-store';
 import type { ExternalQuoteReference, ExternalQuoteSearchStatus } from './external-quote-utils';
 import { getExternalQuoteBoardAddress, getExternalQuoteBoardLabel } from './external-quote-utils';
+import { getCommentCommunityAddress } from './comment-utils';
 import { getBoardPath } from './route-utils';
 
 const BOARD_FEED_SORT_TYPE = 'new';
@@ -63,7 +64,7 @@ const findLoadedCommentByNumber = ({ number, communityAddress }: { number: numbe
   const comments = Object.values(communitiesPagesStore.getState().comments) as Array<Comment | undefined>;
 
   return comments.find((comment) => {
-    const address = (comment as { communityAddress?: string }).communityAddress || comment?.subplebbitAddress;
+    const address = getCommentCommunityAddress(comment);
     return address === communityAddress && comment?.number === number && comment?.cid;
   });
 };

@@ -125,7 +125,6 @@
   "bump_order": "Ordinea Bump",
   "creation_date": "Data de creare",
   "sort_by": "Sortează după",
-  "subplebbit_offline_info": "Acest forum poate fi offline și publicarea poate eșua",
   "posts_last_synced_info": "Postări sincronizate ultima dată {{time}}, acest forum poate fi offline și publicarea poate eșua.",
   "no_threads": "Nu sunt subiecte",
   "hidden": "ascuns",
@@ -324,5 +323,6 @@
   "download": "descarcă",
   "checking_for_updates": "Se verifică actualizările...",
   "new_version_found": "versiune nouă găsită",
-  "site_legal_meta_license_text": "5chan este software liber și open-source sub GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan este software liber și open-source sub GPL-3.0-or-later.",
+  "community_offline_info": "Acest forum poate fi offline și publicarea poate eșua"
 }

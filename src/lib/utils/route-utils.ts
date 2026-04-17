@@ -105,11 +105,6 @@ export const getCommunityAddress = (boardIdentifier: string, communities: Direct
 };
 
 /**
- * Back-compat alias kept for route params and comments.
- */
-export const getSubplebbitAddress = getCommunityAddress;
-
-/**
  * Compare two addresses; returns true if they refer to the same board (handles .bso/.eth aliases).
  */
 export const areSameBoardAddress = (a: string | undefined, b: string | undefined): boolean => {

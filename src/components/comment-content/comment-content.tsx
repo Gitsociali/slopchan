@@ -75,8 +75,7 @@ const CommentContent = ({ comment: post, prependContent }: { comment: Comment; p
   const { cid, content, deleted, edit, original, parentCid, postCid, pendingApproval, quotedCids, reason, removed, state } = resolvedPost || {};
   const communityAddress = getCommentCommunityAddress(resolvedPost);
   const purged = resolvedPost?.commentModeration?.purged;
-  const banExpiresAt =
-    resolvedPost?.author?.community?.banExpiresAt ?? (resolvedPost?.author as { subplebbit?: { banExpiresAt?: number } } | undefined)?.subplebbit?.banExpiresAt;
+  const banExpiresAt = resolvedPost?.author?.community?.banExpiresAt;
   const banned = !!banExpiresAt;
 
   const [showFullComment, setShowFullComment] = useState(false);

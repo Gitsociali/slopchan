@@ -11,8 +11,6 @@ type CatalogFilterItemInput = {
   enabled: boolean;
   count: number;
   filteredCids: Set<string>;
-  subplebbitCounts?: Map<string, number>;
-  subplebbitFilteredCids?: Map<string, Set<string>>;
   communityCounts?: Map<string, number>;
   communityFilteredCids?: Map<string, Set<string>>;
   hide?: boolean;
@@ -28,32 +26,19 @@ type CatalogFilterItemStore = {
   filteredCids: Set<string>;
   communityCounts: Map<string, number>;
   communityFilteredCids: Map<string, Set<string>>;
-  subplebbitCounts: Map<string, number>;
-  subplebbitFilteredCids: Map<string, Set<string>>;
   hide: boolean;
   top: boolean;
   color: string;
   id?: string;
 };
 
-const selectFilterMap = <K, V>(preferred?: Map<K, V>, legacy?: Map<K, V>) => {
-  if (preferred && preferred.size > 0) return preferred;
-  if (legacy && legacy.size > 0) return legacy;
-  return preferred || legacy || new Map<K, V>();
-};
-
 const toCatalogFilterItem = (item: CatalogFilterItemInput): CatalogFilterItemStore => {
-  const counts = selectFilterMap(item.communityCounts, item.subplebbitCounts);
-  const filteredByCommunity = selectFilterMap(item.communityFilteredCids, item.subplebbitFilteredCids);
-
   return {
     ...item,
     count: item.count || 0,
     filteredCids: item.filteredCids || new Set<string>(),
-    communityCounts: counts,
-    communityFilteredCids: filteredByCommunity,
-    subplebbitCounts: counts,
-    subplebbitFilteredCids: filteredByCommunity,
+    communityCounts: item.communityCounts || new Map<string, number>(),
+    communityFilteredCids: item.communityFilteredCids || new Map<string, Set<string>>(),
     hide: item.hide ?? true,
     top: item.top ?? false,
     color: item.color || '',
@@ -62,14 +47,11 @@ const toCatalogFilterItem = (item: CatalogFilterItemInput): CatalogFilterItemSto
 
 const FiltersTable = ({ onSave }: { onSave: () => void }) => {
   const { t } = useTranslation();
-  const { currentSubplebbitAddress, currentCommunityAddress, filterItems, saveAndApplyFilters } = useCatalogFiltersStore((state) => ({
-    currentSubplebbitAddress: state.currentSubplebbitAddress,
-    // legacy fallback kept for compatibility while worker B/store migration is in progress
-    currentCommunityAddress: (state as { currentCommunityAddress?: string | null }).currentCommunityAddress ?? null,
+  const { currentCommunityAddress, filterItems, saveAndApplyFilters } = useCatalogFiltersStore((state) => ({
+    currentCommunityAddress: state.currentCommunityAddress,
     filterItems: state.filterItems as CatalogFilterItemInput[],
     saveAndApplyFilters: state.saveAndApplyFilters,
   }));
-  const currentCommunityAddressResolved = currentCommunityAddress ?? currentSubplebbitAddress;
   const resetFeed = useFeedResetStore((state) => state.reset);
 
   const [localFilterItems, setLocalFilterItems] = useState(() =>
@@ -97,8 +79,6 @@ const FiltersTable = ({ onSave }: { onSave: () => void }) => {
           filteredCids: new Set<string>(),
           communityCounts: new Map<string, number>(),
           communityFilteredCids: new Map<string, Set<string>>(),
-          subplebbitCounts: new Map<string, number>(),
-          subplebbitFilteredCids: new Map<string, Set<string>>(),
           hide: true,
           top: false,
           color: '',
@@ -112,12 +92,7 @@ const FiltersTable = ({ onSave }: { onSave: () => void }) => {
 
     saveAndApplyFilters(nonEmptyFilters);
 
-    const filtersState = useCatalogFiltersStore.getState() as {
-      resetCountsForCurrentCommunity?: () => void;
-      resetCountsForCurrentSubplebbit?: () => void;
-    };
-    filtersState.resetCountsForCurrentCommunity?.();
-    filtersState.resetCountsForCurrentSubplebbit?.();
+    useCatalogFiltersStore.getState().resetCountsForCurrentCommunity();
 
     if (resetFeed) {
       resetFeed();
@@ -234,9 +209,7 @@ const FiltersTable = ({ onSave }: { onSave: () => void }) => {
               </span>
             </td>
             <td className={styles.filterHits}>
-              {currentCommunityAddressResolved &&
-                item.communityFilteredCids?.has(currentCommunityAddressResolved) &&
-                `x${item.communityCounts?.get(currentCommunityAddressResolved) ?? 0}`}
+              {currentCommunityAddress && item.communityFilteredCids?.has(currentCommunityAddress) && `x${item.communityCounts?.get(currentCommunityAddress) ?? 0}`}
             </td>
           </tr>
         ))}
@@ -260,12 +233,7 @@ const FiltersTable = ({ onSave }: { onSave: () => void }) => {
 const FiltersModal = ({ closeModal }: { closeModal: () => void }) => {
   const { t } = useTranslation();
   const [showHelp, setShowHelp] = useState(false);
-  const { currentSubplebbitAddress, currentCommunityAddress } = useCatalogFiltersStore((state) => ({
-    currentSubplebbitAddress: state.currentSubplebbitAddress,
-    // legacy fallback kept for compatibility while worker B/store migration is in progress
-    currentCommunityAddress: (state as { currentCommunityAddress?: string | null }).currentCommunityAddress ?? null,
-  }));
-  const currentCommunityAddressResolved = currentCommunityAddress ?? currentSubplebbitAddress;
+  const currentCommunityAddress = useCatalogFiltersStore((state) => state.currentCommunityAddress);
   const openHelp = () => setShowHelp(true);
   const closeHelp = () => setShowHelp(false);
 
@@ -292,7 +260,11 @@ const FiltersModal = ({ closeModal }: { closeModal: () => void }) => {
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            showHelp ? closeHelp() : closeModal();
+            if (showHelp) {
+              closeHelp();
+            } else {
+              closeModal();
+            }
           }
         }}
         onClick={showHelp ? closeHelp : closeModal}
@@ -329,7 +301,7 @@ const FiltersModal = ({ closeModal }: { closeModal: () => void }) => {
             onClick={closeModal}
           />
         </div>
-        {showHelp ? <FiltersProtip /> : <FiltersTable key={currentCommunityAddressResolved ?? 'none'} onSave={closeModal} />}
+        {showHelp ? <FiltersProtip /> : <FiltersTable key={currentCommunityAddress ?? 'none'} onSave={closeModal} />}
       </div>
     </>
   );

@@ -12,12 +12,6 @@ const ipfsClientMacPath = path.join(ipfsClientsPath, 'mac');
 const ipfsClientLinuxPath = path.join(ipfsClientsPath, 'linux');
 const kuboReleaseBaseUrl = 'https://github.com/ipfs/kubo/releases/download';
 
-// plebbit kubo download links https://github.com/plebbit/kubo/releases
-// const ipfsClientVersion = '0.20.0'
-// const ipfsClientWindowsUrl = `https://github.com/plebbit/kubo/releases/download/v${ipfsClientVersion}/ipfs-windows-amd64`
-// const ipfsClientMacUrl = `https://github.com/plebbit/kubo/releases/download/v${ipfsClientVersion}/ipfs-darwin-amd64`
-// const ipfsClientLinuxUrl = `https://github.com/plebbit/kubo/releases/download/v${ipfsClientVersion}/ipfs-linux-amd64`
-
 const ipfsClientVersion = '0.39.0';
 
 // Resolve desired build arch: allow overriding via env (so cross-arch builds pick correct binary)

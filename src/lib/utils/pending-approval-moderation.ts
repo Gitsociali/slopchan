@@ -1,6 +1,6 @@
 export const approvePendingCommentModeration = { approved: true } as const;
 
-// plebbit-js clears pendingApproval only when rejection is published as approved:false.
+// pkc-js clears pendingApproval only when rejection is published as approved:false.
 // Sending removed:true marks the comment removed but can leave it in the mod queue.
 export const rejectPendingCommentModeration = { approved: false } as const;
 

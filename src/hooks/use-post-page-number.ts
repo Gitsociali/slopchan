@@ -7,10 +7,7 @@ import { useCommunityIdentifier } from './use-community-identifiers';
 import { findPostPageInFeed, findPostPageInLoadedBoardFeeds, type FeedsOptionsLike, type LoadedFeedsLike } from '../lib/utils/post-page-resolution';
 
 interface UsePostPageNumberOptions {
-  /** Canonical name. Kept for backward compatibility with older call sites. */
   communityAddress?: string;
-  /** Legacy name kept for backwards compatibility. */
-  subplebbitAddress?: string;
   postCid: string | undefined;
   /** When false, page segment is excluded (e.g. pending-post view). When true, resolve and show page. */
   enabled?: boolean;
@@ -23,13 +20,7 @@ interface UsePostPageNumberOptions {
  *
  * @returns 1-based page number, or undefined when unresolved (render as "?")
  */
-export function usePostPageNumber({
-  communityAddress: requestedCommunityAddress,
-  subplebbitAddress: legacyCommunityAddress,
-  postCid,
-  enabled = true,
-}: UsePostPageNumberOptions): number | undefined {
-  const communityAddress = requestedCommunityAddress ?? legacyCommunityAddress;
+export function usePostPageNumber({ communityAddress, postCid, enabled = true }: UsePostPageNumberOptions): number | undefined {
   const communityIdentifier = useCommunityIdentifier(communityAddress);
 
   const community = useDirectoryByAddress(communityAddress);

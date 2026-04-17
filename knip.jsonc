@@ -37,7 +37,7 @@
   ],
   "ignoreIssues": {
     // This import is intentionally satisfied transitively through bitsocial-react-hooks.
-    "electron/start-plebbit-rpc.js": ["unlisted"],
+    "electron/start-pkc-rpc.js": ["unlisted"],
     // Knip falsely infers v8 coverage for Vitest config even though this repo uses Istanbul.
     "vitest.config.ts": ["unlisted"]
   }

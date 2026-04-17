@@ -39,7 +39,7 @@ vi.mock('../../../hooks/use-directories', () => ({
 }));
 
 vi.mock('../../../lib/utils/route-utils', () => ({
-  getSubplebbitAddress: () => testState.communityAddress,
+  getCommunityAddress: () => testState.communityAddress,
 }));
 
 vi.mock('../../home', () => ({

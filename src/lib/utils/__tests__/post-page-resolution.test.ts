@@ -14,13 +14,13 @@ describe('post-page-resolution', () => {
   it('only accepts strict board feed options for the active single-board feed', () => {
     const baseOptions = {
       sortType: 'active',
-      subplebbitAddresses: ['music.eth'],
+      communityAddresses: ['music.eth'],
     };
 
     expect(isBoardFeedOptions(baseOptions, 'music.eth')).toBe(true);
     expect(isBoardFeedOptions({ ...baseOptions, sortType: 'new' }, 'music.eth')).toBe(false);
-    expect(isBoardFeedOptions({ ...baseOptions, subplebbitAddresses: ['music.eth', 'tech.eth'] }, 'music.eth')).toBe(false);
-    expect(isBoardFeedOptions({ ...baseOptions, subplebbitAddresses: ['tech.eth'] }, 'music.eth')).toBe(false);
+    expect(isBoardFeedOptions({ ...baseOptions, communityAddresses: ['music.eth', 'tech.eth'] }, 'music.eth')).toBe(false);
+    expect(isBoardFeedOptions({ ...baseOptions, communityAddresses: ['tech.eth'] }, 'music.eth')).toBe(false);
     expect(isBoardFeedOptions({ ...baseOptions, filter: { title: 'test' } }, 'music.eth')).toBe(false);
     expect(isBoardFeedOptions({ ...baseOptions, newerThan: 3600 }, 'music.eth')).toBe(false);
     expect(isBoardFeedOptions({ ...baseOptions, modQueue: true }, 'music.eth')).toBe(false);
@@ -31,16 +31,16 @@ describe('post-page-resolution', () => {
     const feedsOptions = {
       allFeed: {
         sortType: 'active',
-        subplebbitAddresses: ['all.eth'],
+        communityAddresses: ['all.eth'],
       },
       catalogFilterFeed: {
         filter: { title: 'match' },
         sortType: 'active',
-        subplebbitAddresses: ['music.eth'],
+        communityAddresses: ['music.eth'],
       },
       boardFeed: {
         sortType: 'active',
-        subplebbitAddresses: ['music.eth'],
+        communityAddresses: ['music.eth'],
       },
     };
     const loadedFeeds = {

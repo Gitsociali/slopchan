@@ -160,5 +160,5 @@ playwright-cli -s=prof-3 close 2>/dev/null
 - **Per-route collection**: Data resets on each `goto` — the profiler collects before navigating away.
 - **addInitScript persistence**: Instrumentation re-injects automatically in each new document.
 - **Tracing**: Each subagent produces a `trace.zip` viewable in [Trace Viewer](https://trace.playwright.dev).
-- **Board codes**: `biz`, `pol`, `g`, `a`, `v`, etc. map to subplebbit addresses via the directory.
+- **Board codes**: `biz`, `pol`, `g`, `a`, `v`, etc. map to community addresses via the directory.
 - **Without react-scan**: If `__getReactScanReport` returns null, the profiler falls back to commit counts + render bursts (still useful, just no component names).

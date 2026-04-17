@@ -72,9 +72,3 @@ export const useCommunityField = <T>(communityAddress: string | undefined, selec
 
   return field;
 };
-
-/**
- * Back-compat exports for old hook names.
- */
-export const useStableSubplebbit = useStableCommunity;
-export const useSubplebbitField = useCommunityField;

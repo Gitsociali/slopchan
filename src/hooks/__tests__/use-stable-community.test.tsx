@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useStableSubplebbit, useSubplebbitField } from '../use-stable-subplebbit';
+import { useStableCommunity, useCommunityField } from '../use-stable-community';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -36,7 +36,7 @@ const renderHookValue = (useValue: () => unknown) => {
   return latestValue;
 };
 
-describe('use-stable-subplebbit', () => {
+describe('use-stable-community', () => {
   beforeEach(() => {
     latestValue = undefined;
     renderCount = 0;
@@ -63,11 +63,11 @@ describe('use-stable-subplebbit', () => {
       },
     };
 
-    expect(renderHookValue(() => useSubplebbitField('international-sfw.eth', (subplebbit) => subplebbit?.roles))).toEqual({
+    expect(renderHookValue(() => useCommunityField('international-sfw.eth', (community) => community?.roles))).toEqual({
       'plebeius.eth': { role: 'owner' },
     });
 
-    expect(renderHookValue(() => useStableSubplebbit('international-sfw.eth'))).toMatchObject({
+    expect(renderHookValue(() => useStableCommunity('international-sfw.eth'))).toMatchObject({
       address: 'international-sfw.bso',
       title: '/int/ - International',
     });
@@ -85,6 +85,6 @@ describe('use-stable-subplebbit', () => {
       },
     };
 
-    expect(renderHookValue(() => useSubplebbitField('business.eth', (subplebbit) => subplebbit?.title))).toBe('/biz/ - Exact');
+    expect(renderHookValue(() => useCommunityField('business.eth', (community) => community?.title))).toBe('/biz/ - Exact');
   });
 });

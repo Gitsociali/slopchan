@@ -263,7 +263,7 @@ jobs:
       - name: Optimize APK
         run: cd android/app/build/outputs/apk/release && zipalign 4 app-release-unsigned.apk app-release-unsigned-zip.apk
       - name: Sign APK
-        run: cd android/app/build/outputs/apk/release && apksigner sign --ks ../../../../../plebbit.keystore --ks-pass pass:${{ secrets.PLEBBIT_REACT_KEYSTORE_PASSWORD }} --ks-key-alias release --out app-release-signed.apk app-release-unsigned-zip.apk
+        run: cd android/app/build/outputs/apk/release && apksigner sign --ks ../../../../../bitsocial.keystore --ks-pass pass:${{ secrets.BITSOCIAL_KEYSTORE_PASSWORD }} --ks-key-alias release --out app-release-signed.apk app-release-unsigned-zip.apk
       - name: Stage release artifacts
         run: |
           mkdir -p release-assets

@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { ChallengeVerification, Comment, PublishCommentOptions, deleteComment, usePublishComment } from '@bitsocialnet/bitsocial-react-hooks';
 import { alertChallengeVerificationFailed } from '../lib/utils/challenge-utils';
 import useChallengesStore from '../stores/use-challenges-store';
+import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
 
 const retryExcludedFields = new Set([
   'accountId',
@@ -57,9 +58,11 @@ export const getFailedPostRetryPublishOptions = (post?: FailedPost): PublishComm
     retryOptions.author = author;
   }
 
-  if (!retryOptions.communityAddress && !retryOptions.subplebbitAddress) {
+  const communityAddress = retryOptions.communityAddress ?? getCommentCommunityAddress(post);
+  if (!communityAddress) {
     return undefined;
   }
+  retryOptions.communityAddress = communityAddress;
 
   return retryOptions;
 };

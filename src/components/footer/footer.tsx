@@ -217,7 +217,7 @@ export const ThreadFooterMobile = ({ postCid, threadNumber, communityAddress, is
   const linkCount = useCountLinksInReplies(post);
   const directoryEntry = useDirectoryByAddress(communityAddress);
   const requirePostLinkIsMedia = directoryEntry?.features?.requirePostLinkIsMedia === true;
-  const pageNumber = usePostPageNumber({ subplebbitAddress: communityAddress, postCid, enabled: true });
+  const pageNumber = usePostPageNumber({ communityAddress: communityAddress, postCid, enabled: true });
 
   const handlePostReplyClick = () => {
     if (isThreadClosed) return;

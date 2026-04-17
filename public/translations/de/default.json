@@ -125,7 +125,6 @@
   "bump_order": "Bump-Reihenfolge",
   "creation_date": "Erstellungsdatum",
   "sort_by": "Sortieren nach",
-  "subplebbit_offline_info": "Dieses Board könnte offline sein und die Veröffentlichung könnte fehlschlagen",
   "posts_last_synced_info": "Beiträge zuletzt synchronisiert {{time}}, dieses Board könnte offline sein und die Veröffentlichung könnte fehlschlagen.",
   "no_threads": "Keine Threads",
   "hidden": "versteckt",
@@ -324,5 +323,6 @@
   "download": "herunterladen",
   "checking_for_updates": "Suche nach Updates...",
   "new_version_found": "neue Version gefunden",
-  "site_legal_meta_license_text": "5chan ist freie Open-Source-Software unter GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan ist freie Open-Source-Software unter GPL-3.0-or-later.",
+  "community_offline_info": "Dieses Board könnte offline sein und die Veröffentlichung könnte fehlschlagen"
 }

@@ -125,7 +125,6 @@
   "bump_order": "Thứ tự Bump",
   "creation_date": "Ngày tạo",
   "sort_by": "Sắp xếp theo",
-  "subplebbit_offline_info": "Bảng này có thể đang offline và việc xuất bản có thể thất bại",
   "posts_last_synced_info": "Bài đăng được đồng bộ lần cuối {{time}}, bảng này có thể đang offline và việc xuất bản có thể thất bại.",
   "no_threads": "Không có chủ đề",
   "hidden": "ẩn",
@@ -324,5 +323,6 @@
   "download": "tải xuống",
   "checking_for_updates": "Đang kiểm tra cập nhật...",
   "new_version_found": "đã tìm thấy phiên bản mới",
-  "site_legal_meta_license_text": "5chan là phần mềm miễn phí và mã nguồn mở theo GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan là phần mềm miễn phí và mã nguồn mở theo GPL-3.0-or-later.",
+  "community_offline_info": "Bảng này có thể đang offline và việc xuất bản có thể thất bại"
 }

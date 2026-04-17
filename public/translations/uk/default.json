@@ -125,7 +125,6 @@
   "bump_order": "Порядок Bump",
   "creation_date": "Дата створення",
   "sort_by": "Сортувати за",
-  "subplebbit_offline_info": "Цей форум може бути офлайн, і публікація може не вдатися",
   "posts_last_synced_info": "Останній раз пости синхронізовано {{time}}, цей форум може бути офлайн, і публікація може не вдатися.",
   "no_threads": "Немає тем",
   "hidden": "прихований",
@@ -324,5 +323,6 @@
   "download": "завантажити",
   "checking_for_updates": "Перевірка оновлень...",
   "new_version_found": "знайдено нову версію",
-  "site_legal_meta_license_text": "5chan — це вільне програмне забезпечення з відкритим кодом за GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan — це вільне програмне забезпечення з відкритим кодом за GPL-3.0-or-later.",
+  "community_offline_info": "Цей форум може бути офлайн, і публікація може не вдатися"
 }

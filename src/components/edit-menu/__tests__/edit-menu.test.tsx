@@ -264,7 +264,6 @@ describe('EditMenu', () => {
       communityAddress: 'music-posting.eth',
       postCid: 'post-1',
     });
-    expect(testState.authorPrivilegesOptions).not.toHaveProperty('subplebbitAddress');
   });
 
   it('allows pseudonymous boards to attempt author-side deletion without a local author address match', async () => {

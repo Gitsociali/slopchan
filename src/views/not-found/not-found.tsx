@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useCommunityField } from '../../hooks/use-stable-community';
 import { useDirectories } from '../../hooks/use-directories';
-import { getSubplebbitAddress } from '../../lib/utils/route-utils';
+import { getCommunityAddress } from '../../lib/utils/route-utils';
 import { HomeLogo } from '../home';
 import NotFoundImage from '../../components/not-found-image';
 import styles from './not-found.module.css';
@@ -12,7 +12,7 @@ const NotFound = () => {
   const pathParts = location.pathname.split('/').filter(Boolean);
   const boardIdentifier = pathParts[0] && pathParts[0] !== 'not-found' && pathParts[0] !== 'faq' ? pathParts[0] : '';
   const directories = useDirectories();
-  const communityAddress = boardIdentifier ? getSubplebbitAddress(boardIdentifier, directories) : '';
+  const communityAddress = boardIdentifier ? getCommunityAddress(boardIdentifier, directories) : '';
   // Only subscribe to address and shortAddress to avoid rerenders from updatingState changes
   const address = useCommunityField(communityAddress, (community) => community?.address);
   const shortAddress = useCommunityField(communityAddress, (community) => community?.shortAddress);

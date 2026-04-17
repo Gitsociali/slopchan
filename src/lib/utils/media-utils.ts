@@ -163,7 +163,7 @@ const fetchWebpageThumbnail = async (url: string): Promise<string | undefined> =
       });
       html = response.data.slice(0, MAX_HTML_SIZE);
     } else {
-      // some sites have CORS access, from which the thumbnail can be fetched client-side, which is helpful if subplebbit.settings.fetchThumbnailUrls is false
+      // some sites have CORS access, so the thumbnail can be fetched client-side when community thumbnail fetching is disabled
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 

@@ -41,7 +41,7 @@ describe('publish stores', () => {
       displayName: 'Poster Alias',
       link: 'https://example.com',
       spoiler: true,
-      subplebbitAddress: 'music-posting.eth',
+      communityAddress: 'music-posting.eth',
       title: 'Hello',
     };
 
@@ -52,7 +52,6 @@ describe('publish stores', () => {
     expect(state.author).toEqual({ address: '0x123', role: 'mod', displayName: 'Poster Alias' });
     expect(state.publishCommentOptions.author).toEqual({ address: '0x123', role: 'mod', displayName: 'Poster Alias' });
     expect(state.publishCommentOptions.communityAddress).toBe('music-posting.eth');
-    expect('subplebbitAddress' in state.publishCommentOptions).toBe(false);
     expect(state.publishCommentOptions.title).toBe('Hello');
 
     state.publishCommentOptions.onChallengeVerification?.({} as never, comment);
@@ -75,7 +74,7 @@ describe('publish stores', () => {
       link: 'https://example.com/reply',
       parentCid: 'parent-1',
       spoiler: false,
-      subplebbitAddress: 'music-posting.eth',
+      communityAddress: 'music-posting.eth',
     };
 
     usePublishReplyStore.getState().setPublishReplyStore(comment);
@@ -86,7 +85,6 @@ describe('publish stores', () => {
     expect(state.publishCommentOptions['parent-1']?.communityAddress).toBe('music-posting.eth');
     expect(state.publishCommentOptions['parent-1']?.parentCid).toBe('parent-1');
     expect(state.publishCommentOptions['parent-1']?.postCid).toBe('parent-1');
-    expect('subplebbitAddress' in (state.publishCommentOptions['parent-1'] || {})).toBe(false);
 
     state.publishCommentOptions['parent-1']?.onChallengeVerification?.({ token: 'challenge' } as never, comment);
     expect(testState.alertChallengeVerificationFailedMock).toHaveBeenCalledWith({ token: 'challenge' }, comment);

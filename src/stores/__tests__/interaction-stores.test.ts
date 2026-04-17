@@ -18,7 +18,7 @@ const resetReplyModalStore = () => {
     parentNumber: null,
     threadNumber: null,
     threadCid: null,
-    subplebbitAddress: null,
+    communityAddress: null,
     scrollY: 0,
     quoteInsertRequestId: 0,
     quoteInsertNumber: null,
@@ -210,11 +210,11 @@ describe('interaction stores', () => {
 
   it('registers post numbers per board and ignores unchanged or invalid comments', () => {
     const comments = [
-      { cid: 'cid-1', number: 1, subplebbitAddress: 'music.eth' },
-      { cid: 'cid-2', number: 2, subplebbitAddress: 'music.eth' },
-      { cid: 'cid-1-tech', number: 1, subplebbitAddress: 'tech.eth' },
-      { cid: '', number: 3, subplebbitAddress: 'music.eth' },
-      { cid: 'cid-no-number', subplebbitAddress: 'music.eth' },
+      { cid: 'cid-1', number: 1, communityAddress: 'music.eth' },
+      { cid: 'cid-2', number: 2, communityAddress: 'music.eth' },
+      { cid: 'cid-1-tech', number: 1, communityAddress: 'tech.eth' },
+      { cid: '', number: 3, communityAddress: 'music.eth' },
+      { cid: 'cid-no-number', communityAddress: 'music.eth' },
     ] as never[];
 
     usePostNumberStore.getState().registerComments(comments);
@@ -278,7 +278,7 @@ describe('interaction stores', () => {
       parentNumber: 12,
       threadNumber: 34,
       threadCid: 'thread-cid',
-      subplebbitAddress: 'music.eth',
+      communityAddress: 'music.eth',
       scrollY: 140,
     });
   });
@@ -314,7 +314,7 @@ describe('interaction stores', () => {
       activeCid: 'thread-cid',
       threadNumber: 34,
       threadCid: 'thread-cid',
-      subplebbitAddress: 'music.eth',
+      communityAddress: 'music.eth',
       scrollY: 32,
       quoteInsertNumber: null,
       quoteInsertSelectedText: null,

@@ -6,7 +6,7 @@ const createReply = (overrides: Partial<Comment> = {}) =>
   ({
     cid: 'reply-cid',
     parentCid: 'target-cid',
-    subplebbitAddress: 'music.eth',
+    communityAddress: 'music.eth',
     ...overrides,
   }) as Comment;
 

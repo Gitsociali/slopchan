@@ -1,15 +1,14 @@
-type CommentWithLegacyCommunityAddress = {
+type CommentWithCommunityAddress = {
   communityAddress?: string;
   replies?: {
     pages?: Record<
       string,
       | {
-          comments?: Array<CommentWithLegacyCommunityAddress | undefined>;
+          comments?: Array<CommentWithCommunityAddress | undefined>;
         }
       | undefined
     >;
   };
-  subplebbitAddress?: string;
 };
 
 export const getCommentCommunityAddress = (comment?: unknown) => {
@@ -17,18 +16,15 @@ export const getCommentCommunityAddress = (comment?: unknown) => {
     return undefined;
   }
 
-  const record = comment as { communityAddress?: unknown; subplebbitAddress?: unknown };
+  const record = comment as { communityAddress?: unknown };
   if (typeof record.communityAddress === 'string' && record.communityAddress) {
     return record.communityAddress;
-  }
-  if (typeof record.subplebbitAddress === 'string' && record.subplebbitAddress) {
-    return record.subplebbitAddress;
   }
 
   return undefined;
 };
 
-const withResolvedReplyPages = (replies?: CommentWithLegacyCommunityAddress['replies']) => {
+const withResolvedReplyPages = (replies?: CommentWithCommunityAddress['replies']) => {
   if (!replies?.pages) {
     return replies;
   }
@@ -82,7 +78,7 @@ const withResolvedReplyPages = (replies?: CommentWithLegacyCommunityAddress['rep
   };
 };
 
-export const withResolvedCommentCommunityAddress = <T extends CommentWithLegacyCommunityAddress | undefined | null>(comment: T): T => {
+export const withResolvedCommentCommunityAddress = <T extends CommentWithCommunityAddress | undefined | null>(comment: T): T => {
   if (!comment) {
     return comment;
   }

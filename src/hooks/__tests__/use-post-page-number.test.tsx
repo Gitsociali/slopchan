@@ -48,12 +48,12 @@ let latestValue: number | undefined;
 let container: HTMLDivElement;
 let root: Root;
 
-const HookHarness = ({ enabled = true, postCid, subplebbitAddress }: { enabled?: boolean; postCid?: string; subplebbitAddress?: string }) => {
-  latestValue = usePostPageNumber({ enabled, postCid, subplebbitAddress });
+const HookHarness = ({ enabled = true, postCid, communityAddress }: { enabled?: boolean; postCid?: string; communityAddress?: string }) => {
+  latestValue = usePostPageNumber({ enabled, postCid, communityAddress });
   return null;
 };
 
-const renderHook = (props: { enabled?: boolean; postCid?: string; subplebbitAddress?: string }) => {
+const renderHook = (props: { enabled?: boolean; postCid?: string; communityAddress?: string }) => {
   act(() => {
     root.render(createElement(HookHarness, props));
   });
@@ -95,7 +95,7 @@ describe('usePostPageNumber', () => {
       boardFeed: [{ cid: 'post-1' }, { cid: 'post-2' }, { cid: 'post-3' }],
     };
 
-    expect(renderHook({ postCid: 'post-3', subplebbitAddress: 'music.eth' })).toBe(2);
+    expect(renderHook({ postCid: 'post-3', communityAddress: 'music.eth' })).toBe(2);
     expect(testState.preloadOptions).toEqual({
       communities: [{ name: 'music.eth' }],
       postsPerPage: 20,
@@ -106,7 +106,7 @@ describe('usePostPageNumber', () => {
   it('falls back to the preloaded feed when cached feeds do not contain the post yet', () => {
     testState.preloadFeed = [{ cid: 'post-1' }, { cid: 'post-2' }, { cid: 'post-3' }, { cid: 'post-4' }];
 
-    expect(renderHook({ postCid: 'post-4', subplebbitAddress: 'music.eth' })).toBe(2);
+    expect(renderHook({ postCid: 'post-4', communityAddress: 'music.eth' })).toBe(2);
     expect(testState.preloadOptions).toEqual({
       communities: [{ name: 'music.eth' }],
       postsPerPage: 20,
@@ -117,10 +117,10 @@ describe('usePostPageNumber', () => {
   it('skips resolution entirely when the hook is disabled or required inputs are missing', () => {
     testState.preloadFeed = [{ cid: 'post-1' }];
 
-    expect(renderHook({ enabled: false, postCid: 'post-1', subplebbitAddress: 'music.eth' })).toBeUndefined();
+    expect(renderHook({ enabled: false, postCid: 'post-1', communityAddress: 'music.eth' })).toBeUndefined();
     expect(testState.preloadOptions).toBeUndefined();
 
-    expect(renderHook({ enabled: true, postCid: undefined, subplebbitAddress: 'music.eth' })).toBeUndefined();
+    expect(renderHook({ enabled: true, postCid: undefined, communityAddress: 'music.eth' })).toBeUndefined();
     expect(testState.preloadOptions).toBeUndefined();
   });
 });

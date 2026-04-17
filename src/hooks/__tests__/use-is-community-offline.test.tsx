@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import useIsSubplebbitOffline from '../use-is-subplebbit-offline';
+import useIsCommunityOffline from '../use-is-community-offline';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -12,7 +12,7 @@ const testState = vi.hoisted(() => ({
   loadingTimestamps: [0] as number[],
   requestedAddresses: undefined as string[] | undefined,
   setOfflineStateMock: vi.fn(),
-  subplebbitOfflineState: {} as Record<string, { initialLoad: boolean; state?: string; updatedAt?: number; updatingState?: string }>,
+  communityOfflineState: {} as Record<string, { initialLoad: boolean; state?: string; updatedAt?: number; updatingState?: string }>,
 }));
 
 vi.mock('react-i18next', () => ({
@@ -30,7 +30,7 @@ vi.mock('../../stores/use-community-offline-store', () => ({
   default: () => ({
     initializeCommunityOfflineState: testState.initializeMock,
     setCommunityOfflineState: testState.setOfflineStateMock,
-    communityOfflineState: testState.subplebbitOfflineState,
+    communityOfflineState: testState.communityOfflineState,
   }),
 }));
 
@@ -45,12 +45,12 @@ vi.mock('../../lib/utils/time-utils', () => ({
   getFormattedTimeAgo: (timestamp: number) => `ago:${timestamp}`,
 }));
 
-let latestValue: ReturnType<typeof useIsSubplebbitOffline>;
+let latestValue: ReturnType<typeof useIsCommunityOffline>;
 let container: HTMLDivElement;
 let root: Root;
 
-const HookHarness = ({ subplebbit }: { subplebbit?: { address?: string; state?: string; updatedAt?: number; updatingState?: string } }) => {
-  latestValue = useIsSubplebbitOffline(subplebbit as never);
+const HookHarness = ({ community }: { community?: { address?: string; state?: string; updatedAt?: number; updatingState?: string } }) => {
+  latestValue = useIsCommunityOffline(community as never);
   return null;
 };
 
@@ -62,14 +62,14 @@ const flushEffects = async (count = 3) => {
   }
 };
 
-const renderHook = async (subplebbit?: { address?: string; state?: string; updatedAt?: number; updatingState?: string }) => {
+const renderHook = async (community?: { address?: string; state?: string; updatedAt?: number; updatingState?: string }) => {
   await act(async () => {
-    root.render(createElement(HookHarness, { subplebbit }));
+    root.render(createElement(HookHarness, { community }));
   });
   await flushEffects();
 };
 
-describe('useIsSubplebbitOffline', () => {
+describe('useIsCommunityOffline', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
@@ -83,7 +83,7 @@ describe('useIsSubplebbitOffline', () => {
     };
     testState.loadingTimestamps = [1_704_067_200];
     testState.requestedAddresses = undefined;
-    testState.subplebbitOfflineState = {};
+    testState.communityOfflineState = {};
 
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -116,7 +116,7 @@ describe('useIsSubplebbitOffline', () => {
 
   it('reports boards with stale updates as offline and includes the last synced time', async () => {
     const staleUpdatedAt = 1_704_052_000;
-    testState.subplebbitOfflineState = {
+    testState.communityOfflineState = {
       'music.eth': {
         initialLoad: false,
         updatedAt: staleUpdatedAt,
@@ -136,7 +136,7 @@ describe('useIsSubplebbitOffline', () => {
   });
 
   it('marks boards without an update timestamp as offline once the loading timeout has elapsed', async () => {
-    testState.subplebbitOfflineState = {
+    testState.communityOfflineState = {
       'music.eth': {
         initialLoad: false,
       },
@@ -149,13 +149,13 @@ describe('useIsSubplebbitOffline', () => {
       isOffline: true,
       isOnlineStatusLoading: false,
       offlineIconClass: 'redOfflineIcon',
-      offlineTitle: 'subplebbit_offline_info',
+      offlineTitle: 'community_offline_info',
     });
   });
 
   it('treats recently updated boards as online', async () => {
     const freshUpdatedAt = 1_704_067_205;
-    testState.subplebbitOfflineState = {
+    testState.communityOfflineState = {
       'music.eth': {
         initialLoad: false,
         updatedAt: freshUpdatedAt,

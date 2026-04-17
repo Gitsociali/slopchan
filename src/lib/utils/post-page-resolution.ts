@@ -16,7 +16,6 @@ type CommunityIdentifierLike = {
 };
 
 type LegacyFeedOptionsLike = {
-  subplebbitAddresses?: string[];
   sortType: string;
   postsPerPage?: number;
   filter?: unknown;
@@ -71,9 +70,6 @@ const getCommunityIdentifiers = (opts: FeedOptionsLike | LegacyFeedOptionsLike):
   }
   if ('communityAddresses' in opts && Array.isArray(opts.communityAddresses)) {
     return opts.communityAddresses.map((communityAddress) => ({ name: communityAddress }));
-  }
-  if ('subplebbitAddresses' in opts && Array.isArray(opts.subplebbitAddresses)) {
-    return opts.subplebbitAddresses.map((communityAddress) => ({ name: communityAddress }));
   }
   return [];
 };

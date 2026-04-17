@@ -42,7 +42,7 @@ export const isSfwBoard = ({
   isInAllView,
   isInSubscriptionsView,
   isInModView,
-  subplebbitAddress,
+  communityAddress,
   directories,
 }: {
   pathname: string;
@@ -50,15 +50,15 @@ export const isSfwBoard = ({
   isInAllView: boolean;
   isInSubscriptionsView: boolean;
   isInModView: boolean;
-  subplebbitAddress: string | undefined;
+  communityAddress: string | undefined;
   directories: { address: string; nsfw?: boolean }[];
 }): boolean => {
   if (pathname === '/' || pathname.startsWith('/rules')) return false;
   if (isSpecialTheme) return false;
   if (isInAllView || isInSubscriptionsView || isInModView) return false;
 
-  if (!subplebbitAddress) return false;
+  if (!communityAddress) return false;
 
-  const entry = directories.find((d) => d.address === subplebbitAddress);
+  const entry = directories.find((d) => d.address === communityAddress);
   return !entry?.nsfw;
 };

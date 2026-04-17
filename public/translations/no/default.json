@@ -125,7 +125,6 @@
   "bump_order": "Bump rekkefølge",
   "creation_date": "Opprettelsesdato",
   "sort_by": "Sorter etter",
-  "subplebbit_offline_info": "Dette brettet kan være offline og publisering kan mislykkes",
   "posts_last_synced_info": "Innlegg sist synkronisert {{time}}, dette brettet kan være offline og publisering kan mislykkes.",
   "no_threads": "Ingen tråder",
   "hidden": "skjult",
@@ -324,5 +323,6 @@
   "download": "last ned",
   "checking_for_updates": "Sjekker etter oppdateringer...",
   "new_version_found": "ny versjon funnet",
-  "site_legal_meta_license_text": "5chan er fri programvare med åpen kildekode under GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan er fri programvare med åpen kildekode under GPL-3.0-or-later.",
+  "community_offline_info": "Dette brettet kan være offline og publisering kan mislykkes"
 }

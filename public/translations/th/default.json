@@ -125,7 +125,6 @@
   "bump_order": "ลำดับของ Bump",
   "creation_date": "วันที่สร้าง",
   "sort_by": "เรียงลำดับตาม",
-  "subplebbit_offline_info": "บอร์ดนี้อาจออฟไลน์และการเผยแพร่อาจล้มเหลว",
   "posts_last_synced_info": "โพสต์ซิงค์ครั้งล่าสุด {{time}} บอร์ดนี้อาจออฟไลน์และการเผยแพร่อาจล้มเหลว",
   "no_threads": "ไม่มีกระทู้",
   "hidden": "ซ่อน",
@@ -324,5 +323,6 @@
   "download": "ดาวน์โหลด",
   "checking_for_updates": "กำลังตรวจสอบการอัปเดต...",
   "new_version_found": "พบเวอร์ชันใหม่",
-  "site_legal_meta_license_text": "5chan เป็นซอฟต์แวร์เสรีและโอเพนซอร์สภายใต้ GPL-3.0-or-later"
+  "site_legal_meta_license_text": "5chan เป็นซอฟต์แวร์เสรีและโอเพนซอร์สภายใต้ GPL-3.0-or-later",
+  "community_offline_info": "บอร์ดนี้อาจออฟไลน์และการเผยแพร่อาจล้มเหลว"
 }

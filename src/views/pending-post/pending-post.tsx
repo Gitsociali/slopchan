@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAccountComments } from '@bitsocialnet/bitsocial-react-hooks';
 import { useDirectories } from '../../hooks/use-directories';
 import useSafeAccountComment from '../../hooks/use-safe-account-comment';
+import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
 import { getBoardPath } from '../../lib/utils/route-utils';
 import { Post } from '../post';
 
@@ -31,7 +32,7 @@ const PendingPost = () => {
   }, [isValidAccountCommentIndex, navigate]);
 
   useEffect(() => {
-    const postCommunityAddress = post?.communityAddress || post?.subplebbitAddress;
+    const postCommunityAddress = getCommentCommunityAddress(post);
     if (post?.cid && postCommunityAddress) {
       const boardPath = getBoardPath(postCommunityAddress, directories);
       navigate(`/${boardPath}/thread/${post.cid}`, { replace: true });

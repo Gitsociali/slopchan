@@ -125,7 +125,6 @@
   "bump_order": "סדר הפעם",
   "creation_date": "תאריך יצירה",
   "sort_by": "מיין לפי",
-  "subplebbit_offline_info": "פורום זה עשוי להיות לא מקוון והפרסום עלול להיכשל",
   "posts_last_synced_info": "פוסטים סונכרנו לאחרונה {{time}}, פורום זה עשוי להיות לא מקוון והפרסום עלול להיכשל.",
   "no_threads": "אין נושאים",
   "hidden": "מוסתר",
@@ -324,5 +323,6 @@
   "download": "הורדה",
   "checking_for_updates": "בודק עדכונים...",
   "new_version_found": "נמצאה גרסה חדשה",
-  "site_legal_meta_license_text": "5chan היא תוכנה חופשית וקוד פתוח תחת GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan היא תוכנה חופשית וקוד פתוח תחת GPL-3.0-or-later.",
+  "community_offline_info": "פורום זה עשוי להיות לא מקוון והפרסום עלול להיכשל"
 }

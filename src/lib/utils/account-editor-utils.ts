@@ -6,9 +6,7 @@ type AccountLike = {
   author?: { address?: string; shortAddress?: string; avatar?: unknown };
   pkc?: unknown;
   pkcReactOptions?: unknown;
-  plebbit?: unknown;
   karma?: unknown;
-  plebbitReactOptions?: unknown;
   unreadNotificationCount?: unknown;
   [key: string]: unknown;
 };
@@ -23,9 +21,7 @@ export const buildEditableAccountJson = (account: AccountLike | undefined): stri
       author: { ...account?.author, avatar: undefined },
       pkc: undefined,
       pkcReactOptions: undefined,
-      plebbit: undefined,
       karma: undefined,
-      plebbitReactOptions: undefined,
       unreadNotificationCount: undefined,
     },
   });

@@ -72,18 +72,18 @@ describe('pattern-utils', () => {
   it('matches roles with moderator aliases and rejects missing role metadata', () => {
     const modComment = {
       author: { address: 'author-1' },
-      subplebbitAddress: 'music-posting.eth',
+      communityAddress: 'music-posting.eth',
     };
     const ownerComment = {
       author: { address: 'author-2' },
-      subplebbitAddress: 'music-posting.eth',
+      communityAddress: 'music-posting.eth',
     };
 
     expect(userHasRole(modComment as never, 'moderator')).toBe(true);
     expect(userHasRole(modComment as never, 'mod')).toBe(true);
     expect(userHasRole(ownerComment as never, 'owner')).toBe(true);
     expect(userHasRole(ownerComment as never, 'admin')).toBe(false);
-    expect(userHasRole({ author: { address: 'missing' }, subplebbitAddress: 'unknown.eth' } as never, 'moderator')).toBe(false);
+    expect(userHasRole({ author: { address: 'missing' }, communityAddress: 'unknown.eth' } as never, 'moderator')).toBe(false);
   });
 
   it('parses mixed special filters and content filters', () => {
@@ -109,7 +109,7 @@ describe('pattern-utils', () => {
         shortAddress: 'auth1',
       },
       content: 'That feel when the girlfriend texts back',
-      subplebbitAddress: 'music-posting.eth',
+      communityAddress: 'music-posting.eth',
       title: 'TFW',
     };
 

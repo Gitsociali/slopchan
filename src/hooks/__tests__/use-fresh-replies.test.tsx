@@ -12,7 +12,7 @@ type TestComment = {
   content?: string;
   index?: number;
   number?: number;
-  subplebbitAddress?: string;
+  communityAddress?: string;
 };
 
 const testState = vi.hoisted(() => ({
@@ -79,12 +79,12 @@ describe('useFreshReplies', () => {
         content: 'stale reply',
         index: 3,
         number: undefined,
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
       },
       {
         cid: 'network-reply-cid',
         content: 'network reply',
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
       },
     ];
     testState.accountComments = [
@@ -93,7 +93,7 @@ describe('useFreshReplies', () => {
         content: 'fresh reply',
         index: 3,
         number: 27,
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
       },
     ];
 
@@ -121,12 +121,12 @@ describe('useFreshReplies', () => {
       {
         content: 'stale failed reply',
         index: 0,
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
       },
       {
         content: 'duplicate stale failed reply',
         index: 0,
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
       },
     ];
     testState.accountComments = [
@@ -134,7 +134,7 @@ describe('useFreshReplies', () => {
         content: 'retried pending reply',
         index: 0,
         number: 99,
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
       },
     ];
 

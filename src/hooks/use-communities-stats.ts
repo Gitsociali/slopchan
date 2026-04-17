@@ -29,9 +29,3 @@ export const CommunityStatsCollector = ({ communityAddress }: { communityAddress
 
   return null;
 };
-
-/**
- * Back-compat exports for old naming.
- */
-export const useSubplebbitsStatsStore = useCommunitiesStatsStore;
-export const SubplebbitStatsCollector = CommunityStatsCollector;

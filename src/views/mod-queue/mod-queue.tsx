@@ -8,7 +8,7 @@ import useModQueueStore from '../../stores/use-mod-queue-store';
 import LoadingEllipsis from '../../components/loading-ellipsis';
 import ErrorDisplay from '../../components/error-display/error-display';
 import { useFeedStateString } from '../../hooks/use-state-string';
-import { getSubplebbitAddress, getBoardPath, extractDirectoryFromTitle, areSameBoardAddress } from '../../lib/utils/route-utils';
+import { getCommunityAddress, getBoardPath, extractDirectoryFromTitle, areSameBoardAddress } from '../../lib/utils/route-utils';
 import { useDirectories, DirectoryCommunity } from '../../hooks/use-directories';
 import getShortAddress from '../../lib/get-short-address';
 import { BOARD_CODE_GROUPS } from '../../constants/board-codes';
@@ -23,6 +23,7 @@ import { getFormattedDate, getFormattedTimeAgo } from '../../lib/utils/time-util
 import useFeedResetStore from '../../stores/use-feed-reset-store';
 import useChallengesStore from '../../stores/use-challenges-store';
 import { alertChallengeVerificationFailed } from '../../lib/utils/challenge-utils';
+import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
 import Tooltip from '../../components/tooltip';
 import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
 import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
@@ -43,8 +44,6 @@ const getBoardDisplayPath = (address: string, path: string): string => {
   if (address.includes('.')) return address;
   return getShortAddress(address) || address;
 };
-
-const getCommentCommunityAddress = (comment: Comment) => comment?.communityAddress || comment?.subplebbitAddress;
 
 interface ModQueueViewProps {
   boardIdentifier?: string; // If provided, shows queue for single board
@@ -159,7 +158,7 @@ const ModQueueActions = ({ status, errorMessage, isPublishing, handleApprove, ha
 const useModQueueActions = (comment: Comment): ModQueueActionState => {
   const { t } = useTranslation();
   const { cid, approved, removed, pendingApproval } = comment || {};
-  const communityAddress = comment?.communityAddress || comment?.subplebbitAddress;
+  const communityAddress = getCommentCommunityAddress(comment);
   const [initiatedAction, setInitiatedAction] = useState<ModerationAction>(null);
 
   const alreadyApproved = approved === true;
@@ -256,14 +255,7 @@ const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath
   const { editedComment } = useEditedComment({ comment });
   const displayComment = editedComment || comment;
 
-  const { content, title, timestamp, cid, threadCid, link, thumbnailUrl, linkWidth, linkHeight, removed, approved, pendingApproval, number, parentCid } = displayComment;
-  const commentCommunityAddress = getCommentCommunityAddress(displayComment);
-
-  // Check if already moderated (from previous session or API update)
-  // Note: `approved` and `removed` are direct fields on the comment from CommentUpdate,
-  // not nested under commentModeration (which is the options object for publishing moderation actions)
-  const alreadyApproved = approved === true;
-  const alreadyRejected = isPendingApprovalRejected({ approved, removed, pendingApproval });
+  const { content, title, timestamp, cid, threadCid, link, thumbnailUrl, linkWidth, linkHeight, number, parentCid } = displayComment;
 
   const timeWaiting = currentTime - timestamp;
   const alertThresholdSeconds = getAlertThresholdSeconds();
@@ -368,11 +360,7 @@ const ModQueueCard = memo(({ comment, showBoard = false, boardPath, boardDisplay
   const { editedComment } = useEditedComment({ comment });
   const displayComment = editedComment || comment;
 
-  const { content, title, timestamp, cid, threadCid, link, thumbnailUrl, linkWidth, linkHeight, removed, approved, pendingApproval, number, parentCid } = displayComment;
-  const commentCommunityAddress = getCommentCommunityAddress(displayComment);
-
-  const alreadyApproved = approved === true;
-  const alreadyRejected = isPendingApprovalRejected({ approved, removed, pendingApproval });
+  const { content, title, timestamp, cid, threadCid, link, thumbnailUrl, linkWidth, linkHeight, number, parentCid } = displayComment;
 
   const timeWaiting = currentTime - timestamp;
   const alertThresholdSeconds = getAlertThresholdSeconds();
@@ -725,7 +713,7 @@ export const ModQueueButton = ({ boardIdentifier, isMobile }: ModQueueButtonProp
 
   const resolvedAddress = useMemo(() => {
     if (boardIdentifier) {
-      return getSubplebbitAddress(boardIdentifier, directories);
+      return getCommunityAddress(boardIdentifier, directories);
     }
     return undefined;
   }, [boardIdentifier, directories]);
@@ -796,7 +784,7 @@ const ModQueueView = ({ boardIdentifier: propBoardIdentifier }: ModQueueViewProp
 
   const resolvedAddress = useMemo(() => {
     if (boardIdentifier) {
-      return getSubplebbitAddress(boardIdentifier, directories);
+      return getCommunityAddress(boardIdentifier, directories);
     }
     return undefined;
   }, [boardIdentifier, directories]);

@@ -7,10 +7,10 @@ import { BottomButton, CatalogButton, ReturnButton, TopButton } from '../../comp
 import ErrorDisplay from '../../components/error-display/error-display';
 import { PageFooterDesktop, PageFooterMobile, ThreadFooterStyleRow } from '../../components/footer';
 import LoadingEllipsis from '../../components/loading-ellipsis';
-import { useResolvedSubplebbitAddress } from '../../hooks/use-resolved-subplebbit-address';
+import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
 import { useCommunityField } from '../../hooks/use-stable-community';
 import { useFeedStateString } from '../../hooks/use-state-string';
-import { getSubplebbitAddress, getBoardPath } from '../../lib/utils/route-utils';
+import { getCommunityAddress, getBoardPath } from '../../lib/utils/route-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import { removeMarkdown } from '../../lib/utils/post-utils';
 import { useDirectories } from '../../hooks/use-directories';
@@ -101,13 +101,13 @@ const ArchiveFooter = ({ hasMore, loadingState, onLoadMore }: { hasMore: boolean
   );
 };
 
-const ArchiveDesktopTopControls = ({ subplebbitAddress }: { subplebbitAddress: string | undefined }) => (
+const ArchiveDesktopTopControls = ({ communityAddress }: { communityAddress: string | undefined }) => (
   <div className={styles.desktopNavLinks}>
     <span>
-      [<ReturnButton address={subplebbitAddress} />]
+      [<ReturnButton address={communityAddress} />]
     </span>
     <span>
-      [<CatalogButton address={subplebbitAddress} />]
+      [<CatalogButton address={communityAddress} />]
     </span>
     <span>
       [<BottomButton />]
@@ -115,13 +115,13 @@ const ArchiveDesktopTopControls = ({ subplebbitAddress }: { subplebbitAddress: s
   </div>
 );
 
-const ArchiveDesktopFooterControls = ({ subplebbitAddress }: { subplebbitAddress: string | undefined }) => (
+const ArchiveDesktopFooterControls = ({ communityAddress }: { communityAddress: string | undefined }) => (
   <div className={styles.desktopFooterButtons}>
     <span>
-      [<ReturnButton address={subplebbitAddress} />]
+      [<ReturnButton address={communityAddress} />]
     </span>
     <span>
-      [<CatalogButton address={subplebbitAddress} />]
+      [<CatalogButton address={communityAddress} />]
     </span>
     <span>
       [<TopButton />]
@@ -129,18 +129,18 @@ const ArchiveDesktopFooterControls = ({ subplebbitAddress }: { subplebbitAddress
   </div>
 );
 
-const ArchiveMobileTopControls = ({ subplebbitAddress }: { subplebbitAddress: string | undefined }) => (
+const ArchiveMobileTopControls = ({ communityAddress }: { communityAddress: string | undefined }) => (
   <div className={styles.mobileNavLinks}>
-    <ReturnButton address={subplebbitAddress} />
-    <CatalogButton address={subplebbitAddress} />
+    <ReturnButton address={communityAddress} />
+    <CatalogButton address={communityAddress} />
     <BottomButton />
   </div>
 );
 
-const ArchiveMobileFooterControls = ({ subplebbitAddress }: { subplebbitAddress: string | undefined }) => (
+const ArchiveMobileFooterControls = ({ communityAddress }: { communityAddress: string | undefined }) => (
   <div className={styles.mobileFooterButtons}>
-    <ReturnButton address={subplebbitAddress} />
-    <CatalogButton address={subplebbitAddress} />
+    <ReturnButton address={communityAddress} />
+    <CatalogButton address={communityAddress} />
     <TopButton />
   </div>
 );
@@ -151,22 +151,22 @@ const Archive = () => {
   const boardIdentifier = params.boardIdentifier;
   const directories = useDirectories();
 
-  const resolvedAddressFromUrl = useResolvedSubplebbitAddress();
-  const subplebbitAddress = useMemo(() => {
+  const resolvedAddressFromUrl = useResolvedCommunityAddress();
+  const communityAddress = useMemo(() => {
     if (boardIdentifier) {
-      return getSubplebbitAddress(boardIdentifier, directories);
+      return getCommunityAddress(boardIdentifier, directories);
     }
     return resolvedAddressFromUrl;
   }, [boardIdentifier, directories, resolvedAddressFromUrl]);
 
   const boardPath = useMemo(() => {
-    if (!subplebbitAddress) {
+    if (!communityAddress) {
       return boardIdentifier;
     }
-    return getBoardPath(subplebbitAddress, directories);
-  }, [boardIdentifier, directories, subplebbitAddress]);
+    return getBoardPath(communityAddress, directories);
+  }, [boardIdentifier, directories, communityAddress]);
 
-  const boardTitle = useCommunityField(subplebbitAddress, (community) => community?.title) || `/${boardIdentifier || subplebbitAddress || t('archive')}/`;
+  const boardTitle = useCommunityField(communityAddress, (community) => community?.title) || `/${boardIdentifier || communityAddress || t('archive')}/`;
 
   const archiveFilter = useMemo(
     () => ({
@@ -176,9 +176,9 @@ const Archive = () => {
     [],
   );
 
-  const communityAddresses = useMemo(() => (subplebbitAddress ? [subplebbitAddress] : []), [subplebbitAddress]);
+  const communityAddresses = useMemo(() => (communityAddress ? [communityAddress] : []), [communityAddress]);
   const communities = useCommunityIdentifiers(communityAddresses);
-  const communityIdentifier = useCommunityIdentifier(subplebbitAddress);
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
 
   const feedOptions = useMemo(
     () => ({
@@ -212,14 +212,14 @@ const Archive = () => {
   if (isLoading) {
     return (
       <div id='top' className={`${styles.page} ${shouldShowSnow() ? styles.garland : ''}`}>
-        <ArchiveMobileTopControls subplebbitAddress={subplebbitAddress} />
+        <ArchiveMobileTopControls communityAddress={communityAddress} />
         <hr className={styles.desktopDivider} />
-        <ArchiveDesktopTopControls subplebbitAddress={subplebbitAddress} />
+        <ArchiveDesktopTopControls communityAddress={communityAddress} />
         <hr className={styles.divider} />
         <h4 className={styles.archiveSummary}>{t('loading_archive')}</h4>
-        <PageFooterDesktop firstRow={<ArchiveDesktopFooterControls subplebbitAddress={subplebbitAddress} />} styleRow={<ThreadFooterStyleRow />} />
+        <PageFooterDesktop firstRow={<ArchiveDesktopFooterControls communityAddress={communityAddress} />} styleRow={<ThreadFooterStyleRow />} />
         <PageFooterMobile>
-          <ArchiveMobileFooterControls subplebbitAddress={subplebbitAddress} />
+          <ArchiveMobileFooterControls communityAddress={communityAddress} />
         </PageFooterMobile>
       </div>
     );
@@ -227,9 +227,9 @@ const Archive = () => {
 
   return (
     <div id='top' className={`${styles.page} ${shouldShowSnow() ? styles.garland : ''}`}>
-      <ArchiveMobileTopControls subplebbitAddress={subplebbitAddress} />
+      <ArchiveMobileTopControls communityAddress={communityAddress} />
       <hr className={styles.desktopDivider} />
-      <ArchiveDesktopTopControls subplebbitAddress={subplebbitAddress} />
+      <ArchiveDesktopTopControls communityAddress={communityAddress} />
       <hr className={styles.divider} />
       <h4 className={styles.archiveSummary}>{summaryText}</h4>
 
@@ -290,9 +290,9 @@ const Archive = () => {
 
       <ArchiveFooter hasMore={hasMore} loadingState={loadingState} onLoadMore={loadMore} />
 
-      <PageFooterDesktop firstRow={<ArchiveDesktopFooterControls subplebbitAddress={subplebbitAddress} />} styleRow={<ThreadFooterStyleRow />} />
+      <PageFooterDesktop firstRow={<ArchiveDesktopFooterControls communityAddress={communityAddress} />} styleRow={<ThreadFooterStyleRow />} />
       <PageFooterMobile>
-        <ArchiveMobileFooterControls subplebbitAddress={subplebbitAddress} />
+        <ArchiveMobileFooterControls communityAddress={communityAddress} />
       </PageFooterMobile>
     </div>
   );

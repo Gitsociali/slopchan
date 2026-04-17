@@ -39,13 +39,13 @@ const createPost = (boardAddress: string, suffix: string, replyCount: number, ti
     content: `${suffix} content`,
     link: `https://cdn.example/${boardAddress}/${suffix}.jpg`,
     replyCount,
-    subplebbitAddress: boardAddress,
+    communityAddress: boardAddress,
     thumbnailUrl: `https://cdn.example/${boardAddress}/${suffix}.thumb.jpg`,
     timestamp,
     title: `${suffix} title`,
   }) as never;
 
-const createSubplebbit = (boardAddress: string, posts: Array<{ cid: string }>, updatedAt = 1_704_067_150) =>
+const createCommunity = (boardAddress: string, posts: Array<{ cid: string }>, updatedAt = 1_704_067_150) =>
   ({
     address: boardAddress,
     updatedAt,
@@ -58,14 +58,14 @@ const createSubplebbit = (boardAddress: string, posts: Array<{ cid: string }>, u
     },
   }) as never;
 
-const HookHarness = ({ addresses, subplebbits }: { addresses: string[]; subplebbits: Array<unknown> }) => {
-  latestValue = usePopularPosts(subplebbits as never, addresses);
+const HookHarness = ({ addresses, communities }: { addresses: string[]; communities: Array<unknown> }) => {
+  latestValue = usePopularPosts(communities as never, addresses);
   return null;
 };
 
-const renderHook = async (addresses: string[], subplebbits: Array<unknown>) => {
+const renderHook = async (addresses: string[], communities: Array<unknown>) => {
   await act(async () => {
-    root.render(createElement(HookHarness, { addresses, subplebbits }));
+    root.render(createElement(HookHarness, { addresses, communities }));
   });
 };
 
@@ -112,8 +112,8 @@ describe('usePopularPosts', () => {
     testState.loadingTimestamps = addresses.map(() => 1_704_067_180);
 
     await renderHook(addresses, [
-      createSubplebbit(addresses[0], [createPost(addresses[0], 'top', 20), createPost(addresses[0], 'backup', 10)]),
-      createSubplebbit(addresses[1], [createPost(addresses[1], 'top', 18), createPost(addresses[1], 'backup', 9)]),
+      createCommunity(addresses[0], [createPost(addresses[0], 'top', 20), createPost(addresses[0], 'backup', 10)]),
+      createCommunity(addresses[1], [createPost(addresses[1], 'top', 18), createPost(addresses[1], 'backup', 9)]),
       undefined,
       undefined,
       undefined,
@@ -128,12 +128,12 @@ describe('usePopularPosts', () => {
 
     await renderHook(
       addresses,
-      addresses.map((address, index) => createSubplebbit(address, [createPost(address, 'top', 20 - index), createPost(address, 'backup', 5 - index)])),
+      addresses.map((address, index) => createCommunity(address, [createPost(address, 'top', 20 - index), createPost(address, 'backup', 5 - index)])),
     );
 
     expect(latestValue.isLoading).toBe(false);
     expect(latestValue.popularPosts).toHaveLength(8);
-    expect(new Set(latestValue.popularPosts.map((post) => post.subplebbitAddress)).size).toBe(8);
+    expect(new Set(latestValue.popularPosts.map((post) => post.communityAddress)).size).toBe(8);
     expect(latestValue.popularPosts.every((post) => post.cid.endsWith('-top'))).toBe(true);
   });
 
@@ -143,7 +143,7 @@ describe('usePopularPosts', () => {
 
     await renderHook(
       addresses,
-      addresses.map((address, index) => createSubplebbit(address, [createPost(address, 'initial', 30 - index)])),
+      addresses.map((address, index) => createCommunity(address, [createPost(address, 'initial', 30 - index)])),
     );
 
     const initialCids = latestValue.popularPosts.map((post) => post.cid);
@@ -151,7 +151,7 @@ describe('usePopularPosts', () => {
 
     await renderHook(
       addresses,
-      addresses.map((address, index) => createSubplebbit(address, [createPost(address, 'replacement', 100 - index), createPost(address, 'initial', 30 - index)])),
+      addresses.map((address, index) => createCommunity(address, [createPost(address, 'replacement', 100 - index), createPost(address, 'initial', 30 - index)])),
     );
 
     expect(latestValue.isLoading).toBe(false);
@@ -162,13 +162,13 @@ describe('usePopularPosts', () => {
     const addresses = ['board-0.eth', 'board-1.eth'];
     testState.loadingTimestamps = [1_704_067_180, 1_704_067_180];
 
-    await renderHook(addresses, [createSubplebbit(addresses[0], [createPost(addresses[0], 'only', 12)]), undefined]);
+    await renderHook(addresses, [createCommunity(addresses[0], [createPost(addresses[0], 'only', 12)]), undefined]);
 
     expect(latestValue.isLoading).toBe(true);
     expect(latestValue.popularPosts).toEqual([]);
 
     testState.currentTime = 1_704_067_211;
-    await renderHook(addresses, [createSubplebbit(addresses[0], [createPost(addresses[0], 'only', 12)]), undefined]);
+    await renderHook(addresses, [createCommunity(addresses[0], [createPost(addresses[0], 'only', 12)]), undefined]);
 
     expect(latestValue.isLoading).toBe(false);
     expect(latestValue.popularPosts.map((post) => post.cid)).toEqual([`${addresses[0]}-only`]);
@@ -187,23 +187,23 @@ describe('usePopularPosts', () => {
 
   it('reshuffles the selected boards on each mount while keeping one top thread per board', async () => {
     const addresses = Array.from({ length: 10 }, (_, index) => `board-${index}.eth`);
-    const subplebbits = addresses.map((address, index) => createSubplebbit(address, [createPost(address, 'top', 30 - index), createPost(address, 'backup', 10 - index)]));
+    const communities = addresses.map((address, index) => createCommunity(address, [createPost(address, 'top', 30 - index), createPost(address, 'backup', 10 - index)]));
     const keepOrderRandom = mockRandomSequence(Array.from({ length: addresses.length - 1 }, () => 0.999_999));
 
-    await renderHook(addresses, subplebbits);
+    await renderHook(addresses, communities);
 
     expect(latestValue.isLoading).toBe(false);
-    expect(latestValue.popularPosts.map((post) => post.subplebbitAddress)).toEqual(addresses.slice(0, 8));
+    expect(latestValue.popularPosts.map((post) => post.communityAddress)).toEqual(addresses.slice(0, 8));
     expect(latestValue.popularPosts.every((post) => post.cid.endsWith('-top'))).toBe(true);
 
     keepOrderRandom.mockRestore();
     resetHookRoot();
 
     const rotateOrderRandom = mockRandomSequence(Array.from({ length: addresses.length - 1 }, () => 0));
-    await renderHook(addresses, subplebbits);
+    await renderHook(addresses, communities);
 
     expect(latestValue.isLoading).toBe(false);
-    expect(latestValue.popularPosts.map((post) => post.subplebbitAddress)).toEqual(addresses.slice(1, 9));
+    expect(latestValue.popularPosts.map((post) => post.communityAddress)).toEqual(addresses.slice(1, 9));
     expect(latestValue.popularPosts.every((post) => post.cid.endsWith('-top'))).toBe(true);
 
     rotateOrderRandom.mockRestore();

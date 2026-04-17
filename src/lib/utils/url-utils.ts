@@ -64,15 +64,15 @@ export const is5chanLink = (url: string): boolean => {
 
     // For pleb.bz, only support the exact sharelink format (legacy /p/... format)
     if (hostname === 'pleb.bz') {
-      // Must match exactly: /p/{subplebbitAddress}/c/{cid}
+      // Must match exactly: /p/{communityAddress}/c/{cid}
       // Allow redirect parameter since these are still valid internal links
       return /^\/p\/[^/]+\/c\/[^/]+$/.test(routePath);
     }
 
     // For other 5chan hostnames, support both old and new formats:
     // Old format (for backward compatibility):
-    // - /p/{subplebbitAddress}
-    // - /p/{subplebbitAddress}/c/{commentCid}
+    // - /p/{communityAddress}
+    // - /p/{communityAddress}/c/{commentCid}
     // New format:
     // - /{boardIdentifier} (directory code or address)
     // - /{boardIdentifier}/thread/{commentCid}

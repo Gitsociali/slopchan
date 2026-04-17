@@ -38,9 +38,9 @@ describe('view-utils', () => {
     expect(isSettingsView('/music.eth/thread/cid-123/settings', params)).toBe(true);
   });
 
-  it('supports deprecated subplebbitAddress params and marks unknown routes as not found', () => {
+  it('supports emoji board identifiers and marks unknown routes as not found', () => {
     const params = {
-      subplebbitAddress: 'emoji-🎵.eth',
+      boardIdentifier: 'emoji-🎵.eth',
       commentCid: 'cid-123',
     };
 

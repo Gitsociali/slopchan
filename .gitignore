@@ -1,5 +1,5 @@
-# plebbit temp files
-.plebbit
+# PKC temp files
+.pkc
 bin
 .env
 .deploy-env

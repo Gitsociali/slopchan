@@ -27,12 +27,9 @@ const friendlyStateNames: Record<string, string> = {
   'fetching-ipfs': 'downloading thread',
   'fetching-community-ipns': 'downloading board',
   'fetching-community-ipfs': 'downloading board',
-  'fetching-subplebbit-ipns': 'downloading board',
-  'fetching-subplebbit-ipfs': 'downloading board',
   'fetching-update-ipfs': 'downloading update',
   'resolving-address': 'resolving address',
   'resolving-community-address': 'resolving board address',
-  'resolving-subplebbit-address': 'resolving board address',
   'resolving-author-address': 'resolving author address',
 };
 

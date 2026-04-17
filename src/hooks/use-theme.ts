@@ -8,6 +8,7 @@ import useSpecialThemeStore from '../stores/use-special-theme-store';
 import { isChristmas } from '../lib/utils/time-utils';
 import { isSfwBoard, updateFavicon } from '../lib/update-favicon';
 import useSafeAccountComment from './use-safe-account-comment';
+import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
 
 const themeClasses = ['yotsuba', 'yotsuba-b', 'futaba', 'burichan', 'tomorrow', 'photon'];
 
@@ -20,14 +21,11 @@ const updateThemeClass = (newTheme: string) => {
 
 const useTheme = (): [string, (theme: string) => void] => {
   const location = useLocation();
-  const params = useParams<{ boardIdentifier?: string; subplebbitAddress?: string }>();
+  const params = useParams<{ boardIdentifier?: string }>();
   const pendingPostParams = useParams<{ accountCommentIndex?: string }>();
   const pendingPostCommentIndex = pendingPostParams?.accountCommentIndex ? parseInt(pendingPostParams.accountCommentIndex, 10) : undefined;
   const pendingPost = useSafeAccountComment({ commentIndex: pendingPostCommentIndex });
-  const pendingPostCommunityAddress =
-    (pendingPost as { communityAddress?: string }).communityAddress ||
-    // compatibility fallback for legacy inbound/persisted comment payloads
-    (pendingPost as { subplebbitAddress?: string }).subplebbitAddress;
+  const pendingPostCommunityAddress = getCommentCommunityAddress(pendingPost);
 
   const { isEnabled, setIsEnabled } = useSpecialThemeStore();
 
@@ -38,7 +36,7 @@ const useTheme = (): [string, (theme: string) => void] => {
   const isInAllView = isAllView(location.pathname);
   const isInSubscriptionsView = isSubscriptionsView(location.pathname, params);
   const isInModView = isModView(location.pathname);
-  const routeIdentifier = params.boardIdentifier || params.subplebbitAddress;
+  const routeIdentifier = params.boardIdentifier;
   const resolvedAddress = useResolvedCommunityAddress();
   const communityAddress = resolvedAddress || pendingPostCommunityAddress || routeIdentifier;
 
@@ -86,7 +84,7 @@ const useTheme = (): [string, (theme: string) => void] => {
     isInAllView,
     isInSubscriptionsView,
     isInModView,
-    subplebbitAddress: communityAddress,
+    communityAddress,
     directories,
   });
 

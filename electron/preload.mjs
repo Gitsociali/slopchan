@@ -3,18 +3,18 @@ import { contextBridge, ipcRenderer, webUtils } from 'electron';
 // dev uses http://localhost, prod uses file://...index.html
 const isDev = window.location.protocol === 'http:';
 
-const defaultPlebbitOptions = {
-  plebbitRpcClientsOptions: ['ws://localhost:9138'],
+const defaultPkcOptions = {
+  pkcRpcClientsOptions: ['ws://localhost:9138'],
   httpRoutersOptions: ['https://peers.pleb.bot', 'https://routing.lol', 'https://peers.forumindex.com', 'https://peers.plebpubsub.xyz'],
 };
 
 contextBridge.exposeInMainWorld('isElectron', true);
-contextBridge.exposeInMainWorld('defaultPlebbitOptions', defaultPlebbitOptions);
+contextBridge.exposeInMainWorld('defaultPkcOptions', defaultPkcOptions);
 contextBridge.exposeInMainWorld('defaultMediaIpfsGatewayUrl', 'http://localhost:6473');
 
-// receive plebbit rpc auth key from main
-ipcRenderer.on('plebbit-rpc-auth-key', (event, plebbitRpcAuthKey) => contextBridge.exposeInMainWorld('plebbitRpcAuthKey', plebbitRpcAuthKey));
-ipcRenderer.send('get-plebbit-rpc-auth-key');
+// receive PKC RPC auth key from main
+ipcRenderer.on('pkc-rpc-auth-key', (event, pkcRpcAuthKey) => contextBridge.exposeInMainWorld('pkcRpcAuthKey', pkcRpcAuthKey));
+ipcRenderer.send('get-pkc-rpc-auth-key');
 
 contextBridge.exposeInMainWorld('electronApi', {
   isElectron: true,

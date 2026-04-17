@@ -125,7 +125,6 @@
   "bump_order": "Bump sırası",
   "creation_date": "Oluşturulma tarihi",
   "sort_by": "Sırala",
-  "subplebbit_offline_info": "Bu forum çevrimdışı olabilir ve yayınlama başarısız olabilir",
   "posts_last_synced_info": "Gönderiler son olarak {{time}} senkronize edildi, bu forum çevrimdışı olabilir ve yayınlama başarısız olabilir.",
   "no_threads": "Hiç gönderi yok",
   "hidden": "gizli",
@@ -324,5 +323,6 @@
   "download": "indir",
   "checking_for_updates": "Güncellemeler kontrol ediliyor...",
   "new_version_found": "yeni sürüm bulundu",
-  "site_legal_meta_license_text": "5chan, GPL-3.0-or-later kapsamında özgür ve açık kaynaklı yazılımdır."
+  "site_legal_meta_license_text": "5chan, GPL-3.0-or-later kapsamında özgür ve açık kaynaklı yazılımdır.",
+  "community_offline_info": "Bu forum çevrimdışı olabilir ve yayınlama başarısız olabilir"
 }

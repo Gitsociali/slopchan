@@ -125,7 +125,6 @@
   "bump_order": "Bump order",
   "creation_date": "Petsa ng Paglikha",
   "sort_by": "Ayusin ayon sa",
-  "subplebbit_offline_info": "Maaaring offline ang board na ito at maaaring mabigo ang pag-publish",
   "posts_last_synced_info": "Huling na-sync ang mga post {{time}}, maaaring offline ang board na ito at maaaring mabigo ang pag-publish.",
   "no_threads": "Walang mga thread",
   "hidden": "nakatago",
@@ -324,5 +323,6 @@
   "download": "i-download",
   "checking_for_updates": "Sinusuri ang mga update...",
   "new_version_found": "may bagong bersyon na nahanap",
-  "site_legal_meta_license_text": "Ang 5chan ay libre at open-source na software sa ilalim ng GPL-3.0-or-later."
+  "site_legal_meta_license_text": "Ang 5chan ay libre at open-source na software sa ilalim ng GPL-3.0-or-later.",
+  "community_offline_info": "Maaaring offline ang board na ito at maaaring mabigo ang pag-publish"
 }

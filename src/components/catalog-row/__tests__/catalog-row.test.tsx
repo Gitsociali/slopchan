@@ -37,7 +37,6 @@ type TestComment = {
   };
   spoiler?: boolean;
   communityAddress?: string;
-  subplebbitAddress?: string;
   thumbnailUrl?: string;
   timestamp?: number;
   title?: string;
@@ -275,7 +274,7 @@ describe('CatalogRow', () => {
       },
       content: 'Archived thread',
       replyCount: 3,
-      subplebbitAddress: 'music-posting.eth',
+      communityAddress: 'music-posting.eth',
       title: 'Old thread',
     };
 
@@ -422,14 +421,14 @@ describe('CatalogRow', () => {
               {
                 author: { address: 'author-2', displayName: 'Bob' },
                 cid: 'reply-legacy',
-                subplebbitAddress: 'music-posting.eth',
+                communityAddress: 'music-posting.eth',
                 timestamp: 200,
               },
             ],
           },
         },
       },
-      subplebbitAddress: 'music-posting.eth',
+      communityAddress: 'music-posting.eth',
       timestamp: 100,
       title: 'Legacy title',
     };

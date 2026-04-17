@@ -66,7 +66,7 @@ export const ArchiveButton = ({ address, isInAllView, isInSubscriptionsView, isI
   const directories = useDirectories();
 
   const isInvalidArchiveContext = isInAllView || isInSubscriptionsView || isInModView;
-  const boardIdentifier = params.boardIdentifier || params.subplebbitAddress;
+  const boardIdentifier = params.boardIdentifier;
   const archiveBoardIdentifier = address ? getBoardPath(address, directories) : boardIdentifier ? getBoardPath(boardIdentifier, directories) : '';
   const archivePath = archiveBoardIdentifier ? `/${archiveBoardIdentifier}/archive` : '';
 
@@ -130,7 +130,7 @@ const VoteButton = () => {
   const directories = useDirectories();
 
   // Get the boardIdentifier from params (try boardIdentifier first, then communityAddress for backward compatibility)
-  const boardIdentifier = params.boardIdentifier || params.communityAddress;
+  const boardIdentifier = params.boardIdentifier;
 
   // Only render the vote button if we're on a directory board route
   if (!boardIdentifier || !isDirectoryBoard(boardIdentifier, directories)) {
@@ -400,7 +400,7 @@ export const MobileBoardButtons = () => {
 
   // Check if we should show the vote button (only for directory boards)
   const directories = useDirectories();
-  const boardIdentifier = params.boardIdentifier || params.communityAddress;
+  const boardIdentifier = params.boardIdentifier;
   const showVoteButton = boardIdentifier && isDirectoryBoard(boardIdentifier, directories);
 
   return (
@@ -507,7 +507,7 @@ export const PostPageStats = () => {
 
   const isThreadView = isPostPageView(location.pathname, params);
   const pageNumber = usePostPageNumber({
-    subplebbitAddress: communityAddress,
+    communityAddress,
     postCid,
     enabled: isThreadView,
   });
@@ -555,7 +555,7 @@ export const DesktopBoardButtons = () => {
 
   // Check if we should show the vote button (only for directory boards)
   const directories = useDirectories();
-  const boardIdentifier = params.boardIdentifier || params.communityAddress;
+  const boardIdentifier = params.boardIdentifier;
   const showVoteButton = boardIdentifier && isDirectoryBoard(boardIdentifier, directories);
 
   return (

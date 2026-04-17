@@ -134,7 +134,7 @@ if (typeof window !== 'undefined') {
 
 | useEffect pattern | Replace with |
 |-------------------|-------------|
-| Fetch data | `useComment`, `useFeed`, `useSubplebbit`, etc. from bitsocial-react-hooks |
+| Fetch data | `useComment`, `useFeed`, `useCommunity`, etc. from bitsocial-react-hooks |
 | Sync shared state | Zustand store in `src/stores/` |
 | Derive values from state | Calculate during render |
 | Boolean loading/error flags | `state` field from bitsocial-react-hooks, or state machine in Zustand |

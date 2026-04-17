@@ -4,7 +4,6 @@ type ParamsType = {
   accountCommentIndex?: string;
   boardIdentifier?: string;
   commentCid?: string;
-  subplebbitAddress?: string; // deprecated, kept for backward compatibility
 };
 
 export const isAllView = (pathname: string): boolean => {
@@ -28,13 +27,13 @@ export const isBoardView = (pathname: string, params: ParamsType): boolean => {
   ) {
     return false;
   }
-  const identifier = params.boardIdentifier || params.subplebbitAddress;
+  const identifier = params.boardIdentifier;
   return identifier ? decodedPathname.startsWith(`/${identifier}`) : false;
 };
 
 export const isCatalogView = (pathname: string, params: ParamsType): boolean => {
-  const { boardIdentifier, subplebbitAddress } = params;
-  const identifier = boardIdentifier || subplebbitAddress;
+  const { boardIdentifier } = params;
+  const identifier = boardIdentifier;
   const decodedPathname = decodeURIComponent(pathname);
 
   return (
@@ -66,13 +65,13 @@ export const isPendingPostView = (pathname: string, params: ParamsType): boolean
 
 export const isPostPageView = (pathname: string, params: ParamsType): boolean => {
   const decodedPathname = decodeURIComponent(pathname);
-  const identifier = params.boardIdentifier || params.subplebbitAddress;
+  const identifier = params.boardIdentifier;
   return identifier && params.commentCid ? decodedPathname.startsWith(`/${identifier}/thread/${params.commentCid}`) : false;
 };
 
 export const isSettingsView = (pathname: string, params: ParamsType): boolean => {
-  const { accountCommentIndex, boardIdentifier, commentCid, subplebbitAddress } = params;
-  const identifier = boardIdentifier || subplebbitAddress;
+  const { accountCommentIndex, boardIdentifier, commentCid } = params;
+  const identifier = boardIdentifier;
   const decodedPathname = decodeURIComponent(pathname);
   return (
     (identifier && commentCid && decodedPathname === `/${identifier}/thread/${commentCid}/settings`) || decodedPathname === `/pending/${accountCommentIndex}/settings`
@@ -84,8 +83,8 @@ export const isSubscriptionsView = (pathname: string, params: ParamsType): boole
 };
 
 export const isArchiveView = (pathname: string, params: ParamsType): boolean => {
-  const { boardIdentifier, subplebbitAddress } = params;
-  const identifier = boardIdentifier || subplebbitAddress;
+  const { boardIdentifier } = params;
+  const identifier = boardIdentifier;
   const decodedPathname = decodeURIComponent(pathname);
 
   return Boolean(identifier && isArchiveRoute(decodedPathname) && decodedPathname === `/${identifier}/archive`);

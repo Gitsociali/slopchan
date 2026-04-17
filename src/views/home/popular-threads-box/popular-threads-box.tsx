@@ -12,6 +12,7 @@ import LoadingEllipsis from '../../../components/loading-ellipsis';
 import BoxModal from '../box-modal';
 import { DirectoryCommunity, findDirectoryByAddress } from '../../../hooks/use-directories';
 import { useCommunityIdentifiers } from '../../../hooks/use-community-identifiers';
+import { getCommentCommunityAddress } from '../../../lib/utils/comment-utils';
 import { getBoardPath } from '../../../lib/utils/route-utils';
 import { removeMarkdown } from '../../../lib/utils/post-utils';
 
@@ -59,7 +60,6 @@ const PopularThreadCard = memo(
 const PopularThreadsBox = ({ directories, directoryAddresses }: { directories: DirectoryCommunity[]; directoryAddresses: string[] }) => {
   const { t } = useTranslation();
   const { showWorksafeContentOnly, showNsfwContentOnly } = usePopularThreadsOptionsStore();
-  const getCommentCommunityAddress = (post: Comment) => post.communityAddress || post.subplebbitAddress;
   const directoryCommunities = useCommunityIdentifiers(directoryAddresses);
   const { communities } = useCommunities({ communities: directoryCommunities });
 

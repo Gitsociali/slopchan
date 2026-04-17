@@ -19,8 +19,9 @@ import usePostNumberStore from '../../stores/use-post-number-store';
 import { useBoardFeedPageSize } from '../../hooks/use-board-feed-page-size';
 import useIsMobile from '../../hooks/use-is-mobile';
 import { getPageSlice } from '../../lib/utils/board-feed-pagination';
-import { getPageFromFeedPath, getSubplebbitAddress, isDirectoryBoard, normalizeMultiboardFeedPath, stripPageFromFeedPath } from '../../lib/utils/route-utils';
+import { getPageFromFeedPath, getCommunityAddress, isDirectoryBoard, normalizeMultiboardFeedPath, stripPageFromFeedPath } from '../../lib/utils/route-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
+import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
 import { getPretextItemSizeFromElement, resolveFeedVirtualizationMode } from '../../lib/utils/pretext-height-estimates';
 import ErrorDisplay from '../../components/error-display/error-display';
 import LoadingEllipsis from '../../components/loading-ellipsis';
@@ -114,7 +115,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
   const resolvedAddressFromUrl = useResolvedCommunityAddress();
   const communityAddress = useMemo(() => {
     if (boardIdentifierProp) {
-      return getSubplebbitAddress(boardIdentifierProp, directories);
+      return getCommunityAddress(boardIdentifierProp, directories);
     }
     return resolvedAddressFromUrl;
   }, [boardIdentifierProp, directories, resolvedAddressFromUrl]);
@@ -200,7 +201,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
     () =>
       recentAccountComments.filter((comment) => {
         const { cid, deleted, postCid, removed, state, timestamp } = comment || {};
-        const commentCommunityAddress = comment?.communityAddress || comment?.subplebbitAddress;
+        const commentCommunityAddress = getCommentCommunityAddress(comment);
         return (
           !deleted &&
           !removed &&

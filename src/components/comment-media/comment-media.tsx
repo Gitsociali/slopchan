@@ -438,7 +438,7 @@ const CommentMedia = ({
   const maxThumbnailSize = isMobile || isReply ? 125 : 250;
 
   if (linkWidth && linkHeight) {
-    // use the dimensions from the plebbit-js api
+    // use the dimensions from the pkc-js API
     let scale = Math.min(1, maxThumbnailSize / Math.max(linkWidth, linkHeight));
     displayWidth = `${linkWidth * scale}px`;
     displayHeight = `${linkHeight * scale}px`;

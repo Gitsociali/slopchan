@@ -13,16 +13,16 @@ describe('useFeedCacheStore', () => {
   it('accessFeed adds entries', () => {
     const { accessFeed } = useFeedCacheStore.getState();
 
-    accessFeed('plebbit/board', 'board');
+    accessFeed('pkc/board', 'board');
     const afterFirst = useFeedCacheStore.getState().cachedFeeds;
     expect(afterFirst.length).toBe(1);
-    expect(afterFirst[0].key).toBe('plebbit/board');
+    expect(afterFirst[0].key).toBe('pkc/board');
     expect(afterFirst[0].type).toBe('board');
 
-    accessFeed('plebbit/catalog', 'catalog');
+    accessFeed('pkc/catalog', 'catalog');
     const afterSecond = useFeedCacheStore.getState().cachedFeeds;
     expect(afterSecond.length).toBe(2);
-    expect(afterSecond.some((f) => f.key === 'plebbit/catalog' && f.type === 'catalog')).toBe(true);
+    expect(afterSecond.some((f) => f.key === 'pkc/catalog' && f.type === 'catalog')).toBe(true);
   });
 
   it('evicts least recently accessed when cache exceeds maxCacheSize (2)', () => {
@@ -45,7 +45,7 @@ describe('useFeedCacheStore', () => {
   it('clearFeeds empties cache', () => {
     const { accessFeed, clearFeeds } = useFeedCacheStore.getState();
 
-    accessFeed('plebbit/board', 'board');
+    accessFeed('pkc/board', 'board');
     accessFeed('other/board', 'catalog');
     expect(useFeedCacheStore.getState().cachedFeeds.length).toBe(2);
 

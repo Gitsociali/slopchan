@@ -1,5 +1,6 @@
 import { ChallengeVerification } from '@bitsocialnet/bitsocial-react-hooks';
 import { getFallbackDirectoriesData } from '../../hooks/use-directories';
+import { getCommentCommunityAddress } from './comment-utils';
 import { getBoardPath } from './route-utils';
 
 const resolveBoardIdentifier = (communityAddress: unknown): string => {
@@ -35,7 +36,7 @@ export const alertChallengeVerificationFailed = (challengeVerification: Challeng
     }
 
     const finalMessage = errorMessages.filter(Boolean).join(' ');
-    const publicationCommunityAddress = publication?.communityAddress || publication?.subplebbitAddress;
+    const publicationCommunityAddress = getCommentCommunityAddress(publication);
 
     alert(`Error from ${resolveBoardIdentifier(publicationCommunityAddress)}: ${finalMessage || 'unknown error'}`);
   } else {

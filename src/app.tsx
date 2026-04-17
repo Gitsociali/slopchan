@@ -15,9 +15,10 @@ import { useDirectories } from './hooks/use-directories';
 import { useCommunityIdentifier } from './hooks/use-community-identifiers';
 import { useResolvedCommunityAddress } from './hooks/use-resolved-community-address';
 import useSafeAccountComment from './hooks/use-safe-account-comment';
+import { getCommentCommunityAddress } from './lib/utils/comment-utils';
 import {
   getBoardPath,
-  getSubplebbitAddress,
+  getCommunityAddress,
   isBoardModRoute,
   isDirectoryBoard,
   isArchiveRoute,
@@ -72,9 +73,9 @@ const BoardLayout = () => {
   const isInSubscriptionsView = isSubscriptionsView(location.pathname, useParams());
   const isInModView = isModView(location.pathname);
   const directories = useDirectories();
-  const communityAddress = boardIdentifier ? getSubplebbitAddress(boardIdentifier, directories) : undefined;
+  const communityAddress = boardIdentifier ? getCommunityAddress(boardIdentifier, directories) : undefined;
   const pendingPost = useSafeAccountComment({ commentIndex: accountCommentIndex });
-  const pendingPostCommunityAddress = pendingPost?.communityAddress || pendingPost?.subplebbitAddress;
+  const pendingPostCommunityAddress = getCommentCommunityAddress(pendingPost);
   const { closeCreateBoardModal } = useCreateBoardModalStore();
   const isOnPostRoute = isPostRoute(location.pathname);
   const isOnPendingPostRoute = isPendingPostRoute(location.pathname);
@@ -178,7 +179,7 @@ const BoardLayout = () => {
 const GlobalLayout = () => {
   useTheme();
 
-  const { activeCid, parentNumber, threadNumber, threadCid, subplebbitAddress: activeCommunityAddress, closeModal, showReplyModal, scrollY } = useReplyModalStore();
+  const { activeCid, parentNumber, threadNumber, threadCid, communityAddress: activeCommunityAddress, closeModal, showReplyModal, scrollY } = useReplyModalStore();
 
   const location = useLocation();
   const isInSettingsView = location.pathname.endsWith('/settings');

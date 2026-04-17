@@ -163,6 +163,6 @@ Routes profiled: /route1, /route2, ...
 - If `__getReactScanReport` returns null, note "react-scan report unavailable" and rely on commit counts
 - If a route has no content or fails to load, note it in Info and move on
 - **Always stop tracing and close the browser when done, even on errors** — wrap your workflow in a try/finally mindset: if any step fails, still run `tracing-stop` and `close`
-- Board codes (`biz`, `pol`, `g`, etc.) map to subplebbit addresses via the app's directory
+- Board codes (`biz`, `pol`, `g`, etc.) map to community addresses via the app's directory
 - High commit counts without long tasks = frequent cheap rerenders — still worth fixing for efficiency
 - React-scan report pinpoints exact components — prioritize these in recommendations

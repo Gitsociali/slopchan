@@ -12,15 +12,15 @@ type ReplyModalShape = {
   parentNumber: number | null;
   scrollY: number;
   showReplyModal: boolean;
-  subplebbitAddress: string | null;
+  communityAddress: string | null;
   threadCid: string | null;
   threadNumber: number | null;
 };
 
 const testState = vi.hoisted(() => ({
   account: { author: { address: '0x123' } } as unknown,
-  accountComments: {} as Record<number, { subplebbitAddress?: string }>,
-  accountSubplebbitAddresses: [] as string[],
+  accountComments: {} as Record<number, { communityAddress?: string }>,
+  accountCommunityAddresses: [] as string[],
   closeCreateBoardModalMock: vi.fn(),
   directories: [
     { address: 'music-posting.eth', title: '/mu/ - Music', nsfw: false },
@@ -36,12 +36,12 @@ const testState = vi.hoisted(() => ({
     parentNumber: null,
     scrollY: 0,
     showReplyModal: false,
-    subplebbitAddress: null,
+    communityAddress: null,
     threadCid: null,
     threadNumber: null,
   } as ReplyModalShape,
-  resolvedSubplebbitAddress: undefined as string | undefined,
-  subplebbits: {} as Record<string, unknown>,
+  resolvedCommunityAddress: undefined as string | undefined,
+  communities: {} as Record<string, unknown>,
   useThemeMock: vi.fn(),
 }));
 
@@ -50,16 +50,15 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useAccountComment: ({ commentIndex }: { commentIndex?: number }) => (typeof commentIndex === 'number' ? testState.accountComments[commentIndex] : undefined),
   useCommunity: (options?: { communityAddress?: string; community?: { name?: string; publicKey?: string } }) => {
     const communityAddress = options?.communityAddress ?? options?.community?.name ?? options?.community?.publicKey;
-    return communityAddress ? testState.subplebbits[communityAddress] : undefined;
+    return communityAddress ? testState.communities[communityAddress] : undefined;
   },
   useAccountCommunities: () => ({
-    accountCommunities: Object.fromEntries(testState.accountSubplebbitAddresses.map((address) => [address, { address }])),
+    accountCommunities: Object.fromEntries(testState.accountCommunityAddresses.map((address) => [address, { address }])),
   }),
-  useSubplebbit: ({ subplebbitAddress }: { subplebbitAddress?: string }) => (subplebbitAddress ? testState.subplebbits[subplebbitAddress] : undefined),
 }));
 
-vi.mock('../hooks/use-account-subplebbit-addresses', () => ({
-  useAccountSubplebbitAddresses: () => testState.accountSubplebbitAddresses,
+vi.mock('../hooks/use-account-community-addresses', () => ({
+  useAccountCommunityAddresses: () => testState.accountCommunityAddresses,
 }));
 
 vi.mock('../hooks/use-directories', () => ({
@@ -72,8 +71,8 @@ vi.mock('../hooks/use-is-mobile', () => ({
   default: () => testState.isMobile,
 }));
 
-vi.mock('../hooks/use-resolved-subplebbit-address', () => ({
-  useResolvedSubplebbitAddress: () => testState.resolvedSubplebbitAddress,
+vi.mock('../hooks/use-resolved-community-address', () => ({
+  useResolvedCommunityAddress: () => testState.resolvedCommunityAddress,
 }));
 
 vi.mock('../hooks/use-theme', () => ({
@@ -255,7 +254,7 @@ describe('App', () => {
     latestLocation = '';
     testState.account = { author: { address: '0x123' } };
     testState.accountComments = {};
-    testState.accountSubplebbitAddresses = [];
+    testState.accountCommunityAddresses = [];
     testState.isMobile = false;
     testState.isSpecialEnabled = false;
     testState.replyModalState = {
@@ -264,12 +263,12 @@ describe('App', () => {
       parentNumber: null,
       scrollY: 0,
       showReplyModal: false,
-      subplebbitAddress: null,
+      communityAddress: null,
       threadCid: null,
       threadNumber: null,
     } as ReplyModalShape;
-    testState.resolvedSubplebbitAddress = undefined;
-    testState.subplebbits = {};
+    testState.resolvedCommunityAddress = undefined;
+    testState.communities = {};
     testState.useThemeMock.mockReset();
     testState.closeCreateBoardModalMock.mockReset();
     testState.initSnowMock.mockReset();
@@ -292,7 +291,7 @@ describe('App', () => {
       parentNumber: 12,
       scrollY: 32,
       showReplyModal: true,
-      subplebbitAddress: 'music-posting.eth',
+      communityAddress: 'music-posting.eth',
       threadCid: 'thread-cid',
       threadNumber: 99,
     } as ReplyModalShape;
@@ -333,7 +332,7 @@ describe('App', () => {
   });
 
   it('allows the global mod queue only when the account moderates at least one board', async () => {
-    testState.accountSubplebbitAddresses = ['music-posting.eth'];
+    testState.accountCommunityAddresses = ['music-posting.eth'];
     await renderApp('/mod/queue');
 
     expect(container.querySelector('[data-testid="mod-queue-view"]')).toBeTruthy();
@@ -341,7 +340,7 @@ describe('App', () => {
     act(() => root.unmount());
     root = createRoot(container);
 
-    testState.accountSubplebbitAddresses = [];
+    testState.accountCommunityAddresses = [];
     await renderApp('/mod/queue');
 
     expect(latestLocation).toBe('/not-allowed');
@@ -373,8 +372,8 @@ describe('App', () => {
   });
 
   it('enforces board-scoped mod queue access by account role', async () => {
-    testState.resolvedSubplebbitAddress = 'music-posting.eth';
-    testState.subplebbits = {
+    testState.resolvedCommunityAddress = 'music-posting.eth';
+    testState.communities = {
       'music-posting.eth': {
         state: 'succeeded',
         roles: {
@@ -389,7 +388,7 @@ describe('App', () => {
     act(() => root.unmount());
     root = createRoot(container);
 
-    testState.subplebbits = {
+    testState.communities = {
       'music-posting.eth': {
         state: 'succeeded',
         roles: {

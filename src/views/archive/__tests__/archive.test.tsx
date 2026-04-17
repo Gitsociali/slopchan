@@ -23,8 +23,8 @@ const testState = vi.hoisted(() => ({
   hasMore: false,
   isMobile: false,
   loadMoreMock: vi.fn(),
-  resolvedSubplebbitAddress: 'music-posting.eth' as string | undefined,
-  subplebbit: {
+  resolvedCommunityAddress: 'music-posting.eth' as string | undefined,
+  community: {
     error: undefined as Error | undefined,
     title: '/mu/ - Music',
   },
@@ -53,7 +53,7 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
     loadMore: testState.loadMoreMock,
     reset: vi.fn(),
   }),
-  useCommunity: () => testState.subplebbit,
+  useCommunity: () => testState.community,
 }));
 
 vi.mock('../../../hooks/use-directories', () => ({
@@ -62,8 +62,8 @@ vi.mock('../../../hooks/use-directories', () => ({
     directories.find((entry) => entry.address === address || entry.directoryCode === address || entry.title === address),
 }));
 
-vi.mock('../../../hooks/use-resolved-subplebbit-address', () => ({
-  useResolvedSubplebbitAddress: () => testState.resolvedSubplebbitAddress,
+vi.mock('../../../hooks/use-resolved-community-address', () => ({
+  useResolvedCommunityAddress: () => testState.resolvedCommunityAddress,
 }));
 
 vi.mock('../../../hooks/use-state-string', () => ({
@@ -71,7 +71,7 @@ vi.mock('../../../hooks/use-state-string', () => ({
 }));
 
 vi.mock('../../../hooks/use-stable-community', () => ({
-  useCommunityField: (_address: string | undefined, selector: (value: typeof testState.subplebbit) => unknown) => selector(testState.subplebbit),
+  useCommunityField: (_address: string | undefined, selector: (value: typeof testState.community) => unknown) => selector(testState.community),
 }));
 
 vi.mock('../../../hooks/use-is-mobile', () => ({
@@ -126,7 +126,7 @@ describe('Archive', () => {
     testState.feed = [];
     testState.hasMore = false;
     testState.isMobile = false;
-    testState.subplebbit = {
+    testState.community = {
       error: undefined,
       title: '/mu/ - Music',
     };

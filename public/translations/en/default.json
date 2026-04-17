@@ -138,7 +138,6 @@
   "bump_order": "Bump order",
   "creation_date": "Creation date",
   "sort_by": "Sort by",
-  "subplebbit_offline_info": "This board might be offline and publishing might fail",
   "posts_last_synced_info": "Posts last synced {{time}}, this board might be offline and publishing might fail.",
   "no_threads": "No threads",
   "hidden": "hidden",

@@ -125,7 +125,6 @@
   "bump_order": "Renditja e Bump",
   "creation_date": "Data e krijimit",
   "sort_by": "Rendit sipas",
-  "subplebbit_offline_info": "Ky forum mund të jetë offline dhe publikimi mund të dështojë",
   "posts_last_synced_info": "Postimet u sinkronizuan për herë të fundit {{time}}, ky forum mund të jetë offline dhe publikimi mund të dështojë.",
   "no_threads": "Nuk ka tema",
   "hidden": "i fshehur",
@@ -324,5 +323,6 @@
   "download": "shkarko",
   "checking_for_updates": "Duke kontrolluar për përditësime...",
   "new_version_found": "u gjet version i ri",
-  "site_legal_meta_license_text": "5chan është softuer i lirë dhe me burim të hapur nën GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan është softuer i lirë dhe me burim të hapur nën GPL-3.0-or-later.",
+  "community_offline_info": "Ky forum mund të jetë offline dhe publikimi mund të dështojë"
 }

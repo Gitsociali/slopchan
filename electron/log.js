@@ -3,18 +3,18 @@
 import util from 'util';
 import fs from 'fs-extra';
 import path from 'path';
-import EnvPaths from 'env-paths';
-const envPaths = EnvPaths('plebbit', { suffix: false });
+import { getPkcLogPath } from './pkc-paths.js';
+const logRootPath = getPkcLogPath();
 
 // previous version created a file instead of folder
 // we should remove this at some point
 try {
-  if (fs.lstatSync(envPaths.log).isFile()) {
-    fs.removeSync(envPaths.log);
+  if (fs.lstatSync(logRootPath).isFile()) {
+    fs.removeSync(logRootPath);
   }
 } catch (e) {}
 
-const logFilePath = path.join(envPaths.log, new Date().toISOString().substring(0, 7));
+const logFilePath = path.join(logRootPath, new Date().toISOString().substring(0, 7));
 fs.ensureFileSync(logFilePath);
 const logFile = fs.createWriteStream(logFilePath, { flags: 'a' });
 const writeLog = (...args) => {
@@ -54,4 +54,4 @@ console.debug = (...args) => {
 process.on('uncaughtException', console.error);
 process.on('unhandledRejection', console.error);
 
-console.log(envPaths);
+console.log({ logRootPath });

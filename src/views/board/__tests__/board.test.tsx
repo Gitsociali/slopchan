@@ -75,9 +75,7 @@ const getScopedAccountComments = (options?: { commentIndices?: number[]; communi
     const normalizedCommentIndices = options.commentIndices.filter((commentIndex) => Number.isInteger(commentIndex) && commentIndex >= 0);
     scopedComments = normalizedCommentIndices.map((commentIndex) => testState.accountComments[commentIndex]).filter(Boolean) as TestComment[];
   } else if (options?.communityAddress) {
-    scopedComments = scopedComments.filter(
-      (comment) => (comment.communityAddress || (comment as TestComment & { subplebbitAddress?: string }).subplebbitAddress) === options.communityAddress,
-    );
+    scopedComments = scopedComments.filter((comment) => comment.communityAddress === options.communityAddress);
   }
 
   if (typeof options?.newerThan === 'number') {

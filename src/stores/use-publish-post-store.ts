@@ -1,12 +1,12 @@
 import { ChallengeVerification, Comment, PublishCommentOptions } from '@bitsocialnet/bitsocial-react-hooks';
 import { create } from 'zustand';
 import { alertChallengeVerificationFailed } from '../lib/utils/challenge-utils';
+import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
 
 type SubmitState = {
   author?: any | undefined;
   displayName?: string | undefined;
   communityAddress: string | undefined;
-  subplebbitAddress: string | undefined;
   title: string | undefined;
   content: string | undefined;
   link: string | undefined;
@@ -20,7 +20,6 @@ const usePublishPostStore = create<SubmitState>((set) => ({
   author: undefined,
   displayName: undefined,
   communityAddress: undefined,
-  subplebbitAddress: undefined,
   title: undefined,
   content: undefined,
   link: undefined,
@@ -28,8 +27,8 @@ const usePublishPostStore = create<SubmitState>((set) => ({
   publishCommentOptions: {},
   setPublishPostStore: (comment: Comment) =>
     set(() => {
-      const { subplebbitAddress, author, content, link, spoiler, title } = comment;
-      const communityAddress = (comment as { communityAddress?: string }).communityAddress || subplebbitAddress;
+      const { author, content, link, spoiler, title } = comment;
+      const communityAddress = getCommentCommunityAddress(comment);
 
       const displayName = 'displayName' in comment ? comment.displayName || undefined : author?.displayName;
 
@@ -61,7 +60,6 @@ const usePublishPostStore = create<SubmitState>((set) => ({
         author: updatedAuthor,
         displayName,
         communityAddress,
-        subplebbitAddress: communityAddress,
         title,
         content,
         link,
@@ -73,7 +71,6 @@ const usePublishPostStore = create<SubmitState>((set) => ({
     set({
       author: undefined,
       displayName: undefined,
-      subplebbitAddress: undefined,
       communityAddress: undefined,
       title: undefined,
       content: undefined,

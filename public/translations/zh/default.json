@@ -125,7 +125,6 @@
   "bump_order": "顶贴顺序",
   "creation_date": "创造日期",
   "sort_by": "排序方式",
-  "subplebbit_offline_info": "此看板可能处于离线状态，发布可能会失败",
   "posts_last_synced_info": "帖子最后同步于 {{time}}，此看板可能处于离线状态，发布可能会失败。",
   "no_threads": "没有帖子",
   "hidden": "隐藏",
@@ -324,5 +323,6 @@
   "download": "下载",
   "checking_for_updates": "正在检查更新...",
   "new_version_found": "发现新版本",
-  "site_legal_meta_license_text": "5chan 是采用 GPL-3.0-or-later 的自由开源软件。"
+  "site_legal_meta_license_text": "5chan 是采用 GPL-3.0-or-later 的自由开源软件。",
+  "community_offline_info": "此看板可能处于离线状态，发布可能会失败"
 }

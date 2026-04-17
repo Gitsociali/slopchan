@@ -71,9 +71,9 @@ const main = async () => {
     const versionMetadataPath = path.join(installedAppPath, 'Contents', 'Resources', 'app', 'build', 'version.json');
     const sandboxHome = path.join(workspace, 'home');
     const updaterDebugLogPath = path.join(workspace, 'app-updater.log');
-    const plebbitDataPath = path.join(sandboxHome, 'Library', 'Application Support', 'plebbit');
-    await fs.promises.mkdir(plebbitDataPath, { recursive: true });
-    await fs.promises.writeFile(path.join(plebbitDataPath, 'auth-key'), 'e2e-auth-key', 'utf8');
+    const pkcDataPath = path.join(sandboxHome, 'Library', 'Application Support', 'pkc');
+    await fs.promises.mkdir(pkcDataPath, { recursive: true });
+    await fs.promises.writeFile(path.join(pkcDataPath, 'auth-key'), 'e2e-auth-key', 'utf8');
 
     const electronApp = await electron.launch({
       executablePath: path.join(installedAppPath, 'Contents', 'MacOS', '5chan'),

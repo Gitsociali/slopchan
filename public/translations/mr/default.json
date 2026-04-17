@@ -125,7 +125,6 @@
   "bump_order": "बंप क्रम",
   "creation_date": "निर्माण तारीख",
   "sort_by": "क्रमवार करा",
-  "subplebbit_offline_info": "हे बोर्ड ऑफलाइन असू शकते आणि प्रकाशन अयशस्वी होऊ शकते",
   "posts_last_synced_info": "पोस्ट शेवटी {{time}} सिंक केल्या गेल्या, हे बोर्ड ऑफलाइन असू शकते आणि प्रकाशन अयशस्वी होऊ शकते.",
   "no_threads": "कोणतेही थ्रेड्स नाहीत",
   "hidden": "लपवलेले",
@@ -324,5 +323,6 @@
   "download": "डाउनलोड",
   "checking_for_updates": "अपडेट तपासत आहे...",
   "new_version_found": "नवीन आवृत्ती सापडली",
-  "site_legal_meta_license_text": "5chan हे GPL-3.0-or-later अंतर्गत मुक्त आणि ओपन-सोर्स सॉफ्टवेअर आहे."
+  "site_legal_meta_license_text": "5chan हे GPL-3.0-or-later अंतर्गत मुक्त आणि ओपन-सोर्स सॉफ्टवेअर आहे.",
+  "community_offline_info": "हे बोर्ड ऑफलाइन असू शकते आणि प्रकाशन अयशस्वी होऊ शकते"
 }

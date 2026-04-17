@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
 import { normalizeBoardAddress } from '../hooks/use-directories';
+import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
 
 interface PostNumberState {
   // Post numbers are only unique within a board, so scope by canonical community address.
@@ -55,7 +56,7 @@ const usePostNumberStore = create<PostNumberState>((set) => ({
       for (const c of comments) {
         const num = c?.number;
         const cid = c?.cid;
-        const addr = c?.communityAddress || c?.subplebbitAddress;
+        const addr = getCommentCommunityAddress(c);
         if (typeof num !== 'number' || !cid || !addr) continue;
 
         const existingCid = nextNumberToCid[addr]?.[num];

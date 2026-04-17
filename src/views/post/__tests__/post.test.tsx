@@ -25,7 +25,6 @@ type TestComment = {
   replies?: unknown[];
   state?: string;
   communityAddress?: string;
-  subplebbitAddress?: string;
   timestamp?: number;
   title?: string;
 };
@@ -322,7 +321,7 @@ describe('Post', () => {
         },
         number: 777,
         replyCount: 0,
-        subplebbitAddress: 'music-posting.eth',
+        communityAddress: 'music-posting.eth',
         title: 'Archived thread',
       },
     };
@@ -380,7 +379,7 @@ describe('Post', () => {
       'legacy-cid': {
         cid: 'legacy-cid',
         state: 'updating',
-        subplebbitAddress: 'music-posting.eth',
+        communityAddress: 'music-posting.eth',
       },
     };
     testState.cachedComments = {
@@ -389,7 +388,7 @@ describe('Post', () => {
         content: 'cached body',
         number: 7,
         replyCount: 0,
-        subplebbitAddress: 'music-posting.eth',
+        communityAddress: 'music-posting.eth',
         title: 'Legacy thread',
       },
     };

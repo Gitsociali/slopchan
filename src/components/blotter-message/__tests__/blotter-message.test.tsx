@@ -28,14 +28,14 @@ describe('BlotterMessage', () => {
     container.remove();
   });
 
-  it('normalizes legacy subplebbit wording without rewriting plain community text', async () => {
+  it('renders manual messages unchanged', async () => {
     await act(async () => {
       root.render(
         createElement(BlotterMessage, {
           entry: {
             id: 'manual-1',
             kind: 'manual',
-            message: 'Moved a subplebbit into a community spotlight',
+            message: 'Moved a board into a community spotlight',
             timestamp: 1_710_000_000,
           },
         }),
@@ -43,18 +43,16 @@ describe('BlotterMessage', () => {
     });
 
     expect(container.textContent).toContain('Moved a board into a community spotlight');
-    expect(container.textContent).not.toContain('subplebbit');
-    expect(container.textContent).not.toContain('board spotlight');
   });
 
-  it('normalizes release one-liners after the version prefix', async () => {
+  it('renders release one-liners after the version prefix', async () => {
     await act(async () => {
       root.render(
         createElement(BlotterMessage, {
           entry: {
             id: 'release-1',
             kind: 'release',
-            message: 'v0.7.0: Fix subplebbit loading in plebchan',
+            message: 'v0.7.0: Fix community loading in 5chan',
             timestamp: 1_710_000_000,
             version: '0.7.0',
           },
@@ -63,6 +61,6 @@ describe('BlotterMessage', () => {
     });
 
     expect(container.querySelector('a')?.getAttribute('href')).toBe('https://github.com/bitsocialnet/5chan/releases/tag/v0.7.0');
-    expect(container.textContent).toContain('Fix board loading in 5chan');
+    expect(container.textContent).toContain('Fix community loading in 5chan');
   });
 });

@@ -37,7 +37,6 @@ type TestComment = {
     >;
   };
   state?: string;
-  subplebbitAddress?: string;
   thumbnailUrl?: string;
   timestamp?: number;
   updatedAt?: number;
@@ -417,13 +416,13 @@ const makeLegacyThread = (): TestComment => ({
             number: 2,
             parentCid: 'post-1',
             postCid: 'post-1',
-            subplebbitAddress: 'music-posting.eth',
+            communityAddress: 'music-posting.eth',
           },
         ],
       },
     },
   },
-  subplebbitAddress: 'music-posting.eth',
+  communityAddress: 'music-posting.eth',
   timestamp: 1_710_000_000,
 });
 
@@ -456,7 +455,7 @@ describe('post community address compatibility', () => {
     container.remove();
   });
 
-  it('renders desktop multiboard posts with only subplebbitAddress and still fetches replies', async () => {
+  it('renders desktop multiboard posts with only communityAddress and still fetches replies', async () => {
     await renderWithRoute(createElement(PostDesktop, { post: makeLegacyThread() }));
 
     const primaryRepliesComment = testState.replyComments.find((comment) => comment?.cid === 'post-1');
@@ -468,7 +467,7 @@ describe('post community address compatibility', () => {
     expect(container.textContent).toContain('reply-1');
   });
 
-  it('renders mobile multiboard posts with only subplebbitAddress and still fetches replies', async () => {
+  it('renders mobile multiboard posts with only communityAddress and still fetches replies', async () => {
     await renderWithRoute(createElement(PostMobile, { post: makeLegacyThread() }));
 
     const primaryRepliesComment = testState.replyComments.find((comment) => comment?.cid === 'post-1');

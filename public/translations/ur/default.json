@@ -125,7 +125,6 @@
   "bump_order": "بمپ آرڈر",
   "creation_date": "تخلیق کی تاریخ",
   "sort_by": "کے ذریعہ سارٹ کریں",
-  "subplebbit_offline_info": "یہ بورڈ آف لائن ہو سکتا ہے اور اشاعت ناکام ہو سکتی ہے",
   "posts_last_synced_info": "پوسٹس آخری بار {{time}} پر مطابقت پذیر ہوئیں، یہ بورڈ آف لائن ہو سکتا ہے اور اشاعت ناکام ہو سکتی ہے۔",
   "no_threads": "کوئی تھریڈز نہیں ہیں",
   "hidden": "چھپا ہوا",
@@ -324,5 +323,6 @@
   "download": "ڈاؤن لوڈ",
   "checking_for_updates": "اپڈیٹس چیک کیے جا رہے ہیں...",
   "new_version_found": "نیا ورژن ملا",
-  "site_legal_meta_license_text": "5chan GPL-3.0-or-later کے تحت آزاد اور اوپن سورس سافٹ ویئر ہے۔"
+  "site_legal_meta_license_text": "5chan GPL-3.0-or-later کے تحت آزاد اور اوپن سورس سافٹ ویئر ہے۔",
+  "community_offline_info": "یہ بورڈ آف لائن ہو سکتا ہے اور اشاعت ناکام ہو سکتی ہے"
 }

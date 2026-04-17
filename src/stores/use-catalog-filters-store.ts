@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
 import { commentMatchesPattern } from '../lib/utils/pattern-utils';
 
 interface FilterItem {
@@ -10,9 +11,6 @@ interface FilterItem {
   filteredCids: Set<string>;
   communityCounts: Map<string, number>;
   communityFilteredCids: Map<string, Set<string>>;
-  // legacy read/write compatibility
-  subplebbitCounts: Map<string, number>;
-  subplebbitFilteredCids: Map<string, Set<string>>;
   hide: boolean;
   top: boolean;
   color?: string;
@@ -38,11 +36,6 @@ interface CatalogFiltersStore {
   setSearchFilter: (text: string) => void;
   clearSearchFilter: () => void;
   resetCountsForCurrentCommunity: () => void;
-  // legacy compatibility aliases
-  currentSubplebbitAddress: string | null;
-  setCurrentSubplebbitAddress: (address: string | null) => void;
-  getFilteredCountForCurrentSubplebbit: () => number;
-  resetCountsForCurrentSubplebbit: () => void;
   matchedFilters: Map<string, string>;
   setMatchedFilter: (cid: string, color: string) => void;
   clearMatchedFilters: () => void;
@@ -55,22 +48,16 @@ type RawFilterItem = {
   filteredCids?: Set<string>;
   communityCounts?: Map<string, number>;
   communityFilteredCids?: Map<string, Set<string>>;
-  subplebbitCounts?: Map<string, number>;
-  subplebbitFilteredCids?: Map<string, Set<string>>;
   hide?: boolean;
   top?: boolean;
   color?: string;
 };
 
-const getCommentCommunityAddress = (comment: Comment): string | undefined => {
-  return ((comment as { communityAddress?: string }).communityAddress || (comment as { subplebbitAddress?: string }).subplebbitAddress) as string | undefined;
-};
-
 const toMap = (value: unknown, fallback: Map<any, any>): Map<string, any> => (value instanceof Map ? (value as Map<string, any>) : fallback);
 
 const normalizeFilterItem = (item: RawFilterItem): FilterItem => {
-  const communityCounts = toMap(item.communityCounts ?? item.subplebbitCounts, new Map<string, number>());
-  const communityFilteredCids = toMap(item.communityFilteredCids ?? item.subplebbitFilteredCids, new Map<string, Set<string>>());
+  const communityCounts = toMap(item.communityCounts, new Map<string, number>());
+  const communityFilteredCids = toMap(item.communityFilteredCids, new Map<string, Set<string>>());
 
   return {
     text: item.text || '',
@@ -79,8 +66,6 @@ const normalizeFilterItem = (item: RawFilterItem): FilterItem => {
     filteredCids: item.filteredCids || new Set<string>(),
     communityCounts,
     communityFilteredCids,
-    subplebbitCounts: communityCounts,
-    subplebbitFilteredCids: communityFilteredCids,
     hide: item.hide ?? true,
     top: item.top ?? false,
     color: item.color || '',
@@ -96,7 +81,6 @@ const useCatalogFiltersStore = create(
       filteredCount: 0,
       filteredCids: new Set<string>(),
       currentCommunityAddress: null,
-      currentSubplebbitAddress: null,
       matchedFilters: new Map<string, string>(),
       setMatchedFilter: (cid: string, color: string) => {
         set((state) => {
@@ -132,10 +116,6 @@ const useCatalogFiltersStore = create(
                   newItem.communityFilteredCids = new Map();
                 }
 
-                // keep legacy aliases in sync
-                newItem.subplebbitCounts = newItem.communityCounts;
-                newItem.subplebbitFilteredCids = newItem.communityFilteredCids;
-
                 if (!newItem.communityFilteredCids.has(address)) {
                   newItem.communityFilteredCids.set(address, new Set<string>());
                 }
@@ -148,7 +128,6 @@ const useCatalogFiltersStore = create(
 
               return {
                 currentCommunityAddress: address,
-                currentSubplebbitAddress: address,
                 filterItems: updatedFilterItems,
                 filteredCount: 0, // This will be recalculated below
               };
@@ -156,7 +135,6 @@ const useCatalogFiltersStore = create(
 
             return {
               currentCommunityAddress: address,
-              currentSubplebbitAddress: address,
             };
           });
 
@@ -164,10 +142,9 @@ const useCatalogFiltersStore = create(
           get().recalcFilteredCount();
           get().updateFilter();
         } else {
-          set({ currentCommunityAddress: address, currentSubplebbitAddress: address });
+          set({ currentCommunityAddress: address });
         }
       },
-      setCurrentSubplebbitAddress: (address: string | null) => get().setCurrentCommunityAddress(address),
       searchText: '',
       setSearchFilter: (text: string) => {
         set({ searchText: text });
@@ -199,8 +176,6 @@ const useCatalogFiltersStore = create(
               filteredCids: existingItem.filteredCids,
               communityCounts: existingItem.communityCounts,
               communityFilteredCids: existingItem.communityFilteredCids,
-              subplebbitCounts: existingItem.communityCounts,
-              subplebbitFilteredCids: existingItem.communityFilteredCids,
               color: newItem.color || '',
             };
           }
@@ -212,8 +187,6 @@ const useCatalogFiltersStore = create(
             filteredCids: new Set<string>(),
             communityCounts: new Map<string, number>(),
             communityFilteredCids: new Map<string, Set<string>>(),
-            subplebbitCounts: new Map<string, number>(),
-            subplebbitFilteredCids: new Map<string, Set<string>>(),
             color: newItem.color || '',
           };
         });
@@ -309,8 +282,6 @@ const useCatalogFiltersStore = create(
                 filteredCids: newItemFilteredCids,
                 communityCounts,
                 communityFilteredCids,
-                subplebbitCounts: communityCounts,
-                subplebbitFilteredCids: communityFilteredCids,
               };
 
               return { filterItems: newFilterItems };
@@ -352,7 +323,6 @@ const useCatalogFiltersStore = create(
 
         return filteredCount;
       },
-      getFilteredCountForCurrentSubplebbit: () => get().getFilteredCountForCurrentCommunity(),
       resetCountsForCurrentCommunity: () => {
         const currentCommunityAddress = get().currentCommunityAddress;
         if (!currentCommunityAddress) return;
@@ -368,10 +338,6 @@ const useCatalogFiltersStore = create(
             if (!newItem.communityFilteredCids || !(newItem.communityFilteredCids instanceof Map)) {
               newItem.communityFilteredCids = new Map();
             }
-
-            // keep legacy aliases in sync
-            newItem.subplebbitCounts = newItem.communityCounts;
-            newItem.subplebbitFilteredCids = newItem.communityFilteredCids;
 
             // Reset counts for current community
             newItem.communityCounts.set(currentCommunityAddress, 0);
@@ -389,7 +355,6 @@ const useCatalogFiltersStore = create(
         // Trigger filter reapplication to start counting again
         get().updateFilter();
       },
-      resetCountsForCurrentSubplebbit: () => get().resetCountsForCurrentCommunity(),
     }),
     {
       name: 'catalog-filters-storage',
@@ -405,17 +370,23 @@ const useCatalogFiltersStore = create(
       },
       deserialize: (persisted) => {
         const persistedObj = typeof persisted === 'string' ? JSON.parse(persisted) : persisted;
+        const persistedState =
+          persistedObj && typeof persistedObj === 'object' && 'state' in persistedObj ? (persistedObj as { state?: CatalogFiltersStore }).state : persistedObj;
 
-        if (persistedObj && persistedObj.filterItems) {
-          return {
-            ...persistedObj,
-            currentCommunityAddress: persistedObj.currentCommunityAddress || persistedObj.currentSubplebbitAddress || null,
-            currentSubplebbitAddress: persistedObj.currentCommunityAddress || persistedObj.currentSubplebbitAddress || null,
-            filterItems: persistedObj.filterItems.map((item: RawFilterItem) => ({
+        if (persistedState && typeof persistedState === 'object' && 'filterItems' in persistedState) {
+          const migratedState = {
+            ...persistedState,
+            filterItems: persistedState.filterItems.map((item: RawFilterItem) => ({
               ...normalizeFilterItem(item),
             })),
             filteredCount: 0,
           };
+
+          if (persistedObj && typeof persistedObj === 'object' && 'state' in persistedObj) {
+            return { ...persistedObj, state: migratedState };
+          }
+
+          return migratedState;
         }
 
         return persistedObj || persisted;

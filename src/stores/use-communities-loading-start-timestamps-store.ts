@@ -41,6 +41,4 @@ const useCommunitiesLoadingStartTimestamps = (communityAddresses?: string[]) => 
   return communitiesLoadingStartTimestamps;
 };
 
-export const useSubplebbitsLoadingStartTimestamps = useCommunitiesLoadingStartTimestamps;
-
 export default useCommunitiesLoadingStartTimestamps;

@@ -12,13 +12,13 @@
 }
 
 .floatingEmbed,
-.subplebbitAvatar {
+.communityAvatar {
   max-width: 250px;
   max-height: 250px;
   display: inline-flex;
 }
 
-.subplebbitAvatar {
+.communityAvatar {
   margin: 3px 20px 5px 20px;
 }
 
@@ -29,7 +29,7 @@
 }
 
 @media (max-width: 640px) {
-  .subplebbitAvatar {
+  .communityAvatar {
     max-width: 125px;
     max-height: 125px;
     margin: 3px 10px 5px 5px;

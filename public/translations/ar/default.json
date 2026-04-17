@@ -125,7 +125,6 @@
   "bump_order": "ترتيب الدفع",
   "creation_date": "تاريخ الإنشاء",
   "sort_by": "ترتيب حسب",
-  "subplebbit_offline_info": "قد يكون هذا المنتدى غير متصل وقد تفشل عملية النشر",
   "posts_last_synced_info": "تمت مزامنة المشاركات آخر مرة {{time}}، قد يكون هذا المنتدى غير متصل وقد تفشل عملية النشر.",
   "no_threads": "لا توجد مواضيع",
   "hidden": "مخفي",
@@ -324,5 +323,6 @@
   "download": "تحميل",
   "checking_for_updates": "جاري التحقق من التحديثات...",
   "new_version_found": "تم العثور على إصدار جديد",
-  "site_legal_meta_license_text": "5chan هو برنامج مجاني ومفتوح المصدر بموجب GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan هو برنامج مجاني ومفتوح المصدر بموجب GPL-3.0-or-later.",
+  "community_offline_info": "قد يكون هذا المنتدى غير متصل وقد تفشل عملية النشر"
 }

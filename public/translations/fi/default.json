@@ -125,7 +125,6 @@
   "bump_order": "Bump-järjestys",
   "creation_date": "Luomispäivämäärä",
   "sort_by": "Järjestä",
-  "subplebbit_offline_info": "Tämä taulu voi olla offline-tilassa ja julkaisu voi epäonnistua",
   "posts_last_synced_info": "Viestit viimeksi synkronoitu {{time}}, tämä taulu voi olla offline-tilassa ja julkaisu voi epäonnistua.",
   "no_threads": "Ei ketjuja",
   "hidden": "piilotettu",
@@ -324,5 +323,6 @@
   "download": "lataa",
   "checking_for_updates": "Tarkistetaan päivityksiä...",
   "new_version_found": "uusi versio löytyi",
-  "site_legal_meta_license_text": "5chan on vapaata ja avoimen lähdekoodin ohjelmistoa GPL-3.0-or-later -lisenssillä."
+  "site_legal_meta_license_text": "5chan on vapaata ja avoimen lähdekoodin ohjelmistoa GPL-3.0-or-later -lisenssillä.",
+  "community_offline_info": "Tämä taulu voi olla offline-tilassa ja julkaisu voi epäonnistua"
 }

@@ -18,7 +18,7 @@ const flushEffects = async (count = 3) => {
   }
 };
 
-describe('useSubplebbitsLoadingStartTimestamps', () => {
+describe('useCommunitiesLoadingStartTimestamps', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2024-01-01T00:00:00Z'));
@@ -36,10 +36,10 @@ describe('useSubplebbitsLoadingStartTimestamps', () => {
   });
 
   it('stores first-seen timestamps per board and only adds new addresses on rerender', async () => {
-    const useSubplebbitsLoadingStartTimestamps = (await import('../use-subplebbits-loading-start-timestamps-store')).default;
+    const useCommunitiesLoadingStartTimestamps = (await import('../use-communities-loading-start-timestamps-store')).default;
 
     const HookHarness = ({ addresses }: { addresses?: string[] }) => {
-      const value = useSubplebbitsLoadingStartTimestamps(addresses);
+      const value = useCommunitiesLoadingStartTimestamps(addresses);
       React.useLayoutEffect(() => {
         latestValue = value;
       }, [value]);

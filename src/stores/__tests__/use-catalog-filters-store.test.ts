@@ -12,7 +12,6 @@ vi.mock('../../lib/utils/pattern-utils', () => ({
 }));
 
 type CatalogFiltersStoreModule = typeof import('../use-catalog-filters-store');
-type CatalogFiltersStore = Awaited<ReturnType<typeof loadStore>>;
 
 const STORAGE_KEY = 'catalog-filters-storage';
 
@@ -28,8 +27,8 @@ const createFilterItem = (text: string, overrides: Record<string, unknown> = {})
   enabled: true,
   count: 0,
   filteredCids: new Set<string>(),
-  subplebbitCounts: new Map<string, number>(),
-  subplebbitFilteredCids: new Map<string, Set<string>>(),
+  communityCounts: new Map<string, number>(),
+  communityFilteredCids: new Map<string, Set<string>>(),
   hide: true,
   top: false,
   color: '',
@@ -73,7 +72,7 @@ describe('useCatalogFiltersStore', () => {
       color: 'red',
     });
     expect(filterItems[0].filteredCids).toEqual(new Set());
-    expect(filterItems[0].subplebbitCounts).toEqual(new Map());
+    expect(filterItems[0].communityCounts).toEqual(new Map());
     expect(filterItems[1]).toMatchObject({
       text: 'news',
       enabled: false,
@@ -92,17 +91,17 @@ describe('useCatalogFiltersStore', () => {
     const useCatalogFiltersStore = await loadStore();
 
     useCatalogFiltersStore.getState().setFilterItems([createFilterItem('spam', { hide: true }), createFilterItem('highlight', { hide: false, top: true })] as never);
-    useCatalogFiltersStore.getState().setCurrentSubplebbitAddress('music.eth');
+    useCatalogFiltersStore.getState().setCurrentCommunityAddress('music.eth');
     useCatalogFiltersStore.getState().setSearchFilter('topic');
 
     const filter = useCatalogFiltersStore.getState().filter;
     expect(filter).toBeTypeOf('function');
 
-    expect(filter?.({ cid: 'cid-1', content: 'topic spam', subplebbitAddress: 'music.eth' } as never)).toBe(false);
-    expect(filter?.({ cid: 'cid-1', content: 'topic spam', subplebbitAddress: 'music.eth' } as never)).toBe(false);
-    expect(filter?.({ cid: 'cid-2', content: 'topic spam', subplebbitAddress: 'tech.eth' } as never)).toBe(false);
-    expect(filter?.({ cid: 'cid-3', content: 'topic highlight', subplebbitAddress: 'music.eth' } as never)).toBe(true);
-    expect(filter?.({ cid: 'cid-4', content: 'ordinary update', subplebbitAddress: 'music.eth' } as never)).toBe(false);
+    expect(filter?.({ cid: 'cid-1', content: 'topic spam', communityAddress: 'music.eth' } as never)).toBe(false);
+    expect(filter?.({ cid: 'cid-1', content: 'topic spam', communityAddress: 'music.eth' } as never)).toBe(false);
+    expect(filter?.({ cid: 'cid-2', content: 'topic spam', communityAddress: 'tech.eth' } as never)).toBe(false);
+    expect(filter?.({ cid: 'cid-3', content: 'topic highlight', communityAddress: 'music.eth' } as never)).toBe(true);
+    expect(filter?.({ cid: 'cid-4', content: 'ordinary update', communityAddress: 'music.eth' } as never)).toBe(false);
 
     vi.runAllTimers();
 
@@ -110,16 +109,16 @@ describe('useCatalogFiltersStore', () => {
     expect(testState.commentMatchesPatternMock).toHaveBeenCalled();
     expect(state.filterItems[0].count).toBe(1);
     expect(state.filterItems[0].filteredCids).toEqual(new Set(['cid-1']));
-    expect(state.filterItems[0].subplebbitCounts.get('music.eth')).toBe(1);
+    expect(state.filterItems[0].communityCounts.get('music.eth')).toBe(1);
     expect(state.filteredCount).toBe(1);
-    expect(state.getFilteredCountForCurrentSubplebbit()).toBe(1);
+    expect(state.getFilteredCountForCurrentCommunity()).toBe(1);
   });
 
   it('preserves counts for unchanged filters when saving and clears matched filters', async () => {
     const useCatalogFiltersStore = await loadStore();
 
     useCatalogFiltersStore.getState().setFilterItems([createFilterItem('spam')] as never);
-    useCatalogFiltersStore.getState().setCurrentSubplebbitAddress('music.eth');
+    useCatalogFiltersStore.getState().setCurrentCommunityAddress('music.eth');
     useCatalogFiltersStore.getState().incrementFilterCount(0, 'cid-1', 'music.eth');
     useCatalogFiltersStore.getState().setMatchedFilter('cid-1', 'red');
 
@@ -131,7 +130,7 @@ describe('useCatalogFiltersStore', () => {
     expect(filterItems).toHaveLength(2);
     expect(filterItems[0].text).toBe('spam');
     expect(filterItems[0].count).toBe(1);
-    expect(filterItems[0].subplebbitCounts.get('music.eth')).toBe(1);
+    expect(filterItems[0].communityCounts.get('music.eth')).toBe(1);
     expect(filterItems[0].color).toBe('orange');
     expect(filterItems[1]).toMatchObject({
       text: 'eggs',
@@ -139,7 +138,7 @@ describe('useCatalogFiltersStore', () => {
       enabled: false,
       top: true,
     });
-    expect(filterItems[1].subplebbitCounts).toEqual(new Map());
+    expect(filterItems[1].communityCounts).toEqual(new Map());
     expect(filteredCids).toEqual(new Set());
     expect(matchedFilters.size).toBe(0);
   });
@@ -148,23 +147,58 @@ describe('useCatalogFiltersStore', () => {
     const useCatalogFiltersStore = await loadStore();
 
     useCatalogFiltersStore.getState().setFilterItems([createFilterItem('spam')] as never);
-    useCatalogFiltersStore.getState().setCurrentSubplebbitAddress('music.eth');
+    useCatalogFiltersStore.getState().setCurrentCommunityAddress('music.eth');
     useCatalogFiltersStore.getState().incrementFilterCount(0, 'cid-1', 'music.eth');
     useCatalogFiltersStore.getState().incrementFilterCount(0, 'cid-2', 'tech.eth');
 
-    expect(useCatalogFiltersStore.getState().getFilteredCountForCurrentSubplebbit()).toBe(1);
+    expect(useCatalogFiltersStore.getState().getFilteredCountForCurrentCommunity()).toBe(1);
 
-    useCatalogFiltersStore.getState().setCurrentSubplebbitAddress('tech.eth');
-    expect(useCatalogFiltersStore.getState().currentSubplebbitAddress).toBe('tech.eth');
-    expect(useCatalogFiltersStore.getState().getFilteredCountForCurrentSubplebbit()).toBe(1);
+    useCatalogFiltersStore.getState().setCurrentCommunityAddress('tech.eth');
+    expect(useCatalogFiltersStore.getState().currentCommunityAddress).toBe('tech.eth');
+    expect(useCatalogFiltersStore.getState().getFilteredCountForCurrentCommunity()).toBe(1);
 
-    useCatalogFiltersStore.getState().resetCountsForCurrentSubplebbit();
-    expect(useCatalogFiltersStore.getState().getFilteredCountForCurrentSubplebbit()).toBe(0);
+    useCatalogFiltersStore.getState().resetCountsForCurrentCommunity();
+    expect(useCatalogFiltersStore.getState().getFilteredCountForCurrentCommunity()).toBe(0);
 
-    useCatalogFiltersStore.getState().setCurrentSubplebbitAddress('music.eth');
-    expect(useCatalogFiltersStore.getState().getFilteredCountForCurrentSubplebbit()).toBe(1);
+    useCatalogFiltersStore.getState().setCurrentCommunityAddress('music.eth');
+    expect(useCatalogFiltersStore.getState().getFilteredCountForCurrentCommunity()).toBe(1);
 
     useCatalogFiltersStore.getState().clearSearchFilter();
     expect(useCatalogFiltersStore.getState().searchText).toBe('');
+  });
+
+  it('rehydrates filter items from the persisted zustand wrapper', async () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        state: {
+          filterItems: [
+            {
+              text: 'spam',
+              enabled: false,
+              hide: false,
+              top: true,
+            },
+          ],
+        },
+        version: 0,
+      }),
+    );
+
+    const useCatalogFiltersStore = await loadStore();
+
+    expect(useCatalogFiltersStore.getState().filterItems).toEqual([
+      {
+        text: 'spam',
+        enabled: false,
+        count: 0,
+        filteredCids: new Set(),
+        communityCounts: new Map(),
+        communityFilteredCids: new Map(),
+        hide: false,
+        top: true,
+        color: '',
+      },
+    ]);
   });
 });

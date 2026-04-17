@@ -300,17 +300,13 @@ type PostMenuMobileProps = {
   editMenuPost: Comment;
 };
 
-type PostMenuLegacyAddress = Pick<PostMenuProps, 'subplebbitAddress'> & { communityAddress?: string };
-
 const PostMenuMobile = ({ postMenu, editMenuPost }: PostMenuMobileProps) => {
-  const { authorAddress, cid, deleted, link, linkHeight, linkWidth, parentCid, postCid, removed, thumbnailUrl } = postMenu || {};
-  const postMenuLegacyAddress = (postMenu as PostMenuLegacyAddress) || {};
-  const resolvedCommunityAddress = postMenuLegacyAddress.communityAddress || postMenuLegacyAddress.subplebbitAddress;
+  const { authorAddress, cid, communityAddress, deleted, link, linkHeight, linkWidth, parentCid, postCid, removed, thumbnailUrl } = postMenu || {};
   const { isAccountMod, isAccountCommentAuthor } = useEditCommentPrivileges({
     commentAuthorAddress: authorAddress || '',
-    subplebbitAddress: resolvedCommunityAddress || '',
+    communityAddress: communityAddress || '',
   });
-  const pseudonymityMode = useBoardPseudonymityMode(resolvedCommunityAddress);
+  const pseudonymityMode = useBoardPseudonymityMode(communityAddress);
   const canAttemptAuthorDelete = pseudonymityMode !== undefined && pseudonymityMode !== 'none';
   const commentMediaInfo = getCommentMediaInfo(link || '', thumbnailUrl || '', linkWidth || 0, linkHeight || 0);
   const { thumbnail, type, url } = commentMediaInfo || {};
@@ -365,9 +361,9 @@ const PostMenuMobile = ({ postMenu, editMenuPost }: PostMenuMobileProps) => {
               <FloatingFocusManager context={context} modal={false}>
                 <div className={styles.postMenu} ref={refs.setFloating} style={floatingStyles} aria-labelledby={headingId} {...getFloatingProps()}>
                   <ReportPostButton onClose={handleClose} />
-                  {cid && resolvedCommunityAddress && <HidePostButton cid={cid} isReply={!!parentCid} postCid={postCid} onClose={handleClose} />}
+                  {cid && communityAddress && <HidePostButton cid={cid} isReply={!!parentCid} postCid={postCid} onClose={handleClose} />}
                   {(isAccountCommentAuthor || canAttemptAuthorDelete) && cid && <DeletePostButton post={editMenuPost} onClose={handleClose} />}
-                  {cid && resolvedCommunityAddress && <CopyLinkButton cid={cid} communityAddress={resolvedCommunityAddress} linkType='thread' onClose={handleClose} />}
+                  {cid && communityAddress && <CopyLinkButton cid={cid} communityAddress={communityAddress} linkType='thread' onClose={handleClose} />}
                   {cid && <CopyContentIdButton cid={cid} onClose={handleClose} />}
                   {authorAddress && <CopyUserIdButton address={authorAddress} onClose={handleClose} />}
                   {link && isValidURL(link) && (type === 'image' || type === 'gif' || thumbnail) && url && <ImageSearchButtons url={url} onClose={handleClose} />}

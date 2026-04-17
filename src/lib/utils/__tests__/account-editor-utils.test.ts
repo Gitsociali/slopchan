@@ -9,9 +9,7 @@ describe('buildEditableAccountJson', () => {
       author: { address: '0x123', shortAddress: '0x1...3', avatar: { url: 'https://example.com' } },
       pkc: { someOption: true },
       pkcReactOptions: { foo: 'baz' },
-      plebbit: { someOption: true },
       karma: 42,
-      plebbitReactOptions: { foo: 'bar' },
       unreadNotificationCount: 5,
     };
     const result = JSON.parse(buildEditableAccountJson(account));
@@ -21,9 +19,7 @@ describe('buildEditableAccountJson', () => {
     expect(result.account.author.avatar).toBeUndefined();
     expect(result.account.pkc).toBeUndefined();
     expect(result.account.pkcReactOptions).toBeUndefined();
-    expect(result.account.plebbit).toBeUndefined();
     expect(result.account.karma).toBeUndefined();
-    expect(result.account.plebbitReactOptions).toBeUndefined();
     expect(result.account.unreadNotificationCount).toBeUndefined();
   });
 

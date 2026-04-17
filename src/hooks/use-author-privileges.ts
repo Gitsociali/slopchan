@@ -4,17 +4,15 @@ import { useCommunityField } from './use-stable-community';
 
 interface AuthorPrivilegesProps {
   commentAuthorAddress: string;
-  subplebbitAddress?: string;
   communityAddress?: string;
   postCid?: string;
 }
 
-const useAuthorPrivileges = ({ commentAuthorAddress, subplebbitAddress, communityAddress }: AuthorPrivilegesProps) => {
+const useAuthorPrivileges = ({ commentAuthorAddress, communityAddress }: AuthorPrivilegesProps) => {
   const account = useAccount();
-  const targetAddress = communityAddress ?? subplebbitAddress;
   const accountAuthorAddress = account?.author?.address;
   // Only subscribe to roles field to avoid rerenders from updatingState changes
-  const roles = useCommunityField(targetAddress, (community) => community?.roles);
+  const roles = useCommunityField(communityAddress, (community) => community?.roles);
   const { isCommentAuthorMod, isAccountMod, isAccountCommentAuthor, commentAuthorRole, accountAuthorRole } = useMemo(() => {
     const commentAuthorRole = roles?.[commentAuthorAddress]?.role;
     const isCommentAuthorMod = commentAuthorRole === 'admin' || commentAuthorRole === 'owner' || commentAuthorRole === 'moderator';

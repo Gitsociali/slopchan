@@ -1,5 +1,6 @@
 import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
 import communitiesStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/communities';
+import { getCommentCommunityAddress } from './comment-utils';
 
 type CommunityLike = {
   roles?: Record<string, { role?: string }>;
@@ -142,20 +143,20 @@ export const displayNameMatchesPattern = (comment: Comment, pattern: string): bo
  * @returns True if the user has the specified role, false otherwise
  */
 export const userHasRole = (comment: Comment, role: string): boolean => {
-  const communityAddress = (comment as { communityAddress?: string }).communityAddress ?? comment?.subplebbitAddress;
+  const communityAddress = getCommentCommunityAddress(comment);
 
   if (!role || !comment?.author?.address || !communityAddress) {
     return false;
   }
 
   const communities = communitiesStore.getState().communities;
-  const subplebbit = communities[communityAddress] as CommunityLike | undefined;
+  const community = communities[communityAddress] as CommunityLike | undefined;
 
-  if (!subplebbit?.roles) {
+  if (!community?.roles) {
     return false;
   }
 
-  const userRole = subplebbit.roles[comment.author.address]?.role;
+  const userRole = community.roles[comment.author.address]?.role;
 
   // Handle different role names (moderator/mod)
   if ((role.toLowerCase() === 'moderator' || role.toLowerCase() === 'mod') && userRole === 'moderator') {

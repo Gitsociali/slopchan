@@ -70,7 +70,7 @@ const DirectoryModal = () => {
             <p>
               Directory assignments will use gasless pubsub voting—communities vote, highest-voted board wins the slot. <strong>Voting pages = discovery:</strong> Each
               directory&apos;s voting page lists all competing boards (even low-voted ones), giving visibility without winning or dev approval. See{' '}
-              <a href='https://github.com/plebbit/plebbit-js/issues/25' target='_blank' rel='noopener noreferrer'>
+              <a href='https://github.com/pkcprotocol/pkc-js/issues/25' target='_blank' rel='noopener noreferrer'>
                 design draft
               </a>
               .

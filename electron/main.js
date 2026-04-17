@@ -5,11 +5,11 @@ import { downloadAndInstallUpdate } from './app-updater.js';
 import isDev from 'electron-is-dev';
 import fs from 'fs';
 import path from 'path';
-import EnvPaths from 'env-paths';
 import startIpfs from './start-ipfs.js';
-import './start-plebbit-rpc.js';
+import './start-pkc-rpc.js';
 import { URL, fileURLToPath } from 'node:url';
 import contextMenu from 'electron-context-menu';
+import { getPkcDataPath } from './pkc-paths.js';
 
 // Determine __filename and dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -39,10 +39,10 @@ startIpfs.onError = (error) => {
   }
 };
 
-// send plebbit rpc auth key to renderer
-const plebbitDataPath = !isDev ? EnvPaths('plebbit', { suffix: false }).data : path.join(dirname, '..', '.plebbit');
-const plebbitRpcAuthKey = fs.readFileSync(path.join(plebbitDataPath, 'auth-key'), 'utf8');
-ipcMain.on('get-plebbit-rpc-auth-key', (event) => event.reply('plebbit-rpc-auth-key', plebbitRpcAuthKey));
+// Send the local PKC RPC auth key to the isolated renderer bridge.
+const pkcDataPath = getPkcDataPath({ isDev, projectRoot: path.join(dirname, '..') });
+const pkcRpcAuthKey = fs.readFileSync(path.join(pkcDataPath, 'auth-key'), 'utf8');
+ipcMain.on('get-pkc-rpc-auth-key', (event) => event.reply('pkc-rpc-auth-key', pkcRpcAuthKey));
 
 // use common user agent instead of electron so img, video, audio, iframe elements don't get blocked
 // https://www.whatismybrowser.com/guides/the-latest-version/chrome

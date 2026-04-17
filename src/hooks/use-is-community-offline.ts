@@ -35,11 +35,9 @@ const useIsCommunityOffline = (community?: Community | undefined) => {
     ? 'downloading board...'
     : updatedAt
       ? isOffline && t('posts_last_synced_info', { time: getFormattedTimeAgo(updatedAt), interpolation: { escapeValue: false } })
-      : t('subplebbit_offline_info');
+      : t('community_offline_info');
 
   return { isOffline: !isOnline && isOffline, isOnlineStatusLoading: !isOnline && isLoading, offlineIconClass, offlineTitle };
 };
-
-export const useIsSubplebbitOffline = useIsCommunityOffline;
 
 export default useIsCommunityOffline;

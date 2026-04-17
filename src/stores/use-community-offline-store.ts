@@ -49,10 +49,4 @@ const useCommunityOfflineStore = create<CommunityOfflineStore>((set) => ({
   },
 }));
 
-/**
- * Back-compat exports for old naming.
- */
-export const useSubplebbitOfflineStore = useCommunityOfflineStore;
-export const useCommunityOfflineStoreForLegacy = useCommunityOfflineStore;
-
 export default useCommunityOfflineStore;

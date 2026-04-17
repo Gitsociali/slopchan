@@ -26,14 +26,14 @@ describe('challenge-utils', () => {
         challengeSuccess: false,
         reason: 'try again later',
       } as never,
-      { subplebbitAddress: 'business-and-finance.bso' },
+      { communityAddress: 'business-and-finance.bso' },
     );
 
     expect(warnSpy).toHaveBeenCalledWith(
       'Challenge Verification Failed:',
       expect.objectContaining({ challengeSuccess: false }),
       'Publication:',
-      expect.objectContaining({ subplebbitAddress: 'business-and-finance.bso' }),
+      expect.objectContaining({ communityAddress: 'business-and-finance.bso' }),
     );
     expect(alertMock).toHaveBeenCalledWith('Error from /biz/: invalid captcha try again later');
   });
@@ -44,13 +44,13 @@ describe('challenge-utils', () => {
         challengeErrors: ['first error', 'second error'],
         challengeSuccess: false,
       } as never,
-      { subplebbitAddress: 'unknown-board.eth' },
+      { communityAddress: 'unknown-board.eth' },
     );
 
     expect(alertMock).toHaveBeenCalledWith('Error from unknown-board.eth: first error second error');
   });
 
-  it('uses communityAddress when the upgraded publication no longer exposes subplebbitAddress', () => {
+  it('uses communityAddress when the upgraded publication no longer exposes communityAddress', () => {
     alertChallengeVerificationFailed(
       {
         challengeErrors: ['first error'],
@@ -76,7 +76,7 @@ describe('challenge-utils', () => {
   });
 
   it('logs successful challenge verification instead of alerting', () => {
-    alertChallengeVerificationFailed({ challengeSuccess: true } as never, { subplebbitAddress: 'business-and-finance.bso' });
+    alertChallengeVerificationFailed({ challengeSuccess: true } as never, { communityAddress: 'business-and-finance.bso' });
 
     expect(logSpy).toHaveBeenCalledWith('Challenge verification succeeded:', expect.objectContaining({ challengeSuccess: true }));
     expect(alertMock).not.toHaveBeenCalled();

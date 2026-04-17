@@ -53,7 +53,7 @@ describe('useQuotedByMap', () => {
         cid: 'reply-cid',
         content: 'replying to >>1',
         state: 'succeeded',
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
       },
     ];
 
@@ -85,7 +85,7 @@ describe('useQuotedByMap', () => {
         content: 'replying to >>1',
         number: 42,
         state: 'succeeded',
-        subplebbitAddress: 'music.bso',
+        communityAddress: 'music.bso',
       },
     ];
 

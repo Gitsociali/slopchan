@@ -6,7 +6,7 @@ import {
   getFeedCacheKey,
   getFeedType,
   getPageFromFeedPath,
-  getSubplebbitAddress,
+  getCommunityAddress,
   isArchiveRoute,
   isBoardModRoute,
   isDirectoryBoard,
@@ -44,9 +44,9 @@ describe('directory mapping helpers', () => {
     expect(getBoardPath('12D3KooWQdQ6TkVA1Xe9zzaFP6vXBgsLeMAewpLpLwbsAYKivnQy', communities)).toBe('mu');
     expect(getBoardPath('unknown.example', communities)).toBe('unknown.example');
 
-    expect(getSubplebbitAddress('biz', communities)).toBe('business.eth');
-    expect(getSubplebbitAddress('b', communities)).toBe('random.eth');
-    expect(getSubplebbitAddress('unknown.example', communities)).toBe('unknown.example');
+    expect(getCommunityAddress('biz', communities)).toBe('business.eth');
+    expect(getCommunityAddress('b', communities)).toBe('random.eth');
+    expect(getCommunityAddress('unknown.example', communities)).toBe('unknown.example');
   });
 
   it('compares aliases and directory identifiers correctly', () => {

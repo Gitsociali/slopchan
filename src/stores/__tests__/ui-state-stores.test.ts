@@ -47,21 +47,21 @@ describe('ui state stores', () => {
     expect(localStorage.getItem('expanded-media-store')).toContain('unmuteExpandedVideoSound');
   });
 
-  it('useSubplebbitOfflineStore merges updates and clears initialLoad after the timeout', async () => {
+  it('useCommunityOfflineStore merges updates and clears initialLoad after the timeout', async () => {
     vi.useFakeTimers();
 
-    const store = (await import('../use-subplebbit-offline-store')).default;
+    const store = (await import('../use-community-offline-store')).default;
 
-    store.getState().initializesubplebbitOfflineState('music-posting.eth');
-    expect(store.getState().subplebbitOfflineState['music-posting.eth']).toEqual({ initialLoad: true });
+    store.getState().initializeCommunityOfflineState('music-posting.eth');
+    expect(store.getState().communityOfflineState['music-posting.eth']).toEqual({ initialLoad: true });
 
-    store.getState().setSubplebbitOfflineState('music-posting.eth', {
+    store.getState().setCommunityOfflineState('music-posting.eth', {
       state: 'offline',
       updatedAt: 123,
       updatingState: 'recovering',
     });
 
-    expect(store.getState().subplebbitOfflineState['music-posting.eth']).toEqual({
+    expect(store.getState().communityOfflineState['music-posting.eth']).toEqual({
       initialLoad: true,
       state: 'offline',
       updatedAt: 123,
@@ -70,7 +70,7 @@ describe('ui state stores', () => {
 
     vi.advanceTimersByTime(30_000);
 
-    expect(store.getState().subplebbitOfflineState['music-posting.eth']).toEqual({
+    expect(store.getState().communityOfflineState['music-posting.eth']).toEqual({
       initialLoad: false,
       state: 'offline',
       updatedAt: 123,

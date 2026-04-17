@@ -15,7 +15,7 @@ import useCatalogStyleStore from '../../stores/use-catalog-style-store';
 import useFeedResetStore from '../../stores/use-feed-reset-store';
 import useSortingStore from '../../stores/use-sorting-store';
 import useCatalogFiltersStore from '../../stores/use-catalog-filters-store';
-import { getSubplebbitAddress, isDirectoryBoard, normalizeMultiboardFeedPath } from '../../lib/utils/route-utils';
+import { getCommunityAddress, isDirectoryBoard, normalizeMultiboardFeedPath } from '../../lib/utils/route-utils';
 import CatalogRow from '../../components/catalog-row';
 import { CatalogFooterFirstRow, PageFooterDesktop, PageFooterMobile } from '../../components/footer';
 import { ReturnButton, ArchiveButton, TopButton, RefreshButton } from '../../components/board-buttons/board-buttons';
@@ -26,6 +26,7 @@ import styles from './catalog.module.css';
 import { commentMatchesPattern } from '../../lib/utils/pattern-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import { sortCatalogFeedForDisplay } from '../../lib/utils/catalog-sort';
+import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
 import {
   getCatalogRowHeightEstimates,
   getPretextItemSizeFromElement,
@@ -212,7 +213,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const resolvedAddressFromUrl = useResolvedCommunityAddress();
   const communityAddress = useMemo(() => {
     if (boardIdentifierProp) {
-      return getSubplebbitAddress(boardIdentifierProp, directories);
+      return getCommunityAddress(boardIdentifierProp, directories);
     }
     return resolvedAddressFromUrl;
   }, [boardIdentifierProp, directories, resolvedAddressFromUrl]);
@@ -267,9 +268,9 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
 
   // Set the current community address
   useEffect(() => {
-    useCatalogFiltersStore.getState().setCurrentSubplebbitAddress(communityAddress || null);
+    useCatalogFiltersStore.getState().setCurrentCommunityAddress(communityAddress || null);
     return () => {
-      useCatalogFiltersStore.getState().setCurrentSubplebbitAddress(null);
+      useCatalogFiltersStore.getState().setCurrentCommunityAddress(null);
     };
   }, [communityAddress]);
 
@@ -304,7 +305,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     () =>
       recentAccountComments.filter((comment) => {
         const { cid, deleted, postCid, removed, state, timestamp } = comment || {};
-        const commentCommunityAddress = comment?.communityAddress || comment?.subplebbitAddress;
+        const commentCommunityAddress = getCommentCommunityAddress(comment);
 
         // Basic filtering conditions
         const basicConditions =

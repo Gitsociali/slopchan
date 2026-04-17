@@ -9,15 +9,15 @@ interface ReplyModalState {
   parentNumber: number | null;
   threadNumber: number | null;
   threadCid: string | null;
-  subplebbitAddress: string | null;
+  communityAddress: string | null;
   scrollY: number;
   quoteInsertRequestId: number;
   quoteInsertNumber: number | null;
   quoteInsertSelectedText: string | null;
   closeModal: () => void;
-  openReplyModal: (parentCid: string, parentNumber: number | undefined, postCid: string, threadNumber: number | undefined, subplebbitAddress: string) => void;
+  openReplyModal: (parentCid: string, parentNumber: number | undefined, postCid: string, threadNumber: number | undefined, communityAddress: string) => void;
   /** Open reply modal with empty textarea, no prefilled quote. Use for "Post a Reply" footer button. */
-  openReplyModalEmpty: (postCid: string, threadNumber: number | undefined, subplebbitAddress: string) => void;
+  openReplyModalEmpty: (postCid: string, threadNumber: number | undefined, communityAddress: string) => void;
 }
 
 const getQuotedSelection = () => {
@@ -42,7 +42,7 @@ const useReplyModalStore = create<ReplyModalState>((set, get) => ({
   parentNumber: null,
   threadNumber: null,
   threadCid: null,
-  subplebbitAddress: null,
+  communityAddress: null,
   scrollY: 0,
   quoteInsertRequestId: 0,
   quoteInsertNumber: null,
@@ -62,7 +62,7 @@ const useReplyModalStore = create<ReplyModalState>((set, get) => ({
     });
   },
 
-  openReplyModal: (parentCid, parentNumber, postCid, threadNumber, subplebbitAddress) => {
+  openReplyModal: (parentCid, parentNumber, postCid, threadNumber, communityAddress) => {
     const quotedSelection = getQuotedSelection();
 
     // If the reply modal is already open, insert this quote in the current textarea at caret.
@@ -90,12 +90,12 @@ const useReplyModalStore = create<ReplyModalState>((set, get) => ({
       threadNumber: threadNumber ?? null,
       threadCid: postCid,
       showReplyModal: true,
-      subplebbitAddress,
+      communityAddress,
       scrollY,
     });
   },
 
-  openReplyModalEmpty: (postCid, threadNumber, subplebbitAddress) => {
+  openReplyModalEmpty: (postCid, threadNumber, communityAddress) => {
     useSelectedTextStore.getState().resetSelectedText();
     const isMobile = window.innerWidth <= 768;
     const scrollY = isMobile ? window.scrollY : 0;
@@ -106,7 +106,7 @@ const useReplyModalStore = create<ReplyModalState>((set, get) => ({
       threadNumber: threadNumber ?? null,
       threadCid: postCid,
       showReplyModal: true,
-      subplebbitAddress,
+      communityAddress,
       scrollY,
       quoteInsertNumber: null,
       quoteInsertSelectedText: null,

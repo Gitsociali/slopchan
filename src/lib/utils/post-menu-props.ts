@@ -6,7 +6,6 @@ export type PostMenuProps = {
   postCid?: string;
   parentCid?: string;
   communityAddress?: string;
-  subplebbitAddress?: string;
   authorAddress?: string;
   link?: string;
   linkWidth?: number;
@@ -24,7 +23,6 @@ export const selectPostMenuProps = (post?: Comment): PostMenuProps => {
     postCid: post?.postCid,
     parentCid: post?.parentCid,
     communityAddress,
-    subplebbitAddress: post?.subplebbitAddress,
     authorAddress: post?.author?.address,
     link: post?.link,
     linkWidth: post?.linkWidth,

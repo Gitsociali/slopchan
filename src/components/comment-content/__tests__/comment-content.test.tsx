@@ -12,9 +12,6 @@ type TestComment = {
     community?: {
       banExpiresAt?: number;
     };
-    subplebbit?: {
-      banExpiresAt?: number;
-    };
   };
   cid?: string;
   commentModeration?: {
@@ -276,10 +273,10 @@ describe('CommentContent', () => {
     expect(queryMarkdownText()[0]).toHaveLength(1105);
   });
 
-  it('keeps the ban indicator for legacy author subplebbit data', async () => {
+  it('shows the ban indicator from the canonical author community data', async () => {
     await renderContent({
       author: {
-        subplebbit: {
+        community: {
           banExpiresAt: 1700000000,
         },
       },

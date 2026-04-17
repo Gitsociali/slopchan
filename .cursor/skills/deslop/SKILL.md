@@ -55,13 +55,13 @@ AI adds try/catch blocks and null guards everywhere, even on trusted codepaths. 
 ```typescript
 // ❌ Slop — bitsocial-react-hooks already handles errors internally
 try {
-  const { feed } = useFeed({ subplebbitAddresses });
+  const { feed } = useFeed({ communities });
 } catch (error) {
   console.error('Failed to fetch feed:', error);
 }
 
 // ✅ Clean — just use the hook directly
-const { feed } = useFeed({ subplebbitAddresses });
+const { feed } = useFeed({ communities });
 ```
 
 ### `as any` casts

@@ -163,13 +163,9 @@ type PostMenuDesktopProps = {
   postMenu: PostMenuProps;
 };
 
-type PostMenuLegacyAddress = Pick<PostMenuProps, 'subplebbitAddress'> & { communityAddress?: string };
-
 const PostMenuDesktop = ({ postMenu }: PostMenuDesktopProps) => {
   const { t } = useTranslation();
-  const { authorAddress, cid, link, thumbnailUrl, linkWidth, linkHeight, postCid } = postMenu || {};
-  const postMenuLegacyAddress = (postMenu as PostMenuLegacyAddress) || {};
-  const resolvedCommunityAddress = postMenuLegacyAddress.communityAddress || postMenuLegacyAddress.subplebbitAddress;
+  const { authorAddress, cid, communityAddress, link, thumbnailUrl, linkWidth, linkHeight, postCid } = postMenu || {};
   const commentMediaInfo = getCommentMediaInfo(link || '', thumbnailUrl || '', linkWidth ?? 0, linkHeight ?? 0);
   const { thumbnail, type, url } = commentMediaInfo || {};
   const [menuBtnRotated, setMenuBtnRotated] = useState(false);
@@ -267,7 +263,7 @@ const PostMenuDesktop = ({ postMenu }: PostMenuDesktopProps) => {
                   {hidden ? (postCid === cid ? t('unhide_thread') : t('unhide_post')) : postCid === cid ? t('hide_thread') : t('hide_post')}
                 </div>
               )}
-              {cid && resolvedCommunityAddress && <CopyLinkButton cid={cid} communityAddress={resolvedCommunityAddress} linkType='thread' onClose={handleClose} />}
+              {cid && communityAddress && <CopyLinkButton cid={cid} communityAddress={communityAddress} linkType='thread' onClose={handleClose} />}
               {cid && <CopyContentIdButton cid={cid} onClose={handleClose} />}
               {authorAddress && <CopyUserIdButton address={authorAddress} onClose={handleClose} />}
               {link && isValidURL(link) && (type === 'image' || type === 'gif' || thumbnail) && url && <ImageSearchButton url={url} onClose={handleClose} />}

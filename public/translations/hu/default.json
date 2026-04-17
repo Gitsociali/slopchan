@@ -125,7 +125,6 @@
   "bump_order": "Bump sorrend",
   "creation_date": "Létrehozás dátuma",
   "sort_by": "Rendezés",
-  "subplebbit_offline_info": "Ez a fórum offline lehet és a közzététel sikertelen lehet",
   "posts_last_synced_info": "Hozzászólások utoljára szinkronizálva {{time}}, ez a fórum offline lehet és a közzététel sikertelen lehet.",
   "no_threads": "Nincsenek témák",
   "hidden": "rejtett",
@@ -324,5 +323,6 @@
   "download": "letöltés",
   "checking_for_updates": "Frissítések keresése...",
   "new_version_found": "új verzió található",
-  "site_legal_meta_license_text": "Az 5chan szabad és nyílt forráskódú szoftver a GPL-3.0-or-later alatt."
+  "site_legal_meta_license_text": "Az 5chan szabad és nyílt forráskódú szoftver a GPL-3.0-or-later alatt.",
+  "community_offline_info": "Ez a fórum offline lehet és a közzététel sikertelen lehet"
 }

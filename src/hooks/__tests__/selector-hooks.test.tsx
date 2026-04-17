@@ -2,8 +2,8 @@ import * as React from 'react';
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useAccountSubplebbitAddresses } from '../use-account-subplebbit-addresses';
-import { useAccountSubplebbitsWithMetadata } from '../use-account-subplebbits-with-metadata';
+import { useAccountCommunityAddresses } from '../use-account-community-addresses';
+import { useAccountCommunitiesWithMetadata } from '../use-account-communities-with-metadata';
 import useAuthorPrivileges from '../use-author-privileges';
 import { useBoardFeedPageSize } from '../use-board-feed-page-size';
 import { useBoardPseudonymityMode } from '../use-board-pseudonymity-mode';
@@ -16,16 +16,16 @@ const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise
 
 const testState = vi.hoisted(() => ({
   account: undefined as unknown,
-  accountSubplebbits: {} as Record<string, unknown>,
+  accountCommunities: {} as Record<string, unknown>,
   directories: [] as Array<{ address: string; nsfw?: boolean }>,
   directoryLookup: {} as Record<string, unknown>,
   flattenedReplies: [] as unknown[],
-  subplebbitSnapshot: undefined as unknown,
+  communitySnapshot: undefined as unknown,
 }));
 
 vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
-  useAccountCommunities: () => ({ accountCommunities: testState.accountSubplebbits }),
+  useAccountCommunities: () => ({ accountCommunities: testState.accountCommunities }),
 }));
 
 vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/lib/utils', () => ({
@@ -38,7 +38,7 @@ vi.mock('../use-directories', () => ({
 }));
 
 vi.mock('../use-stable-community', () => ({
-  useCommunityField: (_address: string | undefined, selector: (community: unknown) => unknown) => selector(testState.subplebbitSnapshot),
+  useCommunityField: (_address: string | undefined, selector: (community: unknown) => unknown) => selector(testState.communitySnapshot),
 }));
 
 let latestValue: unknown;
@@ -67,11 +67,11 @@ describe('selector hooks', () => {
     localStorage.clear();
     vi.clearAllMocks();
     testState.account = undefined;
-    testState.accountSubplebbits = {};
+    testState.accountCommunities = {};
     testState.directories = [];
     testState.directoryLookup = {};
     testState.flattenedReplies = [];
-    testState.subplebbitSnapshot = undefined;
+    testState.communitySnapshot = undefined;
     useAllFeedFilterStore.getState().setFilter('all');
 
     container = document.createElement('div');
@@ -84,14 +84,14 @@ describe('selector hooks', () => {
     container.remove();
   });
 
-  it('derives account board addresses and metadata from cached account subplebbits', () => {
-    testState.accountSubplebbits = {
+  it('derives account board addresses and metadata from cached account communities', () => {
+    testState.accountCommunities = {
       'music.eth': { address: 'music.eth', title: '/mu/ - Music' },
       'tech.eth': { address: 'tech.eth', title: '/g/ - Technology' },
     };
 
-    expect(renderHookValue(() => useAccountSubplebbitAddresses())).toEqual(['music.eth', 'tech.eth']);
-    expect(renderHookValue(() => useAccountSubplebbitsWithMetadata())).toEqual([
+    expect(renderHookValue(() => useAccountCommunityAddresses())).toEqual(['music.eth', 'tech.eth']);
+    expect(renderHookValue(() => useAccountCommunitiesWithMetadata())).toEqual([
       { address: 'music.eth', title: '/mu/ - Music' },
       { address: 'tech.eth', title: '/g/ - Technology' },
     ]);
@@ -99,14 +99,14 @@ describe('selector hooks', () => {
 
   it('computes moderator privileges and whether the current account authored the comment', () => {
     testState.account = { author: { address: '0xme' } };
-    testState.subplebbitSnapshot = {
+    testState.communitySnapshot = {
       roles: {
         '0xauthor': { role: 'moderator' },
         '0xme': { role: 'admin' },
       },
     };
 
-    expect(renderHookValue(() => useAuthorPrivileges({ commentAuthorAddress: '0xauthor', subplebbitAddress: 'music.eth' }))).toEqual({
+    expect(renderHookValue(() => useAuthorPrivileges({ commentAuthorAddress: '0xauthor', communityAddress: 'music.eth' }))).toEqual({
       isCommentAuthorMod: true,
       isAccountMod: true,
       isAccountCommentAuthor: false,
@@ -114,7 +114,7 @@ describe('selector hooks', () => {
       accountAuthorRole: 'admin',
     });
 
-    expect(renderHookValue(() => useAuthorPrivileges({ commentAuthorAddress: '0xme', subplebbitAddress: 'music.eth' }))).toEqual({
+    expect(renderHookValue(() => useAuthorPrivileges({ commentAuthorAddress: '0xme', communityAddress: 'music.eth' }))).toEqual({
       isCommentAuthorMod: true,
       isAccountMod: true,
       isAccountCommentAuthor: true,
@@ -146,13 +146,13 @@ describe('selector hooks', () => {
         features: { pseudonymityMode: 'directory-mode' },
       },
     };
-    testState.subplebbitSnapshot = {
+    testState.communitySnapshot = {
       features: { pseudonymityMode: 'live-mode' },
     };
 
     expect(renderHookValue(() => useBoardPseudonymityMode('music.eth'))).toBe('live-mode');
 
-    testState.subplebbitSnapshot = {
+    testState.communitySnapshot = {
       features: {},
     };
 

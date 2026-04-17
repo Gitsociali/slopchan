@@ -95,7 +95,7 @@ export const Post = memo(
     replyVirtualizationModeOverride,
   }: PostProps) => {
     // Only subscribe to roles field to avoid rerenders from updatingState changes
-    const communityAddress = post?.communityAddress || post?.subplebbitAddress;
+    const communityAddress = getCommentCommunityAddress(post);
     const roles = useCommunityField(communityAddress, (community) => community?.roles);
     const isMobile = useIsMobile();
 

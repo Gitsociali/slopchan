@@ -20,7 +20,6 @@ type AccountProtocolOptions = {
   httpRoutersOptions?: string[];
   ipfsGatewayUrls?: string[];
   pkcRpcClientsOptions?: string[];
-  plebbitRpcClientsOptions?: string[];
   pubsubHttpClientsOptions?: string[];
   pubsubKuboRpcClientsOptions?: string[];
 };
@@ -29,24 +28,22 @@ type AccountShape = {
   chainProviders?: AccountProtocolOptions['chainProviders'];
   mediaIpfsGatewayUrl?: string;
   pkcOptions?: AccountProtocolOptions;
-  plebbitOptions?: AccountProtocolOptions;
 };
 
 type RpcSettingsShape = {
   pkcOptions?: { dataPath?: string };
-  plebbitOptions?: { dataPath?: string };
 };
 
-const getProtocolOptions = (account?: AccountShape) => account?.pkcOptions ?? account?.plebbitOptions;
+const getProtocolOptions = (account?: AccountShape) => account?.pkcOptions;
 
 const getChainProviders = (account?: AccountShape) => account?.chainProviders ?? getProtocolOptions(account)?.chainProviders;
 
-const getNodeRpcClientsOptions = (protocolOptions?: AccountProtocolOptions) => protocolOptions?.pkcRpcClientsOptions ?? protocolOptions?.plebbitRpcClientsOptions;
+const getNodeRpcClientsOptions = (protocolOptions?: AccountProtocolOptions) => protocolOptions?.pkcRpcClientsOptions;
 
 const getPubsubRpcClientsOptions = (protocolOptions?: AccountProtocolOptions) =>
   protocolOptions?.pubsubKuboRpcClientsOptions ?? protocolOptions?.pubsubHttpClientsOptions;
 
-const getRpcSettingsDataPath = (rpcSettings?: RpcSettingsShape) => rpcSettings?.pkcOptions?.dataPath ?? rpcSettings?.plebbitOptions?.dataPath ?? '';
+const getRpcSettingsDataPath = (rpcSettings?: RpcSettingsShape) => rpcSettings?.pkcOptions?.dataPath ?? '';
 
 const IPFSGatewaysSettings = ({ ipfsGatewayUrlsRef, mediaIpfsGatewayUrlRef }: SettingsProps) => {
   const account = useAccount() as AccountShape | undefined;

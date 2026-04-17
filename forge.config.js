@@ -20,7 +20,7 @@ const config = {
       /^\/\.github$/,
       /^\/scripts$/,
       /^\/\.git/,
-      /^\/\.plebbit$/,
+      /^\/\.pkc$/,
       /^\/out$/,
       /^\/dist$/,
       /^\/squashfs-root$/,

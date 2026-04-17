@@ -23,7 +23,7 @@ const testState = vi.hoisted(() => ({
   rpcSettings: {
     pkcRpcSettings: {
       pkcOptions: {
-        dataPath: '/tmp/plebbit-data',
+        dataPath: '/tmp/pkc-data',
       },
     },
     state: 'disconnected',
@@ -100,7 +100,7 @@ describe('AdvancedSettings', () => {
     testState.rpcSettings = {
       pkcRpcSettings: {
         pkcOptions: {
-          dataPath: '/tmp/plebbit-data',
+          dataPath: '/tmp/pkc-data',
         },
       },
       state: 'disconnected',
@@ -149,7 +149,7 @@ describe('AdvancedSettings', () => {
     await dispatchInput(textareas[3], ' https://eth.one.example \n');
     await dispatchInput(textareas[4], ' https://sol.one.example \n');
     await dispatchInput(textInputs[1], ' ws://127.0.0.1:9138/secret ');
-    await dispatchInput(textInputs[2], ' /tmp/next-plebbit ');
+    await dispatchInput(textInputs[2], ' /tmp/next-pkc ');
     await clickButton('save_advanced_settings');
 
     expect(testState.setAccountMock).toHaveBeenCalledWith({
@@ -159,7 +159,7 @@ describe('AdvancedSettings', () => {
         sol: { chainId: 101, urls: ['https://sol.one.example'] },
       },
       pkcOptions: {
-        dataPath: '/tmp/next-plebbit',
+        dataPath: '/tmp/next-pkc',
         httpRoutersOptions: ['https://router.one.example'],
         ipfsGatewayUrls: ['https://ipfs.one.example', 'https://ipfs.two.example'],
         pkcRpcClientsOptions: ['ws://127.0.0.1:9138/secret'],

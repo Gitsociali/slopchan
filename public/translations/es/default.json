@@ -125,7 +125,6 @@
   "bump_order": "Orden de Bump",
   "creation_date": "Fecha de creación",
   "sort_by": "Ordenar por",
-  "subplebbit_offline_info": "Este tablero podría estar offline y la publicación podría fallar",
   "posts_last_synced_info": "Publicaciones sincronizadas por última vez {{time}}, este tablero podría estar offline y la publicación podría fallar.",
   "no_threads": "No hay hilos",
   "hidden": "oculto",
@@ -324,5 +323,6 @@
   "download": "descargar",
   "checking_for_updates": "Buscando actualizaciones...",
   "new_version_found": "nueva versión encontrada",
-  "site_legal_meta_license_text": "5chan es software libre y de código abierto bajo GPL-3.0-or-later."
+  "site_legal_meta_license_text": "5chan es software libre y de código abierto bajo GPL-3.0-or-later.",
+  "community_offline_info": "Este tablero podría estar offline y la publicación podría fallar"
 }

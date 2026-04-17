@@ -36,7 +36,7 @@ describe('update-favicon', () => {
         isInAllView: false,
         isInSubscriptionsView: false,
         isInModView: false,
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
         directories: [{ address: 'music.eth', nsfw: false }],
       }),
     ).toBe(false);
@@ -48,7 +48,7 @@ describe('update-favicon', () => {
         isInAllView: false,
         isInSubscriptionsView: false,
         isInModView: false,
-        subplebbitAddress: 'music.eth',
+        communityAddress: 'music.eth',
         directories: [
           { address: 'music.eth', nsfw: false },
           { address: 'flash.eth', nsfw: true },
@@ -63,7 +63,7 @@ describe('update-favicon', () => {
         isInAllView: false,
         isInSubscriptionsView: false,
         isInModView: false,
-        subplebbitAddress: 'flash.eth',
+        communityAddress: 'flash.eth',
         directories: [{ address: 'flash.eth', nsfw: true }],
       }),
     ).toBe(false);

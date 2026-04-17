@@ -23,7 +23,7 @@ import PostMenuDesktop from '../post-desktop/post-menu-desktop';
 import styles from './catalog-row.module.css';
 import capitalize from 'lodash/capitalize';
 import { selectPostMenuProps } from '../../lib/utils/post-menu-props';
-import { withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
+import { getCommentCommunityAddress, withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
 
 interface CatalogPostMediaProps {
   cid: string;
@@ -325,8 +325,8 @@ const CatalogPost = memo(
   (prevProps, nextProps) => {
     const prev = prevProps.post;
     const next = nextProps.post;
-    const prevCommunityAddress = prev?.communityAddress ?? prev?.subplebbitAddress;
-    const nextCommunityAddress = next?.communityAddress ?? next?.subplebbitAddress;
+    const prevCommunityAddress = getCommentCommunityAddress(prev);
+    const nextCommunityAddress = getCommentCommunityAddress(next);
     // Compare all fields that affect rendering to avoid stale displays
     return (
       prev?.cid === next?.cid &&
