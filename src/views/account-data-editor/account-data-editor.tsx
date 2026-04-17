@@ -12,15 +12,25 @@ type AceModuleLoadResult = {
   onBeforeLoad: (ace: { config?: { setModuleUrl?: (name: string, value: string) => void } }) => void;
 };
 
+type EditorPhase = 'warning' | 'loading' | 'editor' | 'fallback';
+
+type EditorState = {
+  phase: EditorPhase;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  AceEditor: React.ComponentType<any> | null;
+  aceOnBeforeLoad: AceModuleLoadResult['onBeforeLoad'] | undefined;
+  text: string;
+};
+
 const loadAce = async () => {
-  const [aceModule, workerJsonModule] = await Promise.all([
-    import('react-ace'),
+  const aceModule = await import('react-ace');
+  const [workerJsonModule] = await Promise.all([
     import('ace-builds/src-noconflict/worker-json?url'),
     import('ace-builds/esm-resolver'),
     import('ace-builds/src-noconflict/mode-json'),
     import('ace-builds/src-noconflict/theme-monokai'),
   ]);
-  // Vite CJS interop can double-wrap the default export
+  // Load react-ace first so esm-resolver sees the global ace instance.
   const mod = aceModule.default;
   const Editor = typeof mod === 'function' ? mod : (mod as unknown as { default: typeof mod }).default;
 
@@ -39,31 +49,37 @@ const AccountDataEditor = () => {
   const account = useAccount();
   const returnTo = (location.state as { returnTo?: string } | null)?.returnTo ?? DEFAULT_RETURN_TO;
 
-  const [phase, setPhase] = useState<'warning' | 'loading' | 'editor' | 'fallback'>('warning');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [AceEditor, setAceEditor] = useState<React.ComponentType<any> | null>(null);
-  const [aceOnBeforeLoad, setAceOnBeforeLoad] = useState<AceModuleLoadResult['onBeforeLoad'] | undefined>(undefined);
-  const [text, setText] = useState('');
+  const [{ phase, AceEditor, aceOnBeforeLoad, text }, setEditorState] = useState<EditorState>({
+    phase: 'warning',
+    AceEditor: null,
+    aceOnBeforeLoad: undefined,
+    text: '',
+  });
 
   useEffect(() => {
     if (phase !== 'loading') return;
     loadAce()
       .then(({ Editor, onBeforeLoad }) => {
-        setAceEditor(() => Editor);
-        setAceOnBeforeLoad(() => onBeforeLoad);
-        setText(buildEditableAccountJson(account));
-        setPhase('editor');
+        setEditorState({
+          phase: 'editor',
+          AceEditor: Editor,
+          aceOnBeforeLoad: onBeforeLoad,
+          text: buildEditableAccountJson(account),
+        });
       })
       .catch(() => {
-        setAceOnBeforeLoad(undefined);
-        setText(buildEditableAccountJson(account));
-        setPhase('fallback');
+        setEditorState({
+          phase: 'fallback',
+          AceEditor: null,
+          aceOnBeforeLoad: undefined,
+          text: buildEditableAccountJson(account),
+        });
       });
   }, [phase, account]);
 
   const handleGoBack = () => navigate(returnTo);
-  const handleContinue = () => setPhase('loading');
-  const handleReset = () => setText(buildEditableAccountJson(account));
+  const handleContinue = () => setEditorState((current) => ({ ...current, phase: 'loading' }));
+  const handleReset = () => setEditorState((current) => ({ ...current, text: buildEditableAccountJson(account) }));
   const handleReturn = () => navigate(returnTo);
 
   const handleSave = async () => {
@@ -122,13 +138,13 @@ const AccountDataEditor = () => {
             fontSize={13}
             showPrintMargin={false}
             value={text}
-            onChange={setText}
+            onChange={(nextText: string) => setEditorState((current) => ({ ...current, text: nextText }))}
             onBeforeLoad={aceOnBeforeLoad}
           />
         ) : (
           <textarea
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => setEditorState((current) => ({ ...current, text: e.target.value }))}
             style={{ width: '100%', height: '500px', fontFamily: 'monospace', fontSize: 13 }}
             spellCheck={false}
           />
