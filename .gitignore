@@ -201,3 +201,4 @@ scripts/upload-selectors-smoke-snapshots/
 # Android build artifacts
 android/app/build/
 .vercel
+/.claude/worktrees
