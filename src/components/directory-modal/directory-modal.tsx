@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import useDirectoryModalStore from '../../stores/use-directory-modal-store';
 import styles from './directory-modal.module.css';
 
@@ -49,7 +49,7 @@ const DirectoryModal = () => {
               </a>
               . Users can access it anytime via the search bar, direct links, or by subscribing with the &quot;[Subscribe]&quot; button—
               <strong>no directory assignment or dev approval needed</strong>. Directory boards are simply featured in homepage categories (like &quot;Anime &
-              Manga&quot;) and are handpicked by devs until DAO curation is implemented.
+              Manga&quot;) and are handpicked by devs until directory voting is available.
             </p>
           </div>
 
@@ -66,14 +66,10 @@ const DirectoryModal = () => {
           </div>
 
           <div className={styles.section}>
-            <h3>Future: DAO Voting</h3>
+            <h3>Future: Directory Voting</h3>
             <p>
-              Directory assignments will use gasless pubsub voting—communities vote, highest-voted board wins the slot. <strong>Voting pages = discovery:</strong> Each
-              directory&apos;s voting page lists all competing boards (even low-voted ones), giving visibility without winning or dev approval. See{' '}
-              <a href='https://github.com/pkcprotocol/pkc-js/issues/25' target='_blank' rel='noopener noreferrer'>
-                design draft
-              </a>
-              .
+              Each directory will have its own voting page listing the boards competing for that slot. Only 5chan users who purchased <Link to='/pass'>5chan Pass</Link>{' '}
+              will be able to vote.
             </p>
           </div>
         </div>

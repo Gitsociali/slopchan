@@ -21,13 +21,13 @@ Unlike traditional imageboards, 5chan has no global admins or central authority.
 ### Competitive Directory System
 5chan maintains the familiar imageboard directory structure (Japanese Culture, Video Games, Interests, Creative, etc.), but introduces competition: **multiple boards can compete for each directory slot**. For example, there can be unlimited "Business & Finance" boards, but only the highest-voted one appears in the directory on the homepage.
 
-Currently, directory assignments are temporarily handpicked by developers through GitHub pull requests. In the future, this will be fully automated through **gasless pubsub voting** (see [Future Roadmap](#future-roadmap) below), making the process completely decentralized and community-driven.
+Currently, directory assignments are temporarily handpicked by developers through GitHub pull requests. In the future, each directory will have its own voting page, and only users who purchased 5chan Pass will be able to vote.
 
 ### How It Works
 
 - **Current System**: Developers manually curate directory assignments by reviewing pull requests to the [5chan-directories.json](https://github.com/bitsocialnet/lists/blob/master/5chan-directories.json) file.
 
-- **Future System**: Directory board assignments will be determined through gasless voting using pubsub. Community members will vote on which board should be assigned to each directory, and the highest-voted board will automatically become the directory board. This creates a competitive marketplace where board quality and community engagement determine directory placement.
+- **Future System**: Each directory will have its own voting page listing the boards competing for that slot. Only users who purchased 5chan Pass will be able to vote on which board is assigned to the directory.
 
 - **Accessing Boards**: Users can access any board at any time using its address, regardless of directory assignment. Boards can be accessed via the search bar, by subscribing to them (which adds them to the top bar), or by directly navigating to their address.
 
@@ -37,15 +37,9 @@ Currently, directory assignments are temporarily handpicked by developers throug
 
 Creating boards directly from the 5chan web app (5chan.app) is planned. This requires connecting via RPC to a bitsocial node—technically already possible, but there's no default connection configured. A default connection would require a public RPC service (similar to what Infura provides for crypto wallets, but for bitsocial nodes). This would allow all users to be connected to a P2P node by default using a free tier subscription in the background, potentially monetized via ads injected in the RPC service-owned boards.
 
-#### Pubsub Voting
+#### Directory Voting
 
-The protocol design for pubsub voting is already drafted in [pkc-js issue #25](https://github.com/pkcprotocol/pkc-js/issues/25). This will enable:
-- Gasless voting using pubsub topics
-- Weighted voting based on token balances
-- Automatic directory resolution based on vote tallies
-- Full decentralization without any intermediaries
-
-This feature is on the pkc-js roadmap but hasn't been implemented yet.
+Directory voting pages are planned for each slot on 5chan. These pages will list the competing boards for that directory, and only users who purchased 5chan Pass will be able to vote.
 
 ## Downloads
 

@@ -166,6 +166,10 @@ vi.mock('../views/not-found', () => ({
   default: makeNamedComponent('not-found-view'),
 }));
 
+vi.mock('../views/pass', () => ({
+  default: makeNamedComponent('pass-view'),
+}));
+
 vi.mock('../views/pending-post', () => ({
   default: makeNamedComponent('pending-post-view'),
 }));
@@ -312,6 +316,14 @@ describe('App', () => {
 
     expect(latestLocation).toBe('/not-found');
     expect(container.querySelector('[data-testid="not-found-view"]')).toBeTruthy();
+  });
+
+  it('renders the pass route as a global static page', async () => {
+    await renderApp('/pass');
+
+    expect(latestLocation).toBe('/pass');
+    expect(container.querySelector('[data-testid="pass-view"]')).toBeTruthy();
+    expect(container.querySelector('[data-testid="boards-bar"]')).toBeNull();
   });
 
   it('canonicalizes board address routes to directory codes while preserving query strings', async () => {
