@@ -4,14 +4,14 @@
       "id": "release-0.7.4",
       "kind": "release",
       "timestamp": 1775736000,
-      "message": "v0.7.4: Pretext feed sizing, mobile scroll perf, Android USB dev preview",
+      "message": "v0.7.4: Smoother feed sizing, smoother mobile scrolling, Android USB dev preview",
       "version": "0.7.4"
     },
     {
       "id": "release-0.7.3",
       "kind": "release",
       "timestamp": 1774008000,
-      "message": "v0.7.3: In-app desktop updates, opt-in thread auto-refresh, compact account history",
+      "message": "v0.7.3: In-app desktop updates, opt-in thread auto-refresh, performant account history",
       "version": "0.7.3"
     },
     {
