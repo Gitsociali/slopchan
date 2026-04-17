@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/263d19076e43e14703f4416991249746cbccc77d"
+    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/e25b593aa05d505a0eb62cbde0505a55523d1998"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/cli": "npm:7.4.5"
@@ -1530,13 +1530,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/263d19076e43e14703f4416991249746cbccc77d":
+"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/e25b593aa05d505a0eb62cbde0505a55523d1998":
   version: 0.1.0
-  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/263d19076e43e14703f4416991249746cbccc77d"
+  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/e25b593aa05d505a0eb62cbde0505a55523d1998"
   dependencies:
     "@bitsocial/bso-resolver": "npm:0.0.4"
     "@pkc/pkc-logger": "https://github.com/pkcprotocol/pkc-logger.git"
-    "@pkcprotocol/pkc-js": "https://github.com/pkcprotocol/pkc-js.git#e63026e6cd33df5af3a3b5e6473b1e364d89fbdb"
+    "@pkcprotocol/pkc-js": "npm:0.0.16"
     assert: "npm:2.0.0"
     ethers: "npm:5.8.0"
     localforage: "npm:1.10.0"
@@ -1551,7 +1551,7 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/0f636c9a27f95620dca1471228ac8d17240d343be9cfcdb53f2466bbe594ce7b28e979e82673055822b24430c371a9b3dba081bd83a1e82e42ddb8d01a09c65a
+  checksum: 10c0/27290778536cea4f6b3e9981f092f64ea934f3499c709a4ab7470a27b53451f35cc366ff7c0a3979010ef89fbffe50484593bcf249c0eae4f0cc8bda3e1af458
   languageName: node
   linkType: hard
 
@@ -5670,6 +5670,86 @@ __metadata:
     uuid: "npm:13.0.0"
     zod: "npm:4.3.6"
   checksum: 10c0/522ed96759ec79f994234ea29ad60c41d4b26f18eecd4efcabd67487ca5e822d5dde7b5aae168b614d175f4d00cf436388509b7b79c9fcd57b1119ad59841f97
+  languageName: node
+  linkType: hard
+
+"@pkcprotocol/pkc-js@npm:0.0.16":
+  version: 0.0.16
+  resolution: "@pkcprotocol/pkc-js@npm:0.0.16"
+  dependencies:
+    "@enhances/with-resolvers": "npm:0.0.5"
+    "@helia/block-brokers": "npm:5.1.2"
+    "@helia/delegated-routing-v1-http-api-client": "npm:6.0.1"
+    "@helia/ipns": "npm:9.1.9"
+    "@helia/unixfs": "npm:7.0.4"
+    "@libp2p/crypto": "npm:5.1.13"
+    "@libp2p/fetch": "npm:4.0.10"
+    "@libp2p/gossipsub": "npm:15.0.12"
+    "@libp2p/identify": "npm:4.0.10"
+    "@libp2p/interfaces": "npm:3.3.2"
+    "@libp2p/peer-id": "npm:6.0.4"
+    "@libp2p/peer-id-factory": "npm:4.2.4"
+    "@libp2p/websockets": "npm:10.1.3"
+    "@pkcprotocol/pkc-logger": "github:pkcprotocol/pkc-logger#cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a"
+    "@pkcprotocol/proper-lock-file": "git+https://github.com/pkcprotocol/node-proper-lockfile.git#30564d7e0bd06d145c88a16896c779e97503a735"
+    assert: "npm:2.1.0"
+    better-sqlite3: "npm:12.6.2"
+    blockstore-core: "npm:6.1.2"
+    blockstore-fs: "npm:3.0.2"
+    blockstore-idb: "npm:3.0.1"
+    buffer: "npm:6.0.3"
+    cbor: "npm:10.0.11"
+    debounce: "npm:1.2.1"
+    err-code: "npm:3.0.1"
+    ext-name: "npm:5.0.0"
+    helia: "npm:6.0.20"
+    hpagent: "npm:1.2.0"
+    it-all: "npm:3.0.6"
+    js-sha256: "npm:0.11.1"
+    js-sha512: "npm:0.9.0"
+    kubo-rpc-client: "npm:6.1.0"
+    limiter-es6-compat: "npm:2.1.2"
+    localforage: "npm:1.10.0"
+    lodash.merge: "npm:4.6.2"
+    lru-cache: "npm:10.1.0"
+    open-graph-scraper: "npm:6.11.0"
+    p-limit: "npm:7.3.0"
+    p-timeout: "npm:7.0.1"
+    peer-id: "npm:0.16.0"
+    probe-image-size: "npm:7.2.3"
+    remeda: "npm:1.57.0"
+    retry: "npm:0.13.1"
+    rpc-websockets: "npm:9.3.1"
+    safe-stable-stringify: "npm:2.4.3"
+    sha1-uint8array: "npm:0.10.7"
+    tcp-port-used: "npm:1.0.2"
+    tiny-typed-emitter: "npm:2.1.0"
+    tinycache: "npm:1.1.2"
+    ts-custom-error: "npm:3.3.1"
+    typestub-ipfs-only-hash: "npm:4.0.0"
+    uuid: "npm:13.0.0"
+    zod: "npm:4.3.6"
+  checksum: 10c0/8b82ba3f9e3448155d0c004301ceb4abed9a179d9b0a73b56859b8a29f6551fed6cb1fc798fe4cdf0e26f1b47e5eb5028d7d9cb293211316baf9ead42c890457
+  languageName: node
+  linkType: hard
+
+"@pkcprotocol/pkc-logger@github:pkcprotocol/pkc-logger#cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a":
+  version: 0.0.1
+  resolution: "@pkcprotocol/pkc-logger@https://github.com/pkcprotocol/pkc-logger.git#commit=cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a"
+  dependencies:
+    debug: "npm:4.4.3"
+  checksum: 10c0/1729428ebdc977885dce554893894e7187fb460986119201fddc72e600a0ec07fb61129d884528a9feae83e05cdc71f7889c32d46d12f3292ce6765a96e927ef
+  languageName: node
+  linkType: hard
+
+"@pkcprotocol/proper-lock-file@git+https://github.com/pkcprotocol/node-proper-lockfile.git#30564d7e0bd06d145c88a16896c779e97503a735":
+  version: 4.1.2
+  resolution: "@pkcprotocol/proper-lock-file@https://github.com/pkcprotocol/node-proper-lockfile.git#commit=30564d7e0bd06d145c88a16896c779e97503a735"
+  dependencies:
+    graceful-fs: "npm:4.2.11"
+    retry: "npm:0.13.1"
+    signal-exit: "npm:4.1.0"
+  checksum: 10c0/0cd90d63f98b9863412073a4339d3bd3b9b4bd09573ec0b58ede1ce962ba361a805354f034734ac73f24e134920aaa9725bc6c358bde6dd5e256497fac7028ae
   languageName: node
   linkType: hard
 
