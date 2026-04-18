@@ -23,7 +23,21 @@
   color: var(--button-desktop-text-color);
 }
 
+.morePostsSuggestionAction {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: var(--button-text-decoration);
+  color: var(--button-desktop-text-color);
+  font: inherit;
+}
+
 .footer a:hover {
+  color: var(--button-desktop-text-color-hover);
+}
+
+.morePostsSuggestionAction:hover {
   color: var(--button-desktop-text-color-hover);
 }
 

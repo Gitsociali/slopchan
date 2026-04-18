@@ -10,6 +10,7 @@ import { useAccountCommunityAddresses } from '../../hooks/use-account-community-
 import { useFilteredDirectoryAddresses } from '../../hooks/use-filtered-directory-addresses';
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
 import { useFeedStateString } from '../../hooks/use-state-string';
+import useExpandedTimeFilter from '../../hooks/use-expanded-time-filter';
 import { useSuggestionFeedLoader } from '../../hooks/use-suggestion-feed-loader';
 import useTimeFilter from '../../hooks/use-time-filter';
 import useIsMobile from '../../hooks/use-is-mobile';
@@ -57,6 +58,7 @@ interface CatalogFooterProps {
   moreThreadsSuggestion: TimeFilterSuggestion | null;
   moreThreadsSuggestionPathname: string | null;
   moreThreadsSuggestionSearch: string;
+  onExpandTimeWindow?: (suggestion: TimeFilterSuggestion) => void | Promise<void>;
   /** When false, suppress the loading ellipsis (e.g. non-infinite mode) */
   showLoadingEllipsis?: boolean;
 }
@@ -72,6 +74,7 @@ const CatalogFooter = ({
   moreThreadsSuggestion,
   moreThreadsSuggestionPathname,
   moreThreadsSuggestionSearch,
+  onExpandTimeWindow,
   showLoadingEllipsis = true,
 }: CatalogFooterProps) => {
   const { t } = useTranslation();
@@ -86,7 +89,16 @@ const CatalogFooter = ({
           i18nKey={moreThreadsSuggestion.i18nKey}
           values={{ currentTimeFilterName, count: combinedFeedLength }}
           components={{
-            1: (
+            1: onExpandTimeWindow ? (
+              <button
+                type='button'
+                data-testid='expand-time-window-button'
+                className={styles.morePostsSuggestionAction}
+                onClick={() => {
+                  void onExpandTimeWindow(moreThreadsSuggestion);
+                }}
+              />
+            ) : (
               <Link
                 to={{ pathname: moreThreadsSuggestionPathname, search: getSearchWithTimeFilter(moreThreadsSuggestionSearch, moreThreadsSuggestion.timeFilterName) }}
               />
@@ -341,11 +353,16 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     multiboardTimeFilterSeconds,
   ]);
 
-  const { feed, hasMore, loadMore, reset } = useFeed(feedOptions);
-  const shouldProbeSuggestionFeeds = isVisible && isMultiboard && typeof multiboardTimeFilterSeconds === 'number';
-  const shouldProbeWeeklyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < WEEK_IN_SECONDS;
-  const shouldProbeMonthlyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < MONTH_IN_SECONDS;
-  const shouldProbeYearlyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < YEAR_IN_SECONDS;
+  const { feed, hasMore, loadMore, reset, expandTimeWindow } = useFeed(feedOptions);
+  const { currentTimeFilterName, currentTimeFilterSeconds, expandSuggestionTimeWindow } = useExpandedTimeFilter({
+    timeFilterName,
+    timeFilterSeconds: multiboardTimeFilterSeconds,
+    expandTimeWindow,
+  });
+  const shouldProbeSuggestionFeeds = isVisible && isMultiboard && typeof currentTimeFilterSeconds === 'number';
+  const shouldProbeWeeklyFeed = shouldProbeSuggestionFeeds && currentTimeFilterSeconds < WEEK_IN_SECONDS;
+  const shouldProbeMonthlyFeed = shouldProbeSuggestionFeeds && currentTimeFilterSeconds < MONTH_IN_SECONDS;
+  const shouldProbeYearlyFeed = shouldProbeSuggestionFeeds && currentTimeFilterSeconds < YEAR_IN_SECONDS;
   const suggestionFilter = useMemo(
     () => createCombinedFilter(filterItems, searchText, communityAddress || 'all', undefined, false),
     [communityAddress, filterItems, searchText],
@@ -473,8 +490,8 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     [effectiveInfiniteScroll, combinedFeed, boardPostsPerPage, maxGuiPages],
   );
   const moreThreadsSuggestion = useMemo(
-    () => (isMultiboard ? getTimeFilterSuggestion(feed.length, weeklyFeed.length, monthlyFeed.length, yearlyFeed.length, multiboardTimeFilterSeconds) : null),
-    [feed.length, isMultiboard, monthlyFeed.length, multiboardTimeFilterSeconds, weeklyFeed.length, yearlyFeed.length],
+    () => (isMultiboard ? getTimeFilterSuggestion(feed.length, weeklyFeed.length, monthlyFeed.length, yearlyFeed.length, currentTimeFilterSeconds) : null),
+    [currentTimeFilterSeconds, feed.length, isMultiboard, monthlyFeed.length, weeklyFeed.length, yearlyFeed.length],
   );
   const moreThreadsSuggestionPathname = isInAllView ? '/all/catalog' : isInSubscriptionsView ? '/subs/catalog' : isInModView ? '/mod/catalog' : null;
 
@@ -508,10 +525,11 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
             communityAddresses={communityAddresses}
             hasMore={hasMore}
             combinedFeedLength={cappedFeed.length}
-            currentTimeFilterName={timeFilterName}
+            currentTimeFilterName={currentTimeFilterName}
             moreThreadsSuggestion={moreThreadsSuggestion}
             moreThreadsSuggestionPathname={moreThreadsSuggestionPathname}
             moreThreadsSuggestionSearch={location.search}
+            onExpandTimeWindow={expandSuggestionTimeWindow}
             showLoadingEllipsis={effectiveInfiniteScroll}
           />
           <PageFooterDesktop
@@ -539,9 +557,10 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
       communityAddresses,
       hasMore,
       cappedFeed.length,
-      timeFilterName,
+      currentTimeFilterName,
       moreThreadsSuggestion,
       moreThreadsSuggestionPathname,
+      expandSuggestionTimeWindow,
       communityAddress,
       isInAllView,
       isInSubscriptionsView,
@@ -557,10 +576,11 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
           communityAddresses={communityAddresses}
           hasMore={hasMore}
           combinedFeedLength={cappedFeed.length}
-          currentTimeFilterName={timeFilterName}
+          currentTimeFilterName={currentTimeFilterName}
           moreThreadsSuggestion={moreThreadsSuggestion}
           moreThreadsSuggestionPathname={moreThreadsSuggestionPathname}
           moreThreadsSuggestionSearch={location.search}
+          onExpandTimeWindow={expandSuggestionTimeWindow}
           showLoadingEllipsis={effectiveInfiniteScroll}
         />
         <PageFooterDesktop
@@ -587,9 +607,10 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
       communityAddresses,
       hasMore,
       cappedFeed.length,
-      timeFilterName,
+      currentTimeFilterName,
       moreThreadsSuggestion,
       moreThreadsSuggestionPathname,
+      expandSuggestionTimeWindow,
       communityAddress,
       isInAllView,
       isInSubscriptionsView,

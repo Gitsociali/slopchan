@@ -55,7 +55,7 @@ const convertDynamicTimeFilterNameToSeconds = (timeFilterName: string): number |
   }
 };
 
-const getTimeFilterSeconds = (timeFilterName: string | null | undefined): number | undefined => {
+export const getTimeFilterSeconds = (timeFilterName: string | null | undefined): number | undefined => {
   if (!timeFilterName || timeFilterName === 'all') {
     return undefined;
   }

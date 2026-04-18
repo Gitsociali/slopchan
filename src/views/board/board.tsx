@@ -17,6 +17,7 @@ import useFeedResetStore from '../../stores/use-feed-reset-store';
 import useFeedViewSettingsStore from '../../stores/use-feed-view-settings-store';
 import usePostNumberStore from '../../stores/use-post-number-store';
 import { useBoardFeedPageSize } from '../../hooks/use-board-feed-page-size';
+import useExpandedTimeFilter from '../../hooks/use-expanded-time-filter';
 import useIsMobile from '../../hooks/use-is-mobile';
 import { useSuggestionFeedLoader } from '../../hooks/use-suggestion-feed-loader';
 import useTimeFilter from '../../hooks/use-time-filter';
@@ -54,6 +55,7 @@ interface BoardFooterProps {
   moreThreadsSuggestion: TimeFilterSuggestion | null;
   moreThreadsSuggestionPathname: string | null;
   moreThreadsSuggestionSearch: string;
+  onExpandTimeWindow?: (suggestion: TimeFilterSuggestion) => void | Promise<void>;
   communityState: string | undefined;
   subscriptionsLength: number;
   accountCommunityAddressesLength: number;
@@ -74,6 +76,7 @@ const BoardFooter = ({
   moreThreadsSuggestion,
   moreThreadsSuggestionPathname,
   moreThreadsSuggestionSearch,
+  onExpandTimeWindow,
   communityState,
   subscriptionsLength,
   accountCommunityAddressesLength,
@@ -91,7 +94,16 @@ const BoardFooter = ({
           i18nKey={moreThreadsSuggestion.i18nKey}
           values={{ currentTimeFilterName, count: combinedFeedLength }}
           components={{
-            1: (
+            1: onExpandTimeWindow ? (
+              <button
+                type='button'
+                data-testid='expand-time-window-button'
+                className={styles.morePostsSuggestionAction}
+                onClick={() => {
+                  void onExpandTimeWindow(moreThreadsSuggestion);
+                }}
+              />
+            ) : (
               <Link
                 to={{ pathname: moreThreadsSuggestionPathname, search: getSearchWithTimeFilter(moreThreadsSuggestionSearch, moreThreadsSuggestion.timeFilterName) }}
               />
@@ -201,11 +213,16 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, t
     [communities, effectiveInfiniteScroll, infiniteFeedPostsPerPage, paginationFeedPostsPerPage, excludeArchivedFilter, multiboardTimeFilterSeconds],
   );
 
-  const { feed, hasMore, loadMore, reset } = useFeed(feedOptions);
-  const shouldProbeSuggestionFeeds = isVisible && isMultiboardView && typeof multiboardTimeFilterSeconds === 'number';
-  const shouldProbeWeeklyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < WEEK_IN_SECONDS;
-  const shouldProbeMonthlyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < MONTH_IN_SECONDS;
-  const shouldProbeYearlyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < YEAR_IN_SECONDS;
+  const { feed, hasMore, loadMore, reset, expandTimeWindow } = useFeed(feedOptions);
+  const { currentTimeFilterName, currentTimeFilterSeconds, expandSuggestionTimeWindow } = useExpandedTimeFilter({
+    timeFilterName,
+    timeFilterSeconds: multiboardTimeFilterSeconds,
+    expandTimeWindow,
+  });
+  const shouldProbeSuggestionFeeds = isVisible && isMultiboardView && typeof currentTimeFilterSeconds === 'number';
+  const shouldProbeWeeklyFeed = shouldProbeSuggestionFeeds && currentTimeFilterSeconds < WEEK_IN_SECONDS;
+  const shouldProbeMonthlyFeed = shouldProbeSuggestionFeeds && currentTimeFilterSeconds < MONTH_IN_SECONDS;
+  const shouldProbeYearlyFeed = shouldProbeSuggestionFeeds && currentTimeFilterSeconds < YEAR_IN_SECONDS;
   // Keep suggestion feeds on a stable hook identity; the loader widens them by paging, not by recreating the feed.
   const suggestionPostsPerPage = infiniteFeedPostsPerPage;
   const suggestionRequestKeyBase = `${location.pathname}${location.search}`;
@@ -328,8 +345,8 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, t
     [effectiveInfiniteScroll, combinedFeed, guiPostsPerPage, maxGuiPages],
   );
   const moreThreadsSuggestion = useMemo(
-    () => (isMultiboardView ? getTimeFilterSuggestion(feed.length, weeklyFeed.length, monthlyFeed.length, yearlyFeed.length, multiboardTimeFilterSeconds) : null),
-    [feed.length, isMultiboardView, monthlyFeed.length, multiboardTimeFilterSeconds, weeklyFeed.length, yearlyFeed.length],
+    () => (isMultiboardView ? getTimeFilterSuggestion(feed.length, weeklyFeed.length, monthlyFeed.length, yearlyFeed.length, currentTimeFilterSeconds) : null),
+    [currentTimeFilterSeconds, feed.length, isMultiboardView, monthlyFeed.length, weeklyFeed.length, yearlyFeed.length],
   );
   const moreThreadsSuggestionPathname = isInAllView ? '/all' : isInSubscriptionsView ? '/subs' : isInModView ? '/mod' : null;
   const registerComments = usePostNumberStore((state) => state.registerComments);
@@ -408,10 +425,11 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, t
             combinedFeedLength={combinedFeed.length}
             isInSubscriptionsView={isInSubscriptionsView}
             isInModView={isInModView}
-            currentTimeFilterName={timeFilterName}
+            currentTimeFilterName={currentTimeFilterName}
             moreThreadsSuggestion={moreThreadsSuggestion}
             moreThreadsSuggestionPathname={moreThreadsSuggestionPathname}
             moreThreadsSuggestionSearch={location.search}
+            onExpandTimeWindow={expandSuggestionTimeWindow}
             communityState={communityState}
             subscriptionsLength={subscriptions?.length || 0}
             accountCommunityAddressesLength={accountCommunityAddresses?.length || 0}
@@ -486,9 +504,10 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, t
       combinedFeed.length,
       isInSubscriptionsView,
       isInModView,
-      timeFilterName,
+      currentTimeFilterName,
       moreThreadsSuggestion,
       moreThreadsSuggestionPathname,
+      expandSuggestionTimeWindow,
       communityState,
       communityAddress,
       subscriptions?.length,

@@ -41,6 +41,7 @@ const testState = vi.hoisted(() => ({
   lastVirtuosoDefaultItemHeight: undefined as number | undefined,
   lastVirtuosoIncreaseViewportBy: undefined as { top: number; bottom: number } | undefined,
   lastVirtuosoMinOverscanItemCount: undefined as { top: number; bottom: number } | undefined,
+  expandTimeWindowMock: vi.fn(),
   loadMoreMock: vi.fn(),
   pageSizes: {
     guiPostsPerPage: 2,
@@ -135,6 +136,7 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
     return {
       feed: getScopedFeed(options),
       hasMore: testState.hasMore,
+      expandTimeWindow: testState.expandTimeWindowMock,
       loadMore: testState.loadMoreMock,
       reset: testState.resetMock,
     };
@@ -551,7 +553,32 @@ describe('Board', () => {
         expect.objectContaining({ newerThan: 365 * 24 * 60 * 60 }),
       ]),
     );
-    expect(Array.from(container.querySelectorAll('a')).some((link) => link.getAttribute('href') === '/all?t=1w')).toBe(true);
+    expect(container.querySelector('[data-testid="expand-time-window-button"]')).toBeTruthy();
+  });
+
+  it('expands the multiboard time window in place from the footer suggestion', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String((now - 3 * 24 * 60 * 60) * 1000));
+    testState.feed = [
+      { cid: 'recent-post', communityAddress: 'music-posting.eth', timestamp: now - 2 * 24 * 60 * 60 },
+      { cid: 'older-post', communityAddress: 'music-posting.eth', timestamp: now - 5 * 24 * 60 * 60 },
+    ];
+
+    await renderBoard({
+      boardProps: { viewType: 'all' },
+      initialEntry: '/all?t=last',
+      routePath: '/all/*',
+    });
+
+    const expandButton = container.querySelector('[data-testid="expand-time-window-button"]');
+    expect(expandButton).toBeTruthy();
+    expect(Array.from(container.querySelectorAll('a')).some((link) => link.getAttribute('href') === '/all?t=1w')).toBe(false);
+
+    await act(async () => {
+      expandButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(testState.expandTimeWindowMock).toHaveBeenCalledWith(7 * 24 * 60 * 60);
   });
 
   it('keeps broader suggestion feeds on the base page size so their identities stay stable while scrolling', async () => {
