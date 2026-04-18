@@ -432,6 +432,27 @@ describe('Board', () => {
     expect(testState.lastVirtuosoMinOverscanItemCount).toEqual({ top: 8, bottom: 4 });
   });
 
+  it('uses an asymmetric reverse-scroll buffer on desktop multiboard feeds', async () => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1280,
+      writable: true,
+    });
+
+    testState.feed = [
+      { cid: 'first-post', communityAddress: 'music-posting.eth' },
+      { cid: 'second-post', communityAddress: 'music-posting.eth' },
+    ];
+
+    await renderBoard({
+      boardProps: { viewType: 'all' },
+      initialEntry: '/all',
+      routePath: '/all/*',
+    });
+
+    expect(testState.lastVirtuosoIncreaseViewportBy).toEqual({ top: 2400, bottom: 1200 });
+  });
+
   it('canonicalizes multiboard paths and shows the subscriptions empty state', async () => {
     testState.account = { subscriptions: [] };
     testState.filteredDirectoryAddresses = [];

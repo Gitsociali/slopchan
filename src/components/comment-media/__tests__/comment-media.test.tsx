@@ -34,12 +34,15 @@ vi.mock('../../../lib/utils/url-utils', () => ({
   getHostname: () => testState.hostname,
 }));
 
-vi.mock('../../../stores/use-expanded-media-store', () => ({
-  default: () => ({
+vi.mock('../../../stores/use-expanded-media-store', () => {
+  const getState = () => ({
     fitExpandedImagesToScreen: testState.fitExpandedImagesToScreen,
     unmuteExpandedVideoSound: testState.unmuteExpandedVideoSound,
-  }),
-}));
+  });
+  return {
+    default: (selector?: (s: ReturnType<typeof getState>) => unknown) => (selector ? selector(getState()) : getState()),
+  };
+});
 
 vi.mock('../../../hooks/use-fetch-gif-first-frame', () => ({
   default: () => ({

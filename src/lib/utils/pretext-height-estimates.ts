@@ -139,6 +139,8 @@ const paragraphFloatHeightCache = new WeakMap<PreparedTextWithSegments, Map<stri
 const nestedPretextElementCache = new WeakMap<HTMLElement, HTMLElement | null>();
 const catalogPostHeightEstimateCache = new Map<string, number>();
 const catalogRowHeightEstimateCache = new Map<string, number>();
+const feedPostHeightEstimateCache = new Map<string, number>();
+const FEED_POST_HEIGHT_ESTIMATE_CACHE_LIMIT = 2000;
 
 let pretextSupport: boolean | undefined;
 
@@ -646,6 +648,30 @@ export const getFeedPostHeightEstimate = ({
   const previewRepliesHeight = previewHeights.reduce((sum, value) => sum + value, 0);
   const previewReplyCount = previewReplies.length;
 
+  const cacheKey = post.cid
+    ? [
+        isMobile ? '1' : '0',
+        windowWidth,
+        showBoardLabel ? '1' : '0',
+        showSummary ? '1' : '0',
+        metrics.bodyFontFamily,
+        metrics.bodyFontSizePx,
+        metrics.mobileContentFontSizePx,
+        metrics.abbrFontSizePx,
+        post.cid,
+        post.updatedAt || 0,
+        previewReplyCount,
+        previewRepliesHeight,
+      ].join('\u0000')
+    : undefined;
+
+  if (cacheKey) {
+    const cached = feedPostHeightEstimateCache.get(cacheKey);
+    if (cached !== undefined) {
+      return cached;
+    }
+  }
+
   if (isMobile) {
     const fontSizePx = metrics.mobileContentFontSizePx;
     const font = `${fontSizePx}px ${metrics.bodyFontFamily}`;
@@ -666,7 +692,15 @@ export const getFeedPostHeightEstimate = ({
     // Mobile board cards render preview replies more compactly than the thread-reply estimator assumes.
     const mobileCalibration = getMobileFeedCardCalibration(previewReplyCount);
 
-    return clampEstimateHeight(rawEstimate - mobileCalibration);
+    const mobileResult = clampEstimateHeight(rawEstimate - mobileCalibration);
+    if (cacheKey) {
+      if (feedPostHeightEstimateCache.size >= FEED_POST_HEIGHT_ESTIMATE_CACHE_LIMIT) {
+        const firstKey = feedPostHeightEstimateCache.keys().next().value;
+        if (firstKey !== undefined) feedPostHeightEstimateCache.delete(firstKey);
+      }
+      feedPostHeightEstimateCache.set(cacheKey, mobileResult);
+    }
+    return mobileResult;
   }
 
   const fontSizePx = metrics.bodyFontSizePx;
@@ -698,7 +732,15 @@ export const getFeedPostHeightEstimate = ({
     (showSummary ? DESKTOP_FEED_CARD_SUMMARY_HEIGHT : 0) +
     previewRepliesHeight;
 
-  return clampEstimateHeight(rawEstimate + DESKTOP_FEED_CARD_BASE_CALIBRATION);
+  const desktopResult = clampEstimateHeight(rawEstimate + DESKTOP_FEED_CARD_BASE_CALIBRATION);
+  if (cacheKey) {
+    if (feedPostHeightEstimateCache.size >= FEED_POST_HEIGHT_ESTIMATE_CACHE_LIMIT) {
+      const firstKey = feedPostHeightEstimateCache.keys().next().value;
+      if (firstKey !== undefined) feedPostHeightEstimateCache.delete(firstKey);
+    }
+    feedPostHeightEstimateCache.set(cacheKey, desktopResult);
+  }
+  return desktopResult;
 };
 
 export const getCatalogPostHeightEstimate = ({ imageSize, metrics, post, showOPComment }: CatalogPostHeightEstimateOptions): number => {

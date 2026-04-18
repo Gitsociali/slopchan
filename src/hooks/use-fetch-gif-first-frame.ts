@@ -11,6 +11,10 @@ interface GifFirstFrameState {
   status: GifFirstFrameStatus;
 }
 
+const IDLE_STATE: GifFirstFrameState = { frameUrl: null, status: 'idle' };
+const LOADING_STATE: GifFirstFrameState = { frameUrl: null, status: 'loading' };
+const FAILED_STATE: GifFirstFrameState = { frameUrl: null, status: 'failed' };
+
 const getCachedGifFrame = async (url: string): Promise<string | null> => {
   return await gifFrameDb.getItem(url);
 };
@@ -79,20 +83,20 @@ const parseGif = async (buf: ArrayBuffer): Promise<Blob> => {
 };
 
 const useFetchGifFirstFrame = (url: string | undefined) => {
-  const [gifFirstFrame, setGifFirstFrame] = useState<GifFirstFrameState>({ frameUrl: null, status: 'idle' });
+  const [gifFirstFrame, setGifFirstFrame] = useState<GifFirstFrameState>(IDLE_STATE);
 
   useEffect(() => {
     if (!url) {
-      setGifFirstFrame({ frameUrl: null, status: 'idle' });
+      setGifFirstFrame((prev) => (prev.status === 'idle' ? prev : IDLE_STATE));
       return;
     }
 
     let isActive = true;
-    setGifFirstFrame({ frameUrl: null, status: 'loading' });
+    setGifFirstFrame((prev) => (prev.status === 'loading' ? prev : LOADING_STATE));
 
     const fetchFrame = async () => {
       if (failedUrls.has(url)) {
-        if (isActive) setGifFirstFrame({ frameUrl: null, status: 'failed' });
+        if (isActive) setGifFirstFrame((prev) => (prev.status === 'failed' ? prev : FAILED_STATE));
         return;
       }
 
@@ -119,7 +123,7 @@ const useFetchGifFirstFrame = (url: string | undefined) => {
       } catch (error) {
         failedUrls.add(url);
         console.error('Failed to load GIF frame:', error);
-        if (isActive) setGifFirstFrame({ frameUrl: null, status: 'failed' });
+        if (isActive) setGifFirstFrame((prev) => (prev.status === 'failed' ? prev : FAILED_STATE));
       }
     };
 

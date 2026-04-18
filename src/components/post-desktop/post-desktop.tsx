@@ -94,6 +94,117 @@ const useShowOmittedReplies = create<ShowOmittedRepliesState>((set) => ({
     })),
 }));
 
+const PendingModerationActions = ({ cid, communityAddress, post }: { cid: string; communityAddress: string; post: Comment | undefined }) => {
+  const { t } = useTranslation();
+
+  const {
+    publishCommentModeration: approvePending,
+    state: approvePendingState,
+    error: approvePendingError,
+  } = usePublishCommentModeration({
+    commentCid: cid,
+    communityAddress,
+    commentModeration: approvePendingCommentModeration,
+    onChallenge: async (...args: any) => {
+      addChallenge([...args, post]);
+    },
+    onChallengeVerification: async (challengeVerification, comment) => {
+      alertChallengeVerificationFailed(challengeVerification, comment);
+    },
+    onError: (error: Error) => {
+      console.error('Approve failed:', error);
+    },
+  });
+
+  const {
+    publishCommentModeration: rejectPending,
+    state: rejectPendingState,
+    error: rejectPendingError,
+  } = usePublishCommentModeration({
+    commentCid: cid,
+    communityAddress,
+    commentModeration: rejectPendingCommentModeration,
+    onChallenge: async (...args: any) => {
+      addChallenge([...args, post]);
+    },
+    onChallengeVerification: async (challengeVerification, comment) => {
+      alertChallengeVerificationFailed(challengeVerification, comment);
+    },
+    onError: (error: Error) => {
+      console.error('Reject failed:', error);
+    },
+  });
+
+  const [initiatedPendingAction, setInitiatedPendingAction] = useState<'approve' | 'reject' | null>(null);
+  const handlePendingApprove = useCallback(async () => {
+    if (!window.confirm(t('double_confirm'))) return;
+    setInitiatedPendingAction('approve');
+    try {
+      await approvePending();
+    } catch (e) {
+      console.error(e);
+    }
+  }, [approvePending, t]);
+
+  const handlePendingReject = useCallback(async () => {
+    if (!window.confirm(t('double_confirm'))) return;
+    setInitiatedPendingAction('reject');
+    try {
+      await rejectPending();
+    } catch (e) {
+      console.error(e);
+    }
+  }, [rejectPending, t]);
+
+  const isApprovingPending =
+    initiatedPendingAction === 'approve' && approvePendingState !== 'initializing' && approvePendingState !== 'succeeded' && approvePendingState !== 'failed';
+  const isRejectingPending =
+    initiatedPendingAction === 'reject' && rejectPendingState !== 'initializing' && rejectPendingState !== 'succeeded' && rejectPendingState !== 'failed';
+  const isPublishingPending = isApprovingPending || isRejectingPending;
+
+  const approvePendingSucceeded = initiatedPendingAction === 'approve' && approvePendingState === 'succeeded';
+  const rejectPendingSucceeded = initiatedPendingAction === 'reject' && rejectPendingState === 'succeeded';
+  const approvePendingFailed = initiatedPendingAction === 'approve' && approvePendingState === 'failed';
+  const rejectPendingFailed = initiatedPendingAction === 'reject' && rejectPendingState === 'failed';
+
+  const pendingStatus = approvePendingSucceeded ? 'approved' : rejectPendingSucceeded ? 'rejected' : approvePendingFailed || rejectPendingFailed ? 'failed' : null;
+  const pendingErrorMessage = approvePendingFailed ? approvePendingError?.message : rejectPendingFailed ? rejectPendingError?.message : undefined;
+
+  return (
+    <span className={styles.modQueueActions}>
+      {pendingStatus === 'approved' ? (
+        <span className={styles.modQueueStatusApproved}>{t('approved')}</span>
+      ) : pendingStatus === 'rejected' ? (
+        <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
+      ) : pendingStatus === 'failed' ? (
+        <span className={styles.modQueueStatusRejected}>
+          {t('failed')}
+          {pendingErrorMessage ? `: ${pendingErrorMessage}` : ''}
+        </span>
+      ) : isPublishingPending ? (
+        <LoadingEllipsis string={t('publishing')} />
+      ) : (
+        <>
+          <span className={styles.modQueueButtonWrapper}>
+            [
+            <button className={styles.modQueueActionButton} onClick={handlePendingApprove} disabled={isPublishingPending}>
+              {t('approve')}
+            </button>
+            ]
+          </span>
+          <span className={styles.modQueueButtonWrapper}>
+            [
+            <button className={styles.modQueueActionButton} onClick={handlePendingReject} disabled={isPublishingPending}>
+              {t('reject')}
+            </button>
+            ]
+          </span>
+        </>
+      )}
+    </span>
+  );
+};
+
 const PostInfo = ({
   post,
   postReplyCount = 0,
@@ -141,86 +252,6 @@ const PostInfo = ({
   // Check if post is pending approval and user is mod (for post page view)
   const pendingApproval = post?.pendingApproval;
   const shouldShowPendingApprovalButtons = isInPostPageView && !isInModQueueView && pendingApproval && isAccountMod && communityAddress;
-
-  // Moderation actions for pending approval posts
-  const {
-    publishCommentModeration: approvePending,
-    state: approvePendingState,
-    error: approvePendingError,
-  } = usePublishCommentModeration({
-    commentCid: cid,
-    communityAddress: shouldShowPendingApprovalButtons ? communityAddress : undefined,
-    commentModeration: approvePendingCommentModeration,
-    onChallenge: async (...args: any) => {
-      addChallenge([...args, post]);
-    },
-    onChallengeVerification: async (challengeVerification, comment) => {
-      alertChallengeVerificationFailed(challengeVerification, comment);
-    },
-    onError: (error: Error) => {
-      console.error('Approve failed:', error);
-    },
-  });
-
-  const {
-    publishCommentModeration: rejectPending,
-    state: rejectPendingState,
-    error: rejectPendingError,
-  } = usePublishCommentModeration({
-    commentCid: cid,
-    communityAddress: shouldShowPendingApprovalButtons ? communityAddress : undefined,
-    commentModeration: rejectPendingCommentModeration,
-    onChallenge: async (...args: any) => {
-      addChallenge([...args, post]);
-    },
-    onChallengeVerification: async (challengeVerification, comment) => {
-      alertChallengeVerificationFailed(challengeVerification, comment);
-    },
-    onError: (error: Error) => {
-      console.error('Reject failed:', error);
-    },
-  });
-
-  const [initiatedPendingAction, setInitiatedPendingAction] = useState<'approve' | 'reject' | null>(null);
-  const handlePendingApprove = useCallback(async () => {
-    const confirm = window.confirm(t('double_confirm'));
-    if (!confirm) {
-      return;
-    }
-    setInitiatedPendingAction('approve');
-    try {
-      await approvePending();
-    } catch (e) {
-      console.error(e);
-    }
-  }, [approvePending, t]);
-
-  const handlePendingReject = useCallback(async () => {
-    const confirm = window.confirm(t('double_confirm'));
-    if (!confirm) {
-      return;
-    }
-    setInitiatedPendingAction('reject');
-    try {
-      await rejectPending();
-    } catch (e) {
-      console.error(e);
-    }
-  }, [rejectPending, t]);
-
-  const isApprovingPending =
-    initiatedPendingAction === 'approve' && approvePendingState !== 'initializing' && approvePendingState !== 'succeeded' && approvePendingState !== 'failed';
-  const isRejectingPending =
-    initiatedPendingAction === 'reject' && rejectPendingState !== 'initializing' && rejectPendingState !== 'succeeded' && rejectPendingState !== 'failed';
-  const isPublishingPending = isApprovingPending || isRejectingPending;
-
-  const approvePendingSucceeded = initiatedPendingAction === 'approve' && approvePendingState === 'succeeded';
-  const rejectPendingSucceeded = initiatedPendingAction === 'reject' && rejectPendingState === 'succeeded';
-  const approvePendingFailed = initiatedPendingAction === 'approve' && approvePendingState === 'failed';
-  const rejectPendingFailed = initiatedPendingAction === 'reject' && rejectPendingState === 'failed';
-
-  const pendingStatus = approvePendingSucceeded ? 'approved' : rejectPendingSucceeded ? 'rejected' : approvePendingFailed || rejectPendingFailed ? 'failed' : null;
-  const pendingErrorMessage = approvePendingFailed ? approvePendingError?.message : rejectPendingFailed ? rejectPendingError?.message : undefined;
 
   // Check if post is awaiting approval and over threshold (for mod queue view)
   const approved = post?.approved;
@@ -473,39 +504,7 @@ const PostInfo = ({
               )}
             </span>
           )}
-          {shouldShowPendingApprovalButtons && (
-            <span className={styles.modQueueActions}>
-              {pendingStatus === 'approved' ? (
-                <span className={styles.modQueueStatusApproved}>{t('approved')}</span>
-              ) : pendingStatus === 'rejected' ? (
-                <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
-              ) : pendingStatus === 'failed' ? (
-                <span className={styles.modQueueStatusRejected}>
-                  {t('failed')}
-                  {pendingErrorMessage ? `: ${pendingErrorMessage}` : ''}
-                </span>
-              ) : isPublishingPending ? (
-                <LoadingEllipsis string={t('publishing')} />
-              ) : (
-                <>
-                  <span className={styles.modQueueButtonWrapper}>
-                    [
-                    <button className={styles.modQueueActionButton} onClick={handlePendingApprove} disabled={isPublishingPending}>
-                      {t('approve')}
-                    </button>
-                    ]
-                  </span>
-                  <span className={styles.modQueueButtonWrapper}>
-                    [
-                    <button className={styles.modQueueActionButton} onClick={handlePendingReject} disabled={isPublishingPending}>
-                      {t('reject')}
-                    </button>
-                    ]
-                  </span>
-                </>
-              )}
-            </span>
-          )}
+          {shouldShowPendingApprovalButtons && communityAddress && cid && <PendingModerationActions cid={cid} communityAddress={communityAddress} post={post} />}
         </span>
         {!(removed || deleted || purged) && !isModQueue && <PostMenuDesktop postMenu={postMenuProps} />}
         {cid && parentCid && <ReplyBacklinks post={post} quotedByMap={quotedByMap} directRepliesByParentCid={directRepliesByParentCid} />}
