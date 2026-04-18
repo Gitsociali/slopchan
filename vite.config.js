@@ -206,7 +206,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: process.env.PORT ? 'http://5chan.localhost:1355/' : true,
+    open: process.env.PORTLESS_URL ? false : true,
     watch: {
       usePolling: true,
     },
