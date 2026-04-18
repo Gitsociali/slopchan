@@ -278,6 +278,17 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const subscriptions = account?.subscriptions;
   const accountCommunityAddresses = useAccountCommunityAddresses();
   const filteredDirectoryAddresses = useFilteredDirectoryAddresses();
+  const excludeArchivedFilter = useMemo(
+    () => ({
+      filter: (comment: Comment) => !isCommentArchived(comment),
+      key: 'exclude-archived',
+    }),
+    [],
+  );
+  const hasActiveCatalogFiltering = useMemo(
+    () => searchText.trim().length > 0 || filterItems.some((item) => item.enabled && item.text.trim() !== ''),
+    [filterItems, searchText],
+  );
 
   const communityAddresses = useMemo(() => {
     if (isInAllView) {
@@ -337,12 +348,13 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
       communities,
       sortType: feedSortType,
       postsPerPage: isMultiboard ? multiboardCatalogPostsPerPage : paginationFeedPostsPerPage,
-      filter: createCombinedFilter(filterItems, searchText, communityAddress || 'all', handleFilterMatch),
+      filter: hasActiveCatalogFiltering ? createCombinedFilter(filterItems, searchText, communityAddress || 'all', handleFilterMatch) : excludeArchivedFilter,
       newerThan: multiboardTimeFilterSeconds,
     };
   }, [
     communities,
     feedSortType,
+    hasActiveCatalogFiltering,
     isMultiboard,
     paginationFeedPostsPerPage,
     multiboardCatalogPostsPerPage,
@@ -351,6 +363,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     communityAddress,
     handleFilterMatch,
     multiboardTimeFilterSeconds,
+    excludeArchivedFilter,
   ]);
 
   const { feed, hasMore, loadMore, reset, expandTimeWindow } = useFeed(feedOptions);
@@ -364,8 +377,8 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const shouldProbeMonthlyFeed = shouldProbeSuggestionFeeds && currentTimeFilterSeconds < MONTH_IN_SECONDS;
   const shouldProbeYearlyFeed = shouldProbeSuggestionFeeds && currentTimeFilterSeconds < YEAR_IN_SECONDS;
   const suggestionFilter = useMemo(
-    () => createCombinedFilter(filterItems, searchText, communityAddress || 'all', undefined, false),
-    [communityAddress, filterItems, searchText],
+    () => (hasActiveCatalogFiltering ? createCombinedFilter(filterItems, searchText, communityAddress || 'all', undefined, false) : excludeArchivedFilter),
+    [communityAddress, excludeArchivedFilter, filterItems, hasActiveCatalogFiltering, searchText],
   );
   // Keep suggestion feeds on a stable hook identity; the loader widens them by paging, not by recreating the feed.
   const suggestionPostsPerPage = multiboardCatalogPostsPerPage;

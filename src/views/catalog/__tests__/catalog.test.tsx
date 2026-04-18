@@ -45,7 +45,7 @@ const testState = vi.hoisted(() => ({
   } as Record<string, { address: string; features?: Record<string, unknown> }>,
   directories: [{ address: 'music-posting.eth', title: '/mu/ - Music' }] as Array<{ address: string; title?: string }>,
   feed: [] as TestComment[],
-  feedOptionsCalls: [] as Array<{ communitiesLength?: number; newerThan?: number; postsPerPage?: number; sortType?: string }>,
+  feedOptionsCalls: [] as Array<{ communitiesLength?: number; filterKey?: string; newerThan?: number; postsPerPage?: number; sortType?: string }>,
   filterItems: [] as FilterItem[],
   filteredDirectoryAddresses: ['music-posting.eth'] as string[],
   hasMore: false,
@@ -121,7 +121,12 @@ const getScopedAccountComments = (options?: { commentIndices?: number[]; communi
   return scopedComments;
 };
 
-const getScopedFeed = (options?: { filter?: { filter: (comment: TestComment) => boolean }; newerThan?: number; postsPerPage?: number }) => {
+type FeedFilter = {
+  filter: (comment: TestComment) => boolean;
+  key?: string;
+};
+
+const getScopedFeed = (options?: { filter?: FeedFilter; newerThan?: number; postsPerPage?: number }) => {
   let scopedFeed = [...testState.feed];
 
   if (typeof options?.newerThan === 'number') {
@@ -146,15 +151,10 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
     testState.accountCommentsCalls.push(options);
     return { accountComments: getScopedAccountComments(options) };
   },
-  useFeed: (options: {
-    communities?: unknown[];
-    filter?: { filter: (comment: TestComment) => boolean };
-    newerThan?: number;
-    postsPerPage?: number;
-    sortType?: string;
-  }) => {
+  useFeed: (options: { communities?: unknown[]; filter?: FeedFilter; newerThan?: number; postsPerPage?: number; sortType?: string }) => {
     testState.feedOptionsCalls.push({
       communitiesLength: options.communities?.length,
+      filterKey: options.filter?.key,
       newerThan: options.newerThan,
       postsPerPage: options.postsPerPage,
       sortType: options.sortType,
@@ -677,6 +677,15 @@ describe('Catalog', () => {
       sortType: 'old',
     });
     expect(Array.from(container.querySelectorAll('[data-testid="catalog-row"]')).map((element) => element.textContent)).toEqual(['row:local-cats-post,network-post']);
+  });
+
+  it('reuses the board feed identity when catalog search and filters are inactive', async () => {
+    testState.sortType = 'active';
+    testState.feed = [{ cid: 'network-post', title: 'cats on stage', communityAddress: 'music-posting.eth' }];
+
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    expect(testState.feedOptionsCalls).toEqual(expect.arrayContaining([expect.objectContaining({ filterKey: 'exclude-archived' })]));
   });
 
   it('chunks catalog rows safely even when the viewport is narrower than one card', async () => {
