@@ -324,5 +324,8 @@
   "checking_for_updates": "Kontroluji aktualizace...",
   "new_version_found": "nalezena nová verze",
   "site_legal_meta_license_text": "5chan je svobodný software s otevřeným zdrojovým kódem pod licencí GPL-3.0-or-later.",
-  "community_offline_info": "Tato deska může být offline a publikování může selhat."
+  "community_offline_info": "Tato deska může být offline a publikování může selhat.",
+  "more_threads_last_week": "{{count}} vláken od {{currentTimeFilterName}} — [<1>Ukázat více vláken z minulého týdne</1>]",
+  "more_threads_last_month": "{{count}} příspěvků od {{currentTimeFilterName}} — [<1>Zobrazit více příspěvků z minulého měsíce</1>]",
+  "more_threads_last_year": "{{count}} příspěvků od {{currentTimeFilterName}} — [<1>Zobrazit více příspěvků z minulého roku</1>]"
 }

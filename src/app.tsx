@@ -298,7 +298,7 @@ const App = () => {
             }
           />
           <Route element={<BoardLayout />}>
-            {/* Canonical multiboard routes (no time filter) */}
+            {/* Canonical multiboard routes (time filter lives in ?t=) */}
             <Route path='/all' element={boardFeedElement} />
             <Route path='/all/settings' element={boardFeedElement} />
             <Route path='/all/catalog' element={catalogFeedElement} />

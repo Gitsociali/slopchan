@@ -12,6 +12,11 @@
   padding: 15px 0 20px 5px;
 }
 
+.morePostsSuggestion {
+  color: var(--body-font-color);
+  padding-bottom: 5px;
+}
+
 .footer a {
   cursor: pointer;
   text-decoration: var(--button-text-decoration);

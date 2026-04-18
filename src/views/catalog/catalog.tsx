@@ -1,14 +1,17 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useCallback, useLayoutEffect } from 'react';
-import { useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { Link, useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { Comment, useAccount, useCommunity, useFeed, useAccountComments } from '@bitsocialnet/bitsocial-react-hooks';
 import { Virtuoso, VirtuosoHandle, StateSnapshot } from 'react-virtuoso';
 import { useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';
 import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
 import { useBoardFeedPageSize } from '../../hooks/use-board-feed-page-size';
+import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
 import { useFilteredDirectoryAddresses } from '../../hooks/use-filtered-directory-addresses';
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
 import { useFeedStateString } from '../../hooks/use-state-string';
+import { useSuggestionFeedLoader } from '../../hooks/use-suggestion-feed-loader';
+import useTimeFilter from '../../hooks/use-time-filter';
 import useIsMobile from '../../hooks/use-is-mobile';
 import useWindowWidth from '../../hooks/use-window-width';
 import useCatalogStyleStore from '../../stores/use-catalog-style-store';
@@ -27,6 +30,7 @@ import { commentMatchesPattern } from '../../lib/utils/pattern-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import { sortCatalogFeedForDisplay } from '../../lib/utils/catalog-sort';
 import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
+import { getSearchWithTimeFilter, getTimeFilterSuggestion, type TimeFilterSuggestion } from '../../lib/utils/time-filter-utils';
 import {
   getCatalogRowHeightEstimates,
   getPretextItemSizeFromElement,
@@ -37,6 +41,9 @@ import {
 
 const lastVirtuosoStates: { [key: string]: StateSnapshot } = {};
 const RECENT_ACCOUNT_COMMENT_WINDOW_SECONDS = 60 * 60;
+const WEEK_IN_SECONDS = 7 * 24 * 60 * 60;
+const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
+const YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
 // Keep the hook on its indexed fast path when this view should not inject local posts.
 const EMPTY_ACCOUNT_COMMENT_LOOKUP = { commentIndices: [-1] };
 export const getCatalogRenderFeed = <T,>(processedFeed: readonly T[], deferredProcessedFeed: readonly T[]): readonly T[] =>
@@ -46,6 +53,10 @@ interface CatalogFooterProps {
   communityAddresses: string[];
   hasMore: boolean;
   combinedFeedLength: number;
+  currentTimeFilterName: string;
+  moreThreadsSuggestion: TimeFilterSuggestion | null;
+  moreThreadsSuggestionPathname: string | null;
+  moreThreadsSuggestionSearch: string;
   /** When false, suppress the loading ellipsis (e.g. non-infinite mode) */
   showLoadingEllipsis?: boolean;
 }
@@ -53,18 +64,44 @@ interface CatalogFooterProps {
 // Defined outside Catalog to preserve component identity across renders (Virtuoso optimization)
 // The useFeedStateString hook is called here instead of in Catalog to isolate re-renders
 // caused by backend IPFS state changes to just this footer component
-const CatalogFooter = ({ communityAddresses, hasMore, combinedFeedLength, showLoadingEllipsis = true }: CatalogFooterProps) => {
+const CatalogFooter = ({
+  communityAddresses,
+  hasMore,
+  combinedFeedLength,
+  currentTimeFilterName,
+  moreThreadsSuggestion,
+  moreThreadsSuggestionPathname,
+  moreThreadsSuggestionSearch,
+  showLoadingEllipsis = true,
+}: CatalogFooterProps) => {
   const { t } = useTranslation();
 
   const loadingStateString = useFeedStateString(communityAddresses) || (combinedFeedLength === 0 ? t('loading_feed') : t('looking_for_more_posts'));
 
   let footerContent;
-  if (combinedFeedLength === 0) {
+  if (moreThreadsSuggestion && moreThreadsSuggestionPathname) {
+    footerContent = (
+      <div className={styles.morePostsSuggestion}>
+        <Trans
+          i18nKey={moreThreadsSuggestion.i18nKey}
+          values={{ currentTimeFilterName, count: combinedFeedLength }}
+          components={{
+            1: (
+              <Link
+                to={{ pathname: moreThreadsSuggestionPathname, search: getSearchWithTimeFilter(moreThreadsSuggestionSearch, moreThreadsSuggestion.timeFilterName) }}
+              />
+            ),
+          }}
+        />
+      </div>
+    );
+  } else if (combinedFeedLength === 0) {
     footerContent = t('no_threads');
   }
   if (hasMore || (communityAddresses && communityAddresses.length === 0)) {
     footerContent = (
       <>
+        {footerContent}
         {showLoadingEllipsis && (
           <div className={styles.stateString}>
             <LoadingEllipsis string={loadingStateString} />
@@ -113,6 +150,7 @@ const createContentFilter = (
   filterItems: { text: string; enabled: boolean; count: number; filteredCids: Set<string>; hide: boolean; top: boolean; color?: string }[],
   communityAddress: string,
   onFilterMatch?: (filterIndex: number, cid: string, communityAddress: string) => void,
+  trackMatches = true,
 ) => {
   // Create a unique key based on the enabled filter items
   const enabledFilters = filterItems.filter((item) => item.enabled && item.text.trim() !== '');
@@ -135,7 +173,7 @@ const createContentFilter = (
         if (commentMatchesPattern(comment, pattern)) {
           // Find the original filter index to increment count
           const filterIndex = filterItems.findIndex((f) => f.text === item.text && f.enabled);
-          if (filterIndex !== -1) {
+          if (trackMatches && filterIndex !== -1) {
             if (onFilterMatch) {
               onFilterMatch(filterIndex, comment.cid, communityAddress);
             } else {
@@ -165,8 +203,9 @@ const createCombinedFilter = (
   searchText: string,
   communityAddress: string,
   onFilterMatch?: (filterIndex: number, cid: string, communityAddress: string) => void,
+  trackMatches = true,
 ) => {
-  const contentFilter = createContentFilter(filterItems, communityAddress, onFilterMatch);
+  const contentFilter = createContentFilter(filterItems, communityAddress, onFilterMatch, trackMatches);
 
   const searchFilter = {
     filter: (comment: Comment) => {
@@ -192,10 +231,11 @@ export interface CatalogProps {
   feedCacheKey?: string;
   viewType?: 'all' | 'subs' | 'mod' | 'board';
   boardIdentifier?: string;
+  timeFilterNameFromCache?: string;
   isVisible?: boolean;
 }
 
-const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, isVisible = true }: CatalogProps) => {
+const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, timeFilterNameFromCache, isVisible = true }: CatalogProps) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -206,6 +246,8 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const isInModView = viewType ? viewType === 'mod' : false;
 
   const isMultiboard = isInAllView || isInSubscriptionsView || isInModView;
+  const { timeFilterName, timeFilterSeconds } = useTimeFilter(timeFilterNameFromCache);
+  const multiboardTimeFilterSeconds = isMultiboard ? timeFilterSeconds : undefined;
   // Single-board catalogs always cap at maxGuiPages (no infinite scroll beyond the board's page limit)
   const effectiveInfiniteScroll = isMultiboard;
 
@@ -222,6 +264,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
 
   const account = useAccount();
   const subscriptions = account?.subscriptions;
+  const accountCommunityAddresses = useAccountCommunityAddresses();
   const filteredDirectoryAddresses = useFilteredDirectoryAddresses();
 
   const communityAddresses = useMemo(() => {
@@ -231,9 +274,12 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     if (isInSubscriptionsView) {
       return (subscriptions || []).filter(Boolean); // Filter out any undefined/null values
     }
+    if (isInModView) {
+      return accountCommunityAddresses;
+    }
     // Only include communityAddress if it's defined
     return communityAddress ? [communityAddress] : [];
-  }, [isInAllView, isInSubscriptionsView, communityAddress, filteredDirectoryAddresses, subscriptions]);
+  }, [accountCommunityAddresses, isInAllView, isInSubscriptionsView, isInModView, communityAddress, filteredDirectoryAddresses, subscriptions]);
   const communities = useCommunityIdentifiers(communityAddresses);
   const communityIdentifier = useCommunityIdentifier(communityAddress);
 
@@ -252,9 +298,9 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     if (!(isInAllView || isInSubscriptionsView || isInModView)) return;
     const canonical = normalizeMultiboardFeedPath(location.pathname);
     if (location.pathname !== canonical) {
-      navigate(canonical, { replace: true });
+      navigate({ pathname: canonical, search: location.search }, { replace: true });
     }
-  }, [isInAllView, isInSubscriptionsView, isInModView, location.pathname, navigate]);
+  }, [isInAllView, isInSubscriptionsView, isInModView, location.pathname, location.search, navigate]);
 
   const { sortType } = useSortingStore();
   const feedSortType = sortType === 'new' ? 'new' : 'active';
@@ -280,10 +326,90 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
       sortType: feedSortType,
       postsPerPage: isMultiboard ? multiboardCatalogPostsPerPage : paginationFeedPostsPerPage,
       filter: createCombinedFilter(filterItems, searchText, communityAddress || 'all', handleFilterMatch),
+      newerThan: multiboardTimeFilterSeconds,
     };
-  }, [communities, feedSortType, isMultiboard, paginationFeedPostsPerPage, multiboardCatalogPostsPerPage, filterItems, searchText, communityAddress, handleFilterMatch]);
+  }, [
+    communities,
+    feedSortType,
+    isMultiboard,
+    paginationFeedPostsPerPage,
+    multiboardCatalogPostsPerPage,
+    filterItems,
+    searchText,
+    communityAddress,
+    handleFilterMatch,
+    multiboardTimeFilterSeconds,
+  ]);
 
   const { feed, hasMore, loadMore, reset } = useFeed(feedOptions);
+  const shouldProbeSuggestionFeeds = isVisible && isMultiboard && typeof multiboardTimeFilterSeconds === 'number';
+  const shouldProbeWeeklyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < WEEK_IN_SECONDS;
+  const shouldProbeMonthlyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < MONTH_IN_SECONDS;
+  const shouldProbeYearlyFeed = shouldProbeSuggestionFeeds && multiboardTimeFilterSeconds < YEAR_IN_SECONDS;
+  const suggestionFilter = useMemo(
+    () => createCombinedFilter(filterItems, searchText, communityAddress || 'all', undefined, false),
+    [communityAddress, filterItems, searchText],
+  );
+  // Keep suggestion feeds on a stable hook identity; the loader widens them by paging, not by recreating the feed.
+  const suggestionPostsPerPage = multiboardCatalogPostsPerPage;
+  const suggestionRequestKeyBase = `${location.pathname}${location.search}`;
+  const {
+    feed: weeklyFeed,
+    hasMore: weeklyFeedHasMore,
+    loadMore: loadMoreWeeklyFeed,
+  } = useFeed({
+    communities: shouldProbeWeeklyFeed ? communities : [],
+    sortType: feedSortType,
+    postsPerPage: suggestionPostsPerPage,
+    filter: suggestionFilter,
+    newerThan: WEEK_IN_SECONDS,
+  });
+  const {
+    feed: monthlyFeed,
+    hasMore: monthlyFeedHasMore,
+    loadMore: loadMoreMonthlyFeed,
+  } = useFeed({
+    communities: shouldProbeMonthlyFeed ? communities : [],
+    sortType: feedSortType,
+    postsPerPage: suggestionPostsPerPage,
+    filter: suggestionFilter,
+    newerThan: MONTH_IN_SECONDS,
+  });
+  const {
+    feed: yearlyFeed,
+    hasMore: yearlyFeedHasMore,
+    loadMore: loadMoreYearlyFeed,
+  } = useFeed({
+    communities: shouldProbeYearlyFeed ? communities : [],
+    sortType: feedSortType,
+    postsPerPage: suggestionPostsPerPage,
+    filter: suggestionFilter,
+    newerThan: YEAR_IN_SECONDS,
+  });
+  useSuggestionFeedLoader({
+    currentFeedLength: feed.length,
+    feedLength: weeklyFeed.length,
+    hasMore: weeklyFeedHasMore,
+    loadMore: loadMoreWeeklyFeed,
+    requestKey: `${suggestionRequestKeyBase}:1w`,
+    shouldLoad: shouldProbeWeeklyFeed,
+  });
+  useSuggestionFeedLoader({
+    currentFeedLength: feed.length,
+    feedLength: monthlyFeed.length,
+    hasMore: monthlyFeedHasMore,
+    loadMore: loadMoreMonthlyFeed,
+    requestKey: `${suggestionRequestKeyBase}:1m`,
+    shouldLoad: shouldProbeMonthlyFeed,
+  });
+  useSuggestionFeedLoader({
+    currentFeedLength: feed.length,
+    feedLength: yearlyFeed.length,
+    hasMore: yearlyFeedHasMore,
+    loadMore: loadMoreYearlyFeed,
+    requestKey: `${suggestionRequestKeyBase}:1y`,
+    shouldLoad: shouldProbeYearlyFeed,
+  });
   const accountCommentLookupOptions = useMemo(
     () =>
       communityAddress
@@ -346,6 +472,11 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     () => (effectiveInfiniteScroll ? combinedFeed : combinedFeed.slice(0, boardPostsPerPage * maxGuiPages)),
     [effectiveInfiniteScroll, combinedFeed, boardPostsPerPage, maxGuiPages],
   );
+  const moreThreadsSuggestion = useMemo(
+    () => (isMultiboard ? getTimeFilterSuggestion(feed.length, weeklyFeed.length, monthlyFeed.length, yearlyFeed.length, multiboardTimeFilterSeconds) : null),
+    [feed.length, isMultiboard, monthlyFeed.length, multiboardTimeFilterSeconds, weeklyFeed.length, yearlyFeed.length],
+  );
+  const moreThreadsSuggestionPathname = isInAllView ? '/all/catalog' : isInSubscriptionsView ? '/subs/catalog' : isInModView ? '/mod/catalog' : null;
 
   const sortedFeed = useMemo(() => sortCatalogFeedForDisplay(cappedFeed, sortType), [cappedFeed, sortType]);
 
@@ -373,7 +504,16 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     () => ({
       Footer: () => (
         <>
-          <CatalogFooter communityAddresses={communityAddresses} hasMore={hasMore} combinedFeedLength={cappedFeed.length} showLoadingEllipsis={effectiveInfiniteScroll} />
+          <CatalogFooter
+            communityAddresses={communityAddresses}
+            hasMore={hasMore}
+            combinedFeedLength={cappedFeed.length}
+            currentTimeFilterName={timeFilterName}
+            moreThreadsSuggestion={moreThreadsSuggestion}
+            moreThreadsSuggestionPathname={moreThreadsSuggestionPathname}
+            moreThreadsSuggestionSearch={location.search}
+            showLoadingEllipsis={effectiveInfiniteScroll}
+          />
           <PageFooterDesktop
             firstRow={
               <CatalogFooterFirstRow
@@ -395,12 +535,34 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
         </>
       ),
     }),
-    [communityAddresses, hasMore, cappedFeed.length, communityAddress, isInAllView, isInSubscriptionsView, isInModView, effectiveInfiniteScroll],
+    [
+      communityAddresses,
+      hasMore,
+      cappedFeed.length,
+      timeFilterName,
+      moreThreadsSuggestion,
+      moreThreadsSuggestionPathname,
+      communityAddress,
+      isInAllView,
+      isInSubscriptionsView,
+      isInModView,
+      location.search,
+      effectiveInfiniteScroll,
+    ],
   );
   const catalogFooter = useMemo(
     () => (
       <>
-        <CatalogFooter communityAddresses={communityAddresses} hasMore={hasMore} combinedFeedLength={cappedFeed.length} showLoadingEllipsis={effectiveInfiniteScroll} />
+        <CatalogFooter
+          communityAddresses={communityAddresses}
+          hasMore={hasMore}
+          combinedFeedLength={cappedFeed.length}
+          currentTimeFilterName={timeFilterName}
+          moreThreadsSuggestion={moreThreadsSuggestion}
+          moreThreadsSuggestionPathname={moreThreadsSuggestionPathname}
+          moreThreadsSuggestionSearch={location.search}
+          showLoadingEllipsis={effectiveInfiniteScroll}
+        />
         <PageFooterDesktop
           firstRow={
             <CatalogFooterFirstRow
@@ -421,7 +583,20 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
         </PageFooterMobile>
       </>
     ),
-    [communityAddresses, hasMore, cappedFeed.length, communityAddress, isInAllView, isInSubscriptionsView, isInModView, effectiveInfiniteScroll],
+    [
+      communityAddresses,
+      hasMore,
+      cappedFeed.length,
+      timeFilterName,
+      moreThreadsSuggestion,
+      moreThreadsSuggestionPathname,
+      communityAddress,
+      isInAllView,
+      isInSubscriptionsView,
+      isInModView,
+      location.search,
+      effectiveInfiniteScroll,
+    ],
   );
 
   const isFeedLoaded = feed.length > 0 || state === 'failed';
@@ -529,7 +704,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const catalogViewportBuffer = isMultiboardView ? (isMobile ? { bottom: 2400, top: 1200 } : { bottom: 900, top: 600 }) : { bottom: 1200, top: 1200 };
 
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
-  const virtuosoStateKey = feedCacheKey ? `${feedCacheKey}-${sortType}` : `${location.pathname}-${sortType}-catalog`;
+  const virtuosoStateKey = feedCacheKey ? `${feedCacheKey}-${sortType}` : `${location.pathname}${location.search}-${sortType}-catalog`;
   const navigationType = useNavigationType();
 
   const hasBeenVisibleRef = useRef(false);

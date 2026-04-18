@@ -324,5 +324,8 @@
   "checking_for_updates": "Frissítések keresése...",
   "new_version_found": "új verzió található",
   "site_legal_meta_license_text": "Az 5chan szabad és nyílt forráskódú szoftver a GPL-3.0-or-later alatt.",
-  "community_offline_info": "Ez a tábla offline lehet, és a közzététel sikertelen lehet."
+  "community_offline_info": "Ez a tábla offline lehet, és a közzététel sikertelen lehet.",
+  "more_threads_last_week": "{{count}} szál a {{currentTimeFilterName}} óta — [<1>Mutass több szálat a múlt héten</1>]",
+  "more_threads_last_month": "{{count}} szál {{currentTimeFilterName}} óta — [<1>Több szál megjelenítése a múlt hónapból</1>]",
+  "more_threads_last_year": "{{count}} szál {{currentTimeFilterName}} óta — [<1>Több szál megjelenítése a múlt évből</1>]"
 }

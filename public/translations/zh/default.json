@@ -324,5 +324,8 @@
   "checking_for_updates": "正在检查更新...",
   "new_version_found": "发现新版本",
   "site_legal_meta_license_text": "5chan 是采用 GPL-3.0-or-later 的自由开源软件。",
-  "community_offline_info": "此看板可能处于离线状态，发布可能会失败。"
+  "community_offline_info": "此看板可能处于离线状态，发布可能会失败。",
+  "more_threads_last_week": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多来自上周的主题</1>]",
+  "more_threads_last_month": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多上个月的主题</1>]",
+  "more_threads_last_year": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多去年的主题</1>]"
 }

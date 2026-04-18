@@ -324,5 +324,8 @@
   "checking_for_updates": "Перевірка оновлень...",
   "new_version_found": "знайдено нову версію",
   "site_legal_meta_license_text": "5chan — це вільне програмне забезпечення з відкритим кодом за GPL-3.0-or-later.",
-  "community_offline_info": "Ця дошка може бути офлайн, і публікація може не вдатися."
+  "community_offline_info": "Ця дошка може бути офлайн, і публікація може не вдатися.",
+  "more_threads_last_week": "{{count}} тем з {{currentTimeFilterName}} — [<1>Показати більше тем з минулого тижня</1>]",
+  "more_threads_last_month": "{{count}} тем з {{currentTimeFilterName}} — [<1>Показати більше тем з минулого місяця</1>]",
+  "more_threads_last_year": "{{count}} тем з {{currentTimeFilterName}} — [<1>Показати більше тем з минулого року</1>]"
 }

@@ -324,5 +324,8 @@
   "checking_for_updates": "در حال بررسی به‌روزرسانی‌ها...",
   "new_version_found": "نسخه جدید یافت شد",
   "site_legal_meta_license_text": "5chan نرم‌افزار آزاد و متن‌باز تحت GPL-3.0-or-later است.",
-  "community_offline_info": "این بورد ممکن است آفلاین باشد و انتشار ممکن است با شکست مواجه شود."
+  "community_offline_info": "این بورد ممکن است آفلاین باشد و انتشار ممکن است با شکست مواجه شود.",
+  "more_threads_last_week": "{{count}} موضوع از {{currentTimeFilterName}} — [<1>نمایش موضوعات بیشتر از هفته گذشته</1>]",
+  "more_threads_last_month": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های ماه گذشته</1>]",
+  "more_threads_last_year": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های سال گذشته</1>]"
 }

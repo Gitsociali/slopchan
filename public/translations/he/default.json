@@ -324,5 +324,8 @@
   "checking_for_updates": "בודק עדכונים...",
   "new_version_found": "נמצאה גרסה חדשה",
   "site_legal_meta_license_text": "5chan היא תוכנה חופשית וקוד פתוח תחת GPL-3.0-or-later.",
-  "community_offline_info": "הלוח הזה עשוי להיות לא מקוון והפרסום עלול להיכשל."
+  "community_offline_info": "הלוח הזה עשוי להיות לא מקוון והפרסום עלול להיכשל.",
+  "more_threads_last_week": "{{count}} אשכולות מאז {{currentTimeFilterName}} — [<1>הצג עוד אשכולות מהשבוע שעבר</1>]",
+  "more_threads_last_month": "{{count}} חוטים מאז {{currentTimeFilterName}} — [<1>הצג עוד חוטים מהחודש שעבר</1>]",
+  "more_threads_last_year": "{{count}} חוטים מאז {{currentTimeFilterName}} — [<1>הצג עוד חוטים מהשנה שעברה</1>]"
 }

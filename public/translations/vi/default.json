@@ -324,5 +324,8 @@
   "checking_for_updates": "Đang kiểm tra cập nhật...",
   "new_version_found": "đã tìm thấy phiên bản mới",
   "site_legal_meta_license_text": "5chan là phần mềm miễn phí và mã nguồn mở theo GPL-3.0-or-later.",
-  "community_offline_info": "Bảng này có thể đang offline và việc xuất bản có thể thất bại."
+  "community_offline_info": "Bảng này có thể đang offline và việc xuất bản có thể thất bại.",
+  "more_threads_last_week": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Xem thêm chủ đề từ tuần trước</1>]",
+  "more_threads_last_month": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ tháng trước</1>]",
+  "more_threads_last_year": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ năm ngoái</1>]"
 }

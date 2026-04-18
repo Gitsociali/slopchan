@@ -324,5 +324,8 @@
   "checking_for_updates": "Suche nach Updates...",
   "new_version_found": "neue Version gefunden",
   "site_legal_meta_license_text": "5chan ist freie Open-Source-Software unter GPL-3.0-or-later.",
-  "community_offline_info": "Dieses Board könnte offline sein und die Veröffentlichung könnte fehlschlagen."
+  "community_offline_info": "Dieses Board könnte offline sein und die Veröffentlichung könnte fehlschlagen.",
+  "more_threads_last_week": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads aus der letzten Woche anzeigen</1>]",
+  "more_threads_last_month": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Monat anzeigen</1>]",
+  "more_threads_last_year": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Jahr anzeigen</1>]"
 }

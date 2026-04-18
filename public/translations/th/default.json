@@ -324,5 +324,8 @@
   "checking_for_updates": "กำลังตรวจสอบการอัปเดต...",
   "new_version_found": "พบเวอร์ชันใหม่",
   "site_legal_meta_license_text": "5chan เป็นซอฟต์แวร์เสรีและโอเพนซอร์สภายใต้ GPL-3.0-or-later",
-  "community_offline_info": "บอร์ดนี้อาจออฟไลน์และการเผยแพร่อาจล้มเหลว"
+  "community_offline_info": "บอร์ดนี้อาจออฟไลน์และการเผยแพร่อาจล้มเหลว",
+  "more_threads_last_week": "{{count}} กระทู้ตั้งแต่ {{currentTimeFilterName}} — [<1>แสดงกระทู้เพิ่มเติมจากสัปดาห์ที่แล้ว</1>]",
+  "more_threads_last_month": "{{count}} กระทู้ตั้งแต่ {{currentTimeFilterName}} — [<1>แสดงกระทู้จากเดือนที่แล้วเพิ่มเติม</1>]",
+  "more_threads_last_year": "{{count}} กระทู้ตั้งแต่ {{currentTimeFilterName}} — [<1>แสดงกระทู้จากปีที่แล้วเพิ่มเติม</1>]"
 }

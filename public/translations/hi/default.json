@@ -324,5 +324,8 @@
   "checking_for_updates": "अपडेट जाँच रहा है...",
   "new_version_found": "नया संस्करण मिला",
   "site_legal_meta_license_text": "5chan GPL-3.0-or-later के तहत मुक्त और ओपन-सोर्स सॉफ़्टवेयर है।",
-  "community_offline_info": "यह बोर्ड ऑफ़लाइन हो सकता है और प्रकाशन विफल हो सकता है।"
+  "community_offline_info": "यह बोर्ड ऑफ़लाइन हो सकता है और प्रकाशन विफल हो सकता है।",
+  "more_threads_last_week": "{{count}} थ्रेड {{currentTimeFilterName}} से — [<1>पिछले सप्ताह के और थ्रेड दिखाएं</1>]",
+  "more_threads_last_month": "{{count}} थ्रेड्स {{currentTimeFilterName}} से — [<1>अगले महीने के अधिक थ्रेड्स दिखाएं</1>]",
+  "more_threads_last_year": "{{count}} थ्रेड्स {{currentTimeFilterName}} से — [<1>पिछले साल के अधिक थ्रेड्स दिखाएं</1>]"
 }

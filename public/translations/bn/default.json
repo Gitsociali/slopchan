@@ -324,5 +324,8 @@
   "checking_for_updates": "আপডেট পরীক্ষা করা হচ্ছে...",
   "new_version_found": "নতুন সংস্করণ পাওয়া গেছে",
   "site_legal_meta_license_text": "5chan হলো GPL-3.0-or-later-এর অধীনে মুক্ত এবং ওপেন-সোর্স সফটওয়্যার।",
-  "community_offline_info": "এই বোর্ডটি অফলাইনে থাকতে পারে এবং প্রকাশনা ব্যর্থ হতে পারে।"
+  "community_offline_info": "এই বোর্ডটি অফলাইনে থাকতে পারে এবং প্রকাশনা ব্যর্থ হতে পারে।",
+  "more_threads_last_week": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত সপ্তাহের আরও থ্রেড দেখান</1>]",
+  "more_threads_last_month": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত মাসের আরও থ্রেড দেখান</1>]",
+  "more_threads_last_year": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত বছরের আরও থ্রেড দেখান</1>]"
 }

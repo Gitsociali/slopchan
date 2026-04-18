@@ -1,4 +1,5 @@
 import { DirectoryCommunity, findDirectoryByAddress, normalizeBoardAddress } from '../../hooks/use-directories';
+import { getEffectiveTimeFilterName, getSearchWithTimeFilter } from './time-filter-utils';
 
 /**
  * Extract directory short code from title (e.g., "/biz/ - Business & Finance" -> "biz")
@@ -256,7 +257,7 @@ export const getPageFromFeedPath = (pathname: string): number => {
   return 1;
 };
 
-export const getFeedCacheKey = (pathname: string): string | null => {
+export const getFeedCacheKey = (pathname: string, search = ''): string | null => {
   let normalizedPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
   normalizedPath = normalizedPath.replace(/\/settings$/, '');
 
@@ -274,7 +275,12 @@ export const getFeedCacheKey = (pathname: string): string | null => {
   }
 
   if (isFeedRoute(pathname)) {
-    return stripPageFromFeedPath(normalizedPath);
+    const strippedFeedPath = stripPageFromFeedPath(normalizedPath);
+    if (isMultiboardFeedPath(strippedFeedPath)) {
+      const timeFilterName = getEffectiveTimeFilterName(search);
+      return `${strippedFeedPath}${getSearchWithTimeFilter('', timeFilterName)}`;
+    }
+    return strippedFeedPath;
   }
 
   return null;

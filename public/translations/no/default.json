@@ -324,5 +324,8 @@
   "checking_for_updates": "Sjekker etter oppdateringer...",
   "new_version_found": "ny versjon funnet",
   "site_legal_meta_license_text": "5chan er fri programvare med åpen kildekode under GPL-3.0-or-later.",
-  "community_offline_info": "Dette brettet kan være offline og publisering kan mislykkes."
+  "community_offline_info": "Dette brettet kan være offline og publisering kan mislykkes.",
+  "more_threads_last_week": "{{count}} tråder siden {{currentTimeFilterName}} — [<1>Vis flere tråder fra forrige uke</1>]",
+  "more_threads_last_month": "{{count}} tråder siden {{currentTimeFilterName}} — [<1>Vis flere tråder fra forrige måned</1>]",
+  "more_threads_last_year": "{{count}} tråder siden {{currentTimeFilterName}} — [<1>Vis flere tråder fra forrige år</1>]"
 }

@@ -324,5 +324,8 @@
   "checking_for_updates": "Memeriksa pembaruan...",
   "new_version_found": "versi baru ditemukan",
   "site_legal_meta_license_text": "5chan adalah perangkat lunak bebas dan open-source di bawah GPL-3.0-or-later.",
-  "community_offline_info": "Papan ini mungkin offline dan publikasi mungkin gagal."
+  "community_offline_info": "Papan ini mungkin offline dan publikasi mungkin gagal.",
+  "more_threads_last_week": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Show lebih banyak thread dari minggu lalu</1>]",
+  "more_threads_last_month": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari bulan lalu</1>]",
+  "more_threads_last_year": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari tahun lalu</1>]"
 }

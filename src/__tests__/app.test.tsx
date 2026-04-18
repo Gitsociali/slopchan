@@ -111,6 +111,7 @@ function makeNamedComponent(name: string) {
 
 vi.mock('../components/board-buttons', () => ({
   DesktopBoardButtons: makeNamedComponent('desktop-board-buttons'),
+  MobileAllFeedFilter: makeNamedComponent('mobile-all-feed-filter'),
   MobileBoardButtons: makeNamedComponent('mobile-board-buttons'),
 }));
 

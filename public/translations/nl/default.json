@@ -324,5 +324,8 @@
   "checking_for_updates": "Controleren op updates...",
   "new_version_found": "nieuwe versie gevonden",
   "site_legal_meta_license_text": "5chan is vrije en open-source software onder GPL-3.0-or-later.",
-  "community_offline_info": "Dit bord kan offline zijn en publiceren kan mislukken."
+  "community_offline_info": "Dit bord kan offline zijn en publiceren kan mislukken.",
+  "more_threads_last_week": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Toon meer threads van vorige week</1>]",
+  "more_threads_last_month": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen maand tonen</1>]",
+  "more_threads_last_year": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen jaar tonen</1>]"
 }

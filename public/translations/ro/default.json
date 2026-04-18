@@ -324,5 +324,8 @@
   "checking_for_updates": "Se verifică actualizările...",
   "new_version_found": "versiune nouă găsită",
   "site_legal_meta_license_text": "5chan este software liber și open-source sub GPL-3.0-or-later.",
-  "community_offline_info": "Acest panou poate fi offline și publicarea poate eșua."
+  "community_offline_info": "Acest panou poate fi offline și publicarea poate eșua.",
+  "more_threads_last_week": "{{count}} fire de discuție de la {{currentTimeFilterName}} — [<1>Arată mai multe fire din săptămâna trecută</1>]",
+  "more_threads_last_month": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de luna trecută</1>]",
+  "more_threads_last_year": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de anul trecut</1>]"
 }

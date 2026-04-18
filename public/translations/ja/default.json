@@ -324,5 +324,8 @@
   "checking_for_updates": "更新を確認しています...",
   "new_version_found": "新しいバージョンが見つかりました",
   "site_legal_meta_license_text": "5chanはGPL-3.0-or-laterのもとで提供される自由かつオープンソースのソフトウェアです。",
-  "community_offline_info": "このボードはオフラインの可能性があり、公開が失敗する可能性があります。"
+  "community_offline_info": "このボードはオフラインの可能性があり、公開が失敗する可能性があります。",
+  "more_threads_last_week": "{{count}} スレッド {{currentTimeFilterName}} から — [<1>先週のスレッドをさらに表示</1>]",
+  "more_threads_last_month": "{{count}} スレッド {{currentTimeFilterName}} から — [<1>先月のスレッドをさらに表示</1>]",
+  "more_threads_last_year": "{{count}} スレッド {{currentTimeFilterName}} から — [<1>去年のスレッドをさらに表示</1>]"
 }

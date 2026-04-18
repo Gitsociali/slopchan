@@ -324,5 +324,8 @@
   "checking_for_updates": "Έλεγχος για ενημερώσεις...",
   "new_version_found": "βρέθηκε νέα έκδοση",
   "site_legal_meta_license_text": "Το 5chan είναι ελεύθερο λογισμικό ανοιχτού κώδικα υπό την GPL-3.0-or-later.",
-  "community_offline_info": "Αυτός ο πίνακας μπορεί να είναι εκτός σύνδεσης και η δημοσίευση μπορεί να αποτύχει."
+  "community_offline_info": "Αυτός ο πίνακας μπορεί να είναι εκτός σύνδεσης και η δημοσίευση μπορεί να αποτύχει.",
+  "more_threads_last_week": "{{count}} θέματα από {{currentTimeFilterName}} — [<1>Εμφάνιση περισσότερων θεμάτων από την περασμένη εβδομάδα</1>]",
+  "more_threads_last_month": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από τον τελευταίο μήνα</1>]",
+  "more_threads_last_year": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από το περασμένο έτος</1>]"
 }
