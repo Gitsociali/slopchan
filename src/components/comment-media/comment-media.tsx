@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CommentMediaInfo, getDisplayMediaInfoType, getHasThumbnail, getMediaDimensions } from '../../lib/utils/media-utils';
 import { getHostname } from '../../lib/utils/url-utils';
@@ -202,7 +202,8 @@ const Media = ({ commentMediaInfo, disableToggle, isReply, setShowThumbnail }: M
   const { t } = useTranslation();
   const { thumbnail, type, url } = commentMediaInfo || {};
   const isMobile = useIsMobile();
-  const { fitExpandedImagesToScreen, unmuteExpandedVideoSound } = useExpandedMediaStore();
+  const fitExpandedImagesToScreen = useExpandedMediaStore((s) => s.fitExpandedImagesToScreen);
+  const unmuteExpandedVideoSound = useExpandedMediaStore((s) => s.unmuteExpandedVideoSound);
   const mediaClass = `${isMobile ? styles.mediaMobile : isReply ? styles.mediaDesktopReply : styles.mediaDesktopOp} ${
     fitExpandedImagesToScreen ? styles.fitToScreen : ''
   }`;
@@ -299,7 +300,7 @@ const Image = ({ commentMediaInfo, disableToggle = false, displayHeight, display
   const isReply = parentCid;
   const isMobile = useIsMobile();
   const [isImageExpanded, setIsImageExpanded] = useState(initialExpanded);
-  const { fitExpandedImagesToScreen } = useExpandedMediaStore();
+  const fitExpandedImagesToScreen = useExpandedMediaStore((s) => s.fitExpandedImagesToScreen);
   const mediaDimensions = getMediaDimensions(commentMediaInfo);
   const mediaClass = `${isMobile ? styles.mediaMobile : isReply ? styles.mediaDesktopReply : styles.mediaDesktopOp} ${
     fitExpandedImagesToScreen ? styles.fitToScreen : ''
@@ -501,4 +502,21 @@ const CommentMedia = ({
   );
 };
 
-export default CommentMedia;
+export default memo(CommentMedia, (prev, next) => {
+  return (
+    prev.commentMediaInfo === next.commentMediaInfo &&
+    prev.deleted === next.deleted &&
+    prev.disableToggle === next.disableToggle &&
+    prev.isFloatingEmbed === next.isFloatingEmbed &&
+    prev.isOutOfFeed === next.isOutOfFeed &&
+    prev.isReply === next.isReply &&
+    prev.linkHeight === next.linkHeight &&
+    prev.linkWidth === next.linkWidth &&
+    prev.parentCid === next.parentCid &&
+    prev.purged === next.purged &&
+    prev.removed === next.removed &&
+    prev.showThumbnail === next.showThumbnail &&
+    prev.setShowThumbnail === next.setShowThumbnail &&
+    prev.spoiler === next.spoiler
+  );
+});

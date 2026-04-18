@@ -402,7 +402,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, i
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
   const virtuosoStateKey = feedCacheKey ? `${feedCacheKey}-${BOARD_SORT_TYPE}` : `${location.pathname}-${BOARD_SORT_TYPE}`;
   const navigationType = useNavigationType();
-  const boardViewportBuffer = isMultiboardView ? (isMobile ? { bottom: 1400, top: 2400 } : { bottom: 600, top: 600 }) : { bottom: 1200, top: 1200 };
+  const boardViewportBuffer = isMultiboardView ? (isMobile ? { bottom: 1400, top: 2400 } : { bottom: 1200, top: 2400 }) : { bottom: 1200, top: 1200 };
   const boardMinOverscanItemCount = isMultiboardView && isMobile ? { bottom: 4, top: 8 } : undefined;
 
   const boardItemContent = useCallback(

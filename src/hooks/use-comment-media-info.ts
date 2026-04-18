@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { getCommentMediaInfo, fetchWebpageThumbnailIfNeeded, CommentMediaInfo } from '../lib/utils/media-utils';
 import { isPendingPostView, isPostPageView } from '../lib/utils/view-utils';
@@ -65,16 +65,15 @@ export const useCommentMediaInfo = (link: string, thumbnailUrl: string, linkWidt
     };
   }, [link, thumbnailUrl, linkWidth, linkHeight, isInPostPageView, isInPendingPostView]);
 
-  const mediaInfo = getCommentMediaInfo(link, thumbnailUrl, linkWidth, linkHeight);
-
-  // Return media info with cached thumbnail dimensions if available
-  if (thumbnailDimensions && mediaInfo) {
-    return {
-      ...mediaInfo,
-      thumbnailWidth: thumbnailDimensions.width,
-      thumbnailHeight: thumbnailDimensions.height,
-    };
-  }
-
-  return mediaInfo;
+  return useMemo(() => {
+    const mediaInfo = getCommentMediaInfo(link, thumbnailUrl, linkWidth, linkHeight);
+    if (thumbnailDimensions && mediaInfo) {
+      return {
+        ...mediaInfo,
+        thumbnailWidth: thumbnailDimensions.width,
+        thumbnailHeight: thumbnailDimensions.height,
+      };
+    }
+    return mediaInfo;
+  }, [link, thumbnailUrl, linkWidth, linkHeight, thumbnailDimensions]);
 };
