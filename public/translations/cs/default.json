@@ -360,5 +360,8 @@
   "pass_answer_vpn": "Ne. Protože je 5chan Pass plánován jako přihlašovací údaj založený na NFT, nemá být závislý na pevné IP adrese. Není zamýšleno žádné omezení na základě používání VPN, proxy serverů nebo změn sítě.",
   "pass_answer_fiat": "Ne. Až bude 5chan Pass spuštěn, platba bude pouze kryptem.",
   "pass_answer_bypass": "Ne. Pass není způsob, jak obejít bany, omezení přispívání ani moderaci boardu. Každý board si stále stanovuje a vymáhá vlastní pravidla.",
-  "pass_answer_privileges": "Ne. Koupě pass z nikoho neudělá moderator, admin ani vlastníka board. Je to podpůrný nákup, ne obejití governance."
+  "pass_answer_privileges": "Ne. Koupě pass z nikoho neudělá moderator, admin ani vlastníka board. Je to podpůrný nákup, ne obejití governance.",
+  "more_threads_last_week": "{{count}} vláken od {{currentTimeFilterName}} — [<1>Ukázat více vláken z minulého týdne</1>]",
+  "more_threads_last_month": "{{count}} příspěvků od {{currentTimeFilterName}} — [<1>Zobrazit více příspěvků z minulého měsíce</1>]",
+  "more_threads_last_year": "{{count}} příspěvků od {{currentTimeFilterName}} — [<1>Zobrazit více příspěvků z minulého roku</1>]"
 }

@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Catalog, { getCatalogRenderFeed, type CatalogProps } from '../catalog';
+import { clearStableLastVisitTimeFilterName, LAST_VISIT_STORAGE_KEY } from '../../../lib/utils/time-filter-utils';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -35,6 +36,7 @@ const testState = vi.hoisted(() => ({
   account: { subscriptions: [] as string[] },
   accountComments: [] as TestComment[],
   accountCommentsCalls: [] as Array<{ commentIndices?: number[]; communityAddress?: string; newerThan?: number; sortType?: 'new' | 'old' } | undefined>,
+  accountCommunityAddresses: [] as string[],
   directoryByAddress: {
     'music-posting.eth': {
       address: 'music-posting.eth',
@@ -43,7 +45,7 @@ const testState = vi.hoisted(() => ({
   } as Record<string, { address: string; features?: Record<string, unknown> }>,
   directories: [{ address: 'music-posting.eth', title: '/mu/ - Music' }] as Array<{ address: string; title?: string }>,
   feed: [] as TestComment[],
-  feedOptionsCalls: [] as Array<{ postsPerPage?: number }>,
+  feedOptionsCalls: [] as Array<{ communitiesLength?: number; newerThan?: number; postsPerPage?: number; sortType?: string }>,
   filterItems: [] as FilterItem[],
   filteredDirectoryAddresses: ['music-posting.eth'] as string[],
   hasMore: false,
@@ -55,6 +57,7 @@ const testState = vi.hoisted(() => ({
     maxGuiPages: 3,
     paginationFeedPostsPerPage: 6,
   },
+  respectPostsPerPageForNewerThan: new Set<number>(),
   resetMock: vi.fn(),
   resolvedCommunityAddress: 'music-posting.eth' as string | undefined,
   searchText: '',
@@ -89,6 +92,7 @@ function useCatalogFiltersStoreMock<T>(selector?: (state: ReturnType<typeof getC
 useCatalogFiltersStoreMock.getState = getCatalogFiltersState;
 
 vi.mock('react-i18next', () => ({
+  Trans: ({ components, i18nKey }: { components?: Record<number, React.ReactNode>; i18nKey: string }) => createElement(React.Fragment, {}, i18nKey, components?.[1]),
   useTranslation: () => ({
     t: (key: string) => key,
   }),
@@ -116,16 +120,46 @@ const getScopedAccountComments = (options?: { commentIndices?: number[]; communi
   return scopedComments;
 };
 
+const getScopedFeed = (options?: { filter?: { filter: (comment: TestComment) => boolean }; newerThan?: number; postsPerPage?: number }) => {
+  let scopedFeed = [...testState.feed];
+
+  if (typeof options?.newerThan === 'number') {
+    const newerThanTimestamp = Math.floor(Date.now() / 1000) - options.newerThan;
+    scopedFeed = scopedFeed.filter((comment) => (comment.timestamp ?? Math.floor(Date.now() / 1000)) > newerThanTimestamp);
+  }
+
+  if (options?.filter) {
+    scopedFeed = scopedFeed.filter((comment) => options.filter?.filter(comment));
+  }
+
+  if (typeof options?.postsPerPage === 'number' && testState.respectPostsPerPageForNewerThan.has(options?.newerThan ?? -1)) {
+    scopedFeed = scopedFeed.slice(0, options.postsPerPage);
+  }
+
+  return scopedFeed;
+};
+
 vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountComments: (options?: { commentIndices?: number[]; communityAddress?: string; newerThan?: number; sortType?: 'new' | 'old' }) => {
     testState.accountCommentsCalls.push(options);
     return { accountComments: getScopedAccountComments(options) };
   },
-  useFeed: (options: { filter?: { filter: (comment: TestComment) => boolean }; postsPerPage?: number }) => {
-    testState.feedOptionsCalls.push({ postsPerPage: options.postsPerPage });
+  useFeed: (options: {
+    communities?: unknown[];
+    filter?: { filter: (comment: TestComment) => boolean };
+    newerThan?: number;
+    postsPerPage?: number;
+    sortType?: string;
+  }) => {
+    testState.feedOptionsCalls.push({
+      communitiesLength: options.communities?.length,
+      newerThan: options.newerThan,
+      postsPerPage: options.postsPerPage,
+      sortType: options.sortType,
+    });
     return {
-      feed: options.filter ? testState.feed.filter((comment) => options.filter?.filter(comment)) : testState.feed,
+      feed: getScopedFeed(options),
       hasMore: testState.hasMore,
       loadMore: testState.loadMoreMock,
       reset: testState.resetMock,
@@ -177,6 +211,10 @@ vi.mock('../../../hooks/use-directories', () => ({
 
 vi.mock('../../../hooks/use-board-feed-page-size', () => ({
   useBoardFeedPageSize: () => testState.pageSizes,
+}));
+
+vi.mock('../../../hooks/use-account-community-addresses', () => ({
+  useAccountCommunityAddresses: () => testState.accountCommunityAddresses,
 }));
 
 vi.mock('../../../hooks/use-filtered-directory-addresses', () => ({
@@ -264,8 +302,8 @@ let root: Root;
 const LocationProbe = () => {
   const location = useLocation();
   React.useLayoutEffect(() => {
-    latestLocation = location.pathname;
-  }, [location.pathname]);
+    latestLocation = `${location.pathname}${location.search}`;
+  }, [location.pathname, location.search]);
   return null;
 };
 
@@ -305,6 +343,7 @@ describe('Catalog', () => {
     testState.account = { subscriptions: [] };
     testState.accountComments = [];
     testState.accountCommentsCalls = [];
+    testState.accountCommunityAddresses = [];
     testState.directories = [{ address: 'music-posting.eth', title: '/mu/ - Music' }];
     testState.directoryByAddress = {
       'music-posting.eth': {
@@ -323,6 +362,7 @@ describe('Catalog', () => {
       maxGuiPages: 3,
       paginationFeedPostsPerPage: 6,
     };
+    testState.respectPostsPerPageForNewerThan = new Set();
     testState.resolvedCommunityAddress = 'music-posting.eth';
     testState.searchText = '';
     testState.showOPComment = true;
@@ -341,6 +381,8 @@ describe('Catalog', () => {
     testState.setCurrentCommunityAddressMock.mockReset();
     testState.setResetFunctionMock.mockReset();
     document.title = 'before';
+    clearStableLastVisitTimeFilterName();
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(Date.now()));
 
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -350,6 +392,8 @@ describe('Catalog', () => {
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
+    clearStableLastVisitTimeFilterName();
+    localStorage.clear();
   });
 
   it('applies catalog filters and promotes top matches', async () => {
@@ -408,13 +452,109 @@ describe('Catalog', () => {
     });
 
     expect(latestLocation).toBe('/all/catalog');
-    expect(testState.feedOptionsCalls.at(-1)?.postsPerPage).toBe(24);
+    expect(testState.feedOptionsCalls).toEqual(expect.arrayContaining([expect.objectContaining({ postsPerPage: 24 })]));
+    const loadMoreCallCountBeforeEndReached = testState.loadMoreMock.mock.calls.length;
 
     await act(async () => {
       container.querySelector<HTMLButtonElement>('[data-testid="end-reached"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    expect(testState.loadMoreMock).toHaveBeenCalledTimes(1);
+    expect(testState.loadMoreMock.mock.calls.length).toBe(loadMoreCallCountBeforeEndReached + 1);
+  });
+
+  it('passes multiboard time filters to useFeed and keeps query params during canonical redirects', async () => {
+    testState.feed = [{ cid: 'all-post', title: 'one', communityAddress: 'music-posting.eth' }];
+
+    await renderCatalog({
+      catalogProps: { viewType: 'all', timeFilterNameFromCache: '48h' },
+      initialEntry: '/all/catalog/7?t=24h',
+      routePath: '/all/*',
+    });
+
+    expect(latestLocation).toBe('/all/catalog?t=24h');
+    expect(testState.feedOptionsCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          newerThan: 48 * 60 * 60,
+          postsPerPage: 24,
+          sortType: 'new',
+        }),
+      ]),
+    );
+  });
+
+  it('shows a wider multiboard catalog time-filter suggestion when older threads exist', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String((now - 3 * 24 * 60 * 60) * 1000));
+    testState.feed = [
+      { cid: 'recent-post', title: 'recent', communityAddress: 'music-posting.eth', timestamp: now - 2 * 24 * 60 * 60 },
+      { cid: 'older-post', title: 'older', communityAddress: 'music-posting.eth', timestamp: now - 5 * 24 * 60 * 60 },
+    ];
+
+    await renderCatalog({
+      catalogProps: { viewType: 'all' },
+      initialEntry: '/all/catalog?t=last',
+      routePath: '/all/*',
+    });
+
+    expect(testState.feedOptionsCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ newerThan: 7 * 24 * 60 * 60 }),
+        expect.objectContaining({ newerThan: 30 * 24 * 60 * 60 }),
+        expect.objectContaining({ newerThan: 365 * 24 * 60 * 60 }),
+      ]),
+    );
+    expect(Array.from(container.querySelectorAll('a')).some((link) => link.getAttribute('href') === '/all/catalog?t=1w')).toBe(true);
+  });
+
+  it('keeps broader catalog suggestion feeds on the base page size so their identities stay stable while scrolling', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    testState.feed = [
+      ...Array.from({ length: 25 }, (_, index) => ({
+        cid: `post-${index + 1}`,
+        title: `thread ${index + 1}`,
+        communityAddress: 'music-posting.eth',
+        timestamp: now - (index + 1) * 60 * 60,
+      })),
+      { cid: 'older-post', title: 'older thread', communityAddress: 'music-posting.eth', timestamp: now - 20 * 24 * 60 * 60 },
+    ];
+    testState.pageSizes = {
+      guiPostsPerPage: 2,
+      maxGuiPages: 3,
+      paginationFeedPostsPerPage: 6,
+    };
+    testState.respectPostsPerPageForNewerThan = new Set([30 * 24 * 60 * 60, 365 * 24 * 60 * 60]);
+
+    await renderCatalog({
+      catalogProps: { viewType: 'all' },
+      initialEntry: '/all/catalog?t=1w',
+      routePath: '/all/*',
+    });
+
+    expect(testState.feedOptionsCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ newerThan: 30 * 24 * 60 * 60, postsPerPage: 24, sortType: 'new' }),
+        expect.objectContaining({ newerThan: 365 * 24 * 60 * 60, postsPerPage: 24, sortType: 'new' }),
+      ]),
+    );
+  });
+
+  it('disables broader suggestion probe feeds when the multiboard filter is already all', async () => {
+    testState.feed = [{ cid: 'all-post', title: 'one', communityAddress: 'music-posting.eth' }];
+
+    await renderCatalog({
+      catalogProps: { viewType: 'all' },
+      initialEntry: '/all/catalog?t=all',
+      routePath: '/all/*',
+    });
+
+    expect(testState.feedOptionsCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ newerThan: 7 * 24 * 60 * 60, communitiesLength: 0 }),
+        expect.objectContaining({ newerThan: 30 * 24 * 60 * 60, communitiesLength: 0 }),
+        expect.objectContaining({ newerThan: 365 * 24 * 60 * 60, communitiesLength: 0 }),
+      ]),
+    );
   });
 
   it('captures Virtuoso state on pagehide instead of wiring a scroll hot-path listener', async () => {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   areSameBoardAddress,
   extractDirectoryFromTitle,
@@ -20,6 +20,7 @@ import {
   normalizeMultiboardFeedPath,
   stripPageFromFeedPath,
 } from '../route-utils';
+import { clearStableLastVisitTimeFilterName, LAST_VISIT_STORAGE_KEY, touchLastVisitTimestamp } from '../time-filter-utils';
 
 const communities = [
   { address: 'business.eth', title: '/biz/ - Business & Finance' },
@@ -31,6 +32,11 @@ const communities = [
   },
   { address: 'random.eth', directoryCode: 'b', title: 'Random' },
 ];
+
+beforeEach(() => {
+  clearStableLastVisitTimeFilterName();
+  localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(Date.now()));
+});
 
 describe('directory mapping helpers', () => {
   it('extracts short codes from titled directories', () => {
@@ -189,7 +195,21 @@ describe('feed cache helpers', () => {
     expect(getFeedCacheKey('/biz/3/settings')).toBe('/biz');
     expect(getFeedCacheKey('/biz/catalog/4')).toBe('/biz/catalog');
     expect(getFeedCacheKey('/biz/thread/abc')).toBe('/biz');
+    expect(getFeedCacheKey('/all')).toBe('/all?t=24h');
+    expect(getFeedCacheKey('/all/catalog', '?t=last')).toBe('/all/catalog?t=24h');
+    expect(getFeedCacheKey('/all/catalog', '?t=1w&q=cats')).toBe('/all/catalog?t=1w');
     expect(getFeedCacheKey('/biz/archive')).toBeNull();
+  });
+
+  it('keeps the last-visit alias stable after the current visit starts updating storage', () => {
+    const justOverTwoDaysAgo = Date.now() - (2 * 24 * 60 * 60 * 1000 + 1000);
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(justOverTwoDaysAgo));
+
+    expect(getFeedCacheKey('/all/catalog', '?t=last')).toBe('/all/catalog?t=3d');
+
+    touchLastVisitTimestamp();
+
+    expect(getFeedCacheKey('/all/catalog', '?t=last')).toBe('/all/catalog?t=3d');
   });
 
   it('returns null cache keys for non-feed routes', () => {

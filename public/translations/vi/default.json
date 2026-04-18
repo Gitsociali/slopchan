@@ -360,5 +360,8 @@
   "pass_answer_vpn": "Không. Vì 5chan Pass được lên kế hoạch như một credential dựa trên NFT, nó không được thiết kế để phụ thuộc vào một địa chỉ IP cố định. Không có hạn chế nào được dự định dựa trên việc sử dụng VPN, proxy hoặc thay đổi mạng.",
   "pass_answer_fiat": "Không. Khi 5chan Pass ra mắt, thanh toán sẽ chỉ dùng crypto.",
   "pass_answer_bypass": "Không. Pass không phải là cách để lách lệnh cấm, hạn chế đăng bài hoặc việc kiểm duyệt của board. Mỗi board vẫn tự đặt ra và thực thi các quy tắc riêng của mình.",
-  "pass_answer_privileges": "Không. Mua pass sẽ không biến ai đó thành moderator, admin hoặc chủ sở hữu của một board. Đây là một khoản mua để ủng hộ, không phải cách ghi đè cơ chế quản trị."
+  "pass_answer_privileges": "Không. Mua pass sẽ không biến ai đó thành moderator, admin hoặc chủ sở hữu của một board. Đây là một khoản mua để ủng hộ, không phải cách ghi đè cơ chế quản trị.",
+  "more_threads_last_week": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Xem thêm chủ đề từ tuần trước</1>]",
+  "more_threads_last_month": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ tháng trước</1>]",
+  "more_threads_last_year": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ năm ngoái</1>]"
 }

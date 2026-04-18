@@ -17,11 +17,13 @@ import useFeedViewSettingsStore from '../../stores/use-feed-view-settings-store'
 import useThreadLiveUpdatesStore from '../../stores/use-thread-live-updates-store';
 import useCountLinksInReplies from '../../hooks/use-count-links-in-replies';
 import useIsMobile from '../../hooks/use-is-mobile';
+import useTimeFilter from '../../hooks/use-time-filter';
 import CatalogFilters from '../catalog-filters';
 import CatalogSearch from '../catalog-search';
 import Tooltip from '../tooltip';
 import { ModQueueButton } from '../../views/mod-queue/mod-queue';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
+import { getSearchWithTimeFilter, getTimeFilterOptionLabel } from '../../lib/utils/time-filter-utils';
 import styles from './board-buttons.module.css';
 import capitalize from 'lodash/capitalize';
 
@@ -35,14 +37,39 @@ interface BoardButtonsProps {
   isTopbar?: boolean;
 }
 
+const getMultiboardPath = ({
+  isInAllView,
+  isInCatalogView,
+  isInSubscriptionsView,
+  isInModView,
+}: Pick<BoardButtonsProps, 'isInAllView' | 'isInCatalogView' | 'isInSubscriptionsView' | 'isInModView'>) => {
+  if (isInAllView) {
+    return isInCatalogView ? '/all/catalog' : '/all';
+  }
+  if (isInSubscriptionsView) {
+    return isInCatalogView ? '/subs/catalog' : '/subs';
+  }
+  if (isInModView) {
+    return isInCatalogView ? '/mod/catalog' : '/mod';
+  }
+
+  return null;
+};
+
 export const CatalogButton = ({ address, isInAllView, isInSubscriptionsView, isInModView }: BoardButtonsProps) => {
   const { t } = useTranslation();
+  const location = useLocation();
   const directories = useDirectories();
+  const { timeFilterValue } = useTimeFilter();
 
   const createCatalogLink = () => {
-    if (isInAllView) return `/all/catalog`;
-    if (isInSubscriptionsView) return `/subs/catalog`;
-    if (isInModView) return `/mod/catalog`;
+    const multiboardPath = getMultiboardPath({ isInAllView, isInCatalogView: true, isInSubscriptionsView, isInModView });
+    if (multiboardPath) {
+      return {
+        pathname: multiboardPath,
+        search: getSearchWithTimeFilter(location.search, timeFilterValue),
+      };
+    }
     let boardPath = '';
     if (address) {
       boardPath = getBoardPath(address, directories);
@@ -94,12 +121,12 @@ const SubscribeButton = ({ address }: BoardButtonsProps) => {
 
 export const ReturnButton = ({ address, isInAllView, isInSubscriptionsView, isInModView, isInModQueueView }: BoardButtonsProps) => {
   const { t } = useTranslation();
+  const location = useLocation();
   const params = useParams();
   const directories = useDirectories();
+  const { timeFilterValue } = useTimeFilter();
 
   const createReturnLink = () => {
-    if (isInAllView) return `/all`;
-    if (isInSubscriptionsView) return `/subs`;
     if (isInModQueueView) {
       // If in mod queue view, return to /mod or /:boardIdentifier
       if (params?.boardIdentifier) {
@@ -107,7 +134,13 @@ export const ReturnButton = ({ address, isInAllView, isInSubscriptionsView, isIn
       }
       return `/mod`;
     }
-    if (isInModView) return `/mod`;
+    const multiboardPath = getMultiboardPath({ isInAllView, isInCatalogView: false, isInSubscriptionsView, isInModView });
+    if (multiboardPath) {
+      return {
+        pathname: multiboardPath,
+        search: getSearchWithTimeFilter(location.search, timeFilterValue, { removeKeys: ['q'] }),
+      };
+    }
     let boardPath = '';
     if (address) {
       boardPath = getBoardPath(address, directories);
@@ -351,6 +384,42 @@ const ShowOPCommentOption = () => {
   );
 };
 
+const TimeFilter = ({ isInAllView, isInCatalogView, isInSubscriptionsView, isInModView, isTopbar = false }: BoardButtonsProps) => {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { lastVisitTimeFilterName, timeFilterValue, timeFilterValues } = useTimeFilter();
+  const multiboardPath = getMultiboardPath({ isInAllView, isInCatalogView, isInSubscriptionsView, isInModView });
+
+  if (!multiboardPath) {
+    return null;
+  }
+
+  const changeTimeFilter = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    navigate({
+      pathname: multiboardPath,
+      search: getSearchWithTimeFilter(location.search, event.target.value),
+    });
+  };
+
+  return (
+    <>
+      {!isTopbar && (
+        <>
+          <span>{t('filter')}</span>:&nbsp;
+        </>
+      )}
+      <select onChange={changeTimeFilter} className={[styles.feedName, styles.menuItem, 'capitalize'].join(' ')} value={timeFilterValue}>
+        {timeFilterValues.map((value) => (
+          <option key={value} value={value}>
+            {getTimeFilterOptionLabel(value, lastVisitTimeFilterName)}
+          </option>
+        ))}
+      </select>
+    </>
+  );
+};
+
 const AllFeedFilter = () => {
   const { t } = useTranslation();
   const { filter, setFilter } = useAllFeedFilterStore();
@@ -395,6 +464,7 @@ export const MobileBoardButtons = () => {
   const { filteredCount, searchText } = useCatalogFiltersStore();
   const enableInfiniteScroll = useFeedViewSettingsStore((state) => state.enableInfiniteScroll);
   const isMultiboard = isInAllView || isInSubscriptionsView || isInModView;
+  const showTimeFilter = isMultiboard;
   const effectiveInfiniteScroll = isMultiboard || enableInfiniteScroll;
   const showBottomButton = !effectiveInfiniteScroll;
 
@@ -447,24 +517,24 @@ export const MobileBoardButtons = () => {
               </span>
             )
           )}
-          {isInAllView && (
+          {(isInAllView || showTimeFilter || isInCatalogView) && (
             <>
               <hr />
               <div className={styles.options}>
-                <AllFeedFilter />
-              </div>
-            </>
-          )}
-          {isInCatalogView && (
-            <>
-              <hr />
-              <div className={styles.options}>
-                <div>
-                  <SortOptions /> <ImageSizeOptions />
-                </div>
-                <div className={styles.mobileCatalogOptionsPadding}>
-                  <ShowOPCommentOption /> <CatalogFilters /> <CatalogSearch />
-                </div>
+                {(isInAllView || showTimeFilter) && (
+                  <div>
+                    {isInAllView && <AllFeedFilter />}{' '}
+                    {showTimeFilter && (
+                      <TimeFilter isInAllView={isInAllView} isInCatalogView={isInCatalogView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />
+                    )}
+                  </div>
+                )}
+                {isInCatalogView && (
+                  <div className={styles.mobileCatalogOptionsPadding}>
+                    <SortOptions /> <ImageSizeOptions />
+                    <ShowOPCommentOption /> <CatalogFilters /> <CatalogSearch />
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -479,6 +549,16 @@ export const MobileBoardButtons = () => {
             {!(isInAllView || isInSubscriptionsView || isInModView) && <SubscribeButton address={communityAddress} />}
             {!(isInAllView || isInSubscriptionsView) && <ModQueueButton boardIdentifier={boardIdentifier} isMobile={true} />}
           </div>
+          {showTimeFilter && (
+            <>
+              <hr />
+              <div className={styles.options}>
+                <div>
+                  <TimeFilter isInAllView={isInAllView} isInCatalogView={isInCatalogView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />
+                </div>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>
@@ -550,6 +630,7 @@ export const DesktopBoardButtons = () => {
   const { filteredCount, searchText } = useCatalogFiltersStore();
   const enableInfiniteScroll = useFeedViewSettingsStore((state) => state.enableInfiniteScroll);
   const isMultiboard = isInAllView || isInSubscriptionsView || isInModView;
+  const showTimeFilter = isMultiboard;
   const effectiveInfiniteScroll = isMultiboard || enableInfiniteScroll;
   const showBottomButton = (isInCatalogView || isInPostView || isInPendingPostPage) && !effectiveInfiniteScroll;
 
@@ -653,6 +734,9 @@ export const DesktopBoardButtons = () => {
                 </>
               )}
               {isInAllView && <AllFeedFilter />}
+              {showTimeFilter && (
+                <TimeFilter isInAllView={isInAllView} isInCatalogView={isInCatalogView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />
+              )}
               {showVoteButton && (
                 <>
                   [<VoteButton />]
@@ -693,19 +777,19 @@ const SearchOPsBar = () => {
     if (event.key === 'Enter') {
       const searchQuery = (event.target as HTMLInputElement).value.trim();
       if (searchQuery) {
-        let catalogUrl = '';
+        const params = new URLSearchParams(location.search);
+        params.set('q', searchQuery);
+        const search = `?${params.toString()}`;
 
         if (isInAllView) {
-          catalogUrl = `/all/catalog?q=${encodeURIComponent(searchQuery)}`;
+          navigate({ pathname: '/all/catalog', search });
         } else if (isInSubscriptionsView) {
-          catalogUrl = `/subs/catalog?q=${encodeURIComponent(searchQuery)}`;
+          navigate({ pathname: '/subs/catalog', search });
         } else if (isInModView) {
-          catalogUrl = `/mod/catalog?q=${encodeURIComponent(searchQuery)}`;
+          navigate({ pathname: '/mod/catalog', search });
         } else {
-          catalogUrl = `/${boardPath}/catalog?q=${encodeURIComponent(searchQuery)}`;
+          navigate(`/${boardPath}/catalog?q=${encodeURIComponent(searchQuery)}`);
         }
-
-        navigate(catalogUrl);
       }
     }
   };

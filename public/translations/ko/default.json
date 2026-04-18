@@ -360,5 +360,8 @@
   "pass_answer_vpn": "아니요. 5chan Pass는 NFT 기반 자격 증명으로 계획되어 있으므로 고정된 IP 주소에 의존하도록 설계되지 않았습니다. VPN 사용, 프록시, 또는 네트워크 변경을 기준으로 한 의도된 제한은 없습니다.",
   "pass_answer_fiat": "아니요. 5chan Pass가 출시되면 결제는 암호화폐로만 가능합니다.",
   "pass_answer_bypass": "아니요. Pass는 차단, 글쓰기 제한 또는 board 운영을 우회하는 수단이 아닙니다. 각 board는 여전히 자체 규칙을 정하고 집행합니다.",
-  "pass_answer_privileges": "아니요. pass를 구매해도 누군가가 moderator, admin 또는 board 소유자가 되지는 않습니다. 이것은 후원 구매이지, 거버넌스 무효화 수단이 아닙니다."
+  "pass_answer_privileges": "아니요. pass를 구매해도 누군가가 moderator, admin 또는 board 소유자가 되지는 않습니다. 이것은 후원 구매이지, 거버넌스 무효화 수단이 아닙니다.",
+  "more_threads_last_week": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>지난 주의 더 많은 스레드 보기</1>]",
+  "more_threads_last_month": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>지난 달의 스레드 더 보기</1>]",
+  "more_threads_last_year": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>작년의 스레드 더 보기</1>]"
 }

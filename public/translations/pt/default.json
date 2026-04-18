@@ -360,5 +360,8 @@
   "pass_answer_vpn": "Não. Como o 5chan Pass está planejado como uma credencial baseada em NFT, ele não foi feito para depender de um endereço IP fixo. Não há nenhuma restrição pretendida com base no uso de VPN, proxies ou mudanças de rede.",
   "pass_answer_fiat": "Não. Quando o 5chan Pass for lançado, o pagamento será somente em cripto.",
   "pass_answer_bypass": "Não. Um pass não é uma forma de contornar banimentos, restrições de postagem ou a moderação de um board. Cada board continua definindo e aplicando as suas próprias regras.",
-  "pass_answer_privileges": "Não. Comprar um pass não fará de alguém um moderator, um admin ou o dono de um board. É uma compra de apoio, não uma substituição da governança."
+  "pass_answer_privileges": "Não. Comprar um pass não fará de alguém um moderator, um admin ou o dono de um board. É uma compra de apoio, não uma substituição da governança.",
+  "more_threads_last_week": "{{count}} tópicos desde {{currentTimeFilterName}} — [<1>Mostrar mais tópicos da semana passada</1>]",
+  "more_threads_last_month": "{{count}} tópicos desde {{currentTimeFilterName}} — [<1>Mostrar mais tópicos do mês passado</1>]",
+  "more_threads_last_year": "{{count}} tópicos desde {{currentTimeFilterName}} — [<1>Mostrar mais tópicos do ano passado</1>]"
 }

@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Board, { type BoardProps } from '../board';
+import { clearStableLastVisitTimeFilterName, LAST_VISIT_STORAGE_KEY } from '../../../lib/utils/time-filter-utils';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -32,9 +33,11 @@ const testState = vi.hoisted(() => ({
     },
   } as Record<string, { address: string; features?: Record<string, unknown> }>,
   feed: [] as TestComment[],
+  feedOptionsCalls: [] as Array<{ communitiesLength?: number; newerThan?: number; postsPerPage?: number; sortType?: string }>,
   feedStateString: 'syncing',
   filteredDirectoryAddresses: ['music-posting.eth'] as string[],
   hasMore: false,
+  respectPostsPerPageForNewerThan: new Set<number>(),
   lastVirtuosoDefaultItemHeight: undefined as number | undefined,
   lastVirtuosoIncreaseViewportBy: undefined as { top: number; bottom: number } | undefined,
   lastVirtuosoMinOverscanItemCount: undefined as { top: number; bottom: number } | undefined,
@@ -63,6 +66,7 @@ const testState = vi.hoisted(() => ({
 }));
 
 vi.mock('react-i18next', () => ({
+  Trans: ({ components, i18nKey }: { components?: Record<number, React.ReactNode>; i18nKey: string }) => createElement(React.Fragment, {}, i18nKey, components?.[1]),
   useTranslation: () => ({
     t: (key: string) => key,
   }),
@@ -90,18 +94,51 @@ const getScopedAccountComments = (options?: { commentIndices?: number[]; communi
   return scopedComments;
 };
 
+const getScopedFeed = (options?: { filter?: { filter: (comment: TestComment) => boolean }; newerThan?: number; postsPerPage?: number }) => {
+  let scopedFeed = [...testState.feed];
+
+  if (typeof options?.newerThan === 'number') {
+    const newerThanTimestamp = Math.floor(Date.now() / 1000) - options.newerThan;
+    scopedFeed = scopedFeed.filter((comment) => (comment.timestamp ?? Math.floor(Date.now() / 1000)) > newerThanTimestamp);
+  }
+
+  if (options?.filter) {
+    scopedFeed = scopedFeed.filter((comment) => options.filter?.filter(comment));
+  }
+
+  if (typeof options?.postsPerPage === 'number' && testState.respectPostsPerPageForNewerThan.has(options?.newerThan ?? -1)) {
+    scopedFeed = scopedFeed.slice(0, options.postsPerPage);
+  }
+
+  return scopedFeed;
+};
+
 vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountComments: (options?: { commentIndices?: number[]; communityAddress?: string; newerThan?: number; sortType?: 'new' | 'old' }) => {
     testState.accountCommentsCalls.push(options);
     return { accountComments: getScopedAccountComments(options) };
   },
-  useFeed: () => ({
-    feed: testState.feed,
-    hasMore: testState.hasMore,
-    loadMore: testState.loadMoreMock,
-    reset: testState.resetMock,
-  }),
+  useFeed: (options?: {
+    communities?: unknown[];
+    filter?: { filter: (comment: TestComment) => boolean };
+    newerThan?: number;
+    postsPerPage?: number;
+    sortType?: string;
+  }) => {
+    testState.feedOptionsCalls.push({
+      communitiesLength: options?.communities?.length,
+      newerThan: options?.newerThan,
+      postsPerPage: options?.postsPerPage,
+      sortType: options?.sortType,
+    });
+    return {
+      feed: getScopedFeed(options),
+      hasMore: testState.hasMore,
+      loadMore: testState.loadMoreMock,
+      reset: testState.resetMock,
+    };
+  },
   useCommunity: () => testState.community,
 }));
 
@@ -286,9 +323,11 @@ describe('Board', () => {
       },
     };
     testState.feed = [];
+    testState.feedOptionsCalls = [];
     testState.feedStateString = 'syncing';
     testState.filteredDirectoryAddresses = ['music-posting.eth'];
     testState.hasMore = false;
+    testState.respectPostsPerPageForNewerThan = new Set();
     testState.lastVirtuosoDefaultItemHeight = undefined;
     testState.lastVirtuosoIncreaseViewportBy = undefined;
     testState.lastVirtuosoMinOverscanItemCount = undefined;
@@ -315,6 +354,8 @@ describe('Board', () => {
     testState.setEnableInfiniteScrollMock.mockReset();
     testState.setResetFunctionMock.mockReset();
     document.title = 'before';
+    clearStableLastVisitTimeFilterName();
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(Date.now()));
     Object.defineProperty(window, 'scrollTo', {
       configurable: true,
       value: vi.fn(),
@@ -329,6 +370,8 @@ describe('Board', () => {
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
+    clearStableLastVisitTimeFilterName();
+    localStorage.clear();
   });
 
   it('renders the current page feed, inserts recent account comments, and wires footer actions', async () => {
@@ -465,6 +508,98 @@ describe('Board', () => {
 
     expect(latestLocation).toBe('/subs');
     expect(container.textContent).toContain('not_subscribed_to_any_board');
+  });
+
+  it('passes multiboard time filters to useFeed and honors cached overrides', async () => {
+    testState.feed = [{ cid: 'all-post', communityAddress: 'music-posting.eth' }];
+
+    await renderBoard({
+      boardProps: { viewType: 'all', timeFilterNameFromCache: '1w' },
+      initialEntry: '/all?t=24h',
+      routePath: '/all/*',
+    });
+
+    expect(testState.feedOptionsCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          newerThan: 7 * 24 * 60 * 60,
+          postsPerPage: 2,
+          sortType: 'active',
+        }),
+      ]),
+    );
+  });
+
+  it('shows a wider multiboard time-filter suggestion when older threads exist', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String((now - 3 * 24 * 60 * 60) * 1000));
+    testState.feed = [
+      { cid: 'recent-post', communityAddress: 'music-posting.eth', timestamp: now - 2 * 24 * 60 * 60 },
+      { cid: 'older-post', communityAddress: 'music-posting.eth', timestamp: now - 5 * 24 * 60 * 60 },
+    ];
+
+    await renderBoard({
+      boardProps: { viewType: 'all' },
+      initialEntry: '/all?t=last',
+      routePath: '/all/*',
+    });
+
+    expect(testState.feedOptionsCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ newerThan: 7 * 24 * 60 * 60 }),
+        expect.objectContaining({ newerThan: 30 * 24 * 60 * 60 }),
+        expect.objectContaining({ newerThan: 365 * 24 * 60 * 60 }),
+      ]),
+    );
+    expect(Array.from(container.querySelectorAll('a')).some((link) => link.getAttribute('href') === '/all?t=1w')).toBe(true);
+  });
+
+  it('keeps broader suggestion feeds on the base page size so their identities stay stable while scrolling', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    testState.feed = [
+      { cid: 'post-1', communityAddress: 'music-posting.eth', timestamp: now - 2 * 24 * 60 * 60 },
+      { cid: 'post-2', communityAddress: 'music-posting.eth', timestamp: now - 3 * 24 * 60 * 60 },
+      { cid: 'post-3', communityAddress: 'music-posting.eth', timestamp: now - 5 * 24 * 60 * 60 },
+      { cid: 'post-4', communityAddress: 'music-posting.eth', timestamp: now - 20 * 24 * 60 * 60 },
+    ];
+    testState.pageSizes = {
+      guiPostsPerPage: 2,
+      infiniteFeedPostsPerPage: 2,
+      maxGuiPages: 3,
+      paginationFeedPostsPerPage: 6,
+    };
+    testState.respectPostsPerPageForNewerThan = new Set([30 * 24 * 60 * 60, 365 * 24 * 60 * 60]);
+
+    await renderBoard({
+      boardProps: { viewType: 'all' },
+      initialEntry: '/all?t=1w',
+      routePath: '/all/*',
+    });
+
+    expect(testState.feedOptionsCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ newerThan: 30 * 24 * 60 * 60, postsPerPage: 2, sortType: 'active' }),
+        expect.objectContaining({ newerThan: 365 * 24 * 60 * 60, postsPerPage: 2, sortType: 'active' }),
+      ]),
+    );
+  });
+
+  it('disables suggestion probe feeds for hidden cached multiboard views', async () => {
+    testState.feed = [{ cid: 'recent-post', communityAddress: 'music-posting.eth' }];
+
+    await renderBoard({
+      boardProps: { viewType: 'all', isVisible: false },
+      initialEntry: '/all?t=24h',
+      routePath: '/all/*',
+    });
+
+    expect(testState.feedOptionsCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ newerThan: 7 * 24 * 60 * 60, communitiesLength: 0 }),
+        expect.objectContaining({ newerThan: 30 * 24 * 60 * 60, communitiesLength: 0 }),
+        expect.objectContaining({ newerThan: 365 * 24 * 60 * 60, communitiesLength: 0 }),
+      ]),
+    );
   });
 
   it('surfaces board load errors when the feed is empty', async () => {

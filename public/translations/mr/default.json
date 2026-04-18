@@ -360,5 +360,8 @@
   "pass_answer_vpn": "नाही. 5chan Pass हे NFT-आधारित credential म्हणून नियोजित असल्यामुळे ते निश्चित IP address वर अवलंबून राहावे असा हेतू नाही. VPN वापर, proxy, किंवा नेटवर्क बदलण्यावर आधारित कोणतीही अपेक्षित मर्यादा नाही.",
   "pass_answer_fiat": "नाही. 5chan Pass लॉन्च झाल्यावर पेमेंट फक्त क्रिप्टोमध्येच असेल.",
   "pass_answer_bypass": "नाही. Pass हा बंदी, पोस्ट करण्यावरील निर्बंध किंवा board moderation चुकवण्याचा मार्ग नाही. प्रत्येक board अजूनही स्वतःचे नियम ठरवतो आणि त्यांची अंमलबजावणी करतो.",
-  "pass_answer_privileges": "नाही. pass खरेदी केल्याने कोणी moderator, admin किंवा एखाद्या boardचा मालक होणार नाही. ही समर्थक खरेदी आहे, शासनाला बगल देण्याचा मार्ग नाही."
+  "pass_answer_privileges": "नाही. pass खरेदी केल्याने कोणी moderator, admin किंवा एखाद्या boardचा मालक होणार नाही. ही समर्थक खरेदी आहे, शासनाला बगल देण्याचा मार्ग नाही.",
+  "more_threads_last_week": "{{count}} थ्रेड {{currentTimeFilterName}} पासून — [<1>गेल्या आठवड्यातील अधिक थ्रेड्स पहा</1>]",
+  "more_threads_last_month": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या महिन्यातील आणखी थ्रेड्स दाखवा</1>]",
+  "more_threads_last_year": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या वर्षातील आणखी थ्रेड्स दाखवा</1>]"
 }

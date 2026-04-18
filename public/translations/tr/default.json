@@ -360,5 +360,8 @@
   "pass_answer_vpn": "Hayır. 5chan Pass, NFT tabanlı bir kimlik bilgisi olarak planlandığı için sabit bir IP adresine bağlı olması amaçlanmamıştır. VPN kullanımı, proxy'ler veya ağ değiştirme temelinde amaçlanan bir kısıtlama yoktur.",
   "pass_answer_fiat": "Hayır. 5chan Pass kullanıma sunulduğunda, ödeme yalnızca kripto ile yapılabilecek.",
   "pass_answer_bypass": "Hayır. Pass, banları, gönderi kısıtlamalarını veya bir boardun moderasyonunu aşmanın bir yolu değildir. Her board kendi kurallarını belirlemeye ve uygulamaya devam eder.",
-  "pass_answer_privileges": "Hayır. Bir pass satın almak kimseyi moderator, admin ya da bir boardun sahibi yapmaz. Bu bir destekçi satın alımıdır, governance'i geçersiz kılma yolu değildir."
+  "pass_answer_privileges": "Hayır. Bir pass satın almak kimseyi moderator, admin ya da bir boardun sahibi yapmaz. Bu bir destekçi satın alımıdır, governance'i geçersiz kılma yolu değildir.",
+  "more_threads_last_week": "{{count}} başlık {{currentTimeFilterName}}’den itibaren — [<1>Geçen haftadan daha fazla başlık göster</1>]",
+  "more_threads_last_month": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen aydan daha fazla konu göster</1>]",
+  "more_threads_last_year": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen yıldan daha fazla konu göster</1>]"
 }

@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DesktopBoardButtons, MobileBoardButtons } from '../board-buttons';
 import useThreadLiveUpdatesStore from '../../../stores/use-thread-live-updates-store';
+import { clearStableLastVisitTimeFilterName, LAST_VISIT_STORAGE_KEY } from '../../../lib/utils/time-filter-utils';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -184,7 +185,12 @@ const renderWithRoute = async (element: React.ReactElement, initialEntry: string
         createElement(
           Routes,
           {},
+          createElement(Route, { path: '/all', element }),
           createElement(Route, { path: '/all/catalog', element }),
+          createElement(Route, { path: '/subs', element }),
+          createElement(Route, { path: '/subs/catalog', element }),
+          createElement(Route, { path: '/mod', element }),
+          createElement(Route, { path: '/mod/catalog', element }),
           createElement(Route, { path: '/mod/queue', element }),
           createElement(Route, { path: '/:boardIdentifier/catalog', element }),
           createElement(Route, { path: '/:boardIdentifier/archive', element }),
@@ -240,6 +246,8 @@ describe('BoardButtons', () => {
     testState.subscribed = false;
     testState.viewMode = 'compact';
     useThreadLiveUpdatesStore.getState().resetState();
+    clearStableLastVisitTimeFilterName();
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(Date.now()));
     Object.defineProperty(globalThis, 'alert', {
       configurable: true,
       value: vi.fn(),
@@ -264,6 +272,8 @@ describe('BoardButtons', () => {
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
+    clearStableLastVisitTimeFilterName();
+    localStorage.clear();
   });
 
   it('renders desktop board actions for browsing boards, then searches OPs and triggers refresh, vote, subscribe, and archive flows', async () => {
@@ -300,7 +310,7 @@ describe('BoardButtons', () => {
   it('renders desktop catalog controls and wires sort, style, filter, and refresh updates', async () => {
     testState.filteredCount = 4;
 
-    await renderWithRoute(createElement(DesktopBoardButtons), '/all/catalog');
+    await renderWithRoute(createElement(DesktopBoardButtons), '/all/catalog?t=24h');
 
     expect(container.textContent).toContain('filtered_threads');
     expect(container.textContent).toContain('4');
@@ -309,19 +319,53 @@ describe('BoardButtons', () => {
     expect(container.querySelector('[data-testid="catalog-search"]')?.textContent).toBe('catalog-search');
 
     const selects = Array.from(container.querySelectorAll<HTMLSelectElement>('select'));
-    expect(selects).toHaveLength(4);
+    expect(selects).toHaveLength(5);
 
     await changeSelect(selects[0]!, 'replyCount');
     await changeSelect(selects[1]!, 'Large');
     await changeSelect(selects[2]!, 'On');
     await changeSelect(selects[3]!, 'nsfw');
+    await changeSelect(selects[4]!, '1w');
     await clickButton('refresh');
 
     expect(testState.setSortTypeMock).toHaveBeenCalledWith('replyCount');
     expect(testState.setImageSizeMock).toHaveBeenCalledWith('Large');
     expect(testState.setShowOPCommentMock).toHaveBeenCalledWith(true);
     expect(testState.setFilterMock).toHaveBeenCalledWith('nsfw');
+    expect(testState.navigateMock).toHaveBeenCalledWith({ pathname: '/all/catalog', search: '?t=1w' });
     expect(testState.resetMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('preserves the current multiboard time filter when searching OPs', async () => {
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(Date.now() - 3 * 24 * 60 * 60 * 1000));
+
+    await renderWithRoute(createElement(DesktopBoardButtons), '/all?t=last');
+
+    const searchInput = container.querySelector<HTMLInputElement>('input[type="text"]');
+    expect(searchInput).toBeTruthy();
+
+    await act(async () => {
+      if (searchInput) {
+        searchInput.value = 'cats';
+        searchInput.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' }));
+      }
+    });
+
+    expect(testState.navigateMock).toHaveBeenCalledWith({ pathname: '/all/catalog', search: '?t=last&q=cats' });
+  });
+
+  it('lets multiboard views switch back to the last-visit filter alias', async () => {
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(Date.now() - (2 * 24 * 60 * 60 + 1) * 1000));
+
+    await renderWithRoute(createElement(DesktopBoardButtons), '/all/catalog?t=1w');
+
+    const timeFilterSelect = Array.from(container.querySelectorAll<HTMLSelectElement>('select')).at(-1);
+    expect(timeFilterSelect).toBeTruthy();
+    expect(Array.from(timeFilterSelect?.options || []).some((option) => option.value === 'last')).toBe(true);
+
+    await changeSelect(timeFilterSelect!, 'last');
+
+    expect(testState.navigateMock).toHaveBeenCalledWith({ pathname: '/all/catalog', search: '?t=last' });
   });
 
   it('renders thread actions and post stats, then requests refreshes, toggles auto updates, and scrolls to the bottom', async () => {

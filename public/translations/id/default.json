@@ -360,5 +360,8 @@
   "pass_answer_vpn": "Tidak. Karena 5chan Pass direncanakan sebagai kredensial berbasis NFT, ini tidak dimaksudkan untuk bergantung pada alamat IP tetap. Tidak ada pembatasan yang dimaksudkan berdasarkan penggunaan VPN, proxy, atau pergantian jaringan.",
   "pass_answer_fiat": "Tidak. Saat 5chan Pass diluncurkan, pembayaran hanya akan tersedia dengan crypto.",
   "pass_answer_bypass": "Tidak. Pass bukan cara untuk menghindari ban, pembatasan posting, atau moderasi board. Setiap board tetap menetapkan dan menegakkan aturannya sendiri.",
-  "pass_answer_privileges": "Tidak. Membeli pass tidak akan menjadikan seseorang moderator, admin, atau pemilik sebuah board. Ini adalah pembelian dukungan, bukan pengesampingan tata kelola."
+  "pass_answer_privileges": "Tidak. Membeli pass tidak akan menjadikan seseorang moderator, admin, atau pemilik sebuah board. Ini adalah pembelian dukungan, bukan pengesampingan tata kelola.",
+  "more_threads_last_week": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Show lebih banyak thread dari minggu lalu</1>]",
+  "more_threads_last_month": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari bulan lalu</1>]",
+  "more_threads_last_year": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari tahun lalu</1>]"
 }

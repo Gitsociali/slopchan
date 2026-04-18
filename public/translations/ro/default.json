@@ -360,5 +360,8 @@
   "pass_answer_vpn": "Nu. Deoarece 5chan Pass este planificat ca un acreditiv bazat pe NFT, nu este menit să depindă de o adresă IP fixă. Nu există nicio restricție intenționată bazată pe utilizarea VPN, a proxy-urilor sau pe schimbarea rețelelor.",
   "pass_answer_fiat": "Nu. Când 5chan Pass va fi lansat, plata va fi doar în crypto.",
   "pass_answer_bypass": "Nu. Un pass nu este o modalitate de a ocoli banările, restricțiile de postare sau moderarea unui board. Fiecare board își stabilește și își aplică în continuare propriile reguli.",
-  "pass_answer_privileges": "Nu. Cumpărarea unui pass nu va face pe cineva moderator, admin sau proprietarul unui board. Este o achiziție de susținere, nu o anulare a guvernanței."
+  "pass_answer_privileges": "Nu. Cumpărarea unui pass nu va face pe cineva moderator, admin sau proprietarul unui board. Este o achiziție de susținere, nu o anulare a guvernanței.",
+  "more_threads_last_week": "{{count}} fire de discuție de la {{currentTimeFilterName}} — [<1>Arată mai multe fire din săptămâna trecută</1>]",
+  "more_threads_last_month": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de luna trecută</1>]",
+  "more_threads_last_year": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de anul trecut</1>]"
 }

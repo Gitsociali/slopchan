@@ -360,5 +360,8 @@
   "pass_answer_vpn": "לא. מכיוון ש-5chan Pass מתוכנן כאישור מבוסס NFT, הוא לא נועד להיות תלוי בכתובת IP קבועה. אין הגבלה מתוכננת על סמך שימוש ב-VPN, בפרוקסי או בהחלפת רשתות.",
   "pass_answer_fiat": "לא. כש-5chan Pass יושק, התשלום יהיה בקריפטו בלבד.",
   "pass_answer_bypass": "לא. Pass אינו דרך לעקוף חסימות, הגבלות פרסום או ניהול של board. כל board עדיין קובע ואוכף את הכללים שלו.",
-  "pass_answer_privileges": "לא. קניית pass לא תהפוך מישהו ל-moderator, ל-admin או לבעלים של board. זו רכישת תמיכה, לא עקיפה של הממשל."
+  "pass_answer_privileges": "לא. קניית pass לא תהפוך מישהו ל-moderator, ל-admin או לבעלים של board. זו רכישת תמיכה, לא עקיפה של הממשל.",
+  "more_threads_last_week": "{{count}} אשכולות מאז {{currentTimeFilterName}} — [<1>הצג עוד אשכולות מהשבוע שעבר</1>]",
+  "more_threads_last_month": "{{count}} חוטים מאז {{currentTimeFilterName}} — [<1>הצג עוד חוטים מהחודש שעבר</1>]",
+  "more_threads_last_year": "{{count}} חוטים מאז {{currentTimeFilterName}} — [<1>הצג עוד חוטים מהשנה שעברה</1>]"
 }

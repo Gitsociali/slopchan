@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import useFeedCacheStore, { CachedFeed } from '../../stores/use-feed-cache-store';
 import { getFeedCacheKey, getFeedType, isFeedRoute } from '../../lib/utils/route-utils';
+import { TIME_FILTER_QUERY_PARAM } from '../../lib/utils/time-filter-utils';
 import Board from '../../views/board';
 import Catalog from '../../views/catalog';
 import styles from './feed-cache-container.module.css';
@@ -9,20 +10,23 @@ import styles from './feed-cache-container.module.css';
 interface FeedContextFromKey {
   viewType: 'all' | 'subs' | 'mod' | 'board';
   boardIdentifier?: string;
+  timeFilterName?: string;
 }
 
 const parseFeedKey = (key: string): FeedContextFromKey => {
-  const segments = key.split('/').filter(Boolean);
+  const [pathname, search = ''] = key.split('?');
+  const segments = pathname.split('/').filter(Boolean);
+  const timeFilterName = new URLSearchParams(search).get(TIME_FILTER_QUERY_PARAM) || undefined;
 
   const filteredSegments = segments.filter((s) => s !== 'catalog');
   if (filteredSegments[0] === 'all') {
-    return { viewType: 'all' };
+    return { viewType: 'all', timeFilterName };
   }
   if (filteredSegments[0] === 'subs') {
-    return { viewType: 'subs' };
+    return { viewType: 'subs', timeFilterName };
   }
   if (filteredSegments[0] === 'mod') {
-    return { viewType: 'mod' };
+    return { viewType: 'mod', timeFilterName };
   }
 
   return {
@@ -42,9 +46,21 @@ const CachedFeedWrapper = ({ feed, isVisible }: CachedFeedWrapperProps) => {
   return (
     <div className={isVisible ? styles.visible : styles.hidden}>
       {feed.type === 'catalog' ? (
-        <Catalog feedCacheKey={feed.key} viewType={context.viewType} boardIdentifier={context.boardIdentifier} isVisible={isVisible} />
+        <Catalog
+          feedCacheKey={feed.key}
+          viewType={context.viewType}
+          boardIdentifier={context.boardIdentifier}
+          timeFilterNameFromCache={context.timeFilterName}
+          isVisible={isVisible}
+        />
       ) : (
-        <Board feedCacheKey={feed.key} viewType={context.viewType} boardIdentifier={context.boardIdentifier} isVisible={isVisible} />
+        <Board
+          feedCacheKey={feed.key}
+          viewType={context.viewType}
+          boardIdentifier={context.boardIdentifier}
+          timeFilterNameFromCache={context.timeFilterName}
+          isVisible={isVisible}
+        />
       )}
     </div>
   );
@@ -54,7 +70,7 @@ const FeedCacheContainer = () => {
   const location = useLocation();
   const { cachedFeeds, accessFeed } = useFeedCacheStore();
 
-  const currentFeedKey = getFeedCacheKey(location.pathname);
+  const currentFeedKey = getFeedCacheKey(location.pathname, location.search);
   const isOnFeedRoute = isFeedRoute(location.pathname);
   const feedType = getFeedType(location.pathname);
 

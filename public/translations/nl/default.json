@@ -360,5 +360,8 @@
   "pass_answer_vpn": "Nee. Omdat 5chan Pass is gepland als een op NFT gebaseerde credential, is het niet bedoeld om afhankelijk te zijn van een vast IP-adres. Er is geen beoogde beperking op basis van VPN-gebruik, proxy's of wisselende netwerken.",
   "pass_answer_fiat": "Nee. Wanneer 5chan Pass wordt gelanceerd, zal betaling alleen met crypto mogelijk zijn.",
   "pass_answer_bypass": "Nee. Een pass is geen manier om bans, plaatsingsbeperkingen of boardmoderatie te omzeilen. Elk board stelt nog steeds zijn eigen regels vast en handhaaft die.",
-  "pass_answer_privileges": "Nee. Door een pass te kopen wordt iemand geen moderator, admin of eigenaar van een board. Het is een ondersteunende aankoop, geen governance-override."
+  "pass_answer_privileges": "Nee. Door een pass te kopen wordt iemand geen moderator, admin of eigenaar van een board. Het is een ondersteunende aankoop, geen governance-override.",
+  "more_threads_last_week": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Toon meer threads van vorige week</1>]",
+  "more_threads_last_month": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen maand tonen</1>]",
+  "more_threads_last_year": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen jaar tonen</1>]"
 }
