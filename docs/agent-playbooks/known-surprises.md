@@ -38,6 +38,16 @@ If uncertain, ask the developer before adding an entry.
 - **Mitigation:** Before debugging hooks behavior from 5chan, check `package.json` to see whether the app points at a tarball commit or a local path. If you need fresh hooks behavior, update the tarball commit or temporarily switch 5chan to a local path intentionally.
 - **Status:** confirmed
 
+### Hooks source commits can land before the generated tarball payload
+
+- **Date:** 2026-04-18
+- **Observed by:** Codex
+- **Context:** 5chan CI failed after `expandTimeWindow` landed in `bitsocial-react-hooks` because the app was pinned to the feature source commit.
+- **What was surprising:** `bitsocial-react-hooks` uses `dist/` as its published entrypoint, and the repo's CI writes that generated payload in a follow-up `chore(ci): update dist and coverage badge` commit after the source commit lands on `master`.
+- **Impact:** Pinning 5chan to the feature source SHA can install a tarball whose runtime and typings still omit the new API, causing downstream type errors even though the hooks repo's source and CI look green.
+- **Mitigation:** When updating 5chan to a new hooks change, verify whether hooks `master` has a newer follow-up `chore(ci): update dist and coverage badge` commit and pin 5chan to that dist-synced SHA rather than the source-only SHA.
+- **Status:** confirmed
+
 ### Portless breaks Windows installs
 
 - **Date:** 2026-03-04
