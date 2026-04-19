@@ -58,6 +58,10 @@ function shuffleBoardAddresses(boardAddresses: string[]): string[] {
   return shuffledBoardAddresses;
 }
 
+function getPopularPostsInputKey(communityAddresses: string[]): string {
+  return [...communityAddresses].sort().join(',');
+}
+
 function getPopularPostsCacheEntry(inputKey: string, communityAddresses: string[]): PopularPostsCacheEntry {
   const cachedEntry = popularPostsCacheByInputKey.get(inputKey);
   if (cachedEntry) {
@@ -73,6 +77,11 @@ function getPopularPostsCacheEntry(inputKey: string, communityAddresses: string[
   return cacheEntry;
 }
 
+export function getRevealedPopularPosts(communityAddresses: string[]): Comment[] | undefined {
+  const cacheEntry = popularPostsCacheByInputKey.get(getPopularPostsInputKey(communityAddresses));
+  return cacheEntry?.revealed ? cacheEntry.posts : undefined;
+}
+
 export function clearPopularPostsCacheForTest() {
   popularPostsCacheByInputKey.clear();
 }
@@ -86,10 +95,10 @@ export function clearPopularPostsCacheForTest() {
  * the board filter, so threads never disappear during background loads.
  */
 const usePopularPosts = (communities: Array<Community | undefined>, communityAddresses: string[]) => {
-  const inputKey = [...communityAddresses].sort().join(',');
+  const inputKey = getPopularPostsInputKey(communityAddresses);
   const cacheEntry = getPopularPostsCacheEntry(inputKey, communityAddresses);
 
-  const currentTime = useCurrentTime(cacheEntry.revealed ? 300 : 5);
+  const currentTime = useCurrentTime(cacheEntry.revealed ? false : 5);
   const nowSeconds = Math.floor(currentTime);
   const loadingStartTimestamps = useCommunitiesLoadingStartTimestamps(communityAddresses);
 

@@ -82,4 +82,19 @@ describe('browser hooks', () => {
 
     expect(latestValue).toBe(1_704_067_230);
   });
+
+  it('can leave the current time frozen without scheduling updates', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-01T00:00:00Z'));
+
+    expect(renderHookValue(() => useCurrentTime(false))).toBe(1_704_067_200);
+
+    act(() => {
+      vi.setSystemTime(new Date('2024-01-01T00:01:00Z'));
+      vi.advanceTimersByTime(60_000);
+    });
+
+    expect(latestValue).toBe(1_704_067_200);
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });

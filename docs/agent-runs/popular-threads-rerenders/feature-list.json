@@ -1,0 +1,29 @@
+{
+  "task": "popular-threads-rerenders",
+  "last_updated": "2026-04-19",
+  "items": [
+    {
+      "id": "F001",
+      "priority": 1,
+      "status": "completed",
+      "description": "Reduce unnecessary rerenders in the popular threads box after the popular-thread algorithm finishes and the loaded list is stable until hard refresh.",
+      "verification": [
+        "./scripts/agent-init.sh --smoke",
+        "profile popular threads rerender behavior with react-scan",
+        "yarn build",
+        "yarn lint",
+        "yarn type-check",
+        "yarn doctor",
+        "playwright-cli browser checks across Blink, Gecko, and WebKit"
+      ],
+      "files": [
+        "src/hooks/use-current-time.ts",
+        "src/hooks/use-popular-posts.ts",
+        "src/hooks/__tests__/browser-hooks.test.tsx",
+        "src/views/home/popular-threads-box/popular-threads-box.tsx",
+        "src/views/home/popular-threads-box/__tests__/popular-threads-box.test.tsx"
+      ],
+      "notes": "Post-fix profile measured 0 React commits and no PopularThreadsBox/PopularThreadCard/CatalogPostMedia/ContentPreview rerenders in the 10s window after Popular Threads became visible."
+    }
+  ]
+}

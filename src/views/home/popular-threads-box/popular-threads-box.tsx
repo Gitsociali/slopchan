@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Comment, useCommunities } from '@bitsocialnet/bitsocial-react-hooks';
 import styles from '../home.module.css';
-import usePopularPosts from '../../../hooks/use-popular-posts';
+import usePopularPosts, { getRevealedPopularPosts } from '../../../hooks/use-popular-posts';
 import { useFeedStateString } from '../../../hooks/use-state-string';
 import usePopularThreadsOptionsStore from '../../../stores/use-popular-threads-options-store';
 import { getCommentMediaInfo } from '../../../lib/utils/media-utils';
@@ -21,6 +21,13 @@ interface PopularThreadProps {
   boardTitle: string;
   boardPath: string;
 }
+
+const PopularThreadsLoading = ({ boardAddresses }: { boardAddresses: string[] }) => {
+  const { t } = useTranslation();
+  const loadingStateString = useFeedStateString(boardAddresses) || t('loading');
+
+  return <LoadingEllipsis string={loadingStateString} />;
+};
 
 const ContentPreview = ({ content, maxLength = 99 }: { content: string; maxLength?: number }) => {
   const plainText = removeMarkdown(content).trim().replaceAll('&nbsp;', '').replace(/\n\n/g, '\n').replaceAll('\n\n', '');
@@ -60,11 +67,9 @@ const PopularThreadCard = memo(
 const PopularThreadsBox = ({ directories, directoryAddresses }: { directories: DirectoryCommunity[]; directoryAddresses: string[] }) => {
   const { t } = useTranslation();
   const { showWorksafeContentOnly, showNsfwContentOnly } = usePopularThreadsOptionsStore();
-  const directoryCommunities = useCommunityIdentifiers(directoryAddresses);
-  const { communities } = useCommunities({ communities: directoryCommunities });
 
-  const { filteredBoardAddresses, filteredCommunities } = useMemo(() => {
-    const filteredEntries = directoryAddresses.flatMap((address, index) => {
+  const filteredBoardAddresses = useMemo(() => {
+    return directoryAddresses.flatMap((address) => {
       const directoryEntry = findDirectoryByAddress(directories, address);
       if (showWorksafeContentOnly && directoryEntry?.nsfw) {
         return [];
@@ -73,17 +78,16 @@ const PopularThreadsBox = ({ directories, directoryAddresses }: { directories: D
         return [];
       }
 
-      return [{ address, community: communities[index] }];
+      return [address];
     });
+  }, [directories, directoryAddresses, showNsfwContentOnly, showWorksafeContentOnly]);
 
-    return {
-      filteredBoardAddresses: filteredEntries.map((entry) => entry.address),
-      filteredCommunities: filteredEntries.map((entry) => entry.community),
-    };
-  }, [directories, directoryAddresses, showNsfwContentOnly, showWorksafeContentOnly, communities]);
+  const revealedPopularPosts = getRevealedPopularPosts(filteredBoardAddresses);
+  const shouldLoadPopularPosts = !revealedPopularPosts;
+  const directoryCommunities = useCommunityIdentifiers(shouldLoadPopularPosts ? filteredBoardAddresses : []);
+  const { communities } = useCommunities({ communities: directoryCommunities });
 
-  const { popularPosts, isLoading } = usePopularPosts(filteredCommunities, filteredBoardAddresses);
-  const loadingStateString = useFeedStateString(filteredBoardAddresses) || t('loading');
+  const { popularPosts, isLoading } = usePopularPosts(shouldLoadPopularPosts ? communities : [], filteredBoardAddresses);
 
   return (
     <div className={styles.box}>
@@ -93,7 +97,7 @@ const PopularThreadsBox = ({ directories, directoryAddresses }: { directories: D
       </div>
       <div className={`${styles.boxContent} ${styles.popularThreads} ${isLoading ? styles.popularThreadsLoading : ''}`}>
         {isLoading ? (
-          <LoadingEllipsis string={loadingStateString} />
+          <PopularThreadsLoading boardAddresses={filteredBoardAddresses} />
         ) : (
           popularPosts.map((post: Comment) => {
             const communityAddress = getCommentCommunityAddress(post);

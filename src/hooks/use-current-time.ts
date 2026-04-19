@@ -8,10 +8,14 @@ import { useState, useEffect } from 'react';
  * For visual updates like blinking animations, CSS handles that independently.
  * This hook is for time-based calculations that don't need millisecond precision.
  */
-export const useCurrentTime = (updateIntervalSeconds = 60) => {
+export const useCurrentTime = (updateIntervalSeconds: number | false = 60) => {
   const [currentTime, setCurrentTime] = useState(() => Date.now() / 1000);
 
   useEffect(() => {
+    if (updateIntervalSeconds === false) {
+      return;
+    }
+
     // Update periodically
     const intervalId = setInterval(() => {
       setCurrentTime(Date.now() / 1000);
