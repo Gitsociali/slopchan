@@ -567,6 +567,7 @@ const PostMobile = ({
   isPublishing,
   onApprove,
   onReject,
+  onRemoveFromModQueue,
 }: PostProps) => {
   const { t } = useTranslation();
   const resolvedPost = withResolvedCommentCommunityAddress(post);
@@ -583,6 +584,11 @@ const PostMobile = ({
   const modQueueThreadRoute = getModQueueCommentRoute(boardPath, resolvedPost?.cid);
   const modQueueThreadRouteState = getQueuedCommentRouteState(resolvedPost);
   const modQueueErrorMessage = formatErrorForDisplay(modQueueError);
+  const modQueueRemoveButton = onRemoveFromModQueue ? (
+    <button className={`button ${styles.rejectButton}`} onClick={onRemoveFromModQueue} disabled={isPublishing}>
+      {t('remove')}
+    </button>
+  ) : null;
   const linksCount = useCountLinksInReplies(resolvedPost);
   const hasReplyPaginationOverride = !!replyPaginationOverride;
   const shouldFetchReplies = showReplies && !isModQueue && !hasReplyPaginationOverride;
@@ -850,9 +856,15 @@ const PostMobile = ({
                   {isModQueue ? (
                     <div className={styles.modQueueActions}>
                       {modQueueStatus === 'approved' ? (
-                        <span className={styles.modQueueStatusApproved}>{t('approved')}</span>
+                        <>
+                          <span className={styles.modQueueStatusApproved}>{t('approved')}</span>
+                          {modQueueRemoveButton}
+                        </>
                       ) : modQueueStatus === 'rejected' ? (
-                        <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
+                        <>
+                          <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
+                          {modQueueRemoveButton}
+                        </>
                       ) : modQueueStatus === 'failed' ? (
                         <span className={styles.modQueueStatusRejected} title={modQueueErrorMessage}>
                           {t('failed')}

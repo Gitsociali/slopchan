@@ -220,6 +220,7 @@ const PostInfo = ({
   isPublishing,
   onApprove,
   onReject,
+  onRemoveFromModQueue,
   quotedByMap,
   directRepliesByParentCid,
   postsByAuthorInThread,
@@ -304,6 +305,15 @@ const PostInfo = ({
   const modQueueThreadRoute = getModQueueCommentRoute(boardPath, post?.cid);
   const modQueueThreadRouteState = getQueuedCommentRouteState(post);
   const modQueueErrorMessage = formatErrorForDisplay(modQueueError);
+  const modQueueRemoveButton = onRemoveFromModQueue ? (
+    <span className={styles.modQueueButtonWrapper}>
+      [
+      <button className={styles.modQueueActionButton} onClick={onRemoveFromModQueue} disabled={isPublishing}>
+        {t('remove')}
+      </button>
+      ]
+    </span>
+  ) : null;
 
   const onLinkToPostClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!cid || !threadRoute) {
@@ -471,9 +481,15 @@ const PostInfo = ({
                 {capitalize(t('type'))}: {capitalize(t(isReply ? 'reply' : 'post'))}
               </span>
               {modQueueStatus === 'approved' ? (
-                <span className={styles.modQueueStatusApproved}>{t('approved')}</span>
+                <>
+                  <span className={styles.modQueueStatusApproved}>{t('approved')}</span>
+                  {modQueueRemoveButton}
+                </>
               ) : modQueueStatus === 'rejected' ? (
-                <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
+                <>
+                  <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
+                  {modQueueRemoveButton}
+                </>
               ) : modQueueStatus === 'failed' ? (
                 <span className={styles.modQueueStatusRejected} title={modQueueErrorMessage}>
                   {t('failed')}
@@ -816,6 +832,7 @@ const PostDesktop = ({
   isPublishing,
   onApprove,
   onReject,
+  onRemoveFromModQueue,
 }: PostProps) => {
   const { t } = useTranslation();
   const resolvedPost = withResolvedCommentCommunityAddress(post);
@@ -1169,6 +1186,7 @@ const PostDesktop = ({
             isPublishing={isPublishing}
             onApprove={onApprove}
             onReject={onReject}
+            onRemoveFromModQueue={onRemoveFromModQueue}
             quotedByMap={quotedByMap}
             directRepliesByParentCid={directRepliesByParentCid}
           />

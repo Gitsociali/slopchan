@@ -351,6 +351,11 @@
   color: #fff;
 }
 
+.cardRemoveButton {
+  background-color: #777;
+  color: #fff;
+}
+
 /* Desktop: buttons styled as text links (same as board buttons) */
 @media (min-width: 640px) {
   .actions {

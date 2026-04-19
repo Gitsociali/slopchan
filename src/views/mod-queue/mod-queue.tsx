@@ -25,7 +25,7 @@ import useChallengesStore from '../../stores/use-challenges-store';
 import { alertChallengeVerificationFailed } from '../../lib/utils/challenge-utils';
 import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
 import { formatErrorForDisplay } from '../../lib/utils/error-utils';
-import { filterVisibleModQueueFeed, getModQueueCommentRoute, getQueuedCommentRouteState } from '../../lib/utils/mod-queue-utils';
+import { filterVisibleModQueueFeed, getModQueueCommentRoute, getQueuedCommentRouteState, getQueuedCommentSnapshot } from '../../lib/utils/mod-queue-utils';
 import Tooltip from '../../components/tooltip';
 import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
 import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
@@ -90,6 +90,7 @@ interface ModQueueActionState {
   isPublishing: boolean;
   handleApprove: () => Promise<void>;
   handleReject: () => Promise<void>;
+  handleRemove?: () => void;
 }
 
 interface ModQueueActionsProps {
@@ -99,20 +100,55 @@ interface ModQueueActionsProps {
   isPublishing: boolean;
   handleApprove: () => Promise<void>;
   handleReject: () => Promise<void>;
+  handleRemove?: () => void;
   variant: 'row' | 'card';
 }
 
-const ModQueueActions = ({ status, error, errorMessage, isPublishing, handleApprove, handleReject, variant }: ModQueueActionsProps) => {
+const ModQueueActions = ({ status, error, errorMessage, isPublishing, handleApprove, handleReject, handleRemove, variant }: ModQueueActionsProps) => {
   const { t } = useTranslation();
   const displayError = error || errorMessage;
 
+  const removeButton = handleRemove ? (
+    variant === 'row' ? (
+      <span className={styles.buttonWrapper}>
+        [
+        <button className={styles.button} onClick={handleRemove} disabled={isPublishing}>
+          {t('remove')}
+        </button>
+        ]
+      </span>
+    ) : (
+      <button className={`button ${styles.cardRemoveButton}`} onClick={handleRemove} disabled={isPublishing}>
+        {t('remove')}
+      </button>
+    )
+  ) : null;
+
   if (status === 'approved') {
     const content = <span className={`${styles.button} ${styles.approve}`}>{t('approved')}</span>;
-    return variant === 'card' ? <div className={styles.cardActions}>{content}</div> : content;
+    return variant === 'card' ? (
+      <div className={styles.cardActions}>
+        {content}
+        {removeButton}
+      </div>
+    ) : (
+      <span className={styles.actionButtons}>
+        {content} {removeButton}
+      </span>
+    );
   }
   if (status === 'rejected') {
     const content = <span className={`${styles.button} ${styles.reject}`}>{t('rejected')}</span>;
-    return variant === 'card' ? <div className={styles.cardActions}>{content}</div> : content;
+    return variant === 'card' ? (
+      <div className={styles.cardActions}>
+        {content}
+        {removeButton}
+      </div>
+    ) : (
+      <span className={styles.actionButtons}>
+        {content} {removeButton}
+      </span>
+    );
   }
   if (status === 'failed') {
     const content = displayError ? (
@@ -163,6 +199,8 @@ const useModQueueActions = (comment: Comment): ModQueueActionState => {
   const { t } = useTranslation();
   const { cid, approved, removed, pendingApproval } = comment || {};
   const communityAddress = getCommentCommunityAddress(comment);
+  const dismissCommentFromQueue = useModQueueStore((state) => state.dismissCommentFromQueue);
+  const rememberCommentsInQueue = useModQueueStore((state) => state.rememberCommentsInQueue);
   const [initiatedAction, setInitiatedAction] = useState<ModerationAction>(null);
 
   const alreadyApproved = approved === true;
@@ -206,7 +244,7 @@ const useModQueueActions = (comment: Comment): ModQueueActionState => {
     },
   });
 
-  const handleApprove = useCallback(async () => {
+  const handleApprove = async () => {
     const confirm = window.confirm(t('double_confirm'));
     if (!confirm) {
       return;
@@ -215,12 +253,16 @@ const useModQueueActions = (comment: Comment): ModQueueActionState => {
     setInitiatedAction('approve');
     try {
       await approve();
+      const approvedSnapshot = getQueuedCommentSnapshot({ ...comment, approved: true, pendingApproval: false });
+      if (approvedSnapshot) {
+        rememberCommentsInQueue([approvedSnapshot]);
+      }
     } catch (e) {
       console.error(e);
     }
-  }, [approve, t]);
+  };
 
-  const handleReject = useCallback(async () => {
+  const handleReject = async () => {
     const confirm = window.confirm(t('double_confirm'));
     if (!confirm) {
       return;
@@ -229,10 +271,20 @@ const useModQueueActions = (comment: Comment): ModQueueActionState => {
     setInitiatedAction('reject');
     try {
       await reject();
+      const rejectedSnapshot = getQueuedCommentSnapshot({ ...comment, approved: false, pendingApproval: false });
+      if (rejectedSnapshot) {
+        rememberCommentsInQueue([rejectedSnapshot]);
+      }
     } catch (e) {
       console.error(e);
     }
-  }, [reject, t]);
+  };
+
+  const handleRemove = () => {
+    if (cid) {
+      dismissCommentFromQueue(cid);
+    }
+  };
 
   const isApproving = initiatedAction === 'approve' && approveState !== 'initializing' && approveState !== 'succeeded' && approveState !== 'failed';
   const isRejecting = initiatedAction === 'reject' && rejectState !== 'initializing' && rejectState !== 'succeeded' && rejectState !== 'failed';
@@ -248,7 +300,7 @@ const useModQueueActions = (comment: Comment): ModQueueActionState => {
   const error = approveFailed ? approveError : rejectFailed ? rejectError : undefined;
   const errorMessage = formatErrorForDisplay(error);
 
-  return { status, error, errorMessage, isPublishing, handleApprove, handleReject };
+  return { status, error, errorMessage, isPublishing, handleApprove, handleReject, handleRemove: status ? handleRemove : undefined };
 };
 
 const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath, boardDisplayPath }: ModQueueRowProps) => {
@@ -269,7 +321,7 @@ const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath
   // Only show alert animation for comments awaiting approval (not approved or rejected)
   const isAwaitingApproval = isPendingApprovalAwaiting(comment);
 
-  const { status, error, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(comment);
+  const { status, error, errorMessage, isPublishing, handleApprove, handleReject, handleRemove } = useModQueueActions(comment);
   const hasTitle = title && title.trim().length > 0;
   const hasContent = content && content.trim().length > 0;
   const hasLink = link && link.length > 0;
@@ -341,6 +393,7 @@ const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath
           isPublishing={isPublishing}
           handleApprove={handleApprove}
           handleReject={handleReject}
+          handleRemove={handleRemove}
           variant='row'
         />
       </div>
@@ -373,7 +426,7 @@ const ModQueueCard = memo(({ comment, showBoard = false, boardPath, boardDisplay
   const isOverThreshold = timeWaiting > alertThresholdSeconds;
   const isAwaitingApproval = isPendingApprovalAwaiting(comment);
 
-  const { status, error, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(comment);
+  const { status, error, errorMessage, isPublishing, handleApprove, handleReject, handleRemove } = useModQueueActions(comment);
   const hasTitle = title && title.trim().length > 0;
   const hasContent = content && content.trim().length > 0;
   const hasLink = link && link.length > 0;
@@ -434,6 +487,7 @@ const ModQueueCard = memo(({ comment, showBoard = false, boardPath, boardDisplay
         isPublishing={isPublishing}
         handleApprove={handleApprove}
         handleReject={handleReject}
+        handleRemove={handleRemove}
         variant='card'
       />
     </div>
@@ -444,7 +498,7 @@ ModQueueCard.displayName = 'ModQueueCard';
 const ModQueueFeedPost = ({ comment }: { comment: Comment }) => {
   const { editedComment } = useEditedComment({ comment });
   const displayComment = editedComment || comment;
-  const { status, error, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(comment);
+  const { status, error, errorMessage, isPublishing, handleApprove, handleReject, handleRemove } = useModQueueActions(comment);
 
   return (
     <Post
@@ -457,6 +511,7 @@ const ModQueueFeedPost = ({ comment }: { comment: Comment }) => {
       isPublishing={isPublishing}
       onApprove={handleApprove}
       onReject={handleReject}
+      onRemoveFromModQueue={handleRemove}
     />
   );
 };
@@ -787,7 +842,7 @@ export const ModQueueButton = ({ boardIdentifier, isMobile }: ModQueueButtonProp
 const ModQueueView = ({ boardIdentifier: propBoardIdentifier }: ModQueueViewProps) => {
   const { t } = useTranslation();
   const params = useParams();
-  const { selectedBoardFilter, viewMode } = useModQueueStore();
+  const { selectedBoardFilter, viewMode, dismissedCommentCids, queuedCommentHistory, rememberCommentsInQueue } = useModQueueStore();
   const isMobile = useIsMobile();
 
   const accountCommunityAddresses = useAccountCommunityAddresses();
@@ -824,7 +879,41 @@ const ModQueueView = ({ boardIdentifier: propBoardIdentifier }: ModQueueViewProp
   );
   const { feed, hasMore, loadMore, reset } = useFeed(feedOptions);
 
-  const filteredFeed = useMemo(() => filterVisibleModQueueFeed(feed, selectedBoardFilter), [feed, selectedBoardFilter]);
+  const queuedCommentSnapshots = useMemo(
+    () =>
+      feed.flatMap((comment) => {
+        const snapshot = getQueuedCommentSnapshot(comment);
+        return snapshot ? [snapshot] : [];
+      }),
+    [feed],
+  );
+  useEffect(() => {
+    if (queuedCommentSnapshots.length > 0) {
+      rememberCommentsInQueue(queuedCommentSnapshots);
+    }
+  }, [queuedCommentSnapshots, rememberCommentsInQueue]);
+
+  const feedWithHistory = useMemo(() => {
+    const liveCids = new Set(feed.map((comment) => comment.cid).filter(Boolean));
+    return [
+      ...feed,
+      ...(queuedCommentHistory.filter((comment) => {
+        const commentCommunityAddress = getCommentCommunityAddress(comment);
+        return (
+          comment.cid &&
+          !liveCids.has(comment.cid) &&
+          commentCommunityAddress &&
+          communityAddresses.some((communityAddress) => areSameBoardAddress(communityAddress, commentCommunityAddress))
+        );
+      }) as Comment[]),
+    ];
+  }, [communityAddresses, feed, queuedCommentHistory]);
+
+  const dismissedCommentCidSet = useMemo(() => new Set(dismissedCommentCids), [dismissedCommentCids]);
+  const filteredFeed = useMemo(
+    () => filterVisibleModQueueFeed(feedWithHistory, selectedBoardFilter, dismissedCommentCidSet),
+    [feedWithHistory, selectedBoardFilter, dismissedCommentCidSet],
+  );
 
   const addressToPathMap = useMemo(() => {
     const map = new Map<string, string>();

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { filterVisibleModQueueFeed, getModQueueCommentRoute, getQueuedCommentRouteState } from '../mod-queue-utils';
 
 describe('mod queue utils', () => {
-  it('keeps only comments still awaiting approval', () => {
+  it('keeps all queue comments unless they were locally dismissed', () => {
     const feed = [
       { cid: 'pending', communityAddress: 'tech.eth', pendingApproval: true },
       { cid: 'approved', approved: true, communityAddress: 'tech.eth', pendingApproval: true },
@@ -11,17 +11,24 @@ describe('mod queue utils', () => {
       { cid: 'published', communityAddress: 'tech.eth', pendingApproval: false },
     ];
 
-    expect(filterVisibleModQueueFeed(feed, null)).toEqual([{ cid: 'pending', communityAddress: 'tech.eth', pendingApproval: true }]);
+    expect(filterVisibleModQueueFeed(feed, null, new Set(['approved']))).toEqual([
+      { cid: 'pending', communityAddress: 'tech.eth', pendingApproval: true },
+      { cid: 'rejected', approved: false, communityAddress: 'tech.eth', pendingApproval: true },
+      { cid: 'removed', communityAddress: 'tech.eth', pendingApproval: true, removed: true },
+      { cid: 'published', communityAddress: 'tech.eth', pendingApproval: false },
+    ]);
   });
 
-  it('applies the selected board filter after removing non-pending items', () => {
+  it('applies the selected board filter after removing dismissed items', () => {
     const feed = [
       { cid: 'tech-pending', communityAddress: 'tech.eth', pendingApproval: true },
       { cid: 'g-pending', communityAddress: 'g.eth', pendingApproval: true },
       { cid: 'tech-approved', approved: true, communityAddress: 'tech.eth', pendingApproval: true },
     ];
 
-    expect(filterVisibleModQueueFeed(feed, 'tech.eth')).toEqual([{ cid: 'tech-pending', communityAddress: 'tech.eth', pendingApproval: true }]);
+    expect(filterVisibleModQueueFeed(feed, 'tech.eth', new Set(['tech-pending']))).toEqual([
+      { cid: 'tech-approved', approved: true, communityAddress: 'tech.eth', pendingApproval: true },
+    ]);
   });
 
   it('builds excerpt routes from the comment permalink cid', () => {
