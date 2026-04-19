@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/33ec7a773f60ccbd29e72467c09c8e4f5a519ea6"
+    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/9a709b3d78d566231e75c59d7e83715a02f912c6"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/cli": "npm:7.4.5"
@@ -1530,13 +1530,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/33ec7a773f60ccbd29e72467c09c8e4f5a519ea6":
+"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/9a709b3d78d566231e75c59d7e83715a02f912c6":
   version: 0.1.0
-  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/33ec7a773f60ccbd29e72467c09c8e4f5a519ea6"
+  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/9a709b3d78d566231e75c59d7e83715a02f912c6"
   dependencies:
     "@bitsocial/bso-resolver": "npm:0.0.4"
     "@pkc/pkc-logger": "https://github.com/pkcprotocol/pkc-logger.git"
-    "@pkcprotocol/pkc-js": "npm:0.0.16"
+    "@pkcprotocol/pkc-js": "npm:0.0.18"
     assert: "npm:2.0.0"
     ethers: "npm:5.8.0"
     localforage: "npm:1.10.0"
@@ -1551,7 +1551,7 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/e938f5f698c6a03c3f2c1ddb0ee112e9ca99d3cbdabb8ce31316dc5d7b4cec0a01167492ebe885b69cc250d66ae12f93bbed48a0e57bf7d16f3e5c3e6634e937
+  checksum: 10c0/ad1c8182e8a6cc8ffdca8756050c6016ed1d141545623394f963ef6d7588a5b1907fe3715edf21dff9f69913f9ed6dd31c3d13bbe87492b5d6e8bbda5b8147ca
   languageName: node
   linkType: hard
 
@@ -4656,7 +4656,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/ed25519@npm:^1.5.1":
+"@noble/ed25519@npm:^1.5.1, @noble/ed25519@npm:^1.7.5":
   version: 1.7.5
   resolution: "@noble/ed25519@npm:1.7.5"
   checksum: 10c0/9ebcdf47e1cc986f270a82725ed4fdad1922fd63cca77f6bc0ba9575685db9cd73d45e66325fb62cc1d8a398010e953331b904961c1e9f18d170eebae783d5cb
@@ -5673,9 +5673,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkcprotocol/pkc-js@npm:0.0.16":
-  version: 0.0.16
-  resolution: "@pkcprotocol/pkc-js@npm:0.0.16"
+"@pkcprotocol/pkc-js@npm:0.0.18":
+  version: 0.0.18
+  resolution: "@pkcprotocol/pkc-js@npm:0.0.18"
   dependencies:
     "@enhances/with-resolvers": "npm:0.0.5"
     "@helia/block-brokers": "npm:5.1.2"
@@ -5688,12 +5688,12 @@ __metadata:
     "@libp2p/identify": "npm:4.0.10"
     "@libp2p/interfaces": "npm:3.3.2"
     "@libp2p/peer-id": "npm:6.0.4"
-    "@libp2p/peer-id-factory": "npm:4.2.4"
     "@libp2p/websockets": "npm:10.1.3"
-    "@pkcprotocol/pkc-logger": "github:pkcprotocol/pkc-logger#cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a"
-    "@pkcprotocol/proper-lock-file": "git+https://github.com/pkcprotocol/node-proper-lockfile.git#30564d7e0bd06d145c88a16896c779e97503a735"
+    "@noble/ed25519": "npm:^1.7.5"
+    "@pkcprotocol/pkc-logger": "npm:0.1.0"
+    "@pkcprotocol/proper-lock-file": "npm:4.2.1"
     assert: "npm:2.1.0"
-    better-sqlite3: "npm:12.6.2"
+    better-sqlite3: "npm:12.9.0"
     blockstore-core: "npm:6.1.2"
     blockstore-fs: "npm:3.0.2"
     blockstore-idb: "npm:3.0.1"
@@ -5715,11 +5715,10 @@ __metadata:
     open-graph-scraper: "npm:6.11.0"
     p-limit: "npm:7.3.0"
     p-timeout: "npm:7.0.1"
-    peer-id: "npm:0.16.0"
     probe-image-size: "npm:7.2.3"
     remeda: "npm:1.57.0"
     retry: "npm:0.13.1"
-    rpc-websockets: "npm:9.3.1"
+    rpc-websockets: "npm:9.3.8"
     safe-stable-stringify: "npm:2.4.3"
     sha1-uint8array: "npm:0.10.7"
     tcp-port-used: "npm:1.0.2"
@@ -5729,27 +5728,27 @@ __metadata:
     typestub-ipfs-only-hash: "npm:4.0.0"
     uuid: "npm:13.0.0"
     zod: "npm:4.3.6"
-  checksum: 10c0/8b82ba3f9e3448155d0c004301ceb4abed9a179d9b0a73b56859b8a29f6551fed6cb1fc798fe4cdf0e26f1b47e5eb5028d7d9cb293211316baf9ead42c890457
+  checksum: 10c0/4bffe34306437f1141ea7d945e8df194b19e8af21999def03024d84916b7adaad56723ade99206ac9bd3146bfbc5f56ece16ee57b6b8de935c45f5f72dd105f3
   languageName: node
   linkType: hard
 
-"@pkcprotocol/pkc-logger@github:pkcprotocol/pkc-logger#cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a":
-  version: 0.0.1
-  resolution: "@pkcprotocol/pkc-logger@https://github.com/pkcprotocol/pkc-logger.git#commit=cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a"
+"@pkcprotocol/pkc-logger@npm:0.1.0":
+  version: 0.1.0
+  resolution: "@pkcprotocol/pkc-logger@npm:0.1.0"
   dependencies:
     debug: "npm:4.4.3"
-  checksum: 10c0/1729428ebdc977885dce554893894e7187fb460986119201fddc72e600a0ec07fb61129d884528a9feae83e05cdc71f7889c32d46d12f3292ce6765a96e927ef
+  checksum: 10c0/f37dad95e940685d0afa5f3dbecf6dd172bcb9985890807d5d1d09151516e7b8c58f551daaa5c7830e56b9a674fe6b3f4ec4d882d2d9e84a34031a73ed24aa31
   languageName: node
   linkType: hard
 
-"@pkcprotocol/proper-lock-file@git+https://github.com/pkcprotocol/node-proper-lockfile.git#30564d7e0bd06d145c88a16896c779e97503a735":
-  version: 4.1.2
-  resolution: "@pkcprotocol/proper-lock-file@https://github.com/pkcprotocol/node-proper-lockfile.git#commit=30564d7e0bd06d145c88a16896c779e97503a735"
+"@pkcprotocol/proper-lock-file@npm:4.2.1":
+  version: 4.2.1
+  resolution: "@pkcprotocol/proper-lock-file@npm:4.2.1"
   dependencies:
     graceful-fs: "npm:4.2.11"
     retry: "npm:0.13.1"
     signal-exit: "npm:4.1.0"
-  checksum: 10c0/0cd90d63f98b9863412073a4339d3bd3b9b4bd09573ec0b58ede1ce962ba361a805354f034734ac73f24e134920aaa9725bc6c358bde6dd5e256497fac7028ae
+  checksum: 10c0/05e9c4aa7a405a19a5ace80bca87491c5a89a97499e6da15f54a5753b5f6f8038d9f9597df8115f343894b46eb2ea15d662e0bfa2a4a4f5e478a57e7bb88e640
   languageName: node
   linkType: hard
 
@@ -6573,6 +6572,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@types/uuid@npm:10.0.0"
+  checksum: 10c0/9a1404bf287164481cb9b97f6bb638f78f955be57c40c6513b7655160beb29df6f84c915aaf4089a1559c216557dc4d2f79b48d978742d3ae10b937420ddac60
+  languageName: node
+  linkType: hard
+
 "@types/uuid@npm:^8.3.4":
   version: 8.3.4
   resolution: "@types/uuid@npm:8.3.4"
@@ -7382,6 +7388,17 @@ __metadata:
     node-gyp: "npm:latest"
     prebuild-install: "npm:^7.1.1"
   checksum: 10c0/a58fb3f7a7f5469ba0b8de0855aa67396ff34f951a6975746e4b21987f530be6a34427d1d4bd5958cf48c67ed7ba1df038ae163d2ee9d944237f6b8112f6640d
+  languageName: node
+  linkType: hard
+
+"better-sqlite3@npm:12.9.0":
+  version: 12.9.0
+  resolution: "better-sqlite3@npm:12.9.0"
+  dependencies:
+    bindings: "npm:^1.5.0"
+    node-gyp: "npm:latest"
+    prebuild-install: "npm:^7.1.1"
+  checksum: 10c0/69ee0d908fa6a5c8643872aa664686ed02476e88cb654fe37f0fef5845081430d4280c82f5d370e169c2abe7a14a85d9bc718ea720058abf4f7cd9a8dbe227f0
   languageName: node
   linkType: hard
 
@@ -17201,6 +17218,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rpc-websockets@npm:9.3.8":
+  version: 9.3.8
+  resolution: "rpc-websockets@npm:9.3.8"
+  dependencies:
+    "@swc/helpers": "npm:^0.5.11"
+    "@types/uuid": "npm:^10.0.0"
+    "@types/ws": "npm:^8.2.2"
+    buffer: "npm:^6.0.3"
+    bufferutil: "npm:^4.0.1"
+    eventemitter3: "npm:^5.0.1"
+    utf-8-validate: "npm:^6.0.0"
+    uuid: "npm:^11.0.0"
+    ws: "npm:^8.5.0"
+  dependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 10c0/4a0601c497762f7fffe685bdb4595e60e31e363b5988a01a4370b867f3d23a6fdd240f22f5f25125e7bfa70d94e81b98537d8824b0d43c171f363ed5555d4cae
+  languageName: node
+  linkType: hard
+
 "run-async@npm:^2.4.0":
   version: 2.4.1
   resolution: "run-async@npm:2.4.1"
@@ -19246,6 +19285,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"utf-8-validate@npm:^6.0.0":
+  version: 6.0.6
+  resolution: "utf-8-validate@npm:6.0.6"
+  dependencies:
+    node-gyp: "npm:latest"
+    node-gyp-build: "npm:^4.3.0"
+  checksum: 10c0/88c3581c43b9f824f0939b0da0ecf0cf092ff944ace7be517a5459bc18fe1884fc4acda3502ed369b4ce44baf40590a8f1e820c43a425df0758f2ba76b055f77
+  languageName: node
+  linkType: hard
+
 "utf8-byte-length@npm:^1.0.1":
   version: 1.0.5
   resolution: "utf8-byte-length@npm:1.0.5"
@@ -19280,7 +19329,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:11.1.0":
+"uuid@npm:11.1.0, uuid@npm:^11.0.0":
   version: 11.1.0
   resolution: "uuid@npm:11.1.0"
   bin:
