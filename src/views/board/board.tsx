@@ -48,7 +48,9 @@ const BOARD_SORT_TYPE = 'active' as const;
 interface BoardFooterProps {
   communityAddresses: string[];
   hasMore: boolean;
+  feedState: string | undefined;
   combinedFeedLength: number;
+  isSingleCommunityBoard: boolean;
   isInSubscriptionsView: boolean;
   isInModView: boolean;
   currentTimeFilterName: string;
@@ -69,7 +71,9 @@ interface BoardFooterProps {
 const BoardFooter = ({
   communityAddresses,
   hasMore,
+  feedState,
   combinedFeedLength,
+  isSingleCommunityBoard,
   isInSubscriptionsView,
   isInModView,
   currentTimeFilterName,
@@ -85,6 +89,9 @@ const BoardFooter = ({
   const { t } = useTranslation();
 
   const loadingStateString = useFeedStateString(communityAddresses) || (combinedFeedLength === 0 ? t('loading_feed') : t('looking_for_more_posts'));
+  const isLoadedCommunityState = communityState === 'succeeded' || communityState === 'ready';
+  const canShowNoThreads = !isSingleCommunityBoard || (isLoadedCommunityState && feedState === 'succeeded');
+  const isEmptyBoardLoading = isSingleCommunityBoard && combinedFeedLength === 0 && !canShowNoThreads && communityState !== 'failed';
 
   let footerContent;
   if (moreThreadsSuggestion && moreThreadsSuggestionPathname) {
@@ -112,7 +119,7 @@ const BoardFooter = ({
         />
       </div>
     );
-  } else if (combinedFeedLength === 0) {
+  } else if (combinedFeedLength === 0 && canShowNoThreads) {
     footerContent = t('no_threads');
   }
   if (communityAddresses && communityAddresses.length === 0) {
@@ -129,7 +136,7 @@ const BoardFooter = ({
         ) : isInModView && accountCommunityAddressesLength === 0 ? (
           <span className='red'>{t('not_mod_of_any_board')}</span>
         ) : (
-          showLoadingEllipsis && hasMore && <LoadingEllipsis string={loadingStateString} />
+          showLoadingEllipsis && (hasMore || isEmptyBoardLoading) && <LoadingEllipsis string={loadingStateString} />
         )}
       </div>
     </div>
@@ -213,7 +220,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, t
     [communities, effectiveInfiniteScroll, infiniteFeedPostsPerPage, paginationFeedPostsPerPage, excludeArchivedFilter, multiboardTimeFilterSeconds],
   );
 
-  const { feed, hasMore, loadMore, reset, expandTimeWindow } = useFeed(feedOptions);
+  const { feed, hasMore, loadMore, reset, expandTimeWindow, state: feedState } = useFeed(feedOptions);
   const { currentTimeFilterName, currentTimeFilterSeconds, expandSuggestionTimeWindow } = useExpandedTimeFilter({
     timeFilterName,
     timeFilterSeconds: multiboardTimeFilterSeconds,
@@ -422,7 +429,9 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, t
           <BoardFooter
             communityAddresses={communityAddresses}
             hasMore={hasMore}
+            feedState={feedState}
             combinedFeedLength={combinedFeed.length}
+            isSingleCommunityBoard={!isInAllView && !isInSubscriptionsView && !isInModView}
             isInSubscriptionsView={isInSubscriptionsView}
             isInModView={isInModView}
             currentTimeFilterName={currentTimeFilterName}
@@ -509,6 +518,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, t
       moreThreadsSuggestionPathname,
       expandSuggestionTimeWindow,
       communityState,
+      feedState,
       communityAddress,
       subscriptions?.length,
       accountCommunityAddresses?.length,
