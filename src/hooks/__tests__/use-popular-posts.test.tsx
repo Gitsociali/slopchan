@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import usePopularPosts from '../use-popular-posts';
+import usePopularPosts, { clearPopularPostsCacheForTest } from '../use-popular-posts';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -90,6 +90,7 @@ describe('usePopularPosts', () => {
     testState.currentTime = 1_704_067_200;
     testState.loadingTimestamps = [];
     testState.requestedAddresses = undefined;
+    clearPopularPostsCacheForTest();
 
     latestValue = {
       error: null,
@@ -185,7 +186,7 @@ describe('usePopularPosts', () => {
     expect(latestValue.popularPosts).toEqual([]);
   });
 
-  it('reshuffles the selected boards on each mount while keeping one top thread per board', async () => {
+  it('keeps selected boards across remounts while the page module stays loaded', async () => {
     const addresses = Array.from({ length: 10 }, (_, index) => `board-${index}.eth`);
     const communities = addresses.map((address, index) => createCommunity(address, [createPost(address, 'top', 30 - index), createPost(address, 'backup', 10 - index)]));
     const keepOrderRandom = mockRandomSequence(Array.from({ length: addresses.length - 1 }, () => 0.999_999));
@@ -203,8 +204,37 @@ describe('usePopularPosts', () => {
     await renderHook(addresses, communities);
 
     expect(latestValue.isLoading).toBe(false);
-    expect(latestValue.popularPosts.map((post) => post.communityAddress)).toEqual(addresses.slice(1, 9));
+    expect(latestValue.popularPosts.map((post) => post.communityAddress)).toEqual(addresses.slice(0, 8));
     expect(latestValue.popularPosts.every((post) => post.cid.endsWith('-top'))).toBe(true);
+    expect(rotateOrderRandom).not.toHaveBeenCalled();
+
+    rotateOrderRandom.mockRestore();
+  });
+
+  it('recalculates popular posts after the page cache is cleared like a browser reload', async () => {
+    const addresses = Array.from({ length: 10 }, (_, index) => `board-${index}.eth`);
+    const initialCommunities = addresses.map((address, index) =>
+      createCommunity(address, [createPost(address, 'top', 30 - index), createPost(address, 'backup', 10 - index)]),
+    );
+    const keepOrderRandom = mockRandomSequence(Array.from({ length: addresses.length - 1 }, () => 0.999_999));
+
+    await renderHook(addresses, initialCommunities);
+
+    expect(latestValue.isLoading).toBe(false);
+    expect(latestValue.popularPosts.map((post) => post.communityAddress)).toEqual(addresses.slice(0, 8));
+    expect(latestValue.popularPosts.every((post) => post.cid.endsWith('-top'))).toBe(true);
+
+    keepOrderRandom.mockRestore();
+    clearPopularPostsCacheForTest();
+    resetHookRoot();
+
+    const refreshedCommunities = addresses.map((address, index) => createCommunity(address, [createPost(address, 'top', 1), createPost(address, 'reload', 100 - index)]));
+    const rotateOrderRandom = mockRandomSequence(Array.from({ length: addresses.length - 1 }, () => 0));
+    await renderHook(addresses, refreshedCommunities);
+
+    expect(latestValue.isLoading).toBe(false);
+    expect(latestValue.popularPosts.map((post) => post.communityAddress)).toEqual(addresses.slice(1, 9));
+    expect(latestValue.popularPosts.map((post) => post.cid)).toEqual(addresses.slice(1, 9).map((address) => `${address}-reload`));
 
     rotateOrderRandom.mockRestore();
   });

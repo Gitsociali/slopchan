@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { Comment, type Community } from '@bitsocialnet/bitsocial-react-hooks';
 import { getCommentMediaInfo, getHasThumbnail } from '../lib/utils/media-utils';
 import useCommunitiesLoadingStartTimestamps from '../stores/use-communities-loading-start-timestamps-store';
@@ -15,10 +15,13 @@ type PopularPostCandidate = {
   post: Comment;
 };
 
-type CommittedPopularPosts = {
+type PopularPostsCacheEntry = {
+  randomizedBoardAddresses: string[];
   posts: Comment[];
   revealed: boolean;
 };
+
+const popularPostsCacheByInputKey = new Map<string, PopularPostsCacheEntry>();
 
 /**
  * Time-decayed popularity: replyCount divided by age of latest
@@ -55,38 +58,43 @@ function shuffleBoardAddresses(boardAddresses: string[]): string[] {
   return shuffledBoardAddresses;
 }
 
+function getPopularPostsCacheEntry(inputKey: string, communityAddresses: string[]): PopularPostsCacheEntry {
+  const cachedEntry = popularPostsCacheByInputKey.get(inputKey);
+  if (cachedEntry) {
+    return cachedEntry;
+  }
+
+  const cacheEntry = {
+    randomizedBoardAddresses: shuffleBoardAddresses(communityAddresses),
+    posts: [],
+    revealed: false,
+  };
+  popularPostsCacheByInputKey.set(inputKey, cacheEntry);
+  return cacheEntry;
+}
+
+export function clearPopularPostsCacheForTest() {
+  popularPostsCacheByInputKey.clear();
+}
+
 /**
  * Each board contributes at most one time-decayed popular thread, but the
- * board order is shuffled on mount so repeat visits surface different boards.
+ * board order is shuffled once per page load so repeat navigation keeps the
+ * same threads until a real browser refresh creates a fresh module instance.
  *
  * The first revealed set is frozen until the user refreshes or changes
  * the board filter, so threads never disappear during background loads.
  */
 const usePopularPosts = (communities: Array<Community | undefined>, communityAddresses: string[]) => {
   const inputKey = [...communityAddresses].sort().join(',');
-  const committedRef = useRef<CommittedPopularPosts>({
-    posts: [],
-    revealed: false,
-  });
-  const prevInputKeyRef = useRef('');
-  const randomizedBoardAddressesRef = useRef<string[]>([]);
+  const cacheEntry = getPopularPostsCacheEntry(inputKey, communityAddresses);
 
-  // Reset committed and reshuffle when the requested board set changes (e.g. NSFW filter toggle).
-  if (prevInputKeyRef.current !== inputKey) {
-    prevInputKeyRef.current = inputKey;
-    randomizedBoardAddressesRef.current = shuffleBoardAddresses(communityAddresses);
-    committedRef.current = {
-      posts: [],
-      revealed: false,
-    };
-  }
-
-  const currentTime = useCurrentTime(committedRef.current.revealed ? 300 : 5);
+  const currentTime = useCurrentTime(cacheEntry.revealed ? 300 : 5);
   const nowSeconds = Math.floor(currentTime);
   const loadingStartTimestamps = useCommunitiesLoadingStartTimestamps(communityAddresses);
 
   const candidates = useMemo<PopularPostCandidate[]>(() => {
-    if (committedRef.current.revealed || committedRef.current.posts.length >= MAX_POSTS) {
+    if (cacheEntry.revealed || cacheEntry.posts.length >= MAX_POSTS) {
       return [];
     }
 
@@ -95,7 +103,7 @@ const usePopularPosts = (communities: Array<Community | undefined>, communityAdd
       const allPosts: PopularPostCandidate[] = [];
       const communitiesByAddress = new Map(communityAddresses.map((boardAddress, index) => [boardAddress, communities[index]]));
 
-      randomizedBoardAddressesRef.current.forEach((boardAddress) => {
+      cacheEntry.randomizedBoardAddresses.forEach((boardAddress) => {
         const community = communitiesByAddress.get(boardAddress);
         if (!boardAddress || !community?.posts?.pages?.hot?.comments) {
           return;
@@ -131,18 +139,18 @@ const usePopularPosts = (communities: Array<Community | undefined>, communityAdd
       console.error('Error in usePopularPosts:', err);
       return [];
     }
-  }, [nowSeconds, communities, communityAddresses]);
+  }, [nowSeconds, communities, communityAddresses, cacheEntry]);
 
   const hasPendingBoards = communityAddresses.some((_, index) => isBoardStillLoading(communities[index], loadingStartTimestamps[index], nowSeconds));
 
-  if (!committedRef.current.revealed && (candidates.length >= MAX_POSTS || (!hasPendingBoards && candidates.length > 0))) {
-    committedRef.current.posts = candidates.slice(0, MAX_POSTS).map(({ post }) => post);
-    committedRef.current.revealed = true;
+  if (!cacheEntry.revealed && (candidates.length >= MAX_POSTS || (!hasPendingBoards && candidates.length > 0))) {
+    cacheEntry.posts = candidates.slice(0, MAX_POSTS).map(({ post }) => post);
+    cacheEntry.revealed = true;
   }
 
-  const isLoading = !committedRef.current.revealed;
+  const isLoading = !cacheEntry.revealed;
 
-  return { popularPosts: committedRef.current.revealed ? committedRef.current.posts : [], isLoading, error: null as string | null };
+  return { popularPosts: cacheEntry.revealed ? cacheEntry.posts : [], isLoading, error: null as string | null };
 };
 
 export default usePopularPosts;
