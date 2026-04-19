@@ -34,7 +34,8 @@ const testState = vi.hoisted(() => ({
   } as Record<string, { address: string; features?: Record<string, unknown> }>,
   feed: [] as TestComment[],
   feedOptionsCalls: [] as Array<{ communitiesLength?: number; newerThan?: number; postsPerPage?: number; sortType?: string }>,
-  feedStateString: 'syncing',
+  feedState: undefined as string | undefined,
+  feedStateString: 'syncing' as string | undefined,
   filteredDirectoryAddresses: ['music-posting.eth'] as string[],
   hasMore: false,
   respectPostsPerPageForNewerThan: new Set<number>(),
@@ -136,6 +137,7 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
     return {
       feed: getScopedFeed(options),
       hasMore: testState.hasMore,
+      state: testState.feedState ?? (testState.hasMore ? 'fetching-ipns' : 'succeeded'),
       expandTimeWindow: testState.expandTimeWindowMock,
       loadMore: testState.loadMoreMock,
       reset: testState.resetMock,
@@ -326,6 +328,7 @@ describe('Board', () => {
     };
     testState.feed = [];
     testState.feedOptionsCalls = [];
+    testState.feedState = undefined;
     testState.feedStateString = 'syncing';
     testState.filteredDirectoryAddresses = ['music-posting.eth'];
     testState.hasMore = false;
@@ -641,5 +644,51 @@ describe('Board', () => {
 
     expect(container.querySelector('[data-testid="error-display"]')?.textContent).toBe('board failed');
     expect(container.textContent).toContain('failed');
+  });
+
+  it('does not show no threads while a board is still loading', async () => {
+    testState.feedStateString = undefined;
+    testState.community = {
+      error: undefined,
+      shortAddress: 'music-posting.eth',
+      state: 'fetching-community-ipfs',
+      title: '/mu/ - Music',
+    };
+
+    await renderBoard({ initialEntry: '/mu', routePath: '/:boardIdentifier/*' });
+
+    expect(container.textContent).not.toContain('no_threads');
+    expect(container.querySelector('[data-testid="loading-ellipsis"]')?.textContent).toBe('loading_feed');
+  });
+
+  it('does not show no threads while an empty board feed is still loading', async () => {
+    testState.feedStateString = undefined;
+    testState.hasMore = true;
+    testState.community = {
+      error: undefined,
+      shortAddress: 'music-posting.eth',
+      state: 'succeeded',
+      title: '/mu/ - Music',
+    };
+
+    await renderBoard({ initialEntry: '/mu', routePath: '/:boardIdentifier/*' });
+
+    expect(container.textContent).not.toContain('no_threads');
+    expect(container.querySelector('[data-testid="loading-ellipsis"]')?.textContent).toBe('loading_feed');
+  });
+
+  it('shows no threads after an empty board feed finishes loading', async () => {
+    testState.feedStateString = undefined;
+    testState.community = {
+      error: undefined,
+      shortAddress: 'music-posting.eth',
+      state: 'succeeded',
+      title: '/mu/ - Music',
+    };
+
+    await renderBoard({ initialEntry: '/mu', routePath: '/:boardIdentifier/*' });
+
+    expect(container.textContent).toContain('no_threads');
+    expect(container.querySelector('[data-testid="loading-ellipsis"]')).toBeNull();
   });
 });
