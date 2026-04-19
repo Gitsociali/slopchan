@@ -24,6 +24,8 @@ import useFeedResetStore from '../../stores/use-feed-reset-store';
 import useChallengesStore from '../../stores/use-challenges-store';
 import { alertChallengeVerificationFailed } from '../../lib/utils/challenge-utils';
 import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
+import { formatErrorForDisplay } from '../../lib/utils/error-utils';
+import { filterVisibleModQueueFeed, getModQueueCommentRoute, getQueuedCommentRouteState } from '../../lib/utils/mod-queue-utils';
 import Tooltip from '../../components/tooltip';
 import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
 import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';
@@ -83,6 +85,7 @@ type ModerationAction = 'approve' | 'reject' | null;
 
 interface ModQueueActionState {
   status: 'approved' | 'rejected' | 'failed' | null;
+  error?: unknown;
   errorMessage?: string;
   isPublishing: boolean;
   handleApprove: () => Promise<void>;
@@ -91,6 +94,7 @@ interface ModQueueActionState {
 
 interface ModQueueActionsProps {
   status: 'approved' | 'rejected' | 'failed' | null;
+  error?: unknown;
   errorMessage?: string;
   isPublishing: boolean;
   handleApprove: () => Promise<void>;
@@ -98,8 +102,9 @@ interface ModQueueActionsProps {
   variant: 'row' | 'card';
 }
 
-const ModQueueActions = ({ status, errorMessage, isPublishing, handleApprove, handleReject, variant }: ModQueueActionsProps) => {
+const ModQueueActions = ({ status, error, errorMessage, isPublishing, handleApprove, handleReject, variant }: ModQueueActionsProps) => {
   const { t } = useTranslation();
+  const displayError = error || errorMessage;
 
   if (status === 'approved') {
     const content = <span className={`${styles.button} ${styles.approve}`}>{t('approved')}</span>;
@@ -110,11 +115,10 @@ const ModQueueActions = ({ status, errorMessage, isPublishing, handleApprove, ha
     return variant === 'card' ? <div className={styles.cardActions}>{content}</div> : content;
   }
   if (status === 'failed') {
-    const content = (
-      <span className={`${styles.button} ${styles.reject}`}>
-        {t('failed')}
-        {errorMessage ? `: ${errorMessage}` : ''}
-      </span>
+    const content = displayError ? (
+      <ErrorDisplay error={displayError} displayMessage={t('failed')} inline={true} showImmediately={true} />
+    ) : (
+      <span className={`${styles.button} ${styles.reject}`}>{t('failed')}</span>
     );
     return variant === 'card' ? <div className={styles.cardActions}>{content}</div> : content;
   }
@@ -178,8 +182,8 @@ const useModQueueActions = (comment: Comment): ModQueueActionState => {
     onChallengeVerification: async (challengeVerification, comment) => {
       alertChallengeVerificationFailed(challengeVerification, comment);
     },
-    onError: (error: Error) => {
-      console.error('Approve failed:', error);
+    onError: (error: Error & { details?: unknown }) => {
+      console.error('Approve failed:', error, error.details);
     },
   });
 
@@ -197,8 +201,8 @@ const useModQueueActions = (comment: Comment): ModQueueActionState => {
     onChallengeVerification: async (challengeVerification, comment) => {
       alertChallengeVerificationFailed(challengeVerification, comment);
     },
-    onError: (error: Error) => {
-      console.error('Reject failed:', error);
+    onError: (error: Error & { details?: unknown }) => {
+      console.error('Reject failed:', error, error.details);
     },
   });
 
@@ -241,9 +245,10 @@ const useModQueueActions = (comment: Comment): ModQueueActionState => {
   const rejectFailed = initiatedAction === 'reject' && rejectState === 'failed';
 
   const status = alreadyApproved || approveSucceeded ? 'approved' : alreadyRejected || rejectSucceeded ? 'rejected' : approveFailed || rejectFailed ? 'failed' : null;
-  const errorMessage = approveFailed ? approveError?.message : rejectFailed ? rejectError?.message : undefined;
+  const error = approveFailed ? approveError : rejectFailed ? rejectError : undefined;
+  const errorMessage = formatErrorForDisplay(error);
 
-  return { status, errorMessage, isPublishing, handleApprove, handleReject };
+  return { status, error, errorMessage, isPublishing, handleApprove, handleReject };
 };
 
 const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath, boardDisplayPath }: ModQueueRowProps) => {
@@ -255,16 +260,16 @@ const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath
   const { editedComment } = useEditedComment({ comment });
   const displayComment = editedComment || comment;
 
-  const { content, title, timestamp, cid, threadCid, link, thumbnailUrl, linkWidth, linkHeight, number, parentCid } = displayComment;
+  const { content, title, timestamp, cid, link, thumbnailUrl, linkWidth, linkHeight, number, parentCid } = displayComment;
 
   const timeWaiting = currentTime - timestamp;
   const alertThresholdSeconds = getAlertThresholdSeconds();
   const isOverThreshold = timeWaiting > alertThresholdSeconds;
 
   // Only show alert animation for comments awaiting approval (not approved or rejected)
-  const isAwaitingApproval = isPendingApprovalAwaiting(displayComment);
+  const isAwaitingApproval = isPendingApprovalAwaiting(comment);
 
-  const { status, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(displayComment);
+  const { status, error, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(comment);
   const hasTitle = title && title.trim().length > 0;
   const hasContent = content && content.trim().length > 0;
   const hasLink = link && link.length > 0;
@@ -281,8 +286,8 @@ const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath
   ).trim();
   // Only truncate excerpt on desktop, allow wrapping on mobile
   const excerpt = !isMobile && rawExcerpt.length > 101 ? rawExcerpt.slice(0, 98) + '...' : rawExcerpt;
-  const threadTargetCid = threadCid || cid;
-  const postUrl = boardPath && threadTargetCid ? `/${boardPath}/thread/${threadTargetCid}` : undefined;
+  const postUrl = getModQueueCommentRoute(boardPath, comment.cid || cid);
+  const postUrlState = getQueuedCommentRouteState(comment);
 
   const modQueueUrl = boardPath ? `/${boardPath}/mod/queue` : undefined;
 
@@ -294,7 +299,7 @@ const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath
       )}
       <div className={styles.excerpt}>
         {postUrl ? (
-          <Link to={postUrl} title={excerpt}>
+          <Link to={postUrl} state={postUrlState} title={excerpt}>
             {excerpt}
           </Link>
         ) : (
@@ -331,6 +336,7 @@ const ModQueueRow = memo(({ comment, isOdd = false, showBoard = false, boardPath
       <div className={styles.actions}>
         <ModQueueActions
           status={status}
+          error={error}
           errorMessage={errorMessage}
           isPublishing={isPublishing}
           handleApprove={handleApprove}
@@ -360,14 +366,14 @@ const ModQueueCard = memo(({ comment, showBoard = false, boardPath, boardDisplay
   const { editedComment } = useEditedComment({ comment });
   const displayComment = editedComment || comment;
 
-  const { content, title, timestamp, cid, threadCid, link, thumbnailUrl, linkWidth, linkHeight, number, parentCid } = displayComment;
+  const { content, title, timestamp, cid, link, thumbnailUrl, linkWidth, linkHeight, number, parentCid } = displayComment;
 
   const timeWaiting = currentTime - timestamp;
   const alertThresholdSeconds = getAlertThresholdSeconds();
   const isOverThreshold = timeWaiting > alertThresholdSeconds;
-  const isAwaitingApproval = isPendingApprovalAwaiting(displayComment);
+  const isAwaitingApproval = isPendingApprovalAwaiting(comment);
 
-  const { status, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(displayComment);
+  const { status, error, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(comment);
   const hasTitle = title && title.trim().length > 0;
   const hasContent = content && content.trim().length > 0;
   const hasLink = link && link.length > 0;
@@ -383,8 +389,8 @@ const ModQueueCard = memo(({ comment, showBoard = false, boardPath, boardDisplay
     t('no_content')
   ).trim();
   const excerpt = rawExcerpt.length > 140 ? rawExcerpt.slice(0, 137) + '...' : rawExcerpt;
-  const threadTargetCid = threadCid || cid;
-  const postUrl = boardPath && threadTargetCid ? `/${boardPath}/thread/${threadTargetCid}` : undefined;
+  const postUrl = getModQueueCommentRoute(boardPath, comment.cid || cid);
+  const postUrlState = getQueuedCommentRouteState(comment);
 
   const modQueueUrl = boardPath ? `/${boardPath}/mod/queue` : undefined;
 
@@ -413,7 +419,7 @@ const ModQueueCard = memo(({ comment, showBoard = false, boardPath, boardDisplay
       <div className={styles.cardContent}>
         {t('excerpt')}:{' '}
         {postUrl ? (
-          <Link to={postUrl} title={excerpt}>
+          <Link to={postUrl} state={postUrlState} title={excerpt}>
             {excerpt}
           </Link>
         ) : (
@@ -421,7 +427,15 @@ const ModQueueCard = memo(({ comment, showBoard = false, boardPath, boardDisplay
         )}{' '}
         / {t('type')}: {isReply ? t('reply') : t('post')} / {capitalize(t('image'))}: {hasThumbnail ? lowerCase(t('yes')) : lowerCase(t('no'))}
       </div>
-      <ModQueueActions status={status} errorMessage={errorMessage} isPublishing={isPublishing} handleApprove={handleApprove} handleReject={handleReject} variant='card' />
+      <ModQueueActions
+        status={status}
+        error={error}
+        errorMessage={errorMessage}
+        isPublishing={isPublishing}
+        handleApprove={handleApprove}
+        handleReject={handleReject}
+        variant='card'
+      />
     </div>
   );
 });
@@ -430,7 +444,7 @@ ModQueueCard.displayName = 'ModQueueCard';
 const ModQueueFeedPost = ({ comment }: { comment: Comment }) => {
   const { editedComment } = useEditedComment({ comment });
   const displayComment = editedComment || comment;
-  const { status, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(displayComment);
+  const { status, error, errorMessage, isPublishing, handleApprove, handleReject } = useModQueueActions(comment);
 
   return (
     <Post
@@ -439,7 +453,7 @@ const ModQueueFeedPost = ({ comment }: { comment: Comment }) => {
       showReplies={false}
       isModQueue={true}
       modQueueStatus={status}
-      modQueueError={errorMessage}
+      modQueueError={error || errorMessage}
       isPublishing={isPublishing}
       onApprove={handleApprove}
       onReject={handleReject}
@@ -810,10 +824,7 @@ const ModQueueView = ({ boardIdentifier: propBoardIdentifier }: ModQueueViewProp
   );
   const { feed, hasMore, loadMore, reset } = useFeed(feedOptions);
 
-  const filteredFeed = useMemo(() => {
-    if (!selectedBoardFilter) return feed;
-    return feed.filter((item) => getCommentCommunityAddress(item) === selectedBoardFilter);
-  }, [feed, selectedBoardFilter]);
+  const filteredFeed = useMemo(() => filterVisibleModQueueFeed(feed, selectedBoardFilter), [feed, selectedBoardFilter]);
 
   const addressToPathMap = useMemo(() => {
     const map = new Map<string, string>();

@@ -12,9 +12,28 @@ function reducer(state: State, action: { type: 'RESET_DELAY' } | { type: 'SHOW' 
   return state;
 }
 
-const ErrorDisplay = ({ error }: { error: any }) => {
+const serializeErrorForClipboard = (error: unknown): string => {
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error, null, 2);
+  } catch {
+    return String(error);
+  }
+};
+
+type ErrorDisplayProps = {
+  error: any;
+  displayMessage?: string;
+  inline?: boolean;
+  showImmediately?: boolean;
+};
+
+const ErrorDisplay = ({ error, displayMessage, inline = false, showImmediately = false }: ErrorDisplayProps) => {
   const { t } = useTranslation();
-  const [state, dispatch] = useReducer(reducer, { showAfterDelay: false, feedbackMessageKey: null });
+  const [state, dispatch] = useReducer(reducer, { showAfterDelay: showImmediately, feedbackMessageKey: null });
 
   const hasError = !!(error?.message || error?.stack || error?.details || error);
 
@@ -23,20 +42,25 @@ const ErrorDisplay = ({ error }: { error: any }) => {
       queueMicrotask(() => dispatch({ type: 'RESET_DELAY' }));
       return;
     }
+    if (showImmediately) {
+      queueMicrotask(() => dispatch({ type: 'SHOW' }));
+      return;
+    }
     const timer = setTimeout(() => dispatch({ type: 'SHOW' }), 1000);
     return () => clearTimeout(timer);
-  }, [hasError]);
+  }, [hasError, showImmediately]);
 
   if (!hasError || !state.showAfterDelay) {
     return null;
   }
 
-  const originalDisplayMessage = error?.message ? `${t('error')}: ${error.message}` : typeof error === 'string' ? error : null;
+  const originalDisplayMessage = displayMessage || (error?.message ? `${t('error')}: ${error.message}` : typeof error === 'string' ? error : null);
+  const canCopyError = !!error && (!!displayMessage || !!error?.message);
 
   const handleMessageClick = async () => {
-    if (!error || !error.message || state.feedbackMessageKey) return;
+    if (!canCopyError || state.feedbackMessageKey) return;
 
-    const errorString = JSON.stringify(error, null, 2);
+    const errorString = serializeErrorForClipboard(error);
     try {
       await copyToClipboard(errorString);
       dispatch({ type: 'FEEDBACK', payload: 'copied' });
@@ -49,23 +73,26 @@ const ErrorDisplay = ({ error }: { error: any }) => {
   };
 
   let currentDisplayMessage = '';
-  const classNames = [styles.errorMessage];
+  const classNames: string[] = [];
   let isClickable = false;
 
   if (state.feedbackMessageKey === 'copied') {
     currentDisplayMessage = t('fullErrorCopiedToClipboard', 'full error copied to the clipboard');
-    classNames.pop();
     classNames.push(styles.feedbackSuccessMessage);
   } else if (state.feedbackMessageKey === 'failed') {
     currentDisplayMessage = t('copyFailed', 'copy failed');
+    classNames.push(styles.errorMessage);
   } else if (originalDisplayMessage) {
     currentDisplayMessage = originalDisplayMessage;
-    isClickable = true;
-    classNames.push(styles.clickableErrorMessage);
+    classNames.push(styles.errorMessage);
+    isClickable = canCopyError;
+    if (isClickable) {
+      classNames.push(styles.clickableErrorMessage);
+    }
   }
 
   return (
-    <div className={styles.error}>
+    <div className={inline ? styles.inlineError : styles.error}>
       {currentDisplayMessage &&
         (isClickable ? (
           <button

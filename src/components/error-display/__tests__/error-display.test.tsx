@@ -25,9 +25,14 @@ let container: HTMLDivElement;
 let root: Root;
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
-const renderDisplay = async (error: unknown) => {
+const renderDisplay = async (props: { error: unknown; displayMessage?: string; inline?: boolean; showImmediately?: boolean } | unknown) => {
+  const normalizedProps =
+    props && typeof props === 'object' && 'error' in (props as Record<string, unknown>)
+      ? (props as { error: unknown; displayMessage?: string; inline?: boolean; showImmediately?: boolean })
+      : { error: props };
+
   await act(async () => {
-    root.render(createElement(ErrorDisplay, { error }));
+    root.render(createElement(ErrorDisplay, normalizedProps));
   });
 };
 
@@ -95,6 +100,27 @@ describe('ErrorDisplay', () => {
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to copy error: ', expect.any(Error));
     expect(container.textContent).toContain('copy failed');
+  });
+
+  it('supports compact custom labels that copy plain string errors immediately', async () => {
+    testState.copyToClipboardMock.mockResolvedValue(undefined);
+
+    await renderDisplay({
+      displayMessage: 'failed',
+      error: 'All pubsub providers throw an error and unable to publish or subscribe',
+      inline: true,
+      showImmediately: true,
+    });
+
+    const button = container.querySelector('button');
+    expect(button?.textContent).toBe('failed');
+
+    await act(async () => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(testState.copyToClipboardMock).toHaveBeenCalledWith('All pubsub providers throw an error and unable to publish or subscribe');
+    expect(container.textContent).toContain('full error copied to the clipboard');
   });
 
   it('renders plain string errors after the delay and hides again when the error clears', async () => {

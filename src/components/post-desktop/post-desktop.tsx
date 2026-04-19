@@ -60,6 +60,8 @@ import {
   hasEnoughPreviewReplies,
 } from '../../lib/utils/replies-preview-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
+import { formatErrorForDisplay } from '../../lib/utils/error-utils';
+import { getModQueueCommentRoute, getQueuedCommentRouteState } from '../../lib/utils/mod-queue-utils';
 import { getThreadTopNavigationState, scrollThreadContainerToTop } from '../../lib/utils/thread-scroll-utils';
 import useDeleteFailedPost from '../../hooks/use-delete-failed-post';
 import { getThreadPostCountsByAuthor } from '../../lib/utils/author-post-counts';
@@ -111,8 +113,8 @@ const PendingModerationActions = ({ cid, communityAddress, post }: { cid: string
     onChallengeVerification: async (challengeVerification, comment) => {
       alertChallengeVerificationFailed(challengeVerification, comment);
     },
-    onError: (error: Error) => {
-      console.error('Approve failed:', error);
+    onError: (error: Error & { details?: unknown }) => {
+      console.error('Approve failed:', error, error.details);
     },
   });
 
@@ -130,8 +132,8 @@ const PendingModerationActions = ({ cid, communityAddress, post }: { cid: string
     onChallengeVerification: async (challengeVerification, comment) => {
       alertChallengeVerificationFailed(challengeVerification, comment);
     },
-    onError: (error: Error) => {
-      console.error('Reject failed:', error);
+    onError: (error: Error & { details?: unknown }) => {
+      console.error('Reject failed:', error, error.details);
     },
   });
 
@@ -168,7 +170,8 @@ const PendingModerationActions = ({ cid, communityAddress, post }: { cid: string
   const rejectPendingFailed = initiatedPendingAction === 'reject' && rejectPendingState === 'failed';
 
   const pendingStatus = approvePendingSucceeded ? 'approved' : rejectPendingSucceeded ? 'rejected' : approvePendingFailed || rejectPendingFailed ? 'failed' : null;
-  const pendingErrorMessage = approvePendingFailed ? approvePendingError?.message : rejectPendingFailed ? rejectPendingError?.message : undefined;
+  const pendingError = approvePendingFailed ? approvePendingError : rejectPendingFailed ? rejectPendingError : undefined;
+  const pendingErrorMessage = formatErrorForDisplay(pendingError);
 
   return (
     <span className={styles.modQueueActions}>
@@ -177,7 +180,7 @@ const PendingModerationActions = ({ cid, communityAddress, post }: { cid: string
       ) : pendingStatus === 'rejected' ? (
         <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
       ) : pendingStatus === 'failed' ? (
-        <span className={styles.modQueueStatusRejected}>
+        <span className={styles.modQueueStatusRejected} title={pendingErrorMessage}>
           {t('failed')}
           {pendingErrorMessage ? `: ${pendingErrorMessage}` : ''}
         </span>
@@ -298,6 +301,9 @@ const PostInfo = ({
 
   const threadRoute = cid ? (boardPath ? `/${boardPath}/thread/${cid}` : `/thread/${cid}`) : undefined;
   const threadTopNavigationState = !isReply ? getThreadTopNavigationState(cid) : undefined;
+  const modQueueThreadRoute = getModQueueCommentRoute(boardPath, post?.cid);
+  const modQueueThreadRouteState = getQueuedCommentRouteState(post);
+  const modQueueErrorMessage = formatErrorForDisplay(modQueueError);
 
   const onLinkToPostClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!cid || !threadRoute) {
@@ -469,18 +475,18 @@ const PostInfo = ({
               ) : modQueueStatus === 'rejected' ? (
                 <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
               ) : modQueueStatus === 'failed' ? (
-                <span className={styles.modQueueStatusRejected}>
+                <span className={styles.modQueueStatusRejected} title={modQueueErrorMessage}>
                   {t('failed')}
-                  {modQueueError ? `: ${modQueueError}` : ''}
+                  {modQueueErrorMessage ? `: ${modQueueErrorMessage}` : ''}
                 </span>
               ) : isPublishing ? (
                 <LoadingEllipsis string={t('publishing')} />
               ) : (
                 <>
-                  {isReply && boardPath && (post?.threadCid || post?.parentCid) && (
+                  {isReply && modQueueThreadRoute && (
                     <span className={styles.modQueueButtonWrapper}>
                       [
-                      <Link to={`/${boardPath}/thread/${post.threadCid || post.parentCid}`} className={styles.modQueueActionButton}>
+                      <Link to={modQueueThreadRoute} state={modQueueThreadRouteState} className={styles.modQueueActionButton}>
                         {t('view_thread')}
                       </Link>
                       ]
