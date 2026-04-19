@@ -1,14 +1,20 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { QueuedCommentSnapshot } from '../lib/utils/mod-queue-utils';
 
 type AlertThresholdUnit = 'hours' | 'minutes';
 type ModQueueViewMode = 'compact' | 'feed';
+const MAX_QUEUE_HISTORY_COMMENTS = 500;
 
 interface ModQueueState {
   alertThresholdValue: number;
   alertThresholdUnit: AlertThresholdUnit;
+  dismissedCommentCids: string[];
+  queuedCommentHistory: QueuedCommentSnapshot[];
   selectedBoardFilter: string | null;
   viewMode: ModQueueViewMode;
+  dismissCommentFromQueue: (cid: string) => void;
+  rememberCommentsInQueue: (comments: QueuedCommentSnapshot[]) => void;
   setAlertThreshold: (value: number, unit: AlertThresholdUnit) => void;
   setSelectedBoardFilter: (boardAddress: string | null) => void;
   setViewMode: (viewMode: ModQueueViewMode) => void;
@@ -21,18 +27,48 @@ interface OldPersistedState {
   alertThresholdHours?: number;
   alertThresholdValue?: number;
   alertThresholdUnit?: AlertThresholdUnit;
+  dismissedCommentCids?: string[];
+  queuedCommentHistory?: QueuedCommentSnapshot[];
   selectedBoardFilter?: string | null;
   viewMode?: ModQueueViewMode;
 }
 
 // Type for persisted data (without methods)
-type PersistedModQueueData = Pick<ModQueueState, 'alertThresholdValue' | 'alertThresholdUnit' | 'selectedBoardFilter' | 'viewMode'>;
+type PersistedModQueueData = Pick<
+  ModQueueState,
+  'alertThresholdValue' | 'alertThresholdUnit' | 'dismissedCommentCids' | 'queuedCommentHistory' | 'selectedBoardFilter' | 'viewMode'
+>;
 
 const useModQueueStore = create<ModQueueState>()(
   persist(
     (set, get) => ({
       alertThresholdValue: 6,
       alertThresholdUnit: 'hours' as AlertThresholdUnit,
+      dismissedCommentCids: [],
+      queuedCommentHistory: [],
+      dismissCommentFromQueue: (cid) =>
+        set((state) => {
+          if (state.dismissedCommentCids.includes(cid)) {
+            return state;
+          }
+          return { dismissedCommentCids: [...state.dismissedCommentCids, cid] };
+        }),
+      rememberCommentsInQueue: (comments) =>
+        set((state) => {
+          const rememberedByCid = new Map<string, QueuedCommentSnapshot>();
+          for (const comment of comments) {
+            if (comment.cid) {
+              rememberedByCid.set(comment.cid, comment);
+            }
+          }
+          for (const comment of state.queuedCommentHistory) {
+            if (comment.cid && !rememberedByCid.has(comment.cid)) {
+              rememberedByCid.set(comment.cid, comment);
+            }
+          }
+
+          return { queuedCommentHistory: [...rememberedByCid.values()].slice(0, MAX_QUEUE_HISTORY_COMMENTS) };
+        }),
       selectedBoardFilter: null,
       viewMode: 'compact',
       setAlertThreshold: (value, unit) => set({ alertThresholdValue: value, alertThresholdUnit: unit }),
@@ -53,6 +89,8 @@ const useModQueueStore = create<ModQueueState>()(
           const migrated: PersistedModQueueData = {
             alertThresholdValue: state.alertThresholdHours,
             alertThresholdUnit: 'hours' as AlertThresholdUnit,
+            dismissedCommentCids: state.dismissedCommentCids ?? [],
+            queuedCommentHistory: state.queuedCommentHistory ?? [],
             selectedBoardFilter: state.selectedBoardFilter ?? null,
             viewMode: state.viewMode ?? 'compact',
           };
@@ -63,6 +101,8 @@ const useModQueueStore = create<ModQueueState>()(
         const current: PersistedModQueueData = {
           alertThresholdValue: state.alertThresholdValue ?? 6,
           alertThresholdUnit: state.alertThresholdUnit ?? 'hours',
+          dismissedCommentCids: state.dismissedCommentCids ?? [],
+          queuedCommentHistory: state.queuedCommentHistory ?? [],
           selectedBoardFilter: state.selectedBoardFilter ?? null,
           viewMode: state.viewMode ?? 'compact',
         };

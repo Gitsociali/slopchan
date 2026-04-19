@@ -10,8 +10,7 @@ type PendingApprovalDisplayState = {
   pendingApproval?: boolean;
 };
 
-export const isPendingApprovalRejected = (comment?: PendingApprovalDisplayState) =>
-  comment?.removed === true || (comment?.pendingApproval === true && comment?.approved === false);
+export const isPendingApprovalRejected = (comment?: PendingApprovalDisplayState) => comment?.removed === true || comment?.approved === false;
 
 export const isPendingApprovalAwaiting = (comment?: PendingApprovalDisplayState) =>
   comment?.pendingApproval === true && comment?.approved !== true && !isPendingApprovalRejected(comment);

@@ -75,18 +75,29 @@ describe('persisted extra stores', () => {
     expect(useModQueueStore.getState()).toMatchObject({
       alertThresholdValue: 3,
       alertThresholdUnit: 'hours',
+      dismissedCommentCids: [],
+      queuedCommentHistory: [],
       selectedBoardFilter: 'music.eth',
       viewMode: 'feed',
     });
     expect(useModQueueStore.getState().getAlertThresholdSeconds()).toBe(10_800);
 
     useModQueueStore.getState().setAlertThreshold(15, 'minutes');
+    useModQueueStore.getState().dismissCommentFromQueue('approved-cid');
+    useModQueueStore.getState().dismissCommentFromQueue('approved-cid');
+    useModQueueStore.getState().rememberCommentsInQueue([{ cid: 'approved-cid', approved: true, content: 'approved body' }]);
+    useModQueueStore.getState().rememberCommentsInQueue([{ cid: 'rejected-cid', approved: false, content: 'rejected body' }]);
     useModQueueStore.getState().setSelectedBoardFilter('tech.eth');
     useModQueueStore.getState().setViewMode('compact');
 
     expect(useModQueueStore.getState()).toMatchObject({
       alertThresholdValue: 15,
       alertThresholdUnit: 'minutes',
+      dismissedCommentCids: ['approved-cid'],
+      queuedCommentHistory: [
+        { cid: 'rejected-cid', approved: false, content: 'rejected body' },
+        { cid: 'approved-cid', approved: true, content: 'approved body' },
+      ],
       selectedBoardFilter: 'tech.eth',
       viewMode: 'compact',
     });

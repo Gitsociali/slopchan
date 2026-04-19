@@ -11,8 +11,9 @@ describe('pending approval moderation utils', () => {
     expect('removed' in rejectPendingCommentModeration).toBe(false);
   });
 
-  it('treats pending approved=false as rejected for display', () => {
+  it('treats approved=false as rejected for display after pkc removes pendingApproval', () => {
     expect(isPendingApprovalRejected({ pendingApproval: true, approved: false })).toBe(true);
+    expect(isPendingApprovalRejected({ pendingApproval: false, approved: false })).toBe(true);
     expect(isPendingApprovalAwaiting({ pendingApproval: true, approved: false })).toBe(false);
   });
 
