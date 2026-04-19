@@ -47,6 +47,8 @@ import useReplyHeightEstimates from '../../hooks/use-reply-height-estimates';
 import useFreshReplies from '../../hooks/use-fresh-replies';
 import { BOARD_REPLIES_PREVIEW_FETCH_SIZE, BOARD_REPLIES_PREVIEW_VISIBLE_COUNT, REPLIES_PER_PAGE } from '../../lib/constants';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
+import { formatErrorForDisplay } from '../../lib/utils/error-utils';
+import { getModQueueCommentRoute, getQueuedCommentRouteState } from '../../lib/utils/mod-queue-utils';
 import { filterRepliesForDisplay, getPreviewDisplayReplies, hasEnoughPreviewReplies } from '../../lib/utils/replies-preview-utils';
 import { getRenderableMobileBacklinks } from '../../lib/utils/reply-backlink-utils';
 import { getThreadTopNavigationState, scrollThreadContainerToTop } from '../../lib/utils/thread-scroll-utils';
@@ -125,8 +127,8 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
     onChallengeVerification: async (challengeVerification, comment) => {
       alertChallengeVerificationFailed(challengeVerification, comment);
     },
-    onError: (error: Error) => {
-      console.error('Approve failed:', error);
+    onError: (error: Error & { details?: unknown }) => {
+      console.error('Approve failed:', error, error.details);
     },
   });
 
@@ -144,8 +146,8 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
     onChallengeVerification: async (challengeVerification, comment) => {
       alertChallengeVerificationFailed(challengeVerification, comment);
     },
-    onError: (error: Error) => {
-      console.error('Reject failed:', error);
+    onError: (error: Error & { details?: unknown }) => {
+      console.error('Reject failed:', error, error.details);
     },
   });
 
@@ -189,7 +191,8 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
   const rejectPendingFailed = initiatedPendingAction === 'reject' && rejectPendingState === 'failed';
 
   const pendingStatus = approvePendingSucceeded ? 'approved' : rejectPendingSucceeded ? 'rejected' : approvePendingFailed || rejectPendingFailed ? 'failed' : null;
-  const pendingErrorMessage = approvePendingFailed ? approvePendingError?.message : rejectPendingFailed ? rejectPendingError?.message : undefined;
+  const pendingError = approvePendingFailed ? approvePendingError : rejectPendingFailed ? rejectPendingError : undefined;
+  const pendingErrorMessage = formatErrorForDisplay(pendingError);
 
   const commentMediaInfo = useCommentMediaInfo(link, thumbnailUrl, linkWidth, linkHeight);
   const hasThumbnail = getHasThumbnail(commentMediaInfo, link);
@@ -412,7 +415,7 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
                 ) : pendingStatus === 'rejected' ? (
                   <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
                 ) : pendingStatus === 'failed' ? (
-                  <span className={styles.modQueueStatusRejected}>
+                  <span className={styles.modQueueStatusRejected} title={pendingErrorMessage}>
                     {t('failed')}
                     {pendingErrorMessage ? `: ${pendingErrorMessage}` : ''}
                   </span>
@@ -577,6 +580,9 @@ const PostMobile = ({
   const directoryEntry = findDirectoryByAddress(directories, communityAddress);
   const requirePostLinkIsMedia = directoryEntry?.features?.requirePostLinkIsMedia === true;
   const boardPath = communityAddress ? getBoardPath(communityAddress, directories) : undefined;
+  const modQueueThreadRoute = getModQueueCommentRoute(boardPath, resolvedPost?.cid);
+  const modQueueThreadRouteState = getQueuedCommentRouteState(resolvedPost);
+  const modQueueErrorMessage = formatErrorForDisplay(modQueueError);
   const linksCount = useCountLinksInReplies(resolvedPost);
   const hasReplyPaginationOverride = !!replyPaginationOverride;
   const shouldFetchReplies = showReplies && !isModQueue && !hasReplyPaginationOverride;
@@ -848,16 +854,16 @@ const PostMobile = ({
                       ) : modQueueStatus === 'rejected' ? (
                         <span className={styles.modQueueStatusRejected}>{t('rejected')}</span>
                       ) : modQueueStatus === 'failed' ? (
-                        <span className={styles.modQueueStatusRejected}>
+                        <span className={styles.modQueueStatusRejected} title={modQueueErrorMessage}>
                           {t('failed')}
-                          {modQueueError ? `: ${modQueueError}` : ''}
+                          {modQueueErrorMessage ? `: ${modQueueErrorMessage}` : ''}
                         </span>
                       ) : isPublishing ? (
                         <LoadingEllipsis string={t('publishing')} />
                       ) : (
                         <>
-                          {isReply && boardPath && (resolvedPost?.threadCid || resolvedPost?.parentCid) && (
-                            <Link to={`/${boardPath}/thread/${resolvedPost.threadCid || resolvedPost.parentCid}`} className={`button ${styles.approveButton}`}>
+                          {isReply && modQueueThreadRoute && (
+                            <Link to={modQueueThreadRoute} state={modQueueThreadRouteState} className={`button ${styles.approveButton}`}>
                               {t('view_thread')}
                             </Link>
                           )}

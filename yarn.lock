@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/e25b593aa05d505a0eb62cbde0505a55523d1998"
+    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/f8af7b652dc924b4392105cc4166ab01486bd79f"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/cli": "npm:7.4.5"
@@ -1530,9 +1530,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/e25b593aa05d505a0eb62cbde0505a55523d1998":
+"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/f8af7b652dc924b4392105cc4166ab01486bd79f":
   version: 0.1.0
-  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/e25b593aa05d505a0eb62cbde0505a55523d1998"
+  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/f8af7b652dc924b4392105cc4166ab01486bd79f"
   dependencies:
     "@bitsocial/bso-resolver": "npm:0.0.4"
     "@pkc/pkc-logger": "https://github.com/pkcprotocol/pkc-logger.git"
@@ -1551,7 +1551,7 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/27290778536cea4f6b3e9981f092f64ea934f3499c709a4ab7470a27b53451f35cc366ff7c0a3979010ef89fbffe50484593bcf249c0eae4f0cc8bda3e1af458
+  checksum: 10c0/95b6d1ec6e851890a3f74194bc0ebadb791a018a98062e592f6265f0bcd13c9ac946a1bd429d7ab6e195ce857afc08a5cdcf4c172d6188fa5d718f7ec5953930
   languageName: node
   linkType: hard
 

@@ -1,3 +1,13 @@
+.error {
+  padding: 10px;
+  text-align: center;
+}
+
+.inlineError {
+  display: inline-flex;
+  align-items: center;
+}
+
 .errorMessage {
   color: red;
 }

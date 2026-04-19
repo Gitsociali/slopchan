@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Comment, Role, useComment, useEditedComment, useCommunity } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, Role, useComment, useEditedComment, useCommunity, useReplies } from '@bitsocialnet/bitsocial-react-hooks';
 import useCommunitiesPagesStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/communities-pages';
 import { useCommunityField } from '../../hooks/use-stable-community';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -17,7 +17,9 @@ import { PageFooterDesktop, ThreadFooterFirstRow, ThreadFooterStyleRow, ThreadFo
 import PostDesktop from '../../components/post-desktop';
 import PostMobile from '../../components/post-mobile';
 import { getRequestedThreadTopCid, scrollThreadContainerToTop } from '../../lib/utils/thread-scroll-utils';
+import { REPLIES_PER_PAGE } from '../../lib/constants';
 import useThreadLiveUpdatesStore from '../../stores/use-thread-live-updates-store';
+import type { QueuedCommentRouteState } from '../../lib/utils/mod-queue-utils';
 import type { ReplyVirtualizationMode } from '../../lib/utils/pretext-height-estimates';
 import styles from './post.module.css';
 
@@ -26,6 +28,25 @@ type CommentWithRefresh = Comment & {
   state?: string;
   error?: Error;
   errors?: Error[];
+};
+
+const getRouteUserState = (state: unknown): QueuedCommentRouteState | undefined => {
+  if (!state || typeof state !== 'object') return undefined;
+  if ('queuedComment' in state || 'scrollThreadContainerCid' in state) {
+    return state as QueuedCommentRouteState;
+  }
+
+  const wrappedState = (state as { usr?: unknown }).usr;
+  if (!wrappedState || typeof wrappedState !== 'object') return undefined;
+  if (!('queuedComment' in wrappedState) && !('scrollThreadContainerCid' in wrappedState)) return undefined;
+  return wrappedState as QueuedCommentRouteState;
+};
+
+const getEffectiveRouteUserState = (state: unknown): QueuedCommentRouteState | undefined => {
+  const routeState = getRouteUserState(state);
+  if (routeState) return routeState;
+  if (typeof window === 'undefined') return undefined;
+  return getRouteUserState(window.history.state);
 };
 
 export interface ReplyPaginationOverride {
@@ -54,6 +75,60 @@ const useCommentWithFeedCache = (options: { commentCid: string | undefined; auto
   }, [comment, cachedComment]);
 };
 
+const getQueuedCommentFromRouteState = (state: unknown, commentCid: string | undefined): CommentWithRefresh | undefined => {
+  if (!commentCid) return undefined;
+
+  const queuedComment = getRouteUserState(state)?.queuedComment;
+  if (!queuedComment || typeof queuedComment !== 'object') return undefined;
+  return queuedComment.cid === commentCid ? queuedComment : undefined;
+};
+
+const mergeCommentFallback = (comment: CommentWithRefresh | undefined, fallback: CommentWithRefresh | undefined): CommentWithRefresh | undefined => {
+  if (!fallback) return comment;
+  if (!comment) return fallback;
+  if (comment.cid && fallback.cid && comment.cid !== fallback.cid) return comment;
+
+  const hasRenderableData =
+    comment.timestamp !== undefined ||
+    comment.number !== undefined ||
+    comment.replyCount !== undefined ||
+    !!comment.content ||
+    !!comment.title ||
+    !!comment.link ||
+    !!comment.thumbnailUrl ||
+    !!comment.error ||
+    !!comment.deleted ||
+    !!comment.removed;
+
+  if (hasRenderableData) return comment;
+
+  return {
+    ...fallback,
+    error: comment.error,
+    errors: comment.errors,
+    refresh: comment.refresh,
+    state: comment.state,
+  };
+};
+
+const mergeRepliesWithQueuedReply = (replies: Comment[], queuedReply: CommentWithRefresh | undefined): Comment[] => {
+  if (!queuedReply?.cid) {
+    return replies;
+  }
+
+  const queuedReplyIndex = replies.findIndex((reply) => reply?.cid === queuedReply.cid);
+  if (queuedReplyIndex === -1) {
+    return [...replies, queuedReply];
+  }
+
+  const nextReplies = [...replies];
+  nextReplies[queuedReplyIndex] = {
+    ...nextReplies[queuedReplyIndex],
+    ...queuedReply,
+  };
+  return nextReplies;
+};
+
 export interface PostProps {
   feedVirtualizationModeOverride?: ReplyVirtualizationMode;
   index?: number;
@@ -71,7 +146,7 @@ export interface PostProps {
   threadNumber?: number;
   isModQueue?: boolean;
   modQueueStatus?: 'approved' | 'rejected' | 'failed' | null;
-  modQueueError?: string;
+  modQueueError?: unknown;
   isPublishing?: boolean;
   onApprove?: () => void;
   onReject?: () => void;
@@ -103,9 +178,7 @@ export const Post = memo(
 
     // handle pending mod or author edit
     const { editedComment } = useEditedComment({ comment });
-    if (editedComment) {
-      comment = editedComment;
-    }
+    comment = mergeCommentFallback(editedComment as CommentWithRefresh | undefined, comment as CommentWithRefresh | undefined);
 
     return (
       <div className={styles.thread}>
@@ -154,13 +227,18 @@ export const Post = memo(
     const next = nextProps.post;
     return (
       prev?.cid === next?.cid &&
+      prev?.number === next?.number &&
+      prev?.postNumber === next?.postNumber &&
       prev?.replyCount === next?.replyCount &&
       prev?.updatedAt === next?.updatedAt &&
+      prev?.approved === next?.approved &&
       prev?.locked === next?.locked &&
       prev?.pinned === next?.pinned &&
+      prev?.pendingApproval === next?.pendingApproval &&
       isCommentArchived(prev) === isCommentArchived(next) &&
       prev?.removed === next?.removed &&
       prev?.deleted === next?.deleted &&
+      prev?.reason === next?.reason &&
       prev?.commentModeration?.purged === next?.commentModeration?.purged &&
       prevProps.showAllReplies === nextProps.showAllReplies &&
       prevProps.showReplies === nextProps.showReplies &&
@@ -190,8 +268,11 @@ const PostPage = () => {
   const resetThreadLiveUpdates = useThreadLiveUpdatesStore((state) => state.resetState);
   const resolvedCommunityAddress = useResolvedCommunityAddress();
   const isInAllView = isAllView(location.pathname);
+  const routeState = useMemo(() => getEffectiveRouteUserState(location.state), [location.key, location.pathname, location.state]);
 
-  const comment = useCommentWithFeedCache({ commentCid, autoUpdate: autoUpdateEnabled });
+  const resolvedComment = useCommentWithFeedCache({ commentCid, autoUpdate: autoUpdateEnabled });
+  const queuedComment = useMemo(() => getQueuedCommentFromRouteState(routeState, commentCid), [routeState, commentCid]);
+  const comment = useMemo(() => mergeCommentFallback(resolvedComment, queuedComment), [resolvedComment, queuedComment]);
   const commentCommunityAddress = getCommentCommunityAddress(comment);
   const communityAddress = resolvedCommunityAddress ?? commentCommunityAddress;
   const communityIdentifier = useCommunityIdentifier(communityAddress);
@@ -212,8 +293,8 @@ const PostPage = () => {
 
   // if the comment is a reply, return the post comment instead, then the reply will be highlighted in the thread
   const postComment = useCommentWithFeedCache({ commentCid: comment?.postCid, autoUpdate: autoUpdateEnabled });
-  const post = comment?.parentCid ? postComment : comment;
-  const requestedThreadTopCid = getRequestedThreadTopCid(location.state);
+  const post = useMemo(() => (comment?.parentCid ? mergeCommentFallback(postComment, comment) : comment), [comment, postComment]);
+  const requestedThreadTopCid = getRequestedThreadTopCid(routeState);
 
   const { error } = post || {};
 
@@ -263,6 +344,30 @@ const PostPage = () => {
   const shouldShowCommunityError = communityError?.message && !post?.cid;
 
   const targetReplyCid = comment?.parentCid ? comment?.cid : undefined;
+  const queuedReply = comment?.parentCid && post?.cid && comment.cid !== post.cid ? comment : undefined;
+  const queuedReplyRepliesResult = useReplies({
+    comment: queuedReply && post?.cid ? post : undefined,
+    sortType: 'old',
+    flat: true,
+    repliesPerPage: REPLIES_PER_PAGE,
+    accountComments: { newerThan: Infinity, append: true },
+  });
+  const queuedReplyHasMore = queuedReplyRepliesResult.hasMore;
+  const queuedReplyLoadMore = queuedReplyRepliesResult.loadMore;
+  const queuedReplyReset = (queuedReplyRepliesResult as { reset?: () => Promise<void> }).reset;
+  const queuedReplyReplies =
+    ((queuedReplyRepliesResult as { updatedReplies?: Comment[] }).updatedReplies?.length
+      ? (queuedReplyRepliesResult as { updatedReplies?: Comment[] }).updatedReplies
+      : queuedReplyRepliesResult.replies) || [];
+  const replyPaginationOverride = useMemo(() => {
+    if (!queuedReply || !post?.cid) return undefined;
+    return {
+      hasMore: queuedReplyHasMore,
+      loadMore: queuedReplyLoadMore,
+      replies: mergeRepliesWithQueuedReply(queuedReplyReplies, queuedReply),
+      reset: queuedReplyReset,
+    };
+  }, [post?.cid, queuedReply, queuedReplyHasMore, queuedReplyLoadMore, queuedReplyReplies, queuedReplyReset]);
 
   useEffect(() => {
     return () => {
@@ -321,7 +426,7 @@ const PostPage = () => {
           <ErrorDisplay error={error} />
         </div>
       )}
-      <Post post={post} showAllReplies={true} targetReplyCid={targetReplyCid} />
+      <Post post={post} showAllReplies={true} targetReplyCid={targetReplyCid} replyPaginationOverride={replyPaginationOverride} />
       {shouldShowCommunityError && (
         <div className={styles.error}>
           <ErrorDisplay error={communityError} />

@@ -10,6 +10,7 @@ import useThreadLiveUpdatesStore from '../../../stores/use-thread-live-updates-s
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
 
 type TestComment = {
+  approved?: boolean;
   cid?: string;
   content?: string;
   error?: Error;
@@ -18,9 +19,12 @@ type TestComment = {
   };
   locked?: boolean;
   number?: number;
+  pendingApproval?: boolean;
   parentCid?: string;
   pinned?: boolean;
   postCid?: string;
+  postNumber?: number;
+  reason?: string;
   replyCount?: number;
   replies?: unknown[];
   state?: string;
@@ -37,6 +41,7 @@ const testState = vi.hoisted(() => ({
   editedCommentsByCid: {} as Record<string, TestComment | undefined>,
   isMobile: false,
   navigateMock: vi.fn(),
+  repliesByCommentCid: {} as Record<string, TestComment[]>,
   resolvedCommunityAddress: 'music-posting.eth' as string | undefined,
   community: {
     error: undefined as Error | undefined,
@@ -73,6 +78,16 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useEditedComment: ({ comment }: { comment?: TestComment }) => ({
     editedComment: comment?.cid ? testState.editedCommentsByCid[comment.cid] : undefined,
   }),
+  useReplies: ({ comment }: { comment?: TestComment }) => {
+    const replies = comment?.cid ? testState.repliesByCommentCid[comment.cid] || [] : [];
+    return {
+      hasMore: false,
+      loadMore: vi.fn(),
+      replies,
+      reset: vi.fn(),
+      updatedReplies: replies,
+    };
+  },
   useCommunity: () => testState.community,
 }));
 
@@ -139,10 +154,26 @@ vi.mock('../../../components/footer', () => ({
 }));
 
 vi.mock('../../../components/post-desktop', () => ({
-  default: ({ post, roles, targetReplyCid }: { post?: TestComment; roles?: Record<string, unknown>; targetReplyCid?: string }) =>
+  default: ({
+    post,
+    roles,
+    targetReplyCid,
+    replyPaginationOverride,
+  }: {
+    post?: TestComment;
+    roles?: Record<string, unknown>;
+    targetReplyCid?: string;
+    replyPaginationOverride?: { replies?: TestComment[] };
+  }) =>
     createElement(
       'div',
-      { 'data-testid': 'post-desktop' },
+      {
+        'data-testid': 'post-desktop',
+        'data-approved': post?.approved === undefined ? '' : String(post.approved),
+        'data-number': post?.number === undefined ? '' : String(post.number),
+        'data-pending-approval': post?.pendingApproval === undefined ? '' : String(post.pendingApproval),
+        'data-replies': replyPaginationOverride?.replies?.map((reply) => reply.cid).join(',') || '',
+      },
       createElement('div', { 'data-thread-container-cid': post?.cid }),
       createElement('div', { 'data-post-info-cid': post?.cid }),
       `${post?.cid || 'missing'}:${targetReplyCid || 'none'}:${Object.keys(roles || {}).length}`,
@@ -150,10 +181,26 @@ vi.mock('../../../components/post-desktop', () => ({
 }));
 
 vi.mock('../../../components/post-mobile', () => ({
-  default: ({ post, roles, targetReplyCid }: { post?: TestComment; roles?: Record<string, unknown>; targetReplyCid?: string }) =>
+  default: ({
+    post,
+    roles,
+    targetReplyCid,
+    replyPaginationOverride,
+  }: {
+    post?: TestComment;
+    roles?: Record<string, unknown>;
+    targetReplyCid?: string;
+    replyPaginationOverride?: { replies?: TestComment[] };
+  }) =>
     createElement(
       'div',
-      { 'data-testid': 'post-mobile' },
+      {
+        'data-testid': 'post-mobile',
+        'data-approved': post?.approved === undefined ? '' : String(post.approved),
+        'data-number': post?.number === undefined ? '' : String(post.number),
+        'data-pending-approval': post?.pendingApproval === undefined ? '' : String(post.pendingApproval),
+        'data-replies': replyPaginationOverride?.replies?.map((reply) => reply.cid).join(',') || '',
+      },
       createElement('div', { 'data-thread-container-cid': post?.cid }),
       createElement('div', { 'data-post-info-cid': post?.cid }),
       `${post?.cid || 'missing'}:${targetReplyCid || 'none'}:${Object.keys(roles || {}).length}`,
@@ -200,6 +247,7 @@ describe('Post', () => {
     testState.editedCommentsByCid = {};
     testState.isMobile = false;
     testState.resolvedCommunityAddress = 'music-posting.eth';
+    testState.repliesByCommentCid = {};
     testState.useCommentCalls = [];
     useThreadLiveUpdatesStore.getState().resetState();
     testState.community = {
@@ -253,6 +301,7 @@ describe('Post', () => {
       writable: true,
     });
     document.title = 'before';
+    window.history.replaceState(null, '', '/');
 
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -279,6 +328,62 @@ describe('Post', () => {
       root.render(createElement(Post, { post: { cid: 'post-2', communityAddress: 'music-posting.eth' } }));
     });
     expect(container.querySelector('[data-testid="post-mobile"]')?.textContent).toBe('post-2:none:1');
+  });
+
+  it('keeps renderable post data when edited comments only resolve to a loading shell', async () => {
+    testState.editedCommentsByCid = {
+      'post-shell': {
+        cid: 'post-shell',
+        state: 'updating',
+      },
+    };
+
+    await act(async () => {
+      root.render(createElement(Post, { post: { cid: 'post-shell', communityAddress: 'music-posting.eth', content: 'body' } }));
+    });
+
+    expect(container.querySelector('[data-testid="post-desktop"]')?.textContent).toBe('post-shell:none:1');
+    expect(testState.communityFieldAddress).toBe('music-posting.eth');
+  });
+
+  it('rerenders posts when pending approval turns into an approved numbered post', async () => {
+    await act(async () => {
+      root.render(
+        createElement(Post, {
+          post: {
+            cid: 'post-approval',
+            communityAddress: 'music-posting.eth',
+            pendingApproval: true,
+            replyCount: 0,
+          },
+        }),
+      );
+    });
+
+    const desktopPresenter = container.querySelector('[data-testid="post-desktop"]');
+    expect(desktopPresenter?.getAttribute('data-number')).toBe('');
+    expect(desktopPresenter?.getAttribute('data-pending-approval')).toBe('true');
+    expect(desktopPresenter?.getAttribute('data-approved')).toBe('');
+
+    await act(async () => {
+      root.render(
+        createElement(Post, {
+          post: {
+            approved: true,
+            cid: 'post-approval',
+            communityAddress: 'music-posting.eth',
+            number: 2,
+            pendingApproval: false,
+            postNumber: 2,
+            replyCount: 0,
+          },
+        }),
+      );
+    });
+
+    expect(desktopPresenter?.getAttribute('data-number')).toBe('2');
+    expect(desktopPresenter?.getAttribute('data-pending-approval')).toBe('false');
+    expect(desktopPresenter?.getAttribute('data-approved')).toBe('true');
   });
 
   it('hydrates thread pages from cached feed data, sets the document title, and renders thread footers', async () => {
@@ -427,6 +532,149 @@ describe('Post', () => {
     expect(container.querySelector('[data-testid="post-desktop"]')?.textContent).toBe('root-cid:reply-cid:1');
     expect(container.querySelector('[data-testid="thread-footer-first-row"]')?.textContent).toBe('root-cid:99:music-posting.eth:true');
     expect(container.textContent).toContain('thread failed');
+  });
+
+  it('renders pending reply routes from queued mod-queue state when the reply CID only resolves to a loading shell', async () => {
+    testState.commentsByCid = {
+      'pending-reply-cid': {
+        cid: 'pending-reply-cid',
+        state: 'updating',
+        communityAddress: 'music-posting.eth',
+      },
+      'root-cid': {
+        cid: 'root-cid',
+        number: 33,
+        replyCount: 1,
+        communityAddress: 'music-posting.eth',
+        title: 'Root thread',
+      },
+    };
+    testState.repliesByCommentCid = {
+      'root-cid': [
+        {
+          cid: 'approved-reply-cid',
+          content: 'approved body',
+          communityAddress: 'music-posting.eth',
+          parentCid: 'root-cid',
+          postCid: 'root-cid',
+        },
+      ],
+    };
+
+    await renderPostPage({
+      pathname: '/mu/thread/pending-reply-cid',
+      state: {
+        queuedComment: {
+          cid: 'pending-reply-cid',
+          content: 'pending body',
+          communityAddress: 'music-posting.eth',
+          parentCid: 'root-cid',
+          pendingApproval: true,
+          postCid: 'root-cid',
+          timestamp: 123,
+        },
+      },
+    });
+
+    expect(container.querySelector('[data-testid="post-desktop"]')?.textContent).toBe('root-cid:pending-reply-cid:1');
+    expect(container.querySelector('[data-testid="post-desktop"]')?.getAttribute('data-replies')).toBe('approved-reply-cid,pending-reply-cid');
+    expect(container.querySelector('[data-testid="thread-footer-first-row"]')?.textContent).toBe('root-cid:33:music-posting.eth:false');
+  });
+
+  it('renders pending thread routes from queued mod-queue state when the thread CID only resolves to a loading shell', async () => {
+    testState.commentsByCid = {
+      'pending-thread-cid': {
+        cid: 'pending-thread-cid',
+        state: 'updating',
+        communityAddress: 'music-posting.eth',
+      },
+    };
+
+    await renderPostPage({
+      pathname: '/mu/thread/pending-thread-cid',
+      state: {
+        queuedComment: {
+          cid: 'pending-thread-cid',
+          communityAddress: 'music-posting.eth',
+          content: 'pending thread body',
+          number: 71,
+          pendingApproval: true,
+          replyCount: 0,
+          timestamp: 321,
+          title: 'Pending thread',
+        },
+      },
+    });
+
+    expect(container.querySelector('[data-testid="post-desktop"]')?.textContent).toBe('pending-thread-cid:none:1');
+    expect(container.querySelector('[data-testid="thread-footer-first-row"]')?.textContent).toBe('pending-thread-cid:71:music-posting.eth:false');
+    expect(document.title).toBe('/mu/ - Pending thread... - 5chan');
+  });
+
+  it('unwraps queued mod-queue route state from the router usr wrapper', async () => {
+    testState.commentsByCid = {
+      'wrapped-thread-cid': {
+        cid: 'wrapped-thread-cid',
+        state: 'updating',
+        communityAddress: 'music-posting.eth',
+      },
+    };
+
+    await renderPostPage({
+      pathname: '/mu/thread/wrapped-thread-cid',
+      state: {
+        usr: {
+          queuedComment: {
+            cid: 'wrapped-thread-cid',
+            communityAddress: 'music-posting.eth',
+            content: 'wrapped pending body',
+            number: 72,
+            pendingApproval: true,
+            replyCount: 0,
+            timestamp: 654,
+            title: 'Wrapped pending thread',
+          },
+        },
+      },
+    });
+
+    expect(container.querySelector('[data-testid="post-desktop"]')?.textContent).toBe('wrapped-thread-cid:none:1');
+    expect(container.querySelector('[data-testid="thread-footer-first-row"]')?.textContent).toBe('wrapped-thread-cid:72:music-posting.eth:false');
+    expect(document.title).toBe('/mu/ - Wrapped pending thread... - 5chan');
+  });
+
+  it('falls back to browser history state when router location state is missing on first navigation', async () => {
+    testState.commentsByCid = {
+      'history-thread-cid': {
+        cid: 'history-thread-cid',
+        state: 'waiting retry',
+        communityAddress: 'music-posting.eth',
+      },
+    };
+    window.history.replaceState(
+      {
+        usr: {
+          queuedComment: {
+            cid: 'history-thread-cid',
+            communityAddress: 'music-posting.eth',
+            content: 'history pending body',
+            number: 73,
+            pendingApproval: true,
+            replyCount: 0,
+            timestamp: 987,
+            title: 'History pending thread',
+          },
+        },
+      },
+      '',
+      '/',
+    );
+
+    await renderPostPage('/mu/thread/history-thread-cid');
+
+    expect(container.querySelector('[data-testid="post-desktop"]')?.textContent).toBe('history-thread-cid:none:1');
+    expect(container.querySelector('[data-testid="thread-footer-first-row"]')?.textContent).toBe('history-thread-cid:73:music-posting.eth:false');
+    expect(document.title).toBe('/mu/ - History pending thread... - 5chan');
   });
 
   it('shows missing-comment and board-load errors when no thread can be resolved', async () => {
