@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useAccountCommunities } from '@bitsocialnet/bitsocial-react-hooks';
+import { useAccountCommunities } from '@bitsocial/bitsocial-react-hooks';
 import type { DirectoryCommunity } from './use-directories';
 
 export const useAccountCommunitiesWithMetadata = (): DirectoryCommunity[] => {

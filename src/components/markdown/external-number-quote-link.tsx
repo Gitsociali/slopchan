@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useAccount } from '@bitsocialnet/bitsocial-react-hooks';
+import { useAccount } from '@bitsocial/bitsocial-react-hooks';
 import { useDirectories } from '../../hooks/use-directories';
 import useIsMobile from '../../hooks/use-is-mobile';
 import { resolveExternalQuoteTarget } from '../../lib/utils/external-quote-resolver';

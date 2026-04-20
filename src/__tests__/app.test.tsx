@@ -45,7 +45,7 @@ const testState = vi.hoisted(() => ({
   useThemeMock: vi.fn(),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountComment: ({ commentIndex }: { commentIndex?: number }) => (typeof commentIndex === 'number' ? testState.accountComments[commentIndex] : undefined),
   useCommunity: (options?: { communityAddress?: string; community?: { name?: string; publicKey?: string } }) => {

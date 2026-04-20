@@ -78,7 +78,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => ({ author: { address: '0xviewer' } }),
   useAccountComment: () => undefined,
   useEditedComment: () => ({ editedComment: undefined }),

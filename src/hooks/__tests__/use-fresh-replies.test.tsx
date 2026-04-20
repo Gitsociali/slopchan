@@ -21,7 +21,7 @@ const testState = vi.hoisted(() => ({
   replies: [] as TestComment[],
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccountComments: (options?: { commentIndices?: number[] }) => {
     testState.accountCommentsCalls.push(options);
 

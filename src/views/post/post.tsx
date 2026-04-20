@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Comment, Role, useComment, useEditedComment, useCommunity, useReplies } from '@bitsocialnet/bitsocial-react-hooks';
-import useCommunitiesPagesStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/communities-pages';
+import { Comment, Role, useComment, useEditedComment, useCommunity, useReplies } from '@bitsocial/bitsocial-react-hooks';
+import useCommunitiesPagesStore from '@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages';
 import { useCommunityField } from '../../hooks/use-stable-community';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { isAllView } from '../../lib/utils/view-utils';

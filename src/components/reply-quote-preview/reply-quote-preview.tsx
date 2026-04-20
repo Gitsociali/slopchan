@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Comment, useAccount } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, useAccount } from '@bitsocial/bitsocial-react-hooks';
 import { useFloating, offset, shift, size, autoUpdate, Placement } from '@floating-ui/react';
 import { useDirectories } from '../../hooks/use-directories';
 import useSafeAccountComment from '../../hooks/use-safe-account-comment';

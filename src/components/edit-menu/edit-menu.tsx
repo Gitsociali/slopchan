@@ -8,7 +8,7 @@ import {
   usePublishCommentEdit,
   usePublishCommentModeration,
   PublishCommentModerationOptions,
-} from '@bitsocialnet/bitsocial-react-hooks';
+} from '@bitsocial/bitsocial-react-hooks';
 import styles from './edit-menu.module.css';
 import { alertChallengeVerificationFailed } from '../../lib/utils/challenge-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';

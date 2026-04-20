@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Comment, useAccount, usePublishComment } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, useAccount, usePublishComment } from '@bitsocial/bitsocial-react-hooks';
 import { useDirectories } from './use-directories';
 import usePublishReplyStore from '../stores/use-publish-reply-store';
 import usePostNumberStore, { getScopedNumberToCidMap } from '../stores/use-post-number-store';

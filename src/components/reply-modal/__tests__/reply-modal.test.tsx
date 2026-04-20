@@ -70,7 +70,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   setAccount: (account: unknown) => testState.setAccountMock(account),
   useAccount: () => testState.account,
   useCommunity: (options?: { community?: { name?: string; publicKey?: string } }) => {
@@ -79,7 +79,7 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   },
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/communities', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/communities', () => ({
   default: <T,>(selector: (state: { communities: typeof testState.communities }) => T) =>
     selector({
       communities: testState.communities,

@@ -46,7 +46,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useFeed: (options: { filter?: { filter?: (comment: TestComment) => boolean } }) => ({
     feed: options.filter?.filter ? testState.feed.filter((comment) => options.filter?.filter?.(comment)) : testState.feed,
     hasMore: testState.hasMore,

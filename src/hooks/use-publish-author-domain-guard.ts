@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useAccount, useResolvedAuthorAddress } from '@bitsocialnet/bitsocial-react-hooks';
+import { useAccount, useResolvedAuthorAddress } from '@bitsocial/bitsocial-react-hooks';
 
 type PublishAuthorDomainBlockReason = 'resolving' | 'unresolved' | 'mismatch';
 

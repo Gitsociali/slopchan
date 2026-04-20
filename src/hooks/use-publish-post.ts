@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Comment, usePublishComment } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, usePublishComment } from '@bitsocial/bitsocial-react-hooks';
 import usePublishPostStore from '../stores/use-publish-post-store';
 import useChallengesStore from '../stores/use-challenges-store';
 import usePublishAuthorDomainGuard, { getPublishAuthorDomainErrorMessage } from './use-publish-author-domain-guard';

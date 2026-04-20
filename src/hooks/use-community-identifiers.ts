@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { CommunityIdentifier } from '@bitsocialnet/bitsocial-react-hooks';
+import type { CommunityIdentifier } from '@bitsocial/bitsocial-react-hooks';
 import { findDirectoryByAddress, type DirectoryCommunity, useDirectories } from './use-directories';
 
 const isLikelyCommunityName = (value: string) => value.includes('.');

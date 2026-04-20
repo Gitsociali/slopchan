@@ -70,7 +70,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useComment: ({ commentCid, autoUpdate }: { commentCid?: string; autoUpdate?: boolean }) => {
     testState.useCommentCalls.push({ commentCid, autoUpdate });
     return commentCid ? testState.commentsByCid[commentCid] : undefined;
@@ -91,7 +91,7 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useCommunity: () => testState.community,
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/communities-pages', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages', () => ({
   default: (selector: (state: { comments: typeof testState.cachedComments }) => unknown) =>
     selector({
       comments: testState.cachedComments,

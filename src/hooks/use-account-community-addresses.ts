@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useAccountCommunities } from '@bitsocialnet/bitsocial-react-hooks';
+import { useAccountCommunities } from '@bitsocial/bitsocial-react-hooks';
 
 export const useAccountCommunityAddresses = (): string[] => {
   const { accountCommunities } = useAccountCommunities({ onlyIfCached: true });

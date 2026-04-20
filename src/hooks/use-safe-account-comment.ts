@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useAccount, useAccountComment } from '@bitsocialnet/bitsocial-react-hooks';
+import { useAccount, useAccountComment } from '@bitsocial/bitsocial-react-hooks';
 
 type SafeAccountCommentOptions = {
   accountName?: string;

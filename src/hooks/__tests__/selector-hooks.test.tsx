@@ -23,12 +23,12 @@ const testState = vi.hoisted(() => ({
   communitySnapshot: undefined as unknown,
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountCommunities: () => ({ accountCommunities: testState.accountCommunities }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/lib/utils', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/lib/utils', () => ({
   flattenCommentsPages: () => testState.flattenedReplies,
 }));
 

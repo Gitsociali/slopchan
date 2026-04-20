@@ -1,4 +1,4 @@
-import { ChallengeVerification } from '@bitsocialnet/bitsocial-react-hooks';
+import { ChallengeVerification } from '@bitsocial/bitsocial-react-hooks';
 import { getFallbackDirectoriesData } from '../../hooks/use-directories';
 import { getCommentCommunityAddress } from './comment-utils';
 import { getBoardPath } from './route-utils';

@@ -1,5 +1,5 @@
 import { memo, RefObject, useRef, useState } from 'react';
-import { setAccount, useAccount, usePkcRpcSettings } from '@bitsocialnet/bitsocial-react-hooks';
+import { setAccount, useAccount, usePkcRpcSettings } from '@bitsocial/bitsocial-react-hooks';
 import { useTranslation } from 'react-i18next';
 import styles from './advanced-settings.module.css';
 

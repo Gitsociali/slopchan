@@ -27,7 +27,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   usePublishComment: (options: Record<string, any>) => {
     testState.lastPublishOptions = options;

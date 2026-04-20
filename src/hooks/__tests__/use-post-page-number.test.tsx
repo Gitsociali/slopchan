@@ -19,14 +19,14 @@ const testState = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useFeed: (options: Record<string, unknown> | undefined) => {
     testState.preloadOptions = options;
     return { feed: testState.preloadFeed };
   },
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/feeds', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/feeds', () => ({
   default: (selector: (state: { feedsOptions: Record<string, unknown>; loadedFeeds: Record<string, unknown> }) => unknown) =>
     selector({
       feedsOptions: testState.feedsOptions,

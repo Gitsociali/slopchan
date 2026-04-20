@@ -1,4 +1,4 @@
-import { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment } from '@bitsocial/bitsocial-react-hooks';
 
 export function getThreadPostCountsByAuthor(post: Comment | undefined, replies: Comment[] = []): Map<string, number> {
   const counts = new Map<string, number>();

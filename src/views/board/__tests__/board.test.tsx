@@ -115,7 +115,7 @@ const getScopedFeed = (options?: { filter?: { filter: (comment: TestComment) => 
   return scopedFeed;
 };
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountComments: (options?: { commentIndices?: number[]; communityAddress?: string; newerThan?: number; sortType?: 'new' | 'old' }) => {
     testState.accountCommentsCalls.push(options);

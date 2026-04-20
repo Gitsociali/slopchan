@@ -12,7 +12,7 @@ const testState = vi.hoisted(() => ({
   replies: [] as Array<Record<string, unknown>>,
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({}));
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({}));
 
 let container: HTMLDivElement;
 let latestValue: ReturnType<typeof useQuotedByMap>;

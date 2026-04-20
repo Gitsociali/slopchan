@@ -63,7 +63,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   setAccount: (account: unknown) => testState.setAccountMock(account),
   useAccount: () => testState.account,
   useAccountComment: () => testState.accountComment,
@@ -74,11 +74,11 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   useEditedComment: () => ({ editedComment: testState.editedComment }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/communities', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/communities', () => ({
   default: (selector: (state: { communities: typeof testState.communities }) => unknown) => selector({ communities: testState.communities }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/communities-pages', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages', () => ({
   default: (selector: (state: { comments: typeof testState.comments }) => unknown) => selector({ comments: testState.comments }),
 }));
 

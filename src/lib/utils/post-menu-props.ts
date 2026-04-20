@@ -1,4 +1,4 @@
-import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import { getCommentCommunityAddress } from './comment-utils';
 
 export type PostMenuProps = {

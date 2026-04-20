@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useComment, useSubscribe } from '@bitsocialnet/bitsocial-react-hooks';
+import { useComment, useSubscribe } from '@bitsocial/bitsocial-react-hooks';
 import { isAllView, isCatalogView, isModView, isModQueueView, isPendingPostView, isPostPageView, isSubscriptionsView } from '../../lib/utils/view-utils';
 import { usePostPageNumber } from '../../hooks/use-post-page-number';
 import { useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';

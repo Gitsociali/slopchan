@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useAccount } from '@bitsocialnet/bitsocial-react-hooks';
+import { useAccount } from '@bitsocial/bitsocial-react-hooks';
 import { useCommunityField } from './use-stable-community';
 
 interface AuthorPrivilegesProps {

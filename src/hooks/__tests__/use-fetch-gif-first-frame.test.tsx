@@ -18,7 +18,7 @@ const testState = vi.hoisted(() => ({
   xhrResponses: new Map<string, { response?: ArrayBuffer; status: number; statusText: string }>(),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/lib/localforage-lru/index.js', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/lib/localforage-lru/index.js', () => ({
   default: {
     createInstance: () => ({
       getItem: testState.cacheGetItemMock,

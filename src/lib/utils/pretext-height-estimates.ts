@@ -1,4 +1,4 @@
-import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import { layout, layoutNextLine, prepare, prepareWithSegments } from '@chenglou/pretext';
 import { getCommentMediaInfo, getHasThumbnail } from './media-utils';
 import { removeMarkdown } from './post-utils';

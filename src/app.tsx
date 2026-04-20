@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom';
-import { useAccount, useCommunity } from '@bitsocialnet/bitsocial-react-hooks';
+import { useAccount, useCommunity } from '@bitsocial/bitsocial-react-hooks';
 import { initSnow, removeSnow } from './lib/snow';
 import { isAllView, isCatalogView, isModView, isSubscriptionsView } from './lib/utils/view-utils';
 import { preloadReplyModal, preloadThemeAssets } from './lib/utils/preload-utils';

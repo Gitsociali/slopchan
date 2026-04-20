@@ -37,7 +37,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   setAccount: hookMocks.setAccount,
   useAccount: hookMocks.useAccount,
   useResolvedAuthorAddress: hookMocks.useResolvedAuthorAddress,

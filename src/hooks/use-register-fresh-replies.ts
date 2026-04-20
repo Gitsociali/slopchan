@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import usePostNumberStore from '../stores/use-post-number-store';
 import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
 

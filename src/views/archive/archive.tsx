@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useFeed, useCommunity } from '@bitsocialnet/bitsocial-react-hooks';
+import { useFeed, useCommunity } from '@bitsocial/bitsocial-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { shouldShowSnow } from '../../lib/snow';
 import { BottomButton, CatalogButton, ReturnButton, TopButton } from '../../components/board-buttons/board-buttons';

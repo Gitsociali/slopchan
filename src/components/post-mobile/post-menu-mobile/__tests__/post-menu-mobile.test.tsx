@@ -29,12 +29,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => ({ author: { address: '0xmod' }, signer: { address: '0xauthor' } }),
   usePublishCommentEdit: () => ({ publishCommentEdit: vi.fn().mockResolvedValue(undefined) }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/lib/localforage-lru/index.js', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/lib/localforage-lru/index.js', () => ({
   default: {
     createInstance: () => ({
       entries: vi.fn().mockResolvedValue([]),

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useClientsStates, useCommunity, useCommunitiesStates } from '@bitsocialnet/bitsocial-react-hooks';
+import { useClientsStates, useCommunity, useCommunitiesStates } from '@bitsocial/bitsocial-react-hooks';
 import debounce from 'lodash/debounce';
 import getShortAddress from '../lib/get-short-address';
 import { useCommunityIdentifiers } from './use-community-identifiers';

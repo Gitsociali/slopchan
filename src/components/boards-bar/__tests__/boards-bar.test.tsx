@@ -52,12 +52,12 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => undefined,
   useAccountComment: () => testState.accountComment,
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/accounts', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/accounts', () => ({
   default: (selector: (state: { activeAccountId: string; accounts: Record<string, { subscriptions: string[] }> }) => unknown) =>
     selector({
       activeAccountId: 'account-1',

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
-import { Community } from '@bitsocialnet/bitsocial-react-hooks';
+import { Community } from '@bitsocial/bitsocial-react-hooks';
 import { getFormattedTimeAgo } from '../lib/utils/time-utils';
 import useCommunityOfflineStore from '../stores/use-community-offline-store';
 import useCommunitiesLoadingStartTimestamps from '../stores/use-communities-loading-start-timestamps-store';

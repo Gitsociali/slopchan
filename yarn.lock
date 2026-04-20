@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocialnet/bitsocial-react-hooks": "https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/9f4614fdb0779cc2a629ef270609d32efaf7713f"
+    "@bitsocial/bitsocial-react-hooks": "npm:0.1.2"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/cli": "npm:7.4.5"
@@ -1519,24 +1519,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocial/bso-resolver@npm:0.0.6":
-  version: 0.0.6
-  resolution: "@bitsocial/bso-resolver@npm:0.0.6"
-  dependencies:
-    "@pkcprotocol/pkc-logger": "npm:0.1.0"
-    better-sqlite3: "npm:12.6.2"
-    viem: "npm:2.48.1"
-  checksum: 10c0/113e54c08dd86c1e356318e6be1b2b1682753209bba229256352a47bbaef81d340a46c5124f4abf8f49d1289caae479637e902b45ac33e950fc05a34caf0e044
-  languageName: node
-  linkType: hard
-
-"@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/9f4614fdb0779cc2a629ef270609d32efaf7713f":
-  version: 0.1.0
-  resolution: "@bitsocialnet/bitsocial-react-hooks@https://codeload.github.com/bitsocialnet/bitsocial-react-hooks/tar.gz/9f4614fdb0779cc2a629ef270609d32efaf7713f"
+"@bitsocial/bitsocial-react-hooks@npm:0.1.2":
+  version: 0.1.2
+  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.2"
   dependencies:
     "@bitsocial/bso-resolver": "npm:0.0.6"
-    "@pkc/pkc-logger": "https://github.com/pkcprotocol/pkc-logger.git"
-    "@pkcprotocol/pkc-js": "npm:0.0.18"
+    "@pkcprotocol/pkc-js": "npm:0.0.19"
+    "@pkcprotocol/pkc-logger": "npm:0.1.0"
     assert: "npm:2.0.0"
     ethers: "npm:5.8.0"
     localforage: "npm:1.10.0"
@@ -1551,7 +1540,18 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/1c0a1b618c0c4d0a00cc7f46ce401886d20f1ed849d4459fb2d99def4827babcc791029f63c82d559e77a92ba1f94e8c30f250d72d337f1ffed7996c9995fe4b
+  checksum: 10c0/c1df0655d44ef6e9083ea07bf7210c86b4d96888db4fc5c7a905196ed9a1aef695c232dea2392d8c4315e6f5bdce6420a685feb20af62da72ca9f017de32fad4
+  languageName: node
+  linkType: hard
+
+"@bitsocial/bso-resolver@npm:0.0.6":
+  version: 0.0.6
+  resolution: "@bitsocial/bso-resolver@npm:0.0.6"
+  dependencies:
+    "@pkcprotocol/pkc-logger": "npm:0.1.0"
+    better-sqlite3: "npm:12.6.2"
+    viem: "npm:2.48.1"
+  checksum: 10c0/113e54c08dd86c1e356318e6be1b2b1682753209bba229256352a47bbaef81d340a46c5124f4abf8f49d1289caae479637e902b45ac33e950fc05a34caf0e044
   languageName: node
   linkType: hard
 
@@ -5592,7 +5592,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkc/pkc-logger@github:pkcprotocol/pkc-logger#cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a, @pkc/pkc-logger@https://github.com/pkcprotocol/pkc-logger.git":
+"@pkc/pkc-logger@github:pkcprotocol/pkc-logger#cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a":
   version: 0.0.1
   resolution: "@pkc/pkc-logger@https://github.com/pkcprotocol/pkc-logger.git#commit=cb494fbaf332ed5b2cfd9d9d0f90ca7fd0058b4a"
   dependencies:
@@ -5673,9 +5673,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkcprotocol/pkc-js@npm:0.0.18":
-  version: 0.0.18
-  resolution: "@pkcprotocol/pkc-js@npm:0.0.18"
+"@pkcprotocol/pkc-js@npm:0.0.19":
+  version: 0.0.19
+  resolution: "@pkcprotocol/pkc-js@npm:0.0.19"
   dependencies:
     "@enhances/with-resolvers": "npm:0.0.5"
     "@helia/block-brokers": "npm:5.1.2"
@@ -5728,7 +5728,7 @@ __metadata:
     typestub-ipfs-only-hash: "npm:4.0.0"
     uuid: "npm:13.0.0"
     zod: "npm:4.3.6"
-  checksum: 10c0/4bffe34306437f1141ea7d945e8df194b19e8af21999def03024d84916b7adaad56723ade99206ac9bd3146bfbc5f56ece16ee57b6b8de935c45f5f72dd105f3
+  checksum: 10c0/a2542c96cf2dc0ed54e216555679efb5c2e95948bd7ee99d336bfabcc84845f332aadf10dc6b0873c8a7f112d88438667340e9be45d0f55cca5ea82f9f8359d6
   languageName: node
   linkType: hard
 

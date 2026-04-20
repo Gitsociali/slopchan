@@ -11,7 +11,7 @@ const testState = vi.hoisted(() => ({
   communities: {} as Record<string, unknown>,
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/communities', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/communities', () => ({
   default: (selector: (state: { communities: typeof testState.communities }) => unknown) =>
     selector({
       communities: testState.communities,

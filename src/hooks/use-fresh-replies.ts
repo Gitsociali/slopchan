@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Comment, useAccountComments } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, useAccountComments } from '@bitsocial/bitsocial-react-hooks';
 
 // Keep the hook on its indexed fast path when there are no reply indices to resolve.
 const EMPTY_ACCOUNT_COMMENT_LOOKUP = { commentIndices: [-1] };

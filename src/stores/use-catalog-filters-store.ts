@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
 import { commentMatchesPattern } from '../lib/utils/pattern-utils';
 

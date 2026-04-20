@@ -1,8 +1,8 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import type { ChallengeVerification, Comment } from '@bitsocialnet/bitsocial-react-hooks';
-import { useAccount, usePublishCommentEdit } from '@bitsocialnet/bitsocial-react-hooks';
+import type { ChallengeVerification, Comment } from '@bitsocial/bitsocial-react-hooks';
+import { useAccount, usePublishCommentEdit } from '@bitsocial/bitsocial-react-hooks';
 import { autoUpdate, flip, FloatingFocusManager, offset, shift, useClick, useDismiss, useFloating, useId, useInteractions, useRole } from '@floating-ui/react';
 import styles from './post-menu-mobile.module.css';
 import { getCommentMediaInfo } from '../../../lib/utils/media-utils';

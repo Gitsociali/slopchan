@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Comment, type Community } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, type Community } from '@bitsocial/bitsocial-react-hooks';
 import { getCommentMediaInfo, getHasThumbnail } from '../lib/utils/media-utils';
 import useCommunitiesLoadingStartTimestamps from '../stores/use-communities-loading-start-timestamps-store';
 import { useCurrentTime } from './use-current-time';

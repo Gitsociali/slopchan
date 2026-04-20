@@ -73,7 +73,7 @@ vi.mock('@floating-ui/react', () => ({
   useRole: () => ({}),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   usePublishCommentEdit: (options: Record<string, any>) => {
     testState.authorOptions = options;

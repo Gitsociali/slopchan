@@ -59,11 +59,11 @@ vi.mock('@floating-ui/react', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useComment: ({ commentCid }: { commentCid?: string }) => (commentCid ? testState.comments[commentCid] : undefined),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/stores/communities-pages', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages', () => ({
   default: (selector: (state: { comments: typeof testState.comments }) => unknown) =>
     selector({
       comments: testState.comments,

@@ -14,7 +14,7 @@ const testState = vi.hoisted(() => ({
   options: undefined as { accountName?: string; commentCid?: string; commentIndex?: number | string } | undefined,
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: (options?: { accountName?: string }) => {
     if (!options?.accountName) {
       return testState.account;

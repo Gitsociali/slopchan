@@ -67,7 +67,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useReplies: ({ comment, sortType }: { comment?: TestComment; sortType?: string }) => {
     if (comment) {
       testState.lastRepliesComment = comment;
@@ -92,7 +92,7 @@ vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
   },
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks/dist/lib/localforage-lru/index.js', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/lib/localforage-lru/index.js', () => ({
   default: {
     createInstance: () => ({
       entries: vi.fn().mockResolvedValue([]),

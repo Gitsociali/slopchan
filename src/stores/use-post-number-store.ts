@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import { normalizeBoardAddress } from '../hooks/use-directories';
 import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
 

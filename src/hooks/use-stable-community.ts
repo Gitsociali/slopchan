@@ -1,5 +1,5 @@
-import useCommunitiesStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/communities';
-import type { Community } from '@bitsocialnet/bitsocial-react-hooks';
+import useCommunitiesStore from '@bitsocial/bitsocial-react-hooks/dist/stores/communities';
+import type { Community } from '@bitsocial/bitsocial-react-hooks';
 import { normalizeBoardAddress } from './use-directories';
 
 type CommunityLike = Record<string, unknown> | Community | undefined;

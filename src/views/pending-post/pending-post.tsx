@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAccountComments } from '@bitsocialnet/bitsocial-react-hooks';
+import { useAccountComments } from '@bitsocial/bitsocial-react-hooks';
 import { useDirectories } from '../../hooks/use-directories';
 import useSafeAccountComment from '../../hooks/use-safe-account-comment';
 import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';

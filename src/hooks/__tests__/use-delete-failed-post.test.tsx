@@ -17,7 +17,7 @@ const testState = vi.hoisted(() => ({
   publishCommentMock: vi.fn(async () => undefined),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   deleteComment: (targetComment: string | number) => testState.deleteCommentMock(targetComment),
   usePublishComment: (options: Record<string, any> | undefined) => {
     testState.lastPublishOptions = options;

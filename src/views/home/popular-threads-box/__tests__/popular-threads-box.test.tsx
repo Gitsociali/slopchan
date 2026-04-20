@@ -41,7 +41,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useCommunities: ({ communities }: { communities: unknown[] }) => {
     testState.requestedCommunities.push(communities);
     return { communities: testState.communities };

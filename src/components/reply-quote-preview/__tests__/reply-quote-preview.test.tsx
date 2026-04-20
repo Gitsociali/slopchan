@@ -59,7 +59,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('@bitsocialnet/bitsocial-react-hooks', () => ({
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountComment: (options?: { commentCid?: string }) => {
     testState.accountCommentCalls.push(options);

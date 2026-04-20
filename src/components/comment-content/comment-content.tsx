@@ -1,8 +1,8 @@
 import { Fragment, type ReactNode, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
-import { Comment, useComment } from '@bitsocialnet/bitsocial-react-hooks';
-import useCommunitiesPagesStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/communities-pages';
+import { Comment, useComment } from '@bitsocial/bitsocial-react-hooks';
+import useCommunitiesPagesStore from '@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages';
 import usePostNumberStore from '../../stores/use-post-number-store';
 import getShortAddress from '../../lib/get-short-address';
 import { getFormattedDate, getFormattedTimeAgo } from '../../lib/utils/time-utils';

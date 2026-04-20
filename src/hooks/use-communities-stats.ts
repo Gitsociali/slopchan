@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { create } from 'zustand';
-import { useCommunityStats } from '@bitsocialnet/bitsocial-react-hooks';
+import { useCommunityStats } from '@bitsocial/bitsocial-react-hooks';
 import { useCommunityIdentifier } from './use-community-identifiers';
 
 type CommunityStatsState = {

@@ -1,5 +1,5 @@
-import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
-import communitiesStore from '@bitsocialnet/bitsocial-react-hooks/dist/stores/communities';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
+import communitiesStore from '@bitsocial/bitsocial-react-hooks/dist/stores/communities';
 import { getCommentCommunityAddress } from './comment-utils';
 
 type CommunityLike = {

@@ -1,6 +1,6 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useCommunity } from '@bitsocialnet/bitsocial-react-hooks';
+import { useCommunity } from '@bitsocial/bitsocial-react-hooks';
 import { Footer, HomeLogo } from '../home';
 import { useDirectories, DirectoryCommunity, findDirectoryByAddress } from '../../hooks/use-directories';
 import { useCommunityIdentifier } from '../../hooks/use-community-identifiers';

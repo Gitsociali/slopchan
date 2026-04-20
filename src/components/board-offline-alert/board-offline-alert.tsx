@@ -1,4 +1,4 @@
-import { useCommunity } from '@bitsocialnet/bitsocial-react-hooks';
+import { useCommunity } from '@bitsocial/bitsocial-react-hooks';
 import { useCommunityIdentifier } from '../../hooks/use-community-identifiers';
 import { useDirectoryByAddress } from '../../hooks/use-directories';
 import useIsCommunityOffline from '../../hooks/use-is-community-offline';

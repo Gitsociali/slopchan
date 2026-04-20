@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Comment, useCommunities } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, useCommunities } from '@bitsocial/bitsocial-react-hooks';
 import styles from '../home.module.css';
 import usePopularPosts, { getRevealedPopularPosts } from '../../../hooks/use-popular-posts';
 import { useFeedStateString } from '../../../hooks/use-state-string';

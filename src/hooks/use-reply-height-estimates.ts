@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import type { SizeFunction } from 'react-virtuoso';
 import { useLocation } from 'react-router-dom';
 import useWindowWidth from './use-window-width';

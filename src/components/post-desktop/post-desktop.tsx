@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle, StateSnapshot } from 'react-virtuoso';
-import { Comment, useEditedComment, useReplies, useAccount } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, useEditedComment, useReplies, useAccount } from '@bitsocial/bitsocial-react-hooks';
 import getShortAddress from '../../lib/get-short-address';
 import styles from '../../views/post/post.module.css';
 import { CommentMediaInfo, getDisplayMediaInfoType, getHasThumbnail, getMediaDimensions } from '../../lib/utils/media-utils';
@@ -47,7 +47,7 @@ import useThreadLiveUpdatesStore from '../../stores/use-thread-live-updates-stor
 import useRegisterFreshReplies from '../../hooks/use-register-fresh-replies';
 import useReplyHeightEstimates from '../../hooks/use-reply-height-estimates';
 import { alertChallengeVerificationFailed } from '../../lib/utils/challenge-utils';
-import { usePublishCommentModeration } from '@bitsocialnet/bitsocial-react-hooks';
+import { usePublishCommentModeration } from '@bitsocial/bitsocial-react-hooks';
 import useQuotedByMap from '../../hooks/use-quoted-by-map';
 import useProgressiveRender from '../../hooks/use-progressive-render';
 import useFreshReplies from '../../hooks/use-fresh-replies';

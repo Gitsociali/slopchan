@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
-import { Comment, useAccount, useAccountComments, useCommunity, useFeed } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, useAccount, useAccountComments, useCommunity, useFeed } from '@bitsocial/bitsocial-react-hooks';
 import { useCommunityField } from '../../hooks/use-stable-community';
 import { Virtuoso, VirtuosoHandle, StateSnapshot } from 'react-virtuoso';
 import { Trans, useTranslation } from 'react-i18next';

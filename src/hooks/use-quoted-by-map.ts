@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react';
-import { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment } from '@bitsocial/bitsocial-react-hooks';
 import { QUOTE_NUMBER_REGEX } from '../lib/utils/url-utils';
 import usePostNumberStore, { getScopedNumberToCidMap } from '../stores/use-post-number-store';
 

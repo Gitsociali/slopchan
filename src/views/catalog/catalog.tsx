@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useCallback, useLayoutEffect } from 'react';
 import { Link, useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
-import { Comment, useAccount, useCommunity, useFeed, useAccountComments } from '@bitsocialnet/bitsocial-react-hooks';
+import { Comment, useAccount, useCommunity, useFeed, useAccountComments } from '@bitsocial/bitsocial-react-hooks';
 import { Virtuoso, VirtuosoHandle, StateSnapshot } from 'react-virtuoso';
 import { useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';
 import { useCommunityIdentifier, useCommunityIdentifiers } from '../../hooks/use-community-identifiers';

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Virtuoso, type SizeFunction } from 'react-virtuoso';
-import type { Comment } from '@bitsocialnet/bitsocial-react-hooks';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import CatalogRow from '../components/catalog-row';
 import { Post } from '../views/post';
