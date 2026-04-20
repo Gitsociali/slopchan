@@ -6,6 +6,74 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 const { version: packageVersion } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 const appVersion = `${process.env.VITE_APP_VERSION || packageVersion}`.trim() || packageVersion;
+const publicBase = process.env.PUBLIC_URL || '/';
+const buildOutDir = 'build';
+const basePathPrefix = (() => {
+  const pathname = new URL(publicBase, 'https://example.invalid/').pathname;
+  return pathname === '/' ? '' : pathname.replace(/^\/+|\/+$/g, '');
+})();
+const neverPrecacheUrls = new Set(['index.html', 'version.json']);
+const vitePwaManagedAssetUrls = new Set([
+  'manifest.webmanifest',
+  'favicon.ico',
+  'favicon2.ico',
+  'robots.txt',
+  'apple-touch-icon.png',
+  'manifest-icon-192x192.png',
+  'manifest-icon-512x512.png',
+]);
+const baselineAppShellUrls = new Set([
+  'registerSW.js',
+  'manifest.json',
+  'manifest.webmanifest',
+  'favicon.ico',
+  'favicon2.ico',
+  'robots.txt',
+  'apple-touch-icon.png',
+  'manifest-icon-192x192.png',
+  'manifest-icon-512x512.png',
+]);
+
+function normalizePrecacheUrl(url) {
+  const normalizedUrl = url.split('?')[0].replace(/^[./]+/, '');
+
+  if (basePathPrefix && normalizedUrl.startsWith(`${basePathPrefix}/`)) {
+    return normalizedUrl.slice(basePathPrefix.length + 1);
+  }
+
+  return normalizedUrl;
+}
+
+function collectIndexAssetUrls() {
+  const indexHtml = readFileSync(new URL(`./${buildOutDir}/index.html`, import.meta.url), 'utf8');
+  const urls = new Set(baselineAppShellUrls);
+  const assetAttributePattern = /\b(?:href|src)=["'](?:\.\/|\/)?([^"']+\.(?:css|ico|js|json|png|webmanifest))(?:\?[^"']*)?["']/g;
+
+  for (const match of indexHtml.matchAll(assetAttributePattern)) {
+    urls.add(normalizePrecacheUrl(match[1]));
+  }
+
+  return urls;
+}
+
+function keepAppShellPrecacheOnly(manifestEntries) {
+  const appShellUrls = collectIndexAssetUrls();
+  const manifest = manifestEntries.filter((entry) => {
+    const normalizedUrl = normalizePrecacheUrl(entry.url);
+
+    if (neverPrecacheUrls.has(normalizedUrl)) {
+      return false;
+    }
+
+    if (vitePwaManagedAssetUrls.has(normalizedUrl)) {
+      return false;
+    }
+
+    return appShellUrls.has(normalizedUrl);
+  });
+
+  return { manifest };
+}
 
 function appVersionMetadataPlugin() {
   const payload = `${JSON.stringify({ version: appVersion })}\n`;
@@ -85,7 +153,8 @@ export default defineConfig({
       strategies: 'injectManifest',
       injectManifest: {
         maximumFileSizeToCacheInBytes: 20000000,
-        globIgnores: ['**/version.json'],
+        globPatterns: ['**/*.{css,html,ico,js,json,png,webmanifest}'],
+        manifestTransforms: [keepAppShellPrecacheOnly],
       },
       srcDir: 'src',
       filename: 'sw.ts',
@@ -103,17 +172,17 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: '/android-chrome-192x192.png',
+            src: 'manifest-icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/android-chrome-512x512.png',
+            src: 'manifest-icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: '/android-chrome-512x512.png',
+            src: 'manifest-icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',
@@ -216,7 +285,7 @@ export default defineConfig({
   },
   build: {
     // Use 'build' to match what electron/main.js expects (../build/index.html)
-    outDir: 'build',
+    outDir: buildOutDir,
     emptyOutDir: true,
     sourcemap: process.env.GENERATE_SOURCEMAP === 'true',
     target: process.env.ELECTRON ? 'electron-renderer' : 'esnext',
@@ -248,7 +317,7 @@ export default defineConfig({
       },
     },
   },
-  base: process.env.PUBLIC_URL || '/',
+  base: publicBase,
   optimizeDeps: {
     include: ['ethers', 'assert', 'buffer', 'process', 'util', 'stream-browserify', 'isomorphic-fetch', 'workbox-core', 'workbox-precaching'],
   },
