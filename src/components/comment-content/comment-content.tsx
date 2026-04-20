@@ -11,6 +11,7 @@ import { isPostPageView } from '../../lib/utils/view-utils';
 import useIsMobile from '../../hooks/use-is-mobile';
 import useStateString from '../../hooks/use-state-string';
 import LoadingEllipsis from '../../components/loading-ellipsis';
+import ErrorDisplay from '../../components/error-display/error-display';
 import ReplyQuotePreview from '../../components/reply-quote-preview';
 import Markdown from '../../components/markdown';
 import Tooltip from '../../components/tooltip';
@@ -61,6 +62,12 @@ const useScopedCidToNumber = (cids: string[]) => {
   );
 
   return cidToNumber;
+};
+
+const getFailedCommentError = (comment: Comment | undefined): unknown => {
+  if (comment?.state !== 'failed') return undefined;
+  if (comment.error) return comment.error;
+  return Array.isArray(comment.errors) ? comment.errors.find(Boolean) : undefined;
 };
 
 const CommentContent = ({ comment: post, prependContent }: { comment: Comment; prependContent?: ReactNode }) => {
@@ -123,9 +130,18 @@ const CommentContent = ({ comment: post, prependContent }: { comment: Comment; p
 
   const stateString = useStateString(resolvedPost);
   const hasFailedState = state === 'failed';
+  const failedError = getFailedCommentError(resolvedPost);
 
   const loadingString = (
-    <div className={styles.stateString}>{!hasFailedState ? <LoadingEllipsis string={stateString || t('loading')} /> : stateString || capitalize(t('failed'))}</div>
+    <div className={styles.stateString}>
+      {failedError ? (
+        <ErrorDisplay error={failedError} inline={true} showImmediately={true} />
+      ) : !hasFailedState ? (
+        <LoadingEllipsis string={stateString || t('loading')} />
+      ) : (
+        stateString || capitalize(t('failed'))
+      )}
+    </div>
   );
 
   return (

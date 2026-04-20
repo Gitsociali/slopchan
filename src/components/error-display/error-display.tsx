@@ -17,8 +17,20 @@ const serializeErrorForClipboard = (error: unknown): string => {
     return error;
   }
 
+  const serializableError =
+    error instanceof Error
+      ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          ...Object.fromEntries(Object.entries(error)),
+          ...('cause' in error && error.cause ? { cause: error.cause } : {}),
+        }
+      : error;
+
   try {
-    return JSON.stringify(error, null, 2);
+    const serializedError = JSON.stringify(serializableError, null, 2);
+    return serializedError && serializedError !== '{}' ? serializedError : String(error);
   } catch {
     return String(error);
   }
@@ -54,8 +66,8 @@ const ErrorDisplay = ({ error, displayMessage, inline = false, showImmediately =
     return null;
   }
 
-  const originalDisplayMessage = displayMessage || (error?.message ? `${t('error')}: ${error.message}` : typeof error === 'string' ? error : null);
-  const canCopyError = !!error && (!!displayMessage || !!error?.message);
+  const originalDisplayMessage = displayMessage || (error?.message ? `${t('error')}: ${error.message}` : typeof error === 'string' ? error : error ? t('error') : null);
+  const canCopyError = !!error && !!originalDisplayMessage;
 
   const handleMessageClick = async () => {
     if (!canCopyError || state.feedbackMessageKey) return;

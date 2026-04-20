@@ -102,6 +102,39 @@ describe('ErrorDisplay', () => {
     expect(container.textContent).toContain('copy failed');
   });
 
+  it('copies native Error instances with message, stack, and extra fields', async () => {
+    testState.copyToClipboardMock.mockResolvedValue(undefined);
+    const error = Object.assign(new Error('native failure'), {
+      details: { status: 504 },
+    });
+    error.stack = 'Error: native failure\n    at publish';
+
+    await renderDisplay(error);
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    const button = container.querySelector('button');
+    expect(button?.textContent).toContain('error: native failure');
+
+    await act(async () => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(testState.copyToClipboardMock).toHaveBeenCalledWith(
+      JSON.stringify(
+        {
+          name: 'Error',
+          message: 'native failure',
+          stack: 'Error: native failure\n    at publish',
+          details: { status: 504 },
+        },
+        null,
+        2,
+      ),
+    );
+  });
+
   it('supports compact custom labels that copy plain string errors immediately', async () => {
     testState.copyToClipboardMock.mockResolvedValue(undefined);
 

@@ -22,6 +22,8 @@ type TestComment = {
   edit?: {
     timestamp: number;
   };
+  error?: unknown;
+  errors?: unknown[];
   number?: number;
   original?: {
     content?: string;
@@ -124,6 +126,19 @@ vi.mock('../../../hooks/use-state-string', () => ({
 
 vi.mock('../../loading-ellipsis', () => ({
   default: ({ string }: { string: string }) => createElement('span', { 'data-testid': 'loading-ellipsis' }, string),
+}));
+
+vi.mock('../../error-display/error-display', () => ({
+  default: ({ error, inline, showImmediately }: { error?: Error; inline?: boolean; showImmediately?: boolean }) =>
+    createElement(
+      'button',
+      {
+        'data-testid': 'error-display',
+        'data-inline': String(Boolean(inline)),
+        'data-show-immediately': String(Boolean(showImmediately)),
+      },
+      error?.message || String(error),
+    ),
 }));
 
 vi.mock('../../reply-quote-preview', () => ({
@@ -392,5 +407,21 @@ describe('CommentContent', () => {
       state: 'publishing',
     });
     expect(container.querySelector('[data-testid="loading-ellipsis"]')?.textContent).toBe('Publishing');
+  });
+
+  it('renders failed unpublished comment errors through ErrorDisplay', async () => {
+    testState.stateString = 'Failed';
+    await renderContent({
+      content: 'still pending',
+      errors: [new Error('spam blocker server error')],
+      postCid: 'post-2',
+      state: 'failed',
+    });
+
+    const errorDisplay = container.querySelector('[data-testid="error-display"]');
+    expect(errorDisplay?.textContent).toBe('spam blocker server error');
+    expect(errorDisplay?.getAttribute('data-inline')).toBe('true');
+    expect(errorDisplay?.getAttribute('data-show-immediately')).toBe('true');
+    expect(container.querySelector('[data-testid="loading-ellipsis"]')).toBeNull();
   });
 });

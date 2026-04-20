@@ -235,6 +235,10 @@ export const Post = memo(
       prev?.postNumber === next?.postNumber &&
       prev?.replyCount === next?.replyCount &&
       prev?.updatedAt === next?.updatedAt &&
+      prev?.state === next?.state &&
+      prev?.publishingState === next?.publishingState &&
+      prev?.error === next?.error &&
+      prev?.errors === next?.errors &&
       prev?.approved === next?.approved &&
       prev?.locked === next?.locked &&
       prev?.pinned === next?.pinned &&
