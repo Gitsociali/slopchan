@@ -5,7 +5,7 @@ import { Comment, setAccount, useAccount, useEditedComment } from '@bitsocial/bi
 import getShortAddress from '../../lib/get-short-address';
 import useCommunitiesPagesStore from '@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages';
 import { getLinkMediaInfo } from '../../lib/utils/media-utils';
-import { isValidURL } from '../../lib/utils/url-utils';
+import { isValidPublishURL, isValidURL } from '../../lib/utils/url-utils';
 import { isAllView, isCatalogView, isModQueueView, isModView, isPostPageView, isSubscriptionsView } from '../../lib/utils/view-utils';
 import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
 import { useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';
@@ -220,7 +220,11 @@ const PostFormFields = ({
           disabled={isUploading}
           onChange={(e) => {
             setUrl(e.target.value);
-            isInPostView ? setPublishReplyOptions({ link: e.target.value }) : setPublishPostOptions({ link: e.target.value });
+            if (isInPostView) {
+              setPublishReplyOptions({ link: e.target.value });
+            } else {
+              setPublishPostOptions({ link: e.target.value });
+            }
           }}
         />
         <span className={styles.linkType}> {url && <LinkTypePreviewer link={url} />}</span>
@@ -364,7 +368,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
       alert(t('empty_comment_alert'));
       return;
     }
-    if (currentUrl && !isValidURL(currentUrl)) {
+    if (currentUrl && !isValidPublishURL(currentUrl)) {
       alert(t('invalid_url_alert'));
       return;
     }
@@ -400,7 +404,11 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const content = e.target.value;
-    isInPostView ? setPublishReplyOptions({ content }) : setPublishPostOptions({ content });
+    if (isInPostView) {
+      setPublishReplyOptions({ content });
+    } else {
+      setPublishPostOptions({ content });
+    }
     checkContentLength(content, t);
   };
 
@@ -416,7 +424,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
       return;
     }
 
-    if (currentUrl && !isValidURL(currentUrl)) {
+    if (currentUrl && !isValidPublishURL(currentUrl)) {
       alert(t('invalid_url_alert'));
       return;
     }
@@ -444,7 +452,11 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
         if (urlRef.current) {
           urlRef.current.value = uploadedUrl;
         }
-        isInPostView ? setPublishReplyOptions({ link: uploadedUrl }) : setPublishPostOptions({ link: uploadedUrl });
+        if (isInPostView) {
+          setPublishReplyOptions({ link: uploadedUrl });
+        } else {
+          setPublishPostOptions({ link: uploadedUrl });
+        }
       }
     },
   });

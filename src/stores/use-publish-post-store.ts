@@ -2,6 +2,7 @@ import { ChallengeVerification, Comment, PublishCommentOptions } from '@bitsocia
 import { create } from 'zustand';
 import { alertChallengeVerificationFailed } from '../lib/utils/challenge-utils';
 import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
+import { normalizePublishURL } from '../lib/utils/url-utils';
 
 type SubmitState = {
   author?: any | undefined;
@@ -27,7 +28,8 @@ const usePublishPostStore = create<SubmitState>((set) => ({
   publishCommentOptions: {},
   setPublishPostStore: (comment: Comment) =>
     set(() => {
-      const { author, content, link, spoiler, title } = comment;
+      const { author, content, spoiler, title } = comment;
+      const link = comment.link ? normalizePublishURL(comment.link) : undefined;
       const communityAddress = getCommentCommunityAddress(comment);
 
       const displayName = 'displayName' in comment ? comment.displayName || undefined : author?.displayName;

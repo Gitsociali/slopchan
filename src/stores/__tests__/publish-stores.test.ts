@@ -66,6 +66,19 @@ describe('publish stores', () => {
     expect(usePublishPostStore.getState().title).toBeUndefined();
   });
 
+  it('normalizes post publish links to https before building the payload', () => {
+    usePublishPostStore.getState().setPublishPostStore({
+      content: 'post body',
+      link: 'http://i.imgur.com/YpB7qfa.jpg',
+      communityAddress: 'history-posting.bso',
+      title: 'Hello',
+    });
+
+    const state = usePublishPostStore.getState();
+    expect(state.link).toBe('https://i.imgur.com/YpB7qfa.jpg');
+    expect(state.publishCommentOptions.link).toBe('https://i.imgur.com/YpB7qfa.jpg');
+  });
+
   it('usePublishReplyStore stores reply data per parentCid and resets a single thread', () => {
     const comment: PublishReplyInput = {
       author: { address: '0x123', displayName: 'Author Name', role: 'mod' },
@@ -96,5 +109,18 @@ describe('publish stores', () => {
     state.resetPublishReplyStore('parent-1');
     expect(usePublishReplyStore.getState().publishCommentOptions['parent-1']).toBeUndefined();
     expect(usePublishReplyStore.getState().content['parent-1']).toBeUndefined();
+  });
+
+  it('normalizes reply publish links to https before building the payload', () => {
+    usePublishReplyStore.getState().setPublishReplyStore({
+      content: 'reply body',
+      link: 'http://i.imgur.com/YpB7qfa.jpg',
+      parentCid: 'parent-1',
+      communityAddress: 'history-posting.bso',
+    });
+
+    const state = usePublishReplyStore.getState();
+    expect(state.link['parent-1']).toBe('https://i.imgur.com/YpB7qfa.jpg');
+    expect(state.publishCommentOptions['parent-1']?.link).toBe('https://i.imgur.com/YpB7qfa.jpg');
   });
 });

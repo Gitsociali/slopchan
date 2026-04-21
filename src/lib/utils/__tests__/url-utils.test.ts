@@ -8,7 +8,16 @@ vi.mock('../clipboard-utils', () => ({
   copyToClipboard: (text: string) => testState.copyToClipboardMock(text),
 }));
 
-import { copyShareLinkToClipboard, getHostname, is5chanLink, isValidCrossboardPattern, isValidURL, transform5chanLinkToInternal } from '../url-utils';
+import {
+  copyShareLinkToClipboard,
+  getHostname,
+  is5chanLink,
+  isValidCrossboardPattern,
+  isValidPublishURL,
+  isValidURL,
+  normalizePublishURL,
+  transform5chanLinkToInternal,
+} from '../url-utils';
 
 describe('url-utils', () => {
   beforeEach(() => {
@@ -20,6 +29,15 @@ describe('url-utils', () => {
     expect(getHostname('not-a-url')).toBe('');
     expect(isValidURL('https://5chan.app')).toBe(true);
     expect(isValidURL('not-a-url')).toBe(false);
+  });
+
+  it('normalizes publish links to the https URLs accepted by communities', () => {
+    expect(normalizePublishURL(' http://i.imgur.com/YpB7qfa.jpg ')).toBe('https://i.imgur.com/YpB7qfa.jpg');
+    expect(normalizePublishURL('https://i.imgur.com/YpB7qfa.jpg')).toBe('https://i.imgur.com/YpB7qfa.jpg');
+    expect(isValidPublishURL('http://i.imgur.com/YpB7qfa.jpg')).toBe(true);
+    expect(isValidPublishURL('https://i.imgur.com/YpB7qfa.jpg')).toBe(true);
+    expect(isValidPublishURL('ftp://example.com/file.jpg')).toBe(false);
+    expect(isValidPublishURL('not-a-url')).toBe(false);
   });
 
   it('copies share links for threads and catalog pages using the production fallback base url', async () => {

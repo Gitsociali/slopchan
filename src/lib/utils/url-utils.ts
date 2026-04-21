@@ -5,7 +5,7 @@ export const QUOTE_NUMBER_REGEX = /(?<![>/\w])>>(\d+)/g;
 export const getHostname = (url: string) => {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
-  } catch (e) {
+  } catch {
     return '';
   }
 };
@@ -14,6 +14,30 @@ export const isValidURL = (url: string) => {
   try {
     new URL(url);
     return true;
+  } catch {
+    return false;
+  }
+};
+
+export const normalizePublishURL = (url: string) => {
+  const trimmedUrl = url.trim();
+
+  try {
+    const parsedUrl = new URL(trimmedUrl);
+    if (parsedUrl.protocol === 'http:') {
+      parsedUrl.protocol = 'https:';
+      return parsedUrl.toString();
+    }
+  } catch {
+    return trimmedUrl;
+  }
+
+  return trimmedUrl;
+};
+
+export const isValidPublishURL = (url: string) => {
+  try {
+    return new URL(normalizePublishURL(url)).protocol === 'https:';
   } catch {
     return false;
   }

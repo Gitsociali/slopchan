@@ -2,6 +2,7 @@ import { ChallengeVerification, Comment, PublishCommentOptions } from '@bitsocia
 import { create } from 'zustand';
 import { alertChallengeVerificationFailed } from '../lib/utils/challenge-utils';
 import { getCommentCommunityAddress } from '../lib/utils/comment-utils';
+import { normalizePublishURL } from '../lib/utils/url-utils';
 
 type ReplyState = {
   author: { [parentCid: string]: any | undefined };
@@ -24,7 +25,8 @@ const usePublishReplyStore = create<ReplyState>((set) => ({
 
   setPublishReplyStore: (comment: Comment) =>
     set((state) => {
-      const { parentCid, author, content, link, spoiler } = comment;
+      const { parentCid, author, content, spoiler } = comment;
+      const link = comment.link ? normalizePublishURL(comment.link) : undefined;
       const communityAddress = getCommentCommunityAddress(comment);
 
       const displayName = 'displayName' in comment ? comment.displayName || undefined : author?.displayName;

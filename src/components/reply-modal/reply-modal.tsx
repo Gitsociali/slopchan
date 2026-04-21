@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { setAccount, useAccount } from '@bitsocial/bitsocial-react-hooks';
-import { isValidURL } from '../../lib/utils/url-utils';
+import { isValidPublishURL } from '../../lib/utils/url-utils';
 import { isAllView, isModView, isSubscriptionsView } from '../../lib/utils/view-utils';
 import useSelectedTextStore from '../../stores/use-selected-text-store';
 import useReplyModalStore from '../../stores/use-reply-modal-store';
@@ -84,7 +84,7 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
       return;
     }
 
-    if (currentUrl && !isValidURL(currentUrl)) {
+    if (currentUrl && !isValidPublishURL(currentUrl)) {
       setError(t('error') + ': ' + t('invalid_url_alert'));
       return;
     }
@@ -154,7 +154,7 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
   const parentCidRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (parentCidRef.current && parentCidRef.current) {
+    if (parentCidRef.current) {
       const cidWidth = parentCidRef.current.offsetWidth;
       parentCidRef.current.style.width = `${cidWidth}px`;
     }
