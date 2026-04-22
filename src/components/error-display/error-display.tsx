@@ -1,43 +1,21 @@
 import { useReducer, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { copyToClipboard } from '../../lib/utils/clipboard-utils';
+import { formatErrorForDisplay, serializeErrorForClipboard } from '../../lib/utils/error-utils';
 import styles from './error-display.module.css';
 
-type State = { showAfterDelay: boolean; feedbackMessageKey: string | null };
+type FeedbackMessageKey = 'copied' | 'failed' | null;
+type State = { showAfterDelay: boolean; feedbackMessageKey: FeedbackMessageKey };
 
-function reducer(state: State, action: { type: 'RESET_DELAY' } | { type: 'SHOW' } | { type: 'FEEDBACK'; payload: string | null }): State {
+function reducer(state: State, action: { type: 'RESET_DELAY' } | { type: 'SHOW' } | { type: 'FEEDBACK'; payload: FeedbackMessageKey }): State {
   if (action.type === 'RESET_DELAY') return { ...state, showAfterDelay: false };
   if (action.type === 'SHOW') return { ...state, showAfterDelay: true };
   if (action.type === 'FEEDBACK') return { ...state, feedbackMessageKey: action.payload };
   return state;
 }
 
-const serializeErrorForClipboard = (error: unknown): string => {
-  if (typeof error === 'string') {
-    return error;
-  }
-
-  const serializableError =
-    error instanceof Error
-      ? {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-          ...Object.fromEntries(Object.entries(error)),
-          ...('cause' in error && error.cause ? { cause: error.cause } : {}),
-        }
-      : error;
-
-  try {
-    const serializedError = JSON.stringify(serializableError, null, 2);
-    return serializedError && serializedError !== '{}' ? serializedError : String(error);
-  } catch {
-    return String(error);
-  }
-};
-
 type ErrorDisplayProps = {
-  error: any;
+  error: unknown;
   displayMessage?: string;
   inline?: boolean;
   showImmediately?: boolean;
@@ -47,7 +25,7 @@ const ErrorDisplay = ({ error, displayMessage, inline = false, showImmediately =
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(reducer, { showAfterDelay: showImmediately, feedbackMessageKey: null });
 
-  const hasError = !!(error?.message || error?.stack || error?.details || error);
+  const hasError = error !== null && error !== undefined && error !== '';
 
   useEffect(() => {
     if (!hasError) {
@@ -66,10 +44,11 @@ const ErrorDisplay = ({ error, displayMessage, inline = false, showImmediately =
     return null;
   }
 
-  const originalDisplayMessage = displayMessage || (error?.message ? `${t('error')}: ${error.message}` : typeof error === 'string' ? error : error ? t('error') : null);
-  const canCopyError = !!error && !!originalDisplayMessage;
+  const formattedError = formatErrorForDisplay(error);
+  const originalDisplayMessage = displayMessage ?? (formattedError ? (typeof error === 'string' ? formattedError : `${t('error')}: ${formattedError}`) : t('error'));
+  const canCopyError = hasError && !!originalDisplayMessage;
 
-  const handleMessageClick = async () => {
+  const handleCopyError = async () => {
     if (!canCopyError || state.feedbackMessageKey) return;
 
     const errorString = serializeErrorForClipboard(error);
@@ -84,46 +63,27 @@ const ErrorDisplay = ({ error, displayMessage, inline = false, showImmediately =
     }
   };
 
-  let currentDisplayMessage = '';
-  const classNames: string[] = [];
-  let isClickable = false;
-
+  const copyButtonLabel =
+    state.feedbackMessageKey === 'copied' ? t('copied') : state.feedbackMessageKey === 'failed' ? t('copyFailed', 'copy failed') : t('copyFullError', 'copy full error');
+  const copyButtonClassNames = [styles.copyErrorButton];
   if (state.feedbackMessageKey === 'copied') {
-    currentDisplayMessage = t('fullErrorCopiedToClipboard', 'full error copied to the clipboard');
-    classNames.push(styles.feedbackSuccessMessage);
+    copyButtonClassNames.push(styles.feedbackSuccessMessage);
   } else if (state.feedbackMessageKey === 'failed') {
-    currentDisplayMessage = t('copyFailed', 'copy failed');
-    classNames.push(styles.errorMessage);
-  } else if (originalDisplayMessage) {
-    currentDisplayMessage = originalDisplayMessage;
-    classNames.push(styles.errorMessage);
-    isClickable = canCopyError;
-    if (isClickable) {
-      classNames.push(styles.clickableErrorMessage);
-    }
+    copyButtonClassNames.push(styles.feedbackFailedMessage);
   }
 
   return (
     <div className={inline ? styles.inlineError : styles.error}>
-      {currentDisplayMessage &&
-        (isClickable ? (
-          <button
-            type='button'
-            className={classNames.join(' ')}
-            onClick={handleMessageClick}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleMessageClick();
-              }
-            }}
-            title={t('clickToCopyFullError', 'Click to copy full error')}
-          >
-            {currentDisplayMessage}
+      {originalDisplayMessage && <span className={styles.errorMessage}>{originalDisplayMessage}</span>}
+      {canCopyError && (
+        <span className={styles.copyErrorButtonWrapper}>
+          [
+          <button type='button' className={copyButtonClassNames.join(' ')} onClick={handleCopyError} title={t('copyFullError', 'copy full error')}>
+            {copyButtonLabel}
           </button>
-        ) : (
-          <span className={classNames.join(' ')}>{currentDisplayMessage}</span>
-        ))}
+          ]
+        </span>
+      )}
     </div>
   );
 };

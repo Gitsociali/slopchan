@@ -52,7 +52,7 @@ describe('ErrorDisplay', () => {
     vi.useRealTimers();
   });
 
-  it('waits before rendering, then copies structured errors and shows feedback', async () => {
+  it('waits before rendering, then shows a copy action for structured errors', async () => {
     testState.copyToClipboardMock.mockResolvedValue(undefined);
     const error = {
       details: { code: 500 },
@@ -67,20 +67,22 @@ describe('ErrorDisplay', () => {
     });
 
     const button = container.querySelector('button');
-    expect(button?.textContent).toContain('error: network down');
+    expect(container.textContent).toContain('error: network down: code: 500');
+    expect(button?.textContent).toBe('copy full error');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(testState.copyToClipboardMock).toHaveBeenCalledWith(JSON.stringify(error, null, 2));
-    expect(container.textContent).toContain('full error copied to the clipboard');
+    expect(container.textContent).toContain('copied');
 
     act(() => {
       vi.advanceTimersByTime(1500);
     });
 
-    expect(container.textContent).toContain('error: network down');
+    expect(container.textContent).toContain('error: network down: code: 500');
+    expect(button?.textContent).toBe('copy full error');
   });
 
   it('shows copy failure feedback and logs the clipboard error', async () => {
@@ -93,6 +95,7 @@ describe('ErrorDisplay', () => {
 
     const button = container.querySelector('button');
     expect(button).toBeTruthy();
+    expect(button?.textContent).toBe('copy full error');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -115,7 +118,8 @@ describe('ErrorDisplay', () => {
     });
 
     const button = container.querySelector('button');
-    expect(button?.textContent).toContain('error: native failure');
+    expect(container.textContent).toContain('error: native failure: status: 504');
+    expect(button?.textContent).toBe('copy full error');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -135,6 +139,68 @@ describe('ErrorDisplay', () => {
     );
   });
 
+  it('copies nested cyclic errors as readable valid JSON', async () => {
+    testState.copyToClipboardMock.mockResolvedValue(undefined);
+    const cause = new Error('provider timeout');
+    cause.stack = 'Error: provider timeout\n    at provider';
+    const error = Object.assign(new Error('publish failed'), {
+      attempts: [
+        {
+          elapsedMs: BigInt(5000),
+          provider: 'pubsub',
+          reason: cause,
+        },
+      ],
+    });
+    Object.assign(error, { self: error });
+    error.stack = 'Error: publish failed\n    at publish';
+
+    await renderDisplay(error);
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    const button = container.querySelector('button');
+    await act(async () => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const copied = testState.copyToClipboardMock.mock.calls[0]?.[0];
+    expect(copied).toBeTypeOf('string');
+    const parsed = JSON.parse(copied as string);
+    expect(parsed).toMatchObject({
+      attempts: [
+        {
+          elapsedMs: '5000',
+          provider: 'pubsub',
+          reason: {
+            message: 'provider timeout',
+            name: 'Error',
+          },
+        },
+      ],
+      message: 'publish failed',
+      name: 'Error',
+      self: '[Circular]',
+    });
+  });
+
+  it('copies empty structured errors as valid JSON', async () => {
+    testState.copyToClipboardMock.mockResolvedValue(undefined);
+
+    await renderDisplay({});
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    const button = container.querySelector('button');
+    await act(async () => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(testState.copyToClipboardMock).toHaveBeenCalledWith('{}');
+  });
+
   it('supports compact custom labels that copy plain string errors immediately', async () => {
     testState.copyToClipboardMock.mockResolvedValue(undefined);
 
@@ -146,14 +212,15 @@ describe('ErrorDisplay', () => {
     });
 
     const button = container.querySelector('button');
-    expect(button?.textContent).toBe('failed');
+    expect(container.textContent).toContain('failed');
+    expect(button?.textContent).toBe('copy full error');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(testState.copyToClipboardMock).toHaveBeenCalledWith('All pubsub providers throw an error and unable to publish or subscribe');
-    expect(container.textContent).toContain('full error copied to the clipboard');
+    expect(container.textContent).toContain('copied');
   });
 
   it('renders plain string errors after the delay and hides again when the error clears', async () => {

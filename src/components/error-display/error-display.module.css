@@ -1,29 +1,50 @@
 .error {
   padding: 10px;
   text-align: center;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .inlineError {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .errorMessage {
   color: red;
+  overflow-wrap: anywhere;
 }
 
-.clickableErrorMessage {
+.copyErrorButtonWrapper {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  color: var(--button-desktop-text-color);
+  white-space: nowrap;
+}
+
+.copyErrorButton {
   all: unset;
   font: inherit;
-  color: red;
+  color: var(--button-desktop-text-color);
+  text-decoration: var(--button-text-decoration);
   cursor: pointer;
   display: inline;
 }
 
-.clickableErrorMessage:hover {
-  text-decoration: underline;
+.copyErrorButton:hover {
+  color: var(--button-desktop-text-color-hover);
 }
 
 .feedbackSuccessMessage {
   color: inherit;
+}
+
+.feedbackFailedMessage {
+  color: red;
 }
