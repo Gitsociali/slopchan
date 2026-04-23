@@ -28,6 +28,16 @@ If uncertain, ask the developer before adding an entry.
 
 ## Entries
 
+### Android release signing still uses legacy keystore names
+
+- **Date:** 2026-04-23
+- **Observed by:** Codex
+- **Context:** Cutting the `v0.8.0` release after the core terminology rename changed release workflow signing references.
+- **What was surprising:** The tracked Android release keystore is still `android/plebbit.keystore`, and the available GitHub secret is still `PLEBBIT_REACT_KEYSTORE_PASSWORD`; changing only the workflow references to `bitsocial.keystore` / `BITSOCIAL_KEYSTORE_PASSWORD` made the Android release artifact fail at signing.
+- **Impact:** Tag releases can pass the Android build and then fail before publishing because `apksigner` cannot find the keystore or password secret.
+- **Mitigation:** Until the keystore migration is done, keep release APK signing pointed at `android/plebbit.keystore` and `PLEBBIT_REACT_KEYSTORE_PASSWORD`. If renaming, migrate the tracked file, workflow path, and GitHub secret in one change and verify with a tag release dry run or full release.
+- **Status:** confirmed
+
 ### 5chan consumes a pinned hooks tarball instead of using the local hooks repo
 
 - **Date:** 2026-04-15
