@@ -188,6 +188,22 @@ jobs:
         with:
           node-version: 22
       - run: corepack enable
+      - name: Resolve Yarn cache path
+        id: yarn-cache
+        shell: bash
+        run: echo "dir=$(corepack yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+      - name: Cache Yarn package tarballs
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-v1-${{ hashFiles('yarn.lock', 'package.json', '.yarnrc.yml') }}
+          restore-keys: ${{ runner.os }}-yarn-v1-
+      - name: Cache electron binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/AppData/Local/electron/Cache
+          key: ${{ runner.os }}-electron-v2-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-electron-v2-
       - name: Install dependencies
         shell: bash
         run: |
