@@ -31,7 +31,7 @@ Spawn the `test-apk` subagent with the prompt template below, filling in `{TEST_
 
 ```
 Use Codex's current delegation tool:
-  agent: "test-apk"
+  agent_type: "test-apk"
   prompt: <see Prompt Template below>
 ```
 

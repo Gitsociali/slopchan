@@ -28,7 +28,7 @@ For each key, check if the English value already exists in `public/translations/
 
 ### Step 3 — Spawn translator subagents
 
-For **each key**, spawn a `translator` subagent (using the Task tool with `subagent_type: "generalPurpose"` and `model: "fast"`). The prompt for each subagent must include:
+For **each key**, spawn a `translator` subagent using the Task tool with `subagent_type: "translator"`. The prompt for each subagent must include:
 - The key name
 - The English value
 - An instruction to follow the translator subagent's system prompt
@@ -45,7 +45,7 @@ Follow your system prompt for the full workflow (create dictionary file, dry run
 ```
 
 **Parallelism rules:**
-- Spawn up to 4 subagents concurrently (Task tool limit).
+- Spawn up to 4 subagents concurrently.
 - If there are more than 4 keys, batch them: spawn 4, wait for completion, then spawn the next batch.
 
 ### Step 4 — Report results

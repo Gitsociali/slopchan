@@ -20,7 +20,7 @@ If your AI coding assistant supports lifecycle hooks, configure these for this r
 - New `useEffect`/memo additions get an explicit second look before the agent finishes
 - Build/lint/type issues caught early
 - Security visibility via `corepack yarn npm audit`
-- One shared hook implementation for both Codex and Cursor
+- One shared hook implementation for Codex, Cursor, and Claude
 - Temporary task branches stay aligned with the repo's worktree workflow
 
 ## Example Hook Scripts
@@ -85,4 +85,4 @@ exit 0
 
 Configure hook wiring according to your agent tool docs (`hooks.json`, equivalent, etc.).
 
-In this repo, `.codex/hooks/*.sh` and `.cursor/hooks/*.sh` should stay as thin wrappers that delegate to the shared implementations under `scripts/agent-hooks/`.
+In this repo, `.codex/hooks/*.sh`, `.cursor/hooks/*.sh`, and `.claude/hooks/*.sh` should stay as thin wrappers that delegate to the shared implementations under `scripts/agent-hooks/`. Harness-specific startup hooks such as Claude's `SessionStart` can live alongside those wrappers when the other harnesses do not have an equivalent entry point.

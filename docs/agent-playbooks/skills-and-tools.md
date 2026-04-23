@@ -54,6 +54,7 @@ playwright-cli install --skills
 
 Skill install locations:
 
+- `.codex/skills/playwright-cli/`
 - `.cursor/skills/playwright-cli/`
 - `.claude/skills/playwright-cli/`
 

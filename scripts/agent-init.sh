@@ -4,7 +4,34 @@ set -euo pipefail
 
 run_smoke=0
 wait_timeout="${AGENT_INIT_TIMEOUT_SECONDS:-60}"
-app_url="${AGENT_APP_URL:-http://5chan.localhost:1355}"
+
+get_default_app_url() {
+  if [ "${PORTLESS:-}" = "0" ]; then
+    echo "http://5chan.localhost:1355"
+    return
+  fi
+
+  local branch branch_label
+
+  branch="$(git branch --show-current 2>/dev/null || true)"
+
+  if [ -n "$branch" ] && [ "$branch" != "master" ] && [ "$branch" != "main" ]; then
+    branch_label="$(
+      printf '%s' "$branch" \
+        | tr '[:upper:]' '[:lower:]' \
+        | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//; s/-+/-/g'
+    )"
+
+    if [ -n "$branch_label" ]; then
+      echo "http://${branch_label}.5chan.localhost:1355"
+      return
+    fi
+  fi
+
+  echo "http://5chan.localhost:1355"
+}
+
+app_url="${AGENT_APP_URL:-$(get_default_app_url)}"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in

@@ -54,16 +54,15 @@ Keep batches balanced. Add thread views (`/:boardIdentifier/thread/:cid`) as nee
 
 ## Step 2: Spawn Profiler Subagents
 
-Read the profiler subagent definition at `.claude/agents/profiler.md`. Then spawn one `shell` Task per batch **in parallel** (single message, multiple Task calls):
+Read the profiler subagent definition at `.claude/agents/profiler.md`. Then spawn one `profiler` Task per batch **in parallel** (single message, multiple Task calls):
 
 ```
 For each batch, create a Task:
-  subagent_type: "shell"
+  subagent_type: "profiler"
   prompt: |
-    You are a performance profiler. Follow the workflow in .claude/agents/profiler.md.
     Session name: "prof-N"
     Routes to profile: /route1, /route2, ...
-    [Include the full profiler workflow from the agent file]
+    Any non-default app URL or extra profiling constraints
 ```
 
 Spawn up to 4 subagents simultaneously. Each opens its own browser session, navigates routes, scrolls, collects both Web Vitals and react-scan data per route, and returns a structured issues list.

@@ -57,11 +57,12 @@ Keep batches balanced. Add thread views (`/:boardIdentifier/thread/:cid`) as nee
 Read the profiler subagent definition at `.codex/agents/profiler.toml`. Then spawn one `profiler` subagent per batch **in parallel** using Codex's current delegation tool:
 
 ```
-For each batch, create a subagent request that includes:
-  agent: "profiler"
-  Session name: "prof-N"
-  Routes to profile: /route1, /route2, ...
-  Any non-default app URL or extra profiling constraints
+For each batch, create a subagent request:
+  agent_type: "profiler"
+  prompt: |
+    Session name: "prof-N"
+    Routes to profile: /route1, /route2, ...
+    Any non-default app URL or extra profiling constraints
 ```
 
 Spawn up to 4 subagents simultaneously. Each opens its own browser session, navigates routes, scrolls, collects both Web Vitals and react-scan data per route, and returns a structured issues list.

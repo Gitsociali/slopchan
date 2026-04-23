@@ -139,6 +139,7 @@ src/
 
 - Treat `.codex/`, `.cursor/`, and `.claude/` as repo-managed contributor tooling, not private scratch space.
 - Keep equivalent workflow files aligned across all toolchains when their directories contain the same skill, hook, or agent.
+- Keep shared behavior equivalent while preserving harness-specific models, config formats, hook entry points, and tool invocation syntax.
 - Do not configure `.claude` agents to use `composer-2`; that model is Cursor-only in this repo. Keep `.claude` agent models on Claude-supported options.
 - Do not configure `.codex/agents/*.toml` with `gpt-5.3-codex` or `gpt-5.3-codex-spark`; standardize Codex agents on `gpt-5.4` unless the user explicitly requests a different model.
 - When changing shared agent behavior, update the relevant files in `.codex/skills/`, `.cursor/skills/`, `.claude/skills/`, `.codex/agents/`, `.cursor/agents/`, `.claude/agents/`, `.codex/hooks/`, `.cursor/hooks/`, `.claude/hooks/`, and their `hooks.json` or config entry points as needed.
