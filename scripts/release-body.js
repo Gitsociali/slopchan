@@ -105,7 +105,7 @@ const downloads = [macSection, winSection, linuxSection, androidSection, htmlSec
 
 // One-liner summary of what changed in this release. Update before each release.
 const oneLinerDescription =
-  'This release finalizes the pretext feed sizing rollout, improves mobile reverse-scroll performance, adds an Android USB dev preview, and fixes several catalog, reply modal, and dev server issues.';
+  'This release makes .bso communities load much faster by resolving their IPNS public keys separately, adds the 5chan Pass page, expands multiboard time filters, and improves publishing, moderation, and board stability.';
 
 const releaseBody = `${oneLinerDescription}
 

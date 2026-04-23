@@ -1,3 +1,59 @@
+# [0.8.0](https://github.com/bitsocialnet/5chan/compare/v0.7.4...v0.8.0) (2026-04-23)
+
+
+### Bug Fixes
+
+* **account-data-editor:** load Ace before esm-resolver ([77d2271](https://github.com/bitsocialnet/5chan/commit/77d22713dabd43f4db93fce499ecb59743a21dd8))
+* **board status:** resolve offline indicators with strict community refs ([4cae9c3](https://github.com/bitsocialnet/5chan/commit/4cae9c3caa7a781524e45d305fb4ec12a5d11bd5))
+* **board:** wait for feed before empty state ([5b124d4](https://github.com/bitsocialnet/5chan/commit/5b124d44692d31746961c29d11a7e0b830073954))
+* **catalog:** reuse board feed identity when idle ([58a4be1](https://github.com/bitsocialnet/5chan/commit/58a4be1be7867bddeceaa44b5995712a6eb0b80f))
+* **challenge modal:** snap close button to whole pixels ([ec8678c](https://github.com/bitsocialnet/5chan/commit/ec8678cc4ee2b1a0d8c92588df91d2180be21bae))
+* **challenge:** support pkc spam blocker flow ([956fb42](https://github.com/bitsocialnet/5chan/commit/956fb426eaf7cd8e80054c4d5f3b32939af22bb9))
+* **deps:** bump bitsocial-react-hooks ([e2fabb6](https://github.com/bitsocialnet/5chan/commit/e2fabb6fd91c19cb4f69a15fcf6e0070389fd96b))
+* **deps:** pin hooks to dist-synced tarball ([80f41f0](https://github.com/bitsocialnet/5chan/commit/80f41f00db2b0b674c338284538bd2975f085fc9))
+* **deps:** remove hooks consumer patch ([142f389](https://github.com/bitsocialnet/5chan/commit/142f38909ee039afd472b79802c6f161aac9052e))
+* **deps:** resolve Dependabot alerts for protobufjs and follow-redirects ([c260675](https://github.com/bitsocialnet/5chan/commit/c260675d06328f18db15538fa186a1d1db13edc6))
+* **dev:** auto-open portless URL after vite is ready ([683c407](https://github.com/bitsocialnet/5chan/commit/683c407043975cb0ed0c484161755db6bfb9746f))
+* **directories:** include history board metadata ([6c72c33](https://github.com/bitsocialnet/5chan/commit/6c72c336fa7f3ce146e9881d9332d5daf40e36c6))
+* **directories:** support multisub public keys ([f52545e](https://github.com/bitsocialnet/5chan/commit/f52545ec5b1226aba9cfc2c53bd7c58aa4489ea2))
+* **electron:** restore pkc rpc import ([5b1e816](https://github.com/bitsocialnet/5chan/commit/5b1e8166fe286f384999cb498471690848c2d01a))
+* **feed:** restore multiboard loading placeholder ([431f84b](https://github.com/bitsocialnet/5chan/commit/431f84b871571708293e964571db1c7b34071701))
+* **feed:** support strict community refs and safer domain publishing ([6212353](https://github.com/bitsocialnet/5chan/commit/621235379c94e1addc5ee7f5aa3a9fa2a791a90f))
+* **feed:** unblock multiboard directories with public key fallback ([fea7b8e](https://github.com/bitsocialnet/5chan/commit/fea7b8ea10635184c822c9f2407b2bad34837575))
+* hide generated account copy for imported accounts ([7bf0888](https://github.com/bitsocialnet/5chan/commit/7bf0888221cffb063c1b37364f15240e831f4af7))
+* **home:** preserve popular threads during navigation ([508fffe](https://github.com/bitsocialnet/5chan/commit/508fffe5d6077ed2dd9f5d66fdfbd38a45606254))
+* **hooks:** handle pkc rebrand regressions ([19095ae](https://github.com/bitsocialnet/5chan/commit/19095aefa1bf644eaad5f1977a82acc8b5a03cfd))
+* **i18n:** add offline board warning copy ([4a755ac](https://github.com/bitsocialnet/5chan/commit/4a755ac5b04b8796c3dbb5c0e53d8313847901c9))
+* **mod queue:** keep approved items from sticking ([8957f04](https://github.com/bitsocialnet/5chan/commit/8957f0439ef0028a9deab50f7e614d3143b4f8c4))
+* **mod queue:** preserve moderated queue history ([81b9b2e](https://github.com/bitsocialnet/5chan/commit/81b9b2e8075c2c665491bcd5f8c375445105efaa))
+* **multiboards:** restore stable time-filter suggestions ([4942259](https://github.com/bitsocialnet/5chan/commit/49422591b830af504e1823d33fd1bf3d5679cedb))
+* **pending posts:** show publish errors ([338f415](https://github.com/bitsocialnet/5chan/commit/338f415f2a85012646920303c01507b99d45b388))
+* **post card:** clarify full error copying ([be13311](https://github.com/bitsocialnet/5chan/commit/be13311834322d439ddaf8968e360fcd5a1d6b01))
+* **publishing:** normalize media links to https ([fb19ee4](https://github.com/bitsocialnet/5chan/commit/fb19ee47c8d9bfdc1ddf85031fc4ce7f66ebacf2))
+* **publish:** retry failed comments without duplicate replies ([5f9e603](https://github.com/bitsocialnet/5chan/commit/5f9e603b621856980f99db9b007b86a792452d02))
+* **quotes:** keep same-thread board previews local ([e366dac](https://github.com/bitsocialnet/5chan/commit/e366dac25cbf42bfa27a386922d42cac185db5e8))
+* **reply-quote-preview:** keep floating OP previews at desktop width ([f6ce2ba](https://github.com/bitsocialnet/5chan/commit/f6ce2ba018f842c231067902cf7a0a086b7d40dd))
+* **rules:** keep board selector limited to default boards ([3d40e6c](https://github.com/bitsocialnet/5chan/commit/3d40e6c37e4ddc188f5b8f9ac6ff792a32609510))
+* **settings modal:** snap bitmap controls to whole pixels ([d87be15](https://github.com/bitsocialnet/5chan/commit/d87be159e25979ff267705ac920b6ea1a9e47890))
+
+
+### Features
+
+* auto-complete iframe challenges ([b288c62](https://github.com/bitsocialnet/5chan/commit/b288c62c06ac954e733906e9be9b1fd130b576a0))
+* **multiboards:** expand time filters in place ([70d8c37](https://github.com/bitsocialnet/5chan/commit/70d8c372226caa6e53bcbe79aa26d6956b9adef4))
+* **pass:** add pass page and update voting copy ([1c6cf3f](https://github.com/bitsocialnet/5chan/commit/1c6cf3fc0f9197ab2631732eb3b507ceeb29bce2))
+* **pass:** localize pass page copy ([d8944e3](https://github.com/bitsocialnet/5chan/commit/d8944e3c7cc0dc1c0d1178adad7e7663b18e8706))
+
+
+### Performance Improvements
+
+* **board:** reduce desktop reverse-scroll jank on /all ([e161606](https://github.com/bitsocialnet/5chan/commit/e1616061472049740ae595f5e740285568f316b1))
+* **homepage:** isolate boards list from live hook churn ([7fb825b](https://github.com/bitsocialnet/5chan/commit/7fb825b4c66642d16e377175290e69a67eb48b2b))
+* **home:** stop popular threads rerenders after load ([4b06ac8](https://github.com/bitsocialnet/5chan/commit/4b06ac8c9ab9c4bad2dbc14d90993972bde19b37))
+* **pwa:** reduce precache asset fanout ([80e0cab](https://github.com/bitsocialnet/5chan/commit/80e0cabf01c5efe522741171c95f47871667e8b2))
+
+
+
 ## [0.7.4](https://github.com/bitsocialnet/5chan/compare/v0.7.3...v0.7.4) (2026-04-09)
 
 
