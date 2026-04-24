@@ -220,7 +220,7 @@ describe('ChallengeModal', () => {
             type: 'text/plain',
           },
           {
-            challenge: 'base64-image',
+            challenge: 'YmFzZTY0LWltYWdl',
             type: 'image/png',
           },
         ],
@@ -238,7 +238,7 @@ describe('ChallengeModal', () => {
     });
 
     expect(container.textContent).toContain('2/2');
-    expect(container.querySelector('img')?.getAttribute('src')).toBe('data:image/png;base64,base64-image');
+    expect(container.querySelector('img')?.getAttribute('src')).toBe('data:image/png;base64,YmFzZTY0LWltYWdl');
 
     await clickButton('previous');
     expect(container.textContent).toContain('1/2');
@@ -271,6 +271,7 @@ describe('ChallengeModal', () => {
     const iframe = container.querySelector('iframe');
     expect(iframe).not.toBeNull();
     expect(iframe?.getAttribute('src')).toContain('https://mintpass.org/auth?user=0xabc123&theme=dark');
+    expect(iframe?.getAttribute('sandbox')).toBe('allow-scripts allow-forms allow-popups allow-same-origin allow-top-navigation-by-user-activation');
 
     await act(async () => {
       iframe?.dispatchEvent(new Event('load', { bubbles: true }));
@@ -438,7 +439,7 @@ describe('ChallengeModal', () => {
     await renderModal();
     await clickButton('Open');
 
-    expect(alertSpy).toHaveBeenCalledWith('Error: Invalid URL for authentication challenge');
+    expect(alertSpy).toHaveBeenCalledWith('Error: Only HTTPS iframe challenges or localhost HTTP challenges are supported');
     expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
 
     await act(async () => {
