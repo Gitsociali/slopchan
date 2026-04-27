@@ -210,7 +210,7 @@ const Media = ({ commentMediaInfo, disableToggle, isReply, setShowThumbnail }: M
   const mediaDimensions = getMediaDimensions(commentMediaInfo);
 
   return (
-    <span className={mediaClass}>
+    <span className={mediaClass} data-expanded-media='true'>
       {type === 'iframe' && url ? (
         <Embed url={url} />
       ) : type === 'gif' ? (
@@ -307,6 +307,8 @@ const Image = ({ commentMediaInfo, disableToggle = false, displayHeight, display
   }`;
   const thumbnailSmallPadding = isMobile ? styles.thumbnailMobile : styles.thumbnailReplyDesktop;
   const thumbnailDimensions = { '--width': displayWidth, '--height': displayHeight } as React.CSSProperties;
+  const expandedMediaAttribute = isImageExpanded ? 'true' : undefined;
+  const imageMediaStyle = isImageExpanded ? undefined : thumbnailDimensions;
 
   const [hasError, setHasError] = useState(false);
   const handleError = () => setHasError(true);
@@ -340,7 +342,8 @@ const Image = ({ commentMediaInfo, disableToggle = false, displayHeight, display
     <span className={`${styles.thumbnail} ${isImageExpanded && isMobile ? styles.removeFloat : ''}`}>
       <span
         className={isImageExpanded ? mediaClass : `${isOutOfFeed ? styles.communityAvatar : styles.thumbnailSmall} ${thumbnailSmallPadding}`}
-        style={isImageExpanded ? {} : thumbnailDimensions}
+        data-expanded-media={expandedMediaAttribute}
+        style={imageMediaStyle}
       >
         {hasError ? (
           <img src='assets/filedeleted-res.gif' alt='File deleted' />
@@ -379,7 +382,8 @@ const Image = ({ commentMediaInfo, disableToggle = false, displayHeight, display
   ) : (
     <span
       className={isImageExpanded ? mediaClass : `${isOutOfFeed ? styles.communityAvatar : styles.thumbnailBig} ${styles.thumbnail}`}
-      style={isImageExpanded ? {} : thumbnailDimensions}
+      data-expanded-media={expandedMediaAttribute}
+      style={imageMediaStyle}
     >
       {hasError ? (
         <img src='assets/filedeleted-res.gif' alt='File deleted' />

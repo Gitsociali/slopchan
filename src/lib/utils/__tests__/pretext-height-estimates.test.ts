@@ -7,6 +7,7 @@ import {
   resolveFeedVirtualizationMode,
   resolveReplyVirtualizationMode,
 } from '../pretext-height-estimates';
+import { EXPANDED_MEDIA_DATA_ATTRIBUTE } from '../measurement-attributes';
 
 describe('pretext-height-estimates', () => {
   beforeEach(() => {
@@ -79,6 +80,18 @@ describe('pretext-height-estimates', () => {
     element.appendChild(child);
 
     expect(getReplyItemSizeFromElement(element, 'offsetHeight')).toBe(222);
+  });
+
+  it('uses live DOM height when expanded media is inside an estimated item', () => {
+    const element = document.createElement('div');
+    const child = document.createElement('div');
+
+    Object.defineProperty(element, 'offsetHeight', { configurable: true, value: 421 });
+    element.dataset.pretextHeight = '123';
+    child.setAttribute(EXPANDED_MEDIA_DATA_ATTRIBUTE, 'true');
+    element.appendChild(child);
+
+    expect(getReplyItemSizeFromElement(element, 'offsetHeight')).toBe(421);
   });
 
   it('adds desktop board-label height for multiboard text posts without media', () => {

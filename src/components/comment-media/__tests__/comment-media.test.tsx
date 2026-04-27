@@ -128,6 +128,29 @@ describe('CommentMedia', () => {
     expect(container.textContent).toContain('640x480');
   });
 
+  it('marks expanded reply images so virtualized feed rows use live height', async () => {
+    await renderMedia({
+      commentMediaInfo: {
+        linkHeight: 300,
+        linkWidth: 600,
+        type: 'image',
+        url: 'https://cdn.example.com/reply-image.jpg',
+      },
+      parentCid: 'parent-cid',
+      setShowThumbnail: setShowThumbnailMock,
+      showThumbnail: true,
+    });
+
+    expect(container.querySelector('[data-expanded-media="true"]')).toBeNull();
+
+    const image = container.querySelector('img[src="https://cdn.example.com/reply-image.jpg"]');
+    await act(async () => {
+      image?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(container.querySelector('[data-expanded-media="true"]')).toBeTruthy();
+  });
+
   it('falls back to the deleted-file placeholder when an image fails to load', async () => {
     await renderMedia({
       commentMediaInfo: {

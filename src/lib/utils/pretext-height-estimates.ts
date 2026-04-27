@@ -1,6 +1,7 @@
 import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import { layout, layoutNextLine, prepare, prepareWithSegments } from '@chenglou/pretext';
 import { getCommentMediaInfo, getHasThumbnail } from './media-utils';
+import { EXPANDED_MEDIA_DATA_ATTRIBUTE } from './measurement-attributes';
 import { removeMarkdown } from './post-utils';
 import { getRenderableMobileBacklinks } from './reply-backlink-utils';
 
@@ -837,6 +838,10 @@ export const resolveCatalogVirtualizationMode = (
 export const getPretextItemSizeFromElement = (element: HTMLElement, field: 'offsetHeight' | 'offsetWidth'): number => {
   if (field === 'offsetWidth') {
     return element.offsetWidth;
+  }
+
+  if (element.dataset.expandedMedia === 'true' || element.querySelector(`[${EXPANDED_MEDIA_DATA_ATTRIBUTE}="true"]`)) {
+    return element.offsetHeight;
   }
 
   const ownEstimatedHeight = Number.parseFloat(element.dataset.pretextHeight || '');
