@@ -38,7 +38,7 @@ describe('interaction stores', () => {
     useCreateBoardModalStore.getState().closeCreateBoardModal();
     useDirectoryModalStore.getState().closeDirectoryModal();
     useDisclaimerModalStore.getState().closeDisclaimerModal();
-    useFeedResetStore.setState({ reset: null });
+    useFeedResetStore.setState({ currentResetFunction: null, reset: null });
     usePostNumberStore.setState({ numberToCid: {}, cidToNumber: {} });
     useSelectedTextStore.getState().resetSelectedText();
     useSortingStore.getState().setSortType('active');
@@ -80,8 +80,16 @@ describe('interaction stores', () => {
 
     const resetMock = vi.fn();
     useFeedResetStore.getState().setResetFunction(resetMock);
+    const firstResetInvoker = useFeedResetStore.getState().reset;
     useFeedResetStore.getState().reset?.();
     expect(resetMock).toHaveBeenCalledTimes(1);
+
+    const nextResetMock = vi.fn();
+    useFeedResetStore.getState().setResetFunction(nextResetMock);
+    expect(useFeedResetStore.getState().reset).toBe(firstResetInvoker);
+    useFeedResetStore.getState().reset?.();
+    expect(resetMock).toHaveBeenCalledTimes(1);
+    expect(nextResetMock).toHaveBeenCalledTimes(1);
 
     expect(useSortingStore.getState().sortType).toBe('active');
     useSortingStore.getState().setSortType('replyCount');

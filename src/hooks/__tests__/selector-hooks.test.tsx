@@ -23,9 +23,43 @@ const testState = vi.hoisted(() => ({
   communitySnapshot: undefined as unknown,
 }));
 
+const accountsStoreSelectorCache = vi.hoisted(() => ({
+  hasValue: false,
+  value: undefined as unknown,
+}));
+
 vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountCommunities: () => ({ accountCommunities: testState.accountCommunities }),
+}));
+
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/accounts/index.js', () => ({
+  default: (
+    selector: (state: { activeAccountId?: string; accounts: Record<string, { communities?: typeof testState.accountCommunities }> }) => unknown,
+    equalityFn?: (previous: unknown, next: unknown) => boolean,
+  ) => {
+    const nextValue = selector({
+      activeAccountId: 'active',
+      accounts: {
+        active: {
+          communities: testState.accountCommunities,
+        },
+      },
+    });
+
+    if (accountsStoreSelectorCache.hasValue && equalityFn?.(accountsStoreSelectorCache.value, nextValue)) {
+      return accountsStoreSelectorCache.value;
+    }
+
+    accountsStoreSelectorCache.hasValue = true;
+    accountsStoreSelectorCache.value = nextValue;
+    return nextValue;
+  },
+}));
+
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/lib/community-address.js', () => ({
+  getEquivalentCommunityAddressGroupKey: (address: string) => (address.endsWith('.eth') ? address.slice(0, -4) + '.bso' : address),
+  pickPreferredEquivalentCommunityAddress: (addresses: string[]) => addresses.find((address) => address.endsWith('.bso')) || addresses[0],
 }));
 
 vi.mock('@bitsocial/bitsocial-react-hooks/dist/lib/utils', () => ({
@@ -60,6 +94,14 @@ const renderHookValue = (useValue: () => unknown) => {
   return latestValue;
 };
 
+const rerenderHookValue = (useValue: () => unknown) => {
+  act(() => {
+    root.render(createElement(HookHarness, { useValue }));
+  });
+
+  return latestValue;
+};
+
 describe('selector hooks', () => {
   beforeEach(() => {
     latestValue = undefined;
@@ -72,6 +114,8 @@ describe('selector hooks', () => {
     testState.directoryLookup = {};
     testState.flattenedReplies = [];
     testState.communitySnapshot = undefined;
+    accountsStoreSelectorCache.hasValue = false;
+    accountsStoreSelectorCache.value = undefined;
     useAllFeedFilterStore.getState().setFilter('all');
 
     container = document.createElement('div');
@@ -95,6 +139,31 @@ describe('selector hooks', () => {
       { address: 'music.eth', title: '/mu/ - Music' },
       { address: 'tech.eth', title: '/g/ - Technology' },
     ]);
+  });
+
+  it('keeps account board address identity stable when cached community objects change', () => {
+    testState.accountCommunities = {
+      'music.eth': { address: 'music.eth', state: 'updating' },
+      'tech.eth': { address: 'tech.eth', state: 'updating' },
+    };
+
+    const initialAddresses = rerenderHookValue(() => useAccountCommunityAddresses());
+
+    testState.accountCommunities = {
+      'music.eth': { address: 'music.eth', state: 'succeeded' },
+      'tech.eth': { address: 'tech.eth', state: 'updating' },
+    };
+
+    expect(rerenderHookValue(() => useAccountCommunityAddresses())).toBe(initialAddresses);
+
+    testState.accountCommunities = {
+      ...testState.accountCommunities,
+      'biz.eth': { address: 'biz.eth', state: 'updating' },
+    };
+
+    const addressesWithNewBoard = rerenderHookValue(() => useAccountCommunityAddresses());
+    expect(addressesWithNewBoard).not.toBe(initialAddresses);
+    expect(addressesWithNewBoard).toEqual(['biz.eth', 'music.eth', 'tech.eth']);
   });
 
   it('computes moderator privileges and whether the current account authored the comment', () => {

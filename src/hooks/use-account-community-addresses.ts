@@ -1,8 +1,45 @@
-import { useMemo } from 'react';
-import { useAccountCommunities } from '@bitsocial/bitsocial-react-hooks';
+import useAccountsStore from '@bitsocial/bitsocial-react-hooks/dist/stores/accounts/index.js';
+import { getEquivalentCommunityAddressGroupKey, pickPreferredEquivalentCommunityAddress } from '@bitsocial/bitsocial-react-hooks/dist/lib/community-address.js';
 
-export const useAccountCommunityAddresses = (): string[] => {
-  const { accountCommunities } = useAccountCommunities({ onlyIfCached: true });
-
-  return useMemo(() => Object.keys(accountCommunities), [accountCommunities]);
+type AccountWithCommunities = {
+  communities?: Record<string, unknown>;
 };
+
+type AccountsStoreState = {
+  activeAccountId?: string;
+  accounts: Record<string, AccountWithCommunities | undefined>;
+};
+
+const EMPTY_ACCOUNT_COMMUNITY_ADDRESSES: string[] = [];
+
+const areStringArraysEqual = (previous: string[], next: string[]) => {
+  if (previous === next) {
+    return true;
+  }
+  if (previous.length !== next.length) {
+    return false;
+  }
+  return previous.every((value, index) => value === next[index]);
+};
+
+const getAccountCommunityAddresses = (state: AccountsStoreState): string[] => {
+  const accountCommunities = state.activeAccountId ? state.accounts[state.activeAccountId]?.communities : undefined;
+  if (!accountCommunities) {
+    return EMPTY_ACCOUNT_COMMUNITY_ADDRESSES;
+  }
+
+  const groupedAddresses = new Map<string, string[]>();
+  for (const communityAddress of Object.keys(accountCommunities)) {
+    const groupKey = getEquivalentCommunityAddressGroupKey(communityAddress);
+    const addresses = groupedAddresses.get(groupKey);
+    if (addresses) {
+      addresses.push(communityAddress);
+    } else {
+      groupedAddresses.set(groupKey, [communityAddress]);
+    }
+  }
+
+  return [...groupedAddresses.values()].map((addresses) => pickPreferredEquivalentCommunityAddress(addresses)).sort();
+};
+
+export const useAccountCommunityAddresses = (): string[] => useAccountsStore(getAccountCommunityAddresses, areStringArraysEqual);
