@@ -349,6 +349,7 @@ describe('App', () => {
     await renderApp('/mod/queue');
 
     expect(container.querySelector('[data-testid="mod-queue-view"]')).toBeTruthy();
+    expect(container.querySelector('[data-testid="feed-cache-container"]')).toBeNull();
 
     act(() => root.unmount());
     root = createRoot(container);

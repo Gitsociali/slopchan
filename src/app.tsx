@@ -170,7 +170,7 @@ const BoardLayout = () => {
               <DesktopBoardButtons />
             </>
           )}
-      <FeedCacheContainer />
+      {!isOnModQueueRoute && <FeedCacheContainer />}
       {shouldRenderOutlet && <Outlet />}
     </div>
   );
