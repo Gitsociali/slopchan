@@ -75,7 +75,7 @@ __metadata:
     react-ace: "npm:14.0.1"
     react-doctor: "npm:0.0.31"
     react-dom: "npm:19.1.2"
-    react-grab: "npm:0.1.28"
+    react-grab: "npm:0.1.32"
     react-i18next: "npm:16.6.6"
     react-router-dom: "npm:6.30.2"
     react-router-hash-link: "npm:2.4.3"
@@ -4515,13 +4515,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medv/finder@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "@medv/finder@npm:4.0.2"
-  checksum: 10c0/f9b7fec9ad7077a47901a9c4f4fc585b092e8fe8e91f05001c90d1da150cc041822c008fc12726f0458211d5663c82b67243e6e03ca55f3096b5b4feb3ce13e3
-  languageName: node
-  linkType: hard
-
 "@multiformats/base-x@npm:^4.0.1":
   version: 4.0.1
   resolution: "@multiformats/base-x@npm:4.0.1"
@@ -5853,9 +5846,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-grab/cli@npm:0.1.28":
-  version: 0.1.28
-  resolution: "@react-grab/cli@npm:0.1.28"
+"@react-grab/cli@npm:0.1.32":
+  version: 0.1.32
+  resolution: "@react-grab/cli@npm:0.1.32"
   dependencies:
     "@antfu/ni": "npm:^0.23.0"
     commander: "npm:^14.0.0"
@@ -5867,7 +5860,7 @@ __metadata:
     smol-toml: "npm:^1.6.0"
   bin:
     react-grab: dist/cli.js
-  checksum: 10c0/20b7cd42ed3d8d3516ec960730322160e621ed524126b2c1e43b0d03cd2fe2c22a87ae0765e630bd1a686bd8edcc098d0a2066e04ea7469a7b2c09926ecdc07e
+  checksum: 10c0/f9cfc1ec3ce60db0ed7868dd80404b71eeeaf1e334abad040e1aa12cbfb835217729b4ecc8b7a6adf677218adf642a02f269bc6875d4e85e6e314a1a9652094a
   languageName: node
   linkType: hard
 
@@ -7441,6 +7434,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bippy@npm:^0.5.39":
+  version: 0.5.39
+  resolution: "bippy@npm:0.5.39"
+  peerDependencies:
+    react: ">=17.0.1"
+  checksum: 10c0/d8bfec87f312ea91456f8ef74b2b9852b9b3803c6c61ddae906b71967b7e0821035de14a0601ae87059b72c8d3ff05738f37378e23a4c8fa8268e473d8d769f5
+  languageName: node
+  linkType: hard
+
 "bl@npm:^1.0.0":
   version: 1.2.3
   resolution: "bl@npm:1.2.3"
@@ -8811,13 +8813,6 @@ __metadata:
   version: 3.1.3
   resolution: "csstype@npm:3.1.3"
   checksum: 10c0/80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
-  languageName: node
-  linkType: hard
-
-"csstype@npm:^3.1.0":
-  version: 3.2.3
-  resolution: "csstype@npm:3.2.3"
-  checksum: 10c0/cd29c51e70fa822f1cecd8641a1445bed7063697469d35633b516e60fe8c1bde04b08f6c5b6022136bb669b64c63d4173af54864510fbb4ee23281801841a3ce
   languageName: node
   linkType: hard
 
@@ -16507,14 +16502,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-grab@npm:0.1.28":
-  version: 0.1.28
-  resolution: "react-grab@npm:0.1.28"
+"react-grab@npm:0.1.32":
+  version: 0.1.32
+  resolution: "react-grab@npm:0.1.32"
   dependencies:
-    "@medv/finder": "npm:^4.0.2"
-    "@react-grab/cli": "npm:0.1.28"
-    bippy: "npm:^0.5.32"
-    solid-js: "npm:^1.9.10"
+    "@react-grab/cli": "npm:0.1.32"
+    bippy: "npm:^0.5.39"
   peerDependencies:
     react: ">=17.0.0"
   peerDependenciesMeta:
@@ -16522,7 +16515,7 @@ __metadata:
       optional: true
   bin:
     react-grab: bin/cli.js
-  checksum: 10c0/3e568f05c6fdc3ac3ea25e355b261732b5631a7c1d1dce58d49575aaa05ec874a6cc35877f6d5d92f9e9c299e13dcc7fd3b4525f40d377d63fb05c14fa6332a9
+  checksum: 10c0/273368d8755fc7ed930cc45d81cc91013907d766e926fc442bd5e48cc6c557e14f9e6765c9fa402fbe736e5c517d503f25afa753f48136e9cd50733445bdeee6
   languageName: node
   linkType: hard
 
@@ -17461,22 +17454,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"seroval-plugins@npm:~1.3.0":
-  version: 1.3.3
-  resolution: "seroval-plugins@npm:1.3.3"
-  peerDependencies:
-    seroval: ^1.0
-  checksum: 10c0/cb6d0119ddf26241d62b78cf924a701bfde2d1a4f8fed924f0076b1edde5f8c6f3e38d8c71975010ba58e94804619c9aed59cb3985774ce7a725aa882dc021f1
-  languageName: node
-  linkType: hard
-
-"seroval@npm:1.4.1":
-  version: 1.4.1
-  resolution: "seroval@npm:1.4.1"
-  checksum: 10c0/9ca88eb8ffbc2513cbfbb3e8a968207ea3b67774680f914cc5a41c7917f2ddc54fae0926f43cbd801a315def49c60fa428cc3cb748ea19bc7f5d1fcd7dd28c7f
-  languageName: node
-  linkType: hard
-
 "set-function-length@npm:^1.2.2":
   version: 1.2.2
   resolution: "set-function-length@npm:1.2.2"
@@ -17840,17 +17817,6 @@ __metadata:
     ip-address: "npm:^10.0.1"
     smart-buffer: "npm:^4.2.0"
   checksum: 10c0/2805a43a1c4bcf9ebf6e018268d87b32b32b06fbbc1f9282573583acc155860dc361500f89c73bfbb157caa1b4ac78059eac0ef15d1811eb0ca75e0bdadbc9d2
-  languageName: node
-  linkType: hard
-
-"solid-js@npm:^1.9.10":
-  version: 1.9.10
-  resolution: "solid-js@npm:1.9.10"
-  dependencies:
-    csstype: "npm:^3.1.0"
-    seroval: "npm:~1.3.0"
-    seroval-plugins: "npm:~1.3.0"
-  checksum: 10c0/ec397466b29ac36af79dfb8363ccdd79bdf77f8a12f16c740ab714c5b23207bc3961cd1171f488cf37b5d59baf28098db96e73a0c49a644e1b147f237f507357
   languageName: node
   linkType: hard
 
