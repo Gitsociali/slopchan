@@ -2,7 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { copyToClipboard } from '../clipboard-utils';
 import { hashStringToColor, getTextColorForBackground, removeMarkdown } from '../post-utils';
 import { preloadReplyModal, preloadThemeAssets, resolveAssetUrl } from '../preload-utils';
-import { computeOmittedCount, filterRepliesForDisplay, getPreviewDisplayReplies, getTotalReplyCount, hasEnoughPreviewReplies } from '../replies-preview-utils';
+import {
+  computeOmittedCount,
+  filterRepliesForDisplay,
+  getPreviewDisplayReplies,
+  getTotalReplyCount,
+  hasEnoughPreviewReplies,
+  sortRepliesForDisplay,
+} from '../replies-preview-utils';
 import { getQuotedCidsFromContent, mergeQuotedCids } from '../reply-quote-utils';
 import { formatUserIDForDisplay, truncateWithEllipsisInMiddle } from '../string-utils';
 import { getFormattedDate, getFormattedTimeAgo, isChristmas } from '../time-utils';
@@ -182,6 +189,33 @@ describe('misc utils', () => {
       { cid: 'newest', timestamp: 10 },
       { cid: 'draft', index: 99 },
       { cid: 'pending', pendingApproval: true },
+    ]);
+
+    expect(
+      sortRepliesForDisplay([
+        { cid: 'reply-8', number: 8 },
+        { cid: 'reply-12', number: 12 },
+        { cid: 'reply-11', number: 11 },
+      ]),
+    ).toEqual([
+      { cid: 'reply-8', number: 8 },
+      { cid: 'reply-11', number: 11 },
+      { cid: 'reply-12', number: 12 },
+    ]);
+
+    expect(
+      getPreviewDisplayReplies(
+        [
+          { cid: 'reply-8', number: 8, timestamp: 8 },
+          { cid: 'reply-12', number: 12, timestamp: 12 },
+          { cid: 'reply-11', number: 11, timestamp: 99 },
+        ],
+        3,
+      ),
+    ).toEqual([
+      { cid: 'reply-8', number: 8, timestamp: 8 },
+      { cid: 'reply-11', number: 11, timestamp: 99 },
+      { cid: 'reply-12', number: 12, timestamp: 12 },
     ]);
 
     expect(computeOmittedCount({ totalReplyCount: 2, visibleCount: 5 })).toBe(0);

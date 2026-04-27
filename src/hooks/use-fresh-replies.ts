@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Comment, useAccountComments } from '@bitsocial/bitsocial-react-hooks';
+import { sortRepliesForDisplay } from '../lib/utils/replies-preview-utils';
 
 // Keep the hook on its indexed fast path when there are no reply indices to resolve.
 const EMPTY_ACCOUNT_COMMENT_LOOKUP = { commentIndices: [-1] };
@@ -13,8 +14,12 @@ const useFreshReplies = (replies: Comment[] = []) => {
   const { accountComments } = useAccountComments(accountCommentLookupOptions);
 
   return useMemo(() => {
-    if (!replies.length || !accountComments?.length) {
+    if (!replies.length) {
       return replies;
+    }
+
+    if (!accountComments?.length) {
+      return sortRepliesForDisplay(replies);
     }
 
     const accountCommentsByIndex = new Map<number, Comment>();
@@ -40,7 +45,7 @@ const useFreshReplies = (replies: Comment[] = []) => {
     });
 
     if (!hasFreshReplies) {
-      return replies;
+      return sortRepliesForDisplay(replies);
     }
 
     const seenReplyIndices = new Set<number>();
@@ -59,7 +64,7 @@ const useFreshReplies = (replies: Comment[] = []) => {
       return true;
     });
 
-    return hasDuplicateReplyIndices ? dedupedReplies : nextReplies;
+    return sortRepliesForDisplay(hasDuplicateReplyIndices ? dedupedReplies : nextReplies);
   }, [accountComments, replies]);
 };
 
