@@ -12,6 +12,7 @@ type TestComment = {
   content?: string;
   index?: number;
   number?: number;
+  pendingApproval?: boolean;
   communityAddress?: string;
 };
 
@@ -143,5 +144,66 @@ describe('useFreshReplies', () => {
     expect(latestValue).toHaveLength(1);
     expect(latestValue[0]).toBe(testState.accountComments[0] as never);
     expect(testState.accountCommentsCalls).toContainEqual({ commentIndices: [0] });
+  });
+
+  it('orders replies by final post number after a pending reply is approved', () => {
+    testState.replies = [
+      {
+        cid: 'reply-8',
+        index: 8,
+        number: 8,
+        communityAddress: 'music.eth',
+      },
+      {
+        cid: 'reply-12',
+        index: 12,
+        number: 12,
+        communityAddress: 'music.eth',
+      },
+      {
+        cid: 'pending-reply',
+        index: 11,
+        number: undefined,
+        pendingApproval: true,
+        communityAddress: 'music.eth',
+      },
+    ];
+    testState.accountComments = [
+      {
+        cid: 'reply-11',
+        index: 11,
+        number: 11,
+        communityAddress: 'music.eth',
+      },
+    ];
+
+    renderHook();
+
+    expect(latestValue.map((reply) => reply.cid)).toEqual(['reply-8', 'reply-11', 'reply-12']);
+    expect(testState.accountCommentsCalls).toContainEqual({ commentIndices: [8, 12, 11] });
+  });
+
+  it('orders already-numbered replies when an approved queued reply was appended', () => {
+    testState.replies = [
+      {
+        cid: 'reply-8',
+        number: 8,
+        communityAddress: 'music.eth',
+      },
+      {
+        cid: 'reply-12',
+        number: 12,
+        communityAddress: 'music.eth',
+      },
+      {
+        cid: 'reply-11',
+        number: 11,
+        communityAddress: 'music.eth',
+      },
+    ];
+
+    renderHook();
+
+    expect(latestValue.map((reply) => reply.cid)).toEqual(['reply-8', 'reply-11', 'reply-12']);
   });
 });

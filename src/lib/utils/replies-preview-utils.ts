@@ -4,9 +4,43 @@ interface CommentLike {
   cid?: string | null;
   deleted?: boolean;
   index?: number;
+  number?: number;
   pendingApproval?: boolean;
   state?: string;
   timestamp?: number;
+}
+
+const getReplyNumber = (reply: CommentLike): number | undefined => (typeof reply?.number === 'number' && Number.isFinite(reply.number) ? reply.number : undefined);
+
+export function sortRepliesForDisplay<T extends CommentLike>(replies: T[]): T[] {
+  if (replies.length < 2) {
+    return replies;
+  }
+
+  const taggedReplies = replies.map((reply, index) => ({
+    index,
+    number: getReplyNumber(reply),
+    reply,
+  }));
+
+  taggedReplies.sort((a, b) => {
+    if (a.number !== undefined && b.number !== undefined) {
+      return a.number === b.number ? a.index - b.index : a.number - b.number;
+    }
+
+    if (a.number !== undefined) {
+      return -1;
+    }
+
+    if (b.number !== undefined) {
+      return 1;
+    }
+
+    return a.index - b.index;
+  });
+
+  const sortedReplies = taggedReplies.map((taggedReply) => taggedReply.reply);
+  return sortedReplies.every((reply, index) => reply === replies[index]) ? replies : sortedReplies;
 }
 
 export function filterRepliesForDisplay<T extends CommentLike>(replies: T[]): T[] {
@@ -21,23 +55,42 @@ export function filterRepliesForDisplay<T extends CommentLike>(replies: T[]): T[
  * board previews.
  */
 export function getPreviewDisplayReplies<T extends CommentLike>(replies: T[], visibleCount: number = BOARD_REPLIES_PREVIEW_VISIBLE_COUNT): T[] {
-  const getRecency = (reply: T): number => {
-    if (typeof reply?.timestamp === 'number') {
-      return reply.timestamp;
+  const getRecency = (reply: T): { group: number; value: number } => {
+    const number = getReplyNumber(reply);
+    if (number !== undefined) {
+      return { group: 2, value: number };
     }
+
     // Pending/local account replies can be missing timestamp early on.
     if (typeof reply?.index === 'number' || reply?.pendingApproval || (reply?.state && reply.state !== 'succeeded')) {
-      return Number.POSITIVE_INFINITY;
+      return { group: 3, value: 0 };
     }
-    return Number.NEGATIVE_INFINITY;
+
+    if (typeof reply?.timestamp === 'number') {
+      return { group: 1, value: reply.timestamp };
+    }
+
+    return { group: 0, value: 0 };
   };
 
   const tagged = replies.map((reply, i) => ({ reply, recency: getRecency(reply), i }));
-  tagged.sort((a, b) => (a.recency !== b.recency ? b.recency - a.recency : a.i - b.i));
-  return tagged
-    .slice(0, visibleCount)
-    .reverse()
-    .map((t) => t.reply);
+  tagged.sort((a, b) => {
+    if (a.recency.group !== b.recency.group) {
+      return b.recency.group - a.recency.group;
+    }
+
+    if (a.recency.value !== b.recency.value) {
+      return b.recency.value - a.recency.value;
+    }
+
+    return a.i - b.i;
+  });
+  return sortRepliesForDisplay(
+    tagged
+      .slice(0, visibleCount)
+      .reverse()
+      .map((t) => t.reply),
+  );
 }
 
 interface ComputeOmittedParams {
