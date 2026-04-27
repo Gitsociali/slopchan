@@ -41,6 +41,9 @@ const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
 const YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
 // Keep the hook on its indexed fast path when this view should not inject local posts.
 const EMPTY_ACCOUNT_COMMENT_LOOKUP = { commentIndices: [-1] };
+const MOD_ACCOUNT_IMPORT_LINK_COMPONENTS = {
+  1: <Link to='/mod/settings#account-settings' />,
+};
 
 /** Board feed always uses 'active' sort; catalog dropdown does not affect board ordering. */
 const BOARD_SORT_TYPE = 'active' as const;
@@ -134,7 +137,7 @@ const BoardFooter = ({
         ) : isInSubscriptionsView && subscriptionsLength === 0 ? (
           <span className='red'>{t('not_subscribed_to_any_board')}</span>
         ) : isInModView && accountCommunityAddressesLength === 0 ? (
-          <span className='red'>{t('not_mod_of_any_board')}</span>
+          <Trans i18nKey='not_mod_of_any_board' components={MOD_ACCOUNT_IMPORT_LINK_COMPONENTS} />
         ) : (
           showLoadingEllipsis && (hasMore || isEmptyBoardLoading) && <LoadingEllipsis string={loadingStateString} />
         )}

@@ -515,6 +515,19 @@ describe('Board', () => {
     expect(container.textContent).toContain('not_subscribed_to_any_board');
   });
 
+  it('links empty mod feeds to account import settings', async () => {
+    testState.accountCommunityAddresses = [];
+
+    await renderBoard({
+      boardProps: { viewType: 'mod' },
+      initialEntry: '/mod',
+      routePath: '/mod/*',
+    });
+
+    expect(container.textContent).toContain('not_mod_of_any_board');
+    expect(container.querySelector('a')?.getAttribute('href')).toBe('/mod/settings#account-settings');
+  });
+
   it('passes multiboard time filters to useFeed and honors cached overrides', async () => {
     testState.feed = [{ cid: 'all-post', communityAddress: 'music-posting.eth' }];
 

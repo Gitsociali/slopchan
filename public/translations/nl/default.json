@@ -201,7 +201,7 @@
   "this_thread_was_removed": "Deze thread werd verwijderd door boardmoderators",
   "this_reply_was_deleted": "Dit antwoord werd verwijderd door de auteur",
   "this_reply_was_removed": "Dit antwoord is verwijderd door de forum moderators",
-  "not_mod_of_any_board": "Je bent geen mod van een bord.",
+  "not_mod_of_any_board": "Je bent geen mod van een bord. [<1>Importeer</1>] je mod-account",
   "search_results_for": "Zoekresultaten voor",
   "help": "Help",
   "filter_and_highlights_help": "Filters en Markeringen Help",
