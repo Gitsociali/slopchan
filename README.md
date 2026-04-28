@@ -98,7 +98,7 @@ To have your board appear in a directory on the 5chan homepage:
 2. Install dependencies: `yarn install`
 3. Start the web client: `yarn start`
 
-The dev server normally runs at https://5chan.localhost via [Portless](https://github.com/vercel-labs/portless), which gives each Bitsocial project a stable, named URL instead of a random port. On non-`master` branches, or when another legacy process is already holding the canonical route, `yarn start` will automatically use a branch-scoped `*.5chan.localhost` URL instead of failing. To bypass Portless and use a plain Vite dev server, run `PORTLESS=0 yarn start`; it will start at `http://localhost:3000` and automatically fall forward to the next free port if `3000` is already in use.
+The dev server normally runs at https://5chan.localhost via [Portless](https://github.com/vercel-labs/portless), which gives each Bitsocial project a stable, named URL instead of a random port. Portless 0.11 serves this URL through an HTTPS proxy on port 443, so the first `yarn start` after install or proxy reset may prompt for sudo; accept the prompt so the URL can stay portless. On non-`master` branches, or when another legacy process is already holding the canonical route, `yarn start` will automatically use a branch-scoped `*.5chan.localhost` URL instead of failing. To bypass Portless and use a plain Vite dev server, run `PORTLESS=0 yarn start`; it will start at `http://localhost:3000` and automatically fall forward to the next free port if `3000` is already in use.
 
 For device testing on a USB-connected Android phone (without relying on `5chan.localhost` DNS from the device):
 

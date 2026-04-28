@@ -182,7 +182,7 @@ src/
 
 ## Local Development URLs
 
-This project uses [Portless](https://github.com/vercel-labs/portless) for local dev. The canonical dev URL is https://5chan.localhost, and non-`master` branches can automatically fall back to a branch-scoped `*.5chan.localhost` route when needed so parallel worktrees do not collide. Other Bitsocial projects use the same proxy (seedit, mintpass, bitsocial at `.localhost`), so they can all run simultaneously without port conflicts.
+This project uses [Portless](https://github.com/vercel-labs/portless) for local dev. The canonical dev URL is https://5chan.localhost, and non-`master` branches can automatically fall back to a branch-scoped `*.5chan.localhost` route when needed so parallel worktrees do not collide. Other Bitsocial projects use the same proxy (seedit, mintpass, bitsocial at `.localhost`), so they can all run simultaneously without port conflicts. The launcher intentionally starts the Portless HTTPS proxy on port 443 before registering app routes; keep that step so legacy `~/.portless` state on port 1355 is not reused.
 
 To bypass Portless: `PORTLESS=0 yarn start`
 

@@ -87,7 +87,7 @@ corepack yarn install
 yarn start
 ```
 
-The normal dev URL is https://5chan.localhost using Portless.
+The normal dev URL is https://5chan.localhost using Portless. First run may prompt for sudo so Portless can bind the HTTPS proxy on port 443.
 
 To bypass Portless:
 
