@@ -9,7 +9,7 @@ Use this skill to jump from a concrete DOM node in the running 5chan app to the 
 
 ## Prerequisites
 
-- Dev server running at `http://5chan.localhost:1355`
+- Dev server running at `https://5chan.localhost`
 - `playwright-cli` installed
 - Use the local dev app, not production. The element-source helpers are only exposed in dev mode.
 
@@ -33,8 +33,8 @@ The result includes:
 ## Session setup
 
 ```bash
-playwright-cli -s=inspect open http://5chan.localhost:1355
-playwright-cli -s=inspect goto http://5chan.localhost:1355/all
+playwright-cli -s=inspect open https://5chan.localhost
+playwright-cli -s=inspect goto https://5chan.localhost/all
 playwright-cli -s=inspect eval "window.__ELEMENT_SOURCE__?.ready ?? false"
 playwright-cli -s=inspect snapshot
 ```

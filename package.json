@@ -67,8 +67,8 @@
     "analyze-bundle": "cross-env PUBLIC_URL=./ GENERATE_SOURCEMAP=true vite build && npx source-map-explorer 'dist/assets/*.js'",
     "electron": "corepack yarn build:preload && corepack yarn electron:before && electron .",
     "electron:no-delete-data": "corepack yarn build:preload && electron .",
-    "electron:start": "concurrently \"cross-env BROWSER=none corepack yarn start\" \"wait-on http://5chan.localhost:1355 && corepack yarn electron\"",
-    "electron:start:no-delete-data": "concurrently \"cross-env BROWSER=none corepack yarn start\" \"wait-on http://5chan.localhost:1355 && corepack yarn electron:no-delete-data\"",
+    "electron:start": "concurrently \"cross-env BROWSER=none PORTLESS=0 PORT=3000 corepack yarn start\" \"wait-on http://localhost:3000 && corepack yarn electron\"",
+    "electron:start:no-delete-data": "concurrently \"cross-env BROWSER=none PORTLESS=0 PORT=3000 corepack yarn start\" \"wait-on http://localhost:3000 && corepack yarn electron:no-delete-data\"",
     "electron:rebuild-native": "electron-rebuild -f -o better-sqlite3",
     "electron:verify-native": "node scripts/verify-electron-native-modules.js",
     "electron:prepare-package": "corepack yarn electron:rebuild-native && corepack yarn electron:verify-native",
@@ -172,7 +172,7 @@
     "workbox-window": "7.4.0"
   },
   "optionalDependencies": {
-    "portless": "0.7.0"
+    "portless": "0.11.1"
   },
   "resolutions": {
     "follow-redirects": "1.16.0",

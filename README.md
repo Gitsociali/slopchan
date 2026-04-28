@@ -98,15 +98,15 @@ To have your board appear in a directory on the 5chan homepage:
 2. Install dependencies: `yarn install`
 3. Start the web client: `yarn start`
 
-The dev server normally runs at http://5chan.localhost:1355 via [Portless](https://port1355.dev/), which gives each Bitsocial project a stable, named URL instead of a random port. On non-`master` branches, or when another legacy process is already holding the canonical route, `yarn start` will automatically use a branch-scoped `*.5chan.localhost:1355` URL instead of failing. To bypass Portless and use a plain Vite dev server, run `PORTLESS=0 yarn start`; it will start at `http://5chan.localhost:1355` and automatically fall forward to the next free port if `1355` is already in use.
+The dev server normally runs at https://5chan.localhost via [Portless](https://github.com/vercel-labs/portless), which gives each Bitsocial project a stable, named URL instead of a random port. On non-`master` branches, or when another legacy process is already holding the canonical route, `yarn start` will automatically use a branch-scoped `*.5chan.localhost` URL instead of failing. To bypass Portless and use a plain Vite dev server, run `PORTLESS=0 yarn start`; it will start at `http://localhost:3000` and automatically fall forward to the next free port if `3000` is already in use.
 
 For device testing on a USB-connected Android phone (without relying on `5chan.localhost` DNS from the device):
 
-- `yarn start:android-usb` starts Vite bound to `127.0.0.1` and runs `adb reverse`, so the phone can load the dev site at `http://localhost:1355`. When the server is up, it opens that URL in each connected device’s default browser via `adb`. Set `ANDROID_USB_OPEN_BROWSER=0` to skip auto-open. Requires [Android platform-tools](https://developer.android.com/tools/releases/platform-tools) (`adb` on your `PATH`), USB debugging enabled, and the device showing as `device` in `adb devices`.
+- `yarn start:android-usb` starts Vite bound to `127.0.0.1` and runs `adb reverse`, so the phone can load the dev site at `http://localhost:3000`. When the server is up, it opens that URL in each connected device’s default browser via `adb`. Set `ANDROID_USB_OPEN_BROWSER=0` to skip auto-open. Requires [Android platform-tools](https://developer.android.com/tools/releases/platform-tools) (`adb` on your `PATH`), USB debugging enabled, and the device showing as `device` in `adb devices`.
 
 ### Scripts
 
-- **Web client**: `yarn start` (http://5chan.localhost:1355)
+- **Web client**: `yarn start` (https://5chan.localhost)
 - **Web client (Android phone over USB)**: `yarn start:android-usb` (see above)
 - **Electron client** (must start web client first): `yarn electron`
 - **Electron client** (don't delete data): `yarn electron:no-delete-data`

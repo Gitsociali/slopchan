@@ -87,7 +87,7 @@ corepack yarn install
 yarn start
 ```
 
-The normal dev URL is http://5chan.localhost:1355 using Portless.
+The normal dev URL is https://5chan.localhost using Portless.
 
 To bypass Portless:
 

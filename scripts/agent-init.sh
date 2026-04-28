@@ -7,7 +7,7 @@ wait_timeout="${AGENT_INIT_TIMEOUT_SECONDS:-60}"
 
 get_default_app_url() {
   if [ "${PORTLESS:-}" = "0" ]; then
-    echo "http://5chan.localhost:1355"
+    echo "http://localhost:3000"
     return
   fi
 
@@ -23,12 +23,12 @@ get_default_app_url() {
     )"
 
     if [ -n "$branch_label" ]; then
-      echo "http://${branch_label}.5chan.localhost:1355"
+      echo "https://${branch_label}.5chan.localhost"
       return
     fi
   fi
 
-  echo "http://5chan.localhost:1355"
+  echo "https://5chan.localhost"
 }
 
 app_url="${AGENT_APP_URL:-$(get_default_app_url)}"
@@ -55,7 +55,7 @@ mkdir -p "$log_dir"
 cd "$repo_root"
 
 is_server_up() {
-  curl -fsS "$app_url" >/dev/null 2>&1
+  curl -fsSk "$app_url" >/dev/null 2>&1
 }
 
 wait_for_server() {

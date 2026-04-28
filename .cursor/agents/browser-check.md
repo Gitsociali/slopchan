@@ -19,7 +19,7 @@ If either is missing, report back asking for the missing information.
 
 ### Step 1: Use the Existing Dev Server
 
-Use the already-running Portless dev server at `http://5chan.localhost:1355` unless the parent agent gives you a different URL.
+Use the already-running Portless dev server at `https://5chan.localhost` unless the parent agent gives you a different URL.
 
 Do not start, restart, or stop the dev server yourself. If the app is unreachable, report the failure and stop.
 
@@ -30,9 +30,9 @@ Default to a fresh isolated `playwright-cli` browser session. If the requested v
 Use playwright-cli to check the relevant page in all three browser engines with separate sessions:
 
 ```bash
-playwright-cli -s=verify-chrome open http://5chan.localhost:1355 --browser=chrome
-playwright-cli -s=verify-firefox open http://5chan.localhost:1355 --browser=firefox
-playwright-cli -s=verify-webkit open http://5chan.localhost:1355 --browser=webkit
+playwright-cli -s=verify-chrome open https://5chan.localhost --browser=chrome
+playwright-cli -s=verify-firefox open https://5chan.localhost --browser=firefox
+playwright-cli -s=verify-webkit open https://5chan.localhost --browser=webkit
 ```
 
 Navigate each engine session to the specific page/route where the change should be visible.
@@ -62,7 +62,7 @@ playwright-cli -s=verify-webkit snapshot
 ## Browser Check Results
 
 ### Page Tested
-- URL: http://5chan.localhost:1355/...
+- URL: https://5chan.localhost/...
 
 ### What Was Checked
 - description of each verification

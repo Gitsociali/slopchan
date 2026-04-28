@@ -182,7 +182,7 @@ src/
 
 ## Local Development URLs
 
-This project uses [Portless](https://github.com/vercel-labs/portless) for local dev. The canonical dev URL is http://5chan.localhost:1355, and non-`master` branches can automatically fall back to a branch-scoped `*.5chan.localhost:1355` route when needed so parallel worktrees do not collide. Other Bitsocial projects use the same proxy (seedit, mintpass, bitsocial at `.localhost:1355`), so they can all run simultaneously without port conflicts.
+This project uses [Portless](https://github.com/vercel-labs/portless) for local dev. The canonical dev URL is https://5chan.localhost, and non-`master` branches can automatically fall back to a branch-scoped `*.5chan.localhost` route when needed so parallel worktrees do not collide. Other Bitsocial projects use the same proxy (seedit, mintpass, bitsocial at `.localhost`), so they can all run simultaneously without port conflicts.
 
 To bypass Portless: `PORTLESS=0 yarn start`
 
@@ -192,8 +192,8 @@ Android phone over USB (default browser opens via `adb`; `ANDROID_USB_OPEN_BROWS
 
 ```bash
 corepack yarn install
-yarn start                # http://5chan.localhost:1355
-yarn start:android-usb    # Vite + adb reverse for USB Android (http://localhost:1355 on device)
+yarn start                # https://5chan.localhost
+yarn start:android-usb    # Vite + adb reverse for USB Android (http://localhost:3000 on device)
 yarn build
 yarn test
 yarn test:coverage
