@@ -14,7 +14,7 @@ import { DirectoryCommunity, findDirectoryByAddress } from '../../../hooks/use-d
 import { useCommunityIdentifiers } from '../../../hooks/use-community-identifiers';
 import { getCommentCommunityAddress } from '../../../lib/utils/comment-utils';
 import { getBoardPath } from '../../../lib/utils/route-utils';
-import { removeMarkdown } from '../../../lib/utils/post-utils';
+import { CATALOG_PREVIEW_MARKDOWN_OPTIONS, removeMarkdown } from '../../../lib/utils/post-utils';
 
 interface PopularThreadProps {
   post: Comment;
@@ -30,7 +30,7 @@ const PopularThreadsLoading = ({ boardAddresses }: { boardAddresses: string[] })
 };
 
 const ContentPreview = ({ content, maxLength = 99 }: { content: string; maxLength?: number }) => {
-  const plainText = removeMarkdown(content).trim().replaceAll('&nbsp;', '').replace(/\n\n/g, '\n').replaceAll('\n\n', '');
+  const plainText = removeMarkdown(content, CATALOG_PREVIEW_MARKDOWN_OPTIONS).trim().replaceAll('&nbsp;', '').replace(/\n\n/g, '\n').replaceAll('\n\n', '');
   const truncatedText = plainText.length > maxLength ? `${plainText.substring(0, maxLength).trim()}...` : plainText;
 
   return truncatedText;

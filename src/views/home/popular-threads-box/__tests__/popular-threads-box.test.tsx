@@ -138,6 +138,26 @@ describe('PopularThreadsBox', () => {
     expect(container.textContent).toContain('thread title');
   });
 
+  it('preserves literal preview markers without applying body markdown styles', () => {
+    testState.popularPosts = [
+      {
+        cid: 'thread-markers',
+        communityAddress: 'music-posting.eth',
+        content: '>we got 5chan before Half Life 3\n*poisons u*',
+        link: 'https://cdn.example/thread-markers.jpg',
+        thumbnailUrl: 'https://cdn.example/thread-markers-thumb.jpg',
+        title: '',
+      },
+    ];
+
+    renderPopularThreadsBox();
+
+    expect(container.textContent).toContain('>we got 5chan before Half Life 3');
+    expect(container.textContent).toContain('*poisons u*');
+    expect(container.querySelector('.greentext')).toBeNull();
+    expect(container.querySelector('.spoilertext')).toBeNull();
+  });
+
   it('subscribes to feed state only while popular threads are loading', () => {
     testState.isLoading = true;
     testState.popularPosts = [];
