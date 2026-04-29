@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
+import { createHash } from 'crypto';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const { version: packageVersion } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
@@ -93,6 +94,55 @@ function appVersionMetadataPlugin() {
         fileName: 'version.json',
         source: payload,
       });
+    },
+  };
+}
+
+function getVercelContentSecurityPolicy() {
+  const vercelConfig = JSON.parse(readFileSync(new URL('./vercel.json', import.meta.url), 'utf8'));
+  const cspHeader = vercelConfig.headers
+    ?.flatMap((entry) => entry.headers || [])
+    .find((header) => typeof header.key === 'string' && header.key.toLowerCase() === 'content-security-policy');
+
+  if (typeof cspHeader?.value !== 'string') {
+    throw new Error('vercel.json is missing a Content-Security-Policy header.');
+  }
+
+  return cspHeader.value;
+}
+
+function getInlineScriptHashes(indexHtml) {
+  const scriptPattern = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+  const hashes = [];
+
+  for (const [, attributes, source] of indexHtml.matchAll(scriptPattern)) {
+    if (/\bsrc\s*=/i.test(attributes) || source.trim().length === 0) {
+      continue;
+    }
+
+    hashes.push(`sha256-${createHash('sha256').update(source).digest('base64')}`);
+  }
+
+  return [...new Set(hashes)];
+}
+
+function verifyVercelCspHashesPlugin() {
+  return {
+    name: 'fivechan-verify-vercel-csp-hashes',
+    apply: 'build',
+    enforce: 'post',
+    closeBundle() {
+      const indexHtml = readFileSync(new URL(`./${buildOutDir}/index.html`, import.meta.url), 'utf8');
+      const contentSecurityPolicy = getVercelContentSecurityPolicy();
+      const missingHashes = getInlineScriptHashes(indexHtml).filter(
+        (hash) => !contentSecurityPolicy.includes(`'${hash}'`) && !contentSecurityPolicy.includes(hash),
+      );
+
+      if (missingHashes.length > 0) {
+        const plural = missingHashes.length === 1 ? '' : 'es';
+
+        throw new Error(`vercel.json Content-Security-Policy is missing inline script hash${plural}: ${missingHashes.join(', ')}`);
+      }
     },
   };
 }
@@ -252,6 +302,7 @@ export default defineConfig({
         ],
       },
     }),
+    verifyVercelCspHashesPlugin(),
   ],
   resolve: {
     alias: {

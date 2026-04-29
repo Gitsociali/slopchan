@@ -65,8 +65,8 @@
         });
       }
     </script>
+    <!-- Normalize path-based URLs before HashRouter starts. -->
     <script>
-      // Redirect non-hash URLs before the app bundle is requested.
       if (
         window.location.protocol !== 'file:' &&
         window.location.pathname &&
