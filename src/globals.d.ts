@@ -1,6 +1,7 @@
 declare global {
   interface Window {
     isElectron: boolean;
+    defaultPkcOptions?: Record<string, unknown>;
   }
 }
 
