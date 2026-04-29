@@ -105,7 +105,7 @@ const downloads = [macSection, winSection, linuxSection, androidSection, htmlSec
 
 // One-liner summary of what changed in this release. Update before each release.
 const oneLinerDescription =
-  'This release makes .bso communities load much faster by resolving their IPNS public keys separately, adds the 5chan Pass page, expands multiboard time filters, and improves publishing, moderation, and board stability.';
+  'This release adds browser peer-to-peer support, improves moderation queues and catalog previews, and includes routing, security, and stability fixes.';
 
 const releaseBody = `${oneLinerDescription}
 

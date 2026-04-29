@@ -1,3 +1,33 @@
+## [0.8.1](https://github.com/bitsocialnet/5chan/compare/v0.8.0...v0.8.1) (2026-04-29)
+
+
+### Bug Fixes
+
+* **archive:** animate loading ellipsis ([042f2df](https://github.com/bitsocialnet/5chan/commit/042f2df2234c3522c35e95e4e7fe4c06ecd5af09))
+* **catalog:** preserve literal preview markers ([fd26d6f](https://github.com/bitsocialnet/5chan/commit/fd26d6fd102256674b3a65b8780e4705db501b18))
+* **codebase audit:** preserve cleanup without regressions ([5dc5408](https://github.com/bitsocialnet/5chan/commit/5dc5408a15b5302ff20a43fd39686c19411b67af))
+* **csp:** keep index html line endings stable ([e988a6e](https://github.com/bitsocialnet/5chan/commit/e988a6e8ad0ca2b4b9b50a9d8b7e39e1a5e526dd))
+* **deps:** resolve Dependabot alerts ([0366a16](https://github.com/bitsocialnet/5chan/commit/0366a168441c934cdaaa7720747e3f0167a6379d))
+* **feed:** measure expanded reply media height ([b0b5d45](https://github.com/bitsocialnet/5chan/commit/b0b5d45376dd1c7368e93cab94005343d40de71f))
+* link mod empty state to account import ([e54e880](https://github.com/bitsocialnet/5chan/commit/e54e8802c380b08b4cc587284c397b0abe67f88d))
+* **portless:** force HTTPS proxy startup ([33bf4da](https://github.com/bitsocialnet/5chan/commit/33bf4dabceccdf98a3372e98469b7e48806c4041))
+* **post menu:** update Yandex reverse image parameter ([42021fe](https://github.com/bitsocialnet/5chan/commit/42021fe9ff473fa99b9634671f500e8cbb0dc23d))
+* **react grab:** restore dev toolbar ([cb9c830](https://github.com/bitsocialnet/5chan/commit/cb9c830b5a6b6726000dfd08687566e2c9432c62))
+* **replies:** order approved queue replies ([463509e](https://github.com/bitsocialnet/5chan/commit/463509e10514cd061232bd44e2cfc551efd9caef))
+* **routing:** allow hash path redirect under CSP ([fe48208](https://github.com/bitsocialnet/5chan/commit/fe48208078a82a9c6acf754e01db27980ae63657))
+
+
+### Features
+
+* **p2p:** enable browser pkc mode ([28286f0](https://github.com/bitsocialnet/5chan/commit/28286f042bd3963d64391eb9170633b13e2279ac))
+
+
+### Performance Improvements
+
+* **mod queue:** reduce loading rerenders ([abaa0d4](https://github.com/bitsocialnet/5chan/commit/abaa0d4e1694271f5dc5aa8957965a551de28f6e))
+
+
+
 # [0.8.0](https://github.com/bitsocialnet/5chan/compare/v0.7.4...v0.8.0) (2026-04-23)
 
 
@@ -32,6 +62,8 @@
 * **publishing:** normalize media links to https ([fb19ee4](https://github.com/bitsocialnet/5chan/commit/fb19ee47c8d9bfdc1ddf85031fc4ce7f66ebacf2))
 * **publish:** retry failed comments without duplicate replies ([5f9e603](https://github.com/bitsocialnet/5chan/commit/5f9e603b621856980f99db9b007b86a792452d02))
 * **quotes:** keep same-thread board previews local ([e366dac](https://github.com/bitsocialnet/5chan/commit/e366dac25cbf42bfa27a386922d42cac185db5e8))
+* **release:** cache Windows release dependencies ([3524c1c](https://github.com/bitsocialnet/5chan/commit/3524c1c01eb22e84dcaddfd76c3ae81a1187ba11))
+* **release:** restore Android signing keystore ([82476d8](https://github.com/bitsocialnet/5chan/commit/82476d8586d8d3d391b2abed0b8d64bcc8af0e0f))
 * **reply-quote-preview:** keep floating OP previews at desktop width ([f6ce2ba](https://github.com/bitsocialnet/5chan/commit/f6ce2ba018f842c231067902cf7a0a086b7d40dd))
 * **rules:** keep board selector limited to default boards ([3d40e6c](https://github.com/bitsocialnet/5chan/commit/3d40e6c37e4ddc188f5b8f9ac6ff792a32609510))
 * **settings modal:** snap bitmap controls to whole pixels ([d87be15](https://github.com/bitsocialnet/5chan/commit/d87be159e25979ff267705ac920b6ea1a9e47890))

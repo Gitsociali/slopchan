@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "release-0.8.1",
+      "kind": "release",
+      "timestamp": 1777464000,
+      "message": "v0.8.1: Browser peer-to-peer support, moderation queue improvements, security fix",
+      "version": "0.8.1"
+    },
+    {
       "id": "release-0.8.0",
       "kind": "release",
       "timestamp": 1776945600,
