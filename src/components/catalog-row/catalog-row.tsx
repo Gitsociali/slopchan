@@ -18,7 +18,7 @@ import useCountLinksInReplies from '../../hooks/use-count-links-in-replies';
 import useFetchGifFirstFrame from '../../hooks/use-fetch-gif-first-frame';
 import useHide from '../../hooks/use-hide';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
-import { removeMarkdown } from '../../lib/utils/post-utils';
+import { CATALOG_PREVIEW_MARKDOWN_OPTIONS, removeMarkdown } from '../../lib/utils/post-utils';
 import PostMenuDesktop from '../post-desktop/post-menu-desktop';
 import styles from './catalog-row.module.css';
 import capitalize from 'lodash/capitalize';
@@ -215,7 +215,7 @@ const CatalogPost = memo(
                 {content ? ': ' : ''}
               </span>
             )}
-            {content && removeMarkdown(content)}
+            {content && removeMarkdown(content, CATALOG_PREVIEW_MARKDOWN_OPTIONS)}
           </>
         )}
       </div>

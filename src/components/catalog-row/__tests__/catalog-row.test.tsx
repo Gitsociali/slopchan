@@ -480,6 +480,22 @@ describe('CatalogRow', () => {
     expect(container.textContent).toContain('Text title: Plain thread body');
   });
 
+  it('preserves literal catalog teaser markers without applying body markdown styles', async () => {
+    const post: TestComment = {
+      cid: 'literal-markers',
+      content: '>we got 5chan before Half Life 3\n*poisons u*',
+      replyCount: 2,
+      communityAddress: 'music-posting.eth',
+    };
+
+    await renderWithRouter(createElement(CatalogRow, { row: [post] }), '/mu/catalog');
+
+    expect(container.textContent).toContain('>we got 5chan before Half Life 3');
+    expect(container.textContent).toContain('*poisons u*');
+    expect(container.querySelector('.greentext')).toBeNull();
+    expect(container.querySelector('.spoilertext')).toBeNull();
+  });
+
   it('applies the estimated row height to the virtualization wrapper', async () => {
     const post: TestComment = {
       cid: 'estimated-post',

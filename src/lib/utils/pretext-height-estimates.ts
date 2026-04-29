@@ -2,7 +2,7 @@ import type { Comment } from '@bitsocial/bitsocial-react-hooks';
 import { layout, layoutNextLine, prepare, prepareWithSegments } from '@chenglou/pretext';
 import { getCommentMediaInfo, getHasThumbnail } from './media-utils';
 import { EXPANDED_MEDIA_DATA_ATTRIBUTE } from './measurement-attributes';
-import { removeMarkdown } from './post-utils';
+import { CATALOG_PREVIEW_MARKDOWN_OPTIONS, removeMarkdown, type RemoveMarkdownOptions } from './post-utils';
 import { getRenderableMobileBacklinks } from './reply-backlink-utils';
 
 export type ReplyVirtualizationMode = 'off' | 'estimates' | 'item-size';
@@ -393,8 +393,8 @@ const getCatalogPostMediaHeight = (post: Comment | undefined, imageSize: Catalog
   return mediaBox ? mediaBox.height + CATALOG_CARD_MEDIA_GAP_HEIGHT : 0;
 };
 
-const normalizeRenderedCommentText = (rawContent: string): string =>
-  removeMarkdown(rawContent)
+const normalizeRenderedCommentText = (rawContent: string, markdownOptions?: RemoveMarkdownOptions): string =>
+  removeMarkdown(rawContent, markdownOptions)
     .replace(/\n&nbsp;\n/g, '\n\n')
     .replace(/\n{3,}/g, '\n\n')
     .split('\n')
@@ -402,7 +402,7 @@ const normalizeRenderedCommentText = (rawContent: string): string =>
     .join('\n')
     .trim();
 
-const getVisibleCommentBodyText = (comment: Comment | undefined, maxContentChars: number): string => {
+const getVisibleCommentBodyText = (comment: Comment | undefined, maxContentChars: number, markdownOptions?: RemoveMarkdownOptions): string => {
   if (!comment) {
     return '';
   }
@@ -412,7 +412,7 @@ const getVisibleCommentBodyText = (comment: Comment | undefined, maxContentChars
   const removed = comment.removed;
   const reason = comment.reason?.trim();
   const rawContent = comment.content || '';
-  const content = normalizeRenderedCommentText(rawContent.slice(0, maxContentChars));
+  const content = normalizeRenderedCommentText(rawContent.slice(0, maxContentChars), markdownOptions);
 
   if (purged) {
     return 'This post was purged';
@@ -433,13 +433,13 @@ const getVisibleCommentBodyText = (comment: Comment | undefined, maxContentChars
   return content;
 };
 
-const getVisibleCommentText = (comment: Comment | undefined, maxContentChars: number): string => {
+const getVisibleCommentText = (comment: Comment | undefined, maxContentChars: number, markdownOptions?: RemoveMarkdownOptions): string => {
   if (!comment) {
     return '';
   }
 
   const title = comment.title?.trim();
-  const content = getVisibleCommentBodyText(comment, maxContentChars);
+  const content = getVisibleCommentBodyText(comment, maxContentChars, markdownOptions);
 
   if (title && content) {
     return `${title}: ${content}`;
@@ -455,7 +455,7 @@ const getVisibleCatalogText = (post: Comment | undefined, showOPComment: boolean
     return '';
   }
 
-  return getVisibleCommentText(post, 1600);
+  return getVisibleCommentText(post, 1600, CATALOG_PREVIEW_MARKDOWN_OPTIONS);
 };
 
 const getMobileBacklinkCount = (reply: Comment, backlinkMaps: ReplyBacklinkMaps): number => {
