@@ -49,13 +49,18 @@ Directory voting pages are planned for each slot on 5chan. These pages will list
 
 ## Creating a Board
 
-In the bitsocial protocol, a 5chan board is called a _community_. To create and run a community:
+In the bitsocial protocol, a 5chan board is called a _community_. To deliver the expected 5chan imageboard UX, a board should run on a bitsocial node together with [5chan Board Manager](https://github.com/bitsocialnet/5chan-board-manager). The board manager applies imageboard-style lifecycle rules that bitsocial communities do not enforce by themselves: thread limits, bump limits, archived-thread retention, and purging of author-deleted content.
+
+To create and run a board:
 
 1. Install bitsocial-cli, available for Windows, macOS, and Linux: [latest release](https://github.com/bitsocialnet/bitsocial-cli/releases/latest);
 2. Follow the instructions in the repo's README;
 3. When running the daemon for the first time, it will output WebUI links you can use to manage your bitsocial community with a GUI.
+4. Run 5chan Board Manager against the same bitsocial node and add your community to it. The recommended setup is the Docker Compose flow in the [5chan-board-manager README](https://github.com/bitsocialnet/5chan-board-manager#standalone-bitsocial-cli-already-running) for an existing bitsocial-cli daemon.
 
 Once created, anyone can connect to your community using any bitsocial client (such as 5chan) by using the community address. The address is not stored in any central database—bitsocial is a pure peer-to-peer protocol.
+
+Without 5chan Board Manager, a community can still be opened in 5chan, but it will not behave like a conventional imageboard board: old threads will not be archived when they fall past the last page, bump limits will not be enforced, archived threads will not be purged after the retention window, and author-deleted content will not be automatically purged.
 
 **Note**: Creating boards directly from the 5chan web app is planned for the future (see [Future Roadmap](#future-roadmap)).
 
