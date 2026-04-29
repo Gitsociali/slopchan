@@ -105,6 +105,9 @@ describe('misc utils', () => {
     expect(removeMarkdown('[spoiler]secret[/spoiler]\n>greentext\n**bold** [label](https://example.com) `code` ```block``` &nbsp;')).toBe(
       'secret\ngreentext\nbold label code block',
     );
+    expect(removeMarkdown('>greentext\n*poisons u* _and underlines_', { preserveEmphasisMarkers: true, preserveGreentextMarkers: true })).toBe(
+      '>greentext\n*poisons u* _and underlines_',
+    );
   });
 
   it('preloads theme asset URLs through Image instances', () => {

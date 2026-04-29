@@ -21,13 +21,31 @@ export function getTextColorForBackground(rgb: string): string {
   return brightness > 125 ? 'black' : 'white';
 }
 
-export function removeMarkdown(md: string): string {
-  return md
+export interface RemoveMarkdownOptions {
+  preserveEmphasisMarkers?: boolean;
+  preserveGreentextMarkers?: boolean;
+}
+
+export const CATALOG_PREVIEW_MARKDOWN_OPTIONS: RemoveMarkdownOptions = {
+  preserveEmphasisMarkers: true,
+  preserveGreentextMarkers: true,
+};
+
+export function removeMarkdown(md: string, options: RemoveMarkdownOptions = {}): string {
+  let withoutMarkdown = md
     .replace(/\[spoiler\](.*?)\[\/spoiler\]/gis, '$1') // spoiler tags - keep inner text
     .replace(/\[([^\]]*?)\]\([^)]*\)/g, '$1') // [text](url) -> text
-    .replace(/&nbsp;/g, ' ') // &nbsp; -> space
-    .replace(/^>\s*/gm, '') // greentext at line start
-    .replace(/[*_]/g, '') // bold/italic markers
+    .replace(/&nbsp;/g, ' '); // &nbsp; -> space
+
+  if (!options.preserveGreentextMarkers) {
+    withoutMarkdown = withoutMarkdown.replace(/^>\s*/gm, ''); // greentext at line start
+  }
+
+  if (!options.preserveEmphasisMarkers) {
+    withoutMarkdown = withoutMarkdown.replace(/[*_]/g, ''); // bold/italic markers
+  }
+
+  return withoutMarkdown
     .replace(/```[\s\S]*?```/g, (m) => m.slice(3, -3)) // code blocks - keep content
     .replace(/`([^`]*)`/g, '$1') // inline code - keep content
     .trim();
