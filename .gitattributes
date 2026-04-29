@@ -1,0 +1,2 @@
+# Inline script CSP hashes depend on exact line endings.
+index.html text eol=lf
