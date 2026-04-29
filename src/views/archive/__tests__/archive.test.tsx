@@ -205,6 +205,14 @@ describe('Archive', () => {
     expect(testState.loadMoreMock).toHaveBeenCalledTimes(1);
   });
 
+  it('uses the shared loading ellipsis for the empty archive loading state', async () => {
+    testState.hasMore = true;
+
+    await renderArchiveRoute({ root, element: createElement(Archive), initialEntry: '/mu/archive', routePath: '/:boardIdentifier/archive' });
+
+    expect(container.querySelector('[data-testid="loading-ellipsis"]')?.textContent).toBe('loading_archive');
+  });
+
   it('renders the shared archive table and mobile nav actions when mobile hook is set', async () => {
     testState.isMobile = true;
     testState.feed = [

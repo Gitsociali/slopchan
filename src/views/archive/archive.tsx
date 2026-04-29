@@ -216,7 +216,9 @@ const Archive = () => {
         <hr className={styles.desktopDivider} />
         <ArchiveDesktopTopControls communityAddress={communityAddress} />
         <hr className={styles.divider} />
-        <h4 className={styles.archiveSummary}>{t('loading_archive')}</h4>
+        <h4 className={styles.archiveSummary}>
+          <LoadingEllipsis string={t('loading_archive')} />
+        </h4>
         <PageFooterDesktop firstRow={<ArchiveDesktopFooterControls communityAddress={communityAddress} />} styleRow={<ThreadFooterStyleRow />} />
         <PageFooterMobile>
           <ArchiveMobileFooterControls communityAddress={communityAddress} />

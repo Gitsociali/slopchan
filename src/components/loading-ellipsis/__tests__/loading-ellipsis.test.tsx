@@ -41,4 +41,13 @@ describe('LoadingEllipsis', () => {
     expect(container.textContent).toBe('Loading');
     expect(container.firstChild?.textContent).toBe('Loading');
   });
+
+  it('removes static trailing ellipsis text before adding the animated ellipsis', () => {
+    act(() => {
+      root.render(createElement(LoadingEllipsis, { string: 'Loading archive...' }));
+    });
+
+    expect(container.textContent).toBe('Loading archive');
+    expect(container.querySelector('span span span')).toBeTruthy();
+  });
 });
