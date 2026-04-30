@@ -64,9 +64,18 @@
   color: #060;
 }
 
-.rightBox {
+.columns::after {
+  display: block;
+  clear: both;
+  content: '';
+}
+
+.rightColumn {
   float: right;
   width: 49.1%;
+}
+
+.rightBox {
   background: #eff;
   color: #006;
 }
@@ -99,11 +108,16 @@
   margin: 1em;
 }
 
+.section {
+  scroll-margin-top: 1rem;
+}
+
 .rightBox .first {
   padding-top: 0;
 }
 
 .rightBox dt {
+  scroll-margin-top: 1rem;
   padding-top: 1em;
   margin-bottom: .5em;
   font-weight: 700;
@@ -116,6 +130,11 @@
   border-bottom: solid #006 1px;
 }
 
+.rightBox dl > div:last-child dd {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
 @media (max-width: 640px) {
   .content {
     min-width: 0;
@@ -123,7 +142,7 @@
     padding: 10px;
   }
 
-  .rightBox, .leftBox {
+  .rightColumn, .leftBox {
     float: none;
     width: auto;
   }
