@@ -8,6 +8,10 @@ import useFeedViewSettingsStore from '../../../../stores/use-feed-view-settings-
 import { INTERFACE_LANGUAGE_STORAGE_KEY } from '../../../../lib/constants';
 import useAppUpdateStore from '../../../../stores/use-app-update-store';
 
+vi.hoisted(() => {
+  vi.stubEnv('VITE_APP_DISTRIBUTION', 'github');
+});
+
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
 
