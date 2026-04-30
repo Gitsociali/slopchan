@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import AppUpdater from '../plugins/app-updater';
+import { isAppUpdateEnabled } from './app-distribution';
 import { currentAppVersion } from './app-version';
 import { getDefaultReleaseUrl, getReleaseApiUrl, isAllowedDownloadUrl } from './app-update-config';
 
@@ -180,6 +180,10 @@ const fetchLatestReleaseUpdate = async (runtime: Extract<AppRuntime, 'electron' 
 };
 
 const resolveAvailableAppUpdate = async (): Promise<AvailableAppUpdate | null> => {
+  if (!isAppUpdateEnabled) {
+    return null;
+  }
+
   const runtime = getAppRuntime();
 
   if (runtime === 'web') {
@@ -201,6 +205,10 @@ const resolveAvailableAppUpdate = async (): Promise<AvailableAppUpdate | null> =
 };
 
 const applyAvailableAppUpdate = async (update: AvailableAppUpdate): Promise<void> => {
+  if (!isAppUpdateEnabled) {
+    throw new Error('App updates are disabled for this build');
+  }
+
   if (update.runtime === 'web') {
     await refreshServiceWorkerRegistration().catch((error) => {
       console.error('Failed to refresh service worker registration', error);
@@ -221,6 +229,7 @@ const applyAvailableAppUpdate = async (update: AvailableAppUpdate): Promise<void
     return;
   }
 
+  const { default: AppUpdater } = await import('../plugins/app-updater');
   await AppUpdater.downloadAndInstallUpdate({
     url: update.downloadUrl,
     fileName: update.assetName,
@@ -228,4 +237,4 @@ const applyAvailableAppUpdate = async (update: AvailableAppUpdate): Promise<void
 };
 
 export type { AppRuntime, AvailableAppUpdate, NativeAppUpdateInfo, WebAppUpdateInfo };
-export { applyAvailableAppUpdate, fetchLatestStableVersion, getAppRuntime, isElectron, refreshServiceWorkerRegistration, resolveAvailableAppUpdate };
+export { applyAvailableAppUpdate, fetchLatestStableVersion, getAppRuntime, isAppUpdateEnabled, isElectron, refreshServiceWorkerRegistration, resolveAvailableAppUpdate };

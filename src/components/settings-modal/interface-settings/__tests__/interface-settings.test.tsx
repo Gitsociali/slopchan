@@ -62,6 +62,13 @@ const render = (children: React.ReactNode) => {
   });
 };
 
+const settleLazyImports = async () => {
+  await act(async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+  });
+};
+
 const findButtonByText = (text: string) => Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === text);
 
 describe('InterfaceSettings', () => {
@@ -180,25 +187,27 @@ describe('InterfaceSettings', () => {
     expect(localStorage.getItem(INTERFACE_LANGUAGE_STORAGE_KEY)).toBe('fr');
   });
 
-  it('renders a check button when no app update is available', () => {
+  it('renders a check button when no app update is available', async () => {
     render(createElement(InterfaceSettings));
+    await settleLazyImports();
 
     expect(container.textContent).toContain('Update:');
     expect(findButtonByText('Check')).toBeTruthy();
   });
 
-  it('shows the checking status while an update check is in progress', () => {
+  it('shows the checking status while an update check is in progress', async () => {
     useAppUpdateStore.setState({
       isCheckingForUpdate: true,
     });
 
     render(createElement(InterfaceSettings));
+    await settleLazyImports();
 
     expect(findButtonByText('Check')?.disabled).toBe(true);
     expect(container.textContent).toContain('checking_for_updates');
   });
 
-  it('renders a download button and release link when an app update is available', () => {
+  it('renders a download button and release link when an app update is available', async () => {
     useAppUpdateStore.setState({
       availableUpdate: {
         runtime: 'web',
@@ -208,6 +217,7 @@ describe('InterfaceSettings', () => {
     });
 
     render(createElement(InterfaceSettings));
+    await settleLazyImports();
 
     expect(findButtonByText('Download')).toBeTruthy();
     const releaseLink = container.querySelector<HTMLAnchorElement>('a[href="https://github.com/bitsocialnet/5chan/releases/tag/v9.9.9"]');
@@ -217,6 +227,7 @@ describe('InterfaceSettings', () => {
 
   it('checks for app updates when the check button is pressed', async () => {
     render(createElement(InterfaceSettings));
+    await settleLazyImports();
 
     const button = findButtonByText('Check');
     expect(button).toBeTruthy();
@@ -242,6 +253,7 @@ describe('InterfaceSettings', () => {
     });
 
     render(createElement(InterfaceSettings));
+    await settleLazyImports();
 
     const button = findButtonByText('Download');
     expect(button).toBeTruthy();
@@ -255,7 +267,7 @@ describe('InterfaceSettings', () => {
     expect(testState.alertMock).not.toHaveBeenCalled();
   });
 
-  it('disables the update button while an app update is already being applied', () => {
+  it('disables the update button while an app update is already being applied', async () => {
     useAppUpdateStore.setState({
       availableUpdate: {
         runtime: 'web',
@@ -266,6 +278,7 @@ describe('InterfaceSettings', () => {
     });
 
     render(createElement(InterfaceSettings));
+    await settleLazyImports();
 
     expect(findButtonByText('Download')?.disabled).toBe(true);
   });
@@ -283,6 +296,7 @@ describe('InterfaceSettings', () => {
     });
 
     render(createElement(InterfaceSettings));
+    await settleLazyImports();
 
     const button = findButtonByText('Download');
     expect(button).toBeTruthy();

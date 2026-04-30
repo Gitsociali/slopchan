@@ -1,0 +1,46 @@
+# Draft metadata for https://gitlab.com/fdroid/fdroiddata.
+# Replace the commit field with the full v0.8.2 commit hash before opening the F-Droid merge request.
+Categories:
+  - Internet
+License: GPL-3.0-or-later
+AuthorName: Bitsocial Forge
+WebSite: https://5chan.app
+SourceCode: https://github.com/bitsocialnet/5chan
+IssueTracker: https://github.com/bitsocialnet/5chan/issues
+Changelog: https://github.com/bitsocialnet/5chan/releases
+
+AutoName: 5chan
+
+RepoType: git
+Repo: https://github.com/bitsocialnet/5chan
+
+Builds:
+  - versionName: '0.8.2'
+    versionCode: 802
+    commit: TODO_REPLACE_WITH_V0_8_2_COMMIT_HASH
+    subdir: android
+    sudo:
+      - curl -Lo node.tar.xz https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz
+      - echo "22982235e1b71fa8850f82edd09cdae7e3f32df1764a9ec298c72d25ef2c164f  node.tar.xz" | sha256sum -c -
+      - tar xf node.tar.xz --strip-components=1 -C /usr/local/
+      - corepack enable
+    rm:
+      - android/plebbit.keystore
+    build:
+      - cd .. && corepack yarn install --immutable && corepack yarn build:fdroid && corepack yarn cap sync android
+    scandelete:
+      - node_modules/
+      - build/
+      - android/app/build/
+      - android/capacitor-cordova-android-plugins/build/
+    gradle:
+      - fdroid
+    gradleprops:
+      - APP_VERSION_NAME=0.8.2
+      - APP_VERSION_CODE=802
+    output: app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '0.8.2'
+CurrentVersionCode: 802

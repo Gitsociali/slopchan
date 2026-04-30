@@ -175,8 +175,8 @@ jobs:
       - name: Sync Capacitor Android project
         run: npx cap sync android
 
-      - name: Run Android unit tests and assemble debug APK
-        run: cd android && ./gradlew testDebugUnitTest assembleDebug --stacktrace
+      - name: Run Android unit tests and assemble debug APKs
+        run: cd android && ./gradlew testGithubDebugUnitTest testFdroidDebugUnitTest assembleGithubDebug assembleFdroidDebug --stacktrace
 
   package-linux:
     name: Package Linux (Ubuntu)

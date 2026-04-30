@@ -43,6 +43,7 @@ describe('app-update', () => {
     testState.electronDownloadAndInstallUpdateMock.mockReset();
     testState.electronGetPlatformMock.mockReset();
     testState.fetchMock.mockReset();
+    vi.stubEnv('VITE_APP_VERSION', '0.8.1');
     vi.stubGlobal('fetch', testState.fetchMock);
     window.electronApi = undefined;
     Object.defineProperty(navigator, 'serviceWorker', {
@@ -89,6 +90,27 @@ describe('app-update', () => {
     const result = await resolveAvailableAppUpdate();
 
     expect(result).toBeNull();
+  });
+
+  it('disables update checks for F-Droid builds', async () => {
+    vi.stubEnv('VITE_APP_DISTRIBUTION', 'fdroid');
+    testState.capacitorPlatform = 'android';
+
+    const { applyAvailableAppUpdate, isAppUpdateEnabled, resolveAvailableAppUpdate } = await loadModule();
+
+    await expect(resolveAvailableAppUpdate()).resolves.toBeNull();
+    await expect(
+      applyAvailableAppUpdate({
+        runtime: 'android',
+        targetVersion: '9.9.9',
+        assetName: '5chan-9.9.9.apk',
+        downloadUrl: 'https://github.com/bitsocialnet/5chan/releases/download/v9.9.9/5chan-9.9.9.apk',
+        releaseUrl: 'https://github.com/bitsocialnet/5chan/releases/tag/v9.9.9',
+      }),
+    ).rejects.toThrow('App updates are disabled for this build');
+    expect(isAppUpdateEnabled).toBe(false);
+    expect(testState.fetchMock).not.toHaveBeenCalled();
+    expect(testState.androidDownloadAndInstallUpdateMock).not.toHaveBeenCalled();
   });
 
   it('selects the matching electron release asset for the current desktop platform', async () => {

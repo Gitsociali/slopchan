@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { lazy, memo, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './interface-settings.module.css';
 import capitalize from 'lodash/capitalize';
@@ -7,52 +7,9 @@ import useFeedViewSettingsStore from '../../../stores/use-feed-view-settings-sto
 import Version from '../../version';
 import StyleSelector from '../../style-selector/style-selector';
 import { INTERFACE_LANGUAGE_STORAGE_KEY, SUPPORTED_INTERFACE_LANGUAGES } from '../../../lib/constants';
-import useAppUpdateStore from '../../../stores/use-app-update-store';
 
-const UpdateButton = () => {
-  const { t } = useTranslation();
-  const availableUpdate = useAppUpdateStore((state) => state.availableUpdate);
-  const isApplyingUpdate = useAppUpdateStore((state) => state.isApplyingUpdate);
-  const isCheckingForUpdate = useAppUpdateStore((state) => state.isCheckingForUpdate);
-  const applyAppUpdate = useAppUpdateStore((state) => state.applyAppUpdate);
-  const refreshAvailableUpdate = useAppUpdateStore((state) => state.refreshAvailableUpdate);
-
-  const handleUpdateAction = async () => {
-    try {
-      if (availableUpdate) {
-        await applyAppUpdate();
-        return;
-      }
-
-      await refreshAvailableUpdate();
-    } catch (error) {
-      alert(String(error));
-    }
-  };
-  const buttonLabel = availableUpdate ? t('download') : t('check');
-  const isBusy = isApplyingUpdate || isCheckingForUpdate;
-
-  return (
-    <>
-      <button type='button' onClick={handleUpdateAction} disabled={isBusy}>
-        {capitalize(buttonLabel)}
-      </button>
-      {isCheckingForUpdate && (
-        <span className={styles.updateStatus} aria-live='polite'>
-          {t('checking_for_updates')}
-        </span>
-      )}
-      {!isCheckingForUpdate && availableUpdate && (
-        <span className={styles.updateStatus} aria-live='polite'>
-          {t('new_version_found')}:&nbsp;
-          <a href={availableUpdate.releaseUrl} target='_blank' rel='noopener noreferrer'>
-            v{availableUpdate.targetVersion}
-          </a>
-        </span>
-      )}
-    </>
-  );
-};
+const shouldRenderAppUpdateSetting = import.meta.env.VITE_APP_DISTRIBUTION !== 'fdroid';
+const AppUpdateSetting = shouldRenderAppUpdateSetting ? lazy(() => import('./app-update-setting')) : null;
 
 const InterfaceLanguage = () => {
   const { i18n } = useTranslation();
@@ -87,9 +44,11 @@ const InterfaceSettings = () => {
       <div className={styles.version}>
         {capitalize(t('version'))}: <Version />
       </div>
-      <div className={styles.setting}>
-        {capitalize(t('update'))}: <UpdateButton />
-      </div>
+      {AppUpdateSetting && (
+        <Suspense fallback={null}>
+          <AppUpdateSetting />
+        </Suspense>
+      )}
       <div className={styles.setting}>
         {capitalize(t('interface_language'))}: <InterfaceLanguage />
       </div>

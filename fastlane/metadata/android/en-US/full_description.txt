@@ -1,0 +1,5 @@
+5chan is a decentralized imageboard client for the Bitsocial protocol.
+
+It keeps the familiar imageboard layout while letting anyone create and operate their own peer-to-peer communities. Boards are owned and moderated by their operators, and users can open any community directly by address.
+
+The Android app supports browsing boards, posting, replying, media upload workflows, account management, themes, and the same directory-based discovery used by the web client.

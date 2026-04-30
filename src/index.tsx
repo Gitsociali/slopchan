@@ -8,13 +8,13 @@ import './index.css';
 import './themes.css';
 import AppUpdateRegistration from './components/app-update-registration';
 import { App as CapacitorApp } from '@capacitor/app';
-import { Analytics } from '@vercel/analytics/react';
 import { configureP2PBrowserPkcOptions } from './lib/p2p-browser-config';
 
 // Only enable analytics on 5chan.app (Vercel deployment)
 // Exclude Electron (file:// or localhost), Capacitor/APK (capacitor:// or localhost), and IPFS (ipfs:// or different domain)
 const isVercelDeployment =
   typeof window !== 'undefined' && (window.location.hostname === '5chan.app' || window.location.hostname === 'www.5chan.app') && !window.isElectron;
+const shouldLoadAnalytics = import.meta.env.VITE_APP_DISTRIBUTION !== 'fdroid' && isVercelDeployment;
 const e2eStartHash = import.meta.env.VITE_E2E_START_HASH?.trim();
 const requestedE2EHarness = import.meta.env.DEV && typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('e2e') : null;
 
@@ -27,6 +27,7 @@ configureP2PBrowserPkcOptions();
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 const renderRoot = async () => {
   let e2eHarness: React.ComponentType | null = null;
+  let Analytics: React.ComponentType | null = null;
 
   if (requestedE2EHarness === 'thread-auto-update') {
     e2eHarness = (await import('./e2e/thread-auto-update-harness')).default;
@@ -40,13 +41,16 @@ const renderRoot = async () => {
   }
 
   const App = (await import('./app')).default;
+  if (shouldLoadAnalytics) {
+    Analytics = (await import('@vercel/analytics/react')).Analytics;
+  }
 
   root.render(
     <React.StrictMode>
       <Router>
         <AppUpdateRegistration />
         <App />
-        {isVercelDeployment && <Analytics />}
+        {Analytics && <Analytics />}
       </Router>
     </React.StrictMode>,
   );

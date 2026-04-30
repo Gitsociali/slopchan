@@ -1,5 +1,30 @@
 apply plugin: 'com.android.application'
 
+import groovy.json.JsonSlurper
+
+def resolvePackageVersionName() {
+    def packageJsonFile = file("../../package.json")
+    if (!packageJsonFile.exists()) {
+        return "1.0"
+    }
+
+    return new JsonSlurper().parse(packageJsonFile).version.toString()
+}
+
+def versionNameToCode(String versionName) {
+    def stableVersion = versionName.replaceFirst(/^v/, "").split("-")[0]
+    def parts = stableVersion.tokenize(".").collect { part -> part.isInteger() ? part.toInteger() : 0 }
+
+    while (parts.size() < 3) {
+        parts.add(0)
+    }
+
+    return (parts[0] * 10000) + (parts[1] * 100) + parts[2]
+}
+
+def resolvedVersionName = "${project.findProperty("APP_VERSION_NAME") ?: resolvePackageVersionName()}"
+def resolvedVersionCode = Integer.parseInt("${project.findProperty("APP_VERSION_CODE") ?: versionNameToCode(resolvedVersionName)}")
+
 android {
     namespace "fivechan.android"
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -7,13 +32,22 @@ android {
         applicationId "fivechan.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode Integer.parseInt(project.findProperty("APP_VERSION_CODE") ?: "1")
-        versionName "${project.findProperty("APP_VERSION_NAME") ?: "1.0"}"
+        versionCode resolvedVersionCode
+        versionName resolvedVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    flavorDimensions "distribution"
+    productFlavors {
+        github {
+            dimension "distribution"
+        }
+        fdroid {
+            dimension "distribution"
         }
     }
     buildTypes {

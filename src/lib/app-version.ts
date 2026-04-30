@@ -1,5 +1,3 @@
-import packageJson from '../../package.json';
-
 const resolveCurrentAppVersion = (): string => {
   const configuredVersion = import.meta.env.VITE_APP_VERSION;
 
@@ -7,7 +5,7 @@ const resolveCurrentAppVersion = (): string => {
     return configuredVersion.trim();
   }
 
-  return packageJson.version;
+  return '0.0.0';
 };
 
 const currentAppVersion = resolveCurrentAppVersion();

@@ -7,6 +7,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 const { version: packageVersion } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 const appVersion = `${process.env.VITE_APP_VERSION || packageVersion}`.trim() || packageVersion;
+process.env.VITE_APP_VERSION = appVersion;
 const publicBase = process.env.PUBLIC_URL || '/';
 const buildOutDir = 'build';
 const basePathPrefix = (() => {
@@ -373,6 +374,7 @@ export default defineConfig({
     include: ['ethers', 'assert', 'buffer', 'process', 'util', 'stream-browserify', 'isomorphic-fetch', 'workbox-core', 'workbox-precaching'],
   },
   define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
     'process.env.VITE_COMMIT_REF': JSON.stringify(process.env.COMMIT_REF),
     'process.version': JSON.stringify(''),
     global: 'globalThis',
