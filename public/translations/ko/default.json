@@ -363,5 +363,6 @@
   "pass_answer_privileges": "아니요. pass를 구매해도 누군가가 moderator, admin 또는 board 소유자가 되지는 않습니다. 이것은 후원 구매이지, 거버넌스 무효화 수단이 아닙니다.",
   "more_threads_last_week": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>지난 주의 더 많은 스레드 보기</1>]",
   "more_threads_last_month": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>지난 달의 스레드 더 보기</1>]",
-  "more_threads_last_year": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>작년의 스레드 더 보기</1>]"
+  "more_threads_last_year": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>작년의 스레드 더 보기</1>]",
+  "iframe_challenge_confirm": "{{board}}에서 {{site}} 열기를 요청했습니다.\n\n{{publicationType}}의 경우: {{excerpt}}"
 }

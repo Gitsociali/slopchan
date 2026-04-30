@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Hayır. Bir pass satın almak kimseyi moderator, admin ya da bir boardun sahibi yapmaz. Bu bir destekçi satın alımıdır, governance'i geçersiz kılma yolu değildir.",
   "more_threads_last_week": "{{count}} başlık {{currentTimeFilterName}}’den itibaren — [<1>Geçen haftadan daha fazla başlık göster</1>]",
   "more_threads_last_month": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen aydan daha fazla konu göster</1>]",
-  "more_threads_last_year": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen yıldan daha fazla konu göster</1>]"
+  "more_threads_last_year": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen yıldan daha fazla konu göster</1>]",
+  "iframe_challenge_confirm": "{{board}}, {{site}} sitesini açmak istiyor.\n\n{{publicationType}} için: {{excerpt}}"
 }

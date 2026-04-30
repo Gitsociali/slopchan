@@ -363,5 +363,6 @@
   "pass_answer_privileges": "不会。购买 pass 并不会让任何人成为版主、管理员或某个 board 的所有者。这是一种支持性购买，不是对治理规则的覆盖。",
   "more_threads_last_week": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多来自上周的主题</1>]",
   "more_threads_last_month": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多上个月的主题</1>]",
-  "more_threads_last_year": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多去年的主题</1>]"
+  "more_threads_last_year": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多去年的主题</1>]",
+  "iframe_challenge_confirm": "{{board}} 想要打开 {{site}}。\n\n对于 {{publicationType}}：{{excerpt}}"
 }

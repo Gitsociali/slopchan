@@ -363,5 +363,6 @@
   "pass_answer_privileges": "না। একটি pass কিনলে কেউ moderator, admin, বা কোনো board-এর মালিক হবে না। এটি সমর্থকদের জন্য একটি ক্রয়, শাসনব্যবস্থাকে অগ্রাহ্য করার উপায় নয়।",
   "more_threads_last_week": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত সপ্তাহের আরও থ্রেড দেখান</1>]",
   "more_threads_last_month": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত মাসের আরও থ্রেড দেখান</1>]",
-  "more_threads_last_year": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত বছরের আরও থ্রেড দেখান</1>]"
+  "more_threads_last_year": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত বছরের আরও থ্রেড দেখান</1>]",
+  "iframe_challenge_confirm": "{{board}} {{site}} খুলতে চায়।\n\n{{publicationType}}-এর জন্য: {{excerpt}}"
 }

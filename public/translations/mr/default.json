@@ -363,5 +363,6 @@
   "pass_answer_privileges": "नाही. pass खरेदी केल्याने कोणी moderator, admin किंवा एखाद्या boardचा मालक होणार नाही. ही समर्थक खरेदी आहे, शासनाला बगल देण्याचा मार्ग नाही.",
   "more_threads_last_week": "{{count}} थ्रेड {{currentTimeFilterName}} पासून — [<1>गेल्या आठवड्यातील अधिक थ्रेड्स पहा</1>]",
   "more_threads_last_month": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या महिन्यातील आणखी थ्रेड्स दाखवा</1>]",
-  "more_threads_last_year": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या वर्षातील आणखी थ्रेड्स दाखवा</1>]"
+  "more_threads_last_year": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या वर्षातील आणखी थ्रेड्स दाखवा</1>]",
+  "iframe_challenge_confirm": "{{board}} ला {{site}} उघडायचे आहे.\n\n{{publicationType}} साठी: {{excerpt}}"
 }

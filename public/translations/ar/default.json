@@ -363,5 +363,6 @@
   "pass_answer_privileges": "لا. شراء pass لن يجعل شخصًا ما moderator أو admin أو مالكًا لأي board. إنه شراء داعم، وليس تجاوزًا للحوكمة.",
   "more_threads_last_week": "{{count}} مواضيع منذ {{currentTimeFilterName}} — [<1>عرض المزيد من المواضيع من الأسبوع الماضي</1>]",
   "more_threads_last_month": "{{count}} مواضيع منذ {{currentTimeFilterName}} — [<1>عرض المزيد من المواضيع من الشهر الماضي</1>]",
-  "more_threads_last_year": "{{count}} مواضيع منذ {{currentTimeFilterName}} — [<1>عرض المزيد من المواضيع من السنة الماضية</1>]"
+  "more_threads_last_year": "{{count}} مواضيع منذ {{currentTimeFilterName}} — [<1>عرض المزيد من المواضيع من السنة الماضية</1>]",
+  "iframe_challenge_confirm": "{{board}} يريد فتح {{site}}.\n\nبالنسبة إلى {{publicationType}}: {{excerpt}}"
 }

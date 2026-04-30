@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Tidak. Membeli pass tidak akan menjadikan seseorang moderator, admin, atau pemilik sebuah board. Ini adalah pembelian dukungan, bukan pengesampingan tata kelola.",
   "more_threads_last_week": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Show lebih banyak thread dari minggu lalu</1>]",
   "more_threads_last_month": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari bulan lalu</1>]",
-  "more_threads_last_year": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari tahun lalu</1>]"
+  "more_threads_last_year": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari tahun lalu</1>]",
+  "iframe_challenge_confirm": "{{board}} ingin membuka {{site}}.\n\nUntuk {{publicationType}}: {{excerpt}}"
 }

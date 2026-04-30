@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Nu. Cumpărarea unui pass nu va face pe cineva moderator, admin sau proprietarul unui board. Este o achiziție de susținere, nu o anulare a guvernanței.",
   "more_threads_last_week": "{{count}} fire de discuție de la {{currentTimeFilterName}} — [<1>Arată mai multe fire din săptămâna trecută</1>]",
   "more_threads_last_month": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de luna trecută</1>]",
-  "more_threads_last_year": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de anul trecut</1>]"
+  "more_threads_last_year": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de anul trecut</1>]",
+  "iframe_challenge_confirm": "{{board}} vrea să deschidă {{site}}.\n\nPentru {{publicationType}}: {{excerpt}}"
 }

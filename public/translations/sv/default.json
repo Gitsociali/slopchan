@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Nej. Att köpa ett pass gör inte någon till moderator, admin eller ägare av en board. Det är ett stödköp, inte en åsidosättning av governance.",
   "more_threads_last_week": "{{count}} trådar sedan {{currentTimeFilterName}} — [<1>Visa fler trådar från förra veckan</1>]",
   "more_threads_last_month": "{{count}} trådar sedan {{currentTimeFilterName}} — [<1>Visa fler trådar från förra månaden</1>]",
-  "more_threads_last_year": "{{count}} trådar sedan {{currentTimeFilterName}} — [<1>Visa fler trådar från förra året</1>]"
+  "more_threads_last_year": "{{count}} trådar sedan {{currentTimeFilterName}} — [<1>Visa fler trådar från förra året</1>]",
+  "iframe_challenge_confirm": "{{board}} vill öppna {{site}}.\n\nFör {{publicationType}}: {{excerpt}}"
 }

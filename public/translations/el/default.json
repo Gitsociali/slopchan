@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Όχι. Η αγορά ενός pass δεν θα κάνει κάποιον συντονιστή, διαχειριστή ή ιδιοκτήτη ενός board. Είναι μια αγορά υποστήριξης, όχι παράκαμψη της διακυβέρνησης.",
   "more_threads_last_week": "{{count}} θέματα από {{currentTimeFilterName}} — [<1>Εμφάνιση περισσότερων θεμάτων από την περασμένη εβδομάδα</1>]",
   "more_threads_last_month": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από τον τελευταίο μήνα</1>]",
-  "more_threads_last_year": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από το περασμένο έτος</1>]"
+  "more_threads_last_year": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από το περασμένο έτος</1>]",
+  "iframe_challenge_confirm": "Το {{board}} θέλει να ανοίξει το {{site}}.\n\nΓια {{publicationType}}: {{excerpt}}"
 }

@@ -363,5 +363,6 @@
   "pass_answer_privileges": "خیر. خرید یک pass کسی را به moderator، admin یا مالک یک board تبدیل نمی‌کند. این یک خرید حمایتی است، نه راهی برای دور زدن حاکمیت.",
   "more_threads_last_week": "{{count}} موضوع از {{currentTimeFilterName}} — [<1>نمایش موضوعات بیشتر از هفته گذشته</1>]",
   "more_threads_last_month": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های ماه گذشته</1>]",
-  "more_threads_last_year": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های سال گذشته</1>]"
+  "more_threads_last_year": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های سال گذشته</1>]",
+  "iframe_challenge_confirm": "{{board}} می‌خواهد {{site}} را باز کند.\n\nبرای {{publicationType}}: {{excerpt}}"
 }

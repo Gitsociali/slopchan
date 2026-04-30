@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Nee. Door een pass te kopen wordt iemand geen moderator, admin of eigenaar van een board. Het is een ondersteunende aankoop, geen governance-override.",
   "more_threads_last_week": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Toon meer threads van vorige week</1>]",
   "more_threads_last_month": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen maand tonen</1>]",
-  "more_threads_last_year": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen jaar tonen</1>]"
+  "more_threads_last_year": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen jaar tonen</1>]",
+  "iframe_challenge_confirm": "{{board}} wil {{site}} openen.\n\nVoor {{publicationType}}: {{excerpt}}"
 }
