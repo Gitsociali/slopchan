@@ -131,6 +131,7 @@ const CommentContent = ({ comment: post, prependContent }: { comment: Comment; p
   const stateString = useStateString(resolvedPost);
   const hasFailedState = state === 'failed';
   const failedError = getFailedCommentError(resolvedPost);
+  const shouldShowUnpublishedStateDetails = !cid && (!hasFailedState || Boolean(failedError));
 
   const loadingString = (
     <div className={styles.stateString}>
@@ -298,7 +299,7 @@ const CommentContent = ({ comment: post, prependContent }: { comment: Comment; p
           </Tooltip>
         </span>
       )}
-      {!cid && (
+      {shouldShowUnpublishedStateDetails && (
         <>
           <br />
           <br />

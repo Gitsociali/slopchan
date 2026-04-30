@@ -311,7 +311,7 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
                 ) : purged ? (
                   lowerCase(t('purged'))
                 ) : !cid && pseudonymityMode ? (
-                  <span className={styles.pendingCid}>{hasFailedState ? capitalize(t('failed')) : capitalize(t('pending'))}</span>
+                  <span className={styles.pendingCid}>{hasFailedState ? '?' : capitalize(t('pending'))}</span>
                 ) : (
                   <Tooltip
                     content={`${numberOfPostsByAuthor === 1 ? t('1_post_by_this_id') : t('x_posts_by_this_id', { number: numberOfPostsByAuthor })}`}
@@ -410,7 +410,7 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
             ) : (
               <>
                 <span>No.</span>
-                <span className={styles.pendingCid}>{hasFailedState ? capitalize(t('failed')) : capitalize(t('pending'))}</span>
+                <span className={styles.pendingCid}>{hasFailedState ? '?' : capitalize(t('pending'))}</span>
               </>
             )}
             {shouldShowPendingApprovalButtons && (
@@ -595,6 +595,7 @@ const PostMobile = ({
     </button>
   ) : null;
   const linksCount = useCountLinksInReplies(resolvedPost);
+  const deleteFailedPostRedirectPath = isInPendingPostView ? (boardPath ? `/${boardPath}` : '/') : undefined;
   const hasReplyPaginationOverride = !!replyPaginationOverride;
   const shouldFetchReplies = showReplies && !isModQueue && !hasReplyPaginationOverride;
   const shouldUsePreview = shouldFetchReplies && !showAllReplies;
@@ -668,8 +669,10 @@ const PostMobile = ({
   const stateString = useStateString(resolvedPost) || t('loading_post');
   const hasFailedState = state === 'failed';
   const isReply = !!parentCid;
-  const { canDeleteFailedPost, canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, onDeleteFailedPost, onRetryFailedPost } =
-    useDeleteFailedPost(resolvedPost);
+  const { canDeleteFailedPost, canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, onDeleteFailedPost, onRetryFailedPost } = useDeleteFailedPost(
+    resolvedPost,
+    deleteFailedPostRedirectPath,
+  );
   const failedPublishNotice = canDeleteFailedPost ? (
     <FailedPublishNotice
       isDeleting={isDeletingFailedPost}

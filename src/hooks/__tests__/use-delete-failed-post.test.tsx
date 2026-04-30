@@ -14,7 +14,12 @@ const testState = vi.hoisted(() => ({
   alertMock: vi.fn(),
   deleteCommentMock: vi.fn(async (_targetComment: string | number) => undefined),
   lastPublishOptions: undefined as Record<string, any> | undefined,
+  navigateMock: vi.fn(),
   publishCommentMock: vi.fn(async () => undefined),
+}));
+
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => testState.navigateMock,
 }));
 
 vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
@@ -63,14 +68,14 @@ const failedPost = {
   title: 'Hello',
 };
 
-const HookHarness = ({ post }: { post: typeof failedPost }) => {
-  latestValue = useDeleteFailedPost(post);
+const HookHarness = ({ deleteRedirectPath, post }: { deleteRedirectPath?: string; post: typeof failedPost }) => {
+  latestValue = useDeleteFailedPost(post, deleteRedirectPath);
   return null;
 };
 
-const renderHook = (post = failedPost) => {
+const renderHook = (post = failedPost, deleteRedirectPath?: string) => {
   act(() => {
-    root.render(createElement(HookHarness, { post }));
+    root.render(createElement(HookHarness, { deleteRedirectPath, post }));
   });
 };
 
@@ -135,6 +140,17 @@ describe('useDeleteFailedPost', () => {
 
     expect(testState.deleteCommentMock).toHaveBeenCalledWith('failed-cid');
     expect(testState.publishCommentMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('redirects after deleting a failed post when a redirect path is provided', async () => {
+    renderHook(failedPost, '/mu');
+
+    await act(async () => {
+      await latestValue.onDeleteFailedPost();
+    });
+
+    expect(testState.deleteCommentMock).toHaveBeenCalledWith('failed-cid');
+    expect(testState.navigateMock).toHaveBeenCalledWith('/mu', { replace: true });
   });
 
   it('routes retry challenges through the challenge store and preserves abandon behavior', async () => {

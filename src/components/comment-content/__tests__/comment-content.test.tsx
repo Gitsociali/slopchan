@@ -397,7 +397,8 @@ describe('CommentContent', () => {
       postCid: 'post-2',
       state: 'failed',
     });
-    expect(container.textContent).toContain('Failed to publish');
+    expect(container.textContent).not.toContain('Failed to publish');
+    expect(container.textContent).toContain('still pending');
     expect(container.querySelector('[data-testid="loading-ellipsis"]')).toBeNull();
 
     testState.stateString = 'Publishing';

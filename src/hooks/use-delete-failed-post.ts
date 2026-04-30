@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChallengeVerification, Comment, PublishCommentOptions, deleteComment, usePublishComment } from '@bitsocial/bitsocial-react-hooks';
 import { alertChallengeVerificationFailed } from '../lib/utils/challenge-utils';
 import useChallengesStore from '../stores/use-challenges-store';
@@ -67,10 +68,11 @@ export const getFailedPostRetryPublishOptions = (post?: FailedPost): PublishComm
   return retryOptions;
 };
 
-const useDeleteFailedPost = (post?: FailedPost) => {
+const useDeleteFailedPost = (post?: FailedPost, deleteRedirectPath?: string) => {
   const [isDeletingFailedPost, setIsDeletingFailedPost] = useState(false);
   const [isRetryingFailedPost, setIsRetryingFailedPost] = useState(false);
   const addChallenge = useChallengesStore((state) => state.addChallenge);
+  const navigate = useNavigate();
   const abandonPublishRef = useRef<(() => Promise<void>) | undefined>();
   const abandonCurrentPublish = useCallback(async () => {
     await abandonPublishRef.current?.();
@@ -114,13 +116,16 @@ const useDeleteFailedPost = (post?: FailedPost) => {
     deleteComment(targetComment)
       .then(() => {
         setIsDeletingFailedPost(false);
+        if (deleteRedirectPath) {
+          navigate(deleteRedirectPath, { replace: true });
+        }
       })
       .catch((error) => {
         console.error('Failed to delete failed post:', error);
         alert(`Failed to delete post: ${error instanceof Error ? error.message : 'Unknown error'}`);
         setIsDeletingFailedPost(false);
       });
-  }, [canDeleteFailedPost, isDeletingFailedPost, isRetryingFailedPost, post]);
+  }, [canDeleteFailedPost, deleteRedirectPath, isDeletingFailedPost, isRetryingFailedPost, navigate, post]);
 
   const canRetryFailedPost = canDeleteFailedPost && Boolean(retryPublishOptions);
 

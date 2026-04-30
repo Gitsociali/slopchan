@@ -384,7 +384,7 @@ const PostInfo = ({
               ) : purged ? (
                 t('purged')
               ) : !cid && pseudonymityMode ? (
-                <span className={styles.pendingCid}>{hasFailedState ? capitalize(t('failed')) : capitalize(t('pending'))}</span>
+                <span className={styles.pendingCid}>{hasFailedState ? '?' : capitalize(t('pending'))}</span>
               ) : (
                 <Tooltip
                   content={`${numberOfPostsByAuthor === 1 ? t('1_post_by_this_id') : t('x_posts_by_this_id', { number: numberOfPostsByAuthor })}`}
@@ -451,7 +451,7 @@ const PostInfo = ({
           ) : (
             <>
               <span>No.</span>
-              <span className={styles.pendingCid}>{hasFailedState ? capitalize(t('failed')) : capitalize(t('pending'))}</span>
+              <span className={styles.pendingCid}>{hasFailedState ? '?' : capitalize(t('pending'))}</span>
             </>
           )}
           {pinned && (
@@ -855,6 +855,7 @@ const PostDesktop = ({
   const isMultiboardView = isInAllView || isInSubscriptionsView || isInModView;
   const directories = useDirectories();
   const boardPath = communityAddress ? getBoardPath(communityAddress, directories) : undefined;
+  const deleteFailedPostRedirectPath = isInPendingPostView ? (boardPath ? `/${boardPath}` : '/') : undefined;
   const displayBoardPath =
     boardPath && communityAddress
       ? boardPath !== communityAddress
@@ -957,8 +958,10 @@ const PostDesktop = ({
 
   const stateString = useStateString(resolvedPost) || t('downloading_board');
   const hasFailedState = state === 'failed';
-  const { canDeleteFailedPost, canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, onDeleteFailedPost, onRetryFailedPost } =
-    useDeleteFailedPost(resolvedPost);
+  const { canDeleteFailedPost, canRetryFailedPost, isDeletingFailedPost, isRetryingFailedPost, onDeleteFailedPost, onRetryFailedPost } = useDeleteFailedPost(
+    resolvedPost,
+    deleteFailedPostRedirectPath,
+  );
   const failedPublishNotice = canDeleteFailedPost ? (
     <FailedPublishNotice
       isDeleting={isDeletingFailedPost}
