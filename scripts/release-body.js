@@ -105,7 +105,7 @@ const downloads = [macSection, winSection, linuxSection, androidSection, htmlSec
 
 // One-liner summary of what changed in this release. Update before each release.
 const oneLinerDescription =
-  'This release adds browser peer-to-peer support, improves moderation queues and catalog previews, and includes routing, security, and stability fixes.';
+  'This release prepares the Android app for F-Droid, improves the FAQ, and fixes challenge consent, failed pending posts, and popular thread previews.';
 
 const releaseBody = `${oneLinerDescription}
 

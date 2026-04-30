@@ -1,3 +1,14 @@
+## [0.8.2](https://github.com/bitsocialnet/5chan/compare/v0.8.1...v0.8.2) (2026-04-30)
+
+
+### Bug Fixes
+
+* **challenge modal:** open iframe consent directly ([897e170](https://github.com/bitsocialnet/5chan/commit/897e17048515966467d73c3ed81b274fcc6f6a07))
+* **home:** preserve popular thread preview markers ([c7b5f6e](https://github.com/bitsocialnet/5chan/commit/c7b5f6e2c50db1d3c0874911cef11d30ceaae416))
+* **pending posts:** clean up failed post display ([5c74a1e](https://github.com/bitsocialnet/5chan/commit/5c74a1e495ba12c2f896bbb1cc89fe5654a7436d))
+
+
+
 ## [0.8.1](https://github.com/bitsocialnet/5chan/compare/v0.8.0...v0.8.1) (2026-04-29)
 
 

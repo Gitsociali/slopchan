@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "release-0.8.2",
+      "kind": "release",
+      "timestamp": 1777550400,
+      "message": "v0.8.2: F-Droid Android build, expanded FAQ, cleaner failed posts",
+      "version": "0.8.2"
+    },
+    {
       "id": "release-0.8.1",
       "kind": "release",
       "timestamp": 1777464000,
