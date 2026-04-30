@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Không. Mua pass sẽ không biến ai đó thành moderator, admin hoặc chủ sở hữu của một board. Đây là một khoản mua để ủng hộ, không phải cách ghi đè cơ chế quản trị.",
   "more_threads_last_week": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Xem thêm chủ đề từ tuần trước</1>]",
   "more_threads_last_month": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ tháng trước</1>]",
-  "more_threads_last_year": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ năm ngoái</1>]"
+  "more_threads_last_year": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ năm ngoái</1>]",
+  "iframe_challenge_confirm": "{{board}} muốn mở {{site}}.\n\nDành cho {{publicationType}}: {{excerpt}}"
 }

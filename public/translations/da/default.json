@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Nej. At købe et pass gør ikke nogen til moderator, admin eller ejer af et board. Det er et støttekøb, ikke en tilsidesættelse af governance.",
   "more_threads_last_week": "{{count}} tråde siden {{currentTimeFilterName}} — [<1>Vis flere tråde fra sidste uge</1>]",
   "more_threads_last_month": "{{count}} tråde siden {{currentTimeFilterName}} — [<1>Vis flere tråde fra sidste måned</1>]",
-  "more_threads_last_year": "{{count}} tråde siden {{currentTimeFilterName}} — [<1>Vis flere tråde fra sidste år</1>]"
+  "more_threads_last_year": "{{count}} tråde siden {{currentTimeFilterName}} — [<1>Vis flere tråde fra sidste år</1>]",
+  "iframe_challenge_confirm": "{{board}} vil åbne {{site}}.\n\nFor {{publicationType}}: {{excerpt}}"
 }

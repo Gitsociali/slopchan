@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Nein. Der Kauf eines Passes macht niemanden zu einem Moderator, Admin oder Eigentümer eines Boards. Es ist ein Unterstützerkauf, keine Umgehung der Governance.",
   "more_threads_last_week": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads aus der letzten Woche anzeigen</1>]",
   "more_threads_last_month": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Monat anzeigen</1>]",
-  "more_threads_last_year": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Jahr anzeigen</1>]"
+  "more_threads_last_year": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Jahr anzeigen</1>]",
+  "iframe_challenge_confirm": "{{board}} möchte {{site}} öffnen.\n\nFür {{publicationType}}: {{excerpt}}"
 }

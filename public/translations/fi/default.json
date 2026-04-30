@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Ei. pass ostaminen ei tee kenestäkään moderator, admin tai board omistajaa. Se on tukijaosto, ei governance-mallin ohitus.",
   "more_threads_last_week": "{{count}} ketjua sitten {{currentTimeFilterName}} — [<1>Näytä lisää ketjuja viime viikolta</1>]",
   "more_threads_last_month": "{{count}} ketjua sitten {{currentTimeFilterName}} — [<1>Näytä lisää viime kuun ketjuja</1>]",
-  "more_threads_last_year": "{{count}} ketjua sitten {{currentTimeFilterName}} — [<1>Näytä lisää viime vuoden ketjuja</1>]"
+  "more_threads_last_year": "{{count}} ketjua sitten {{currentTimeFilterName}} — [<1>Näytä lisää viime vuoden ketjuja</1>]",
+  "iframe_challenge_confirm": "{{board}} haluaa avata sivuston {{site}}.\n\nKohteelle {{publicationType}}: {{excerpt}}"
 }

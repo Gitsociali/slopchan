@@ -363,5 +363,6 @@
   "pass_answer_privileges": "Нет. Покупка pass не сделает кого-либо moderator, admin или владельцем board. Это покупка в поддержку проекта, а не обход системы управления.",
   "more_threads_last_week": "{{count}} тредов с {{currentTimeFilterName}} — [<1>Показать больше тредов за прошлую неделю</1>]",
   "more_threads_last_month": "{{count}} темы с {{currentTimeFilterName}} — [<1>Показать больше тем с прошлого месяца</1>]",
-  "more_threads_last_year": "{{count}} темы с {{currentTimeFilterName}} — [<1>Показать больше тем с прошлого года</1>]"
+  "more_threads_last_year": "{{count}} темы с {{currentTimeFilterName}} — [<1>Показать больше тем с прошлого года</1>]",
+  "iframe_challenge_confirm": "{{board}} хочет открыть {{site}}.\n\nДля {{publicationType}}: {{excerpt}}"
 }

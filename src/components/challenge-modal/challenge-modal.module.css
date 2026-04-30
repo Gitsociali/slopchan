@@ -106,13 +106,6 @@
   overflow: hidden;
 }
 
-.iframeChallengeWarning {
-  text-align: center;
-  padding: 10px;
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
-
 .iframeWrapper {
   width: 500px;
   height: 500px;

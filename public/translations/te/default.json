@@ -363,5 +363,6 @@
   "pass_answer_privileges": "కాదు. ఒక pass కొనడం వల్ల ఎవరూ moderator, admin లేదా ఏదైనా board యజమాని కాలేరు. ఇది మద్దతుదారుల కొనుగోలు మాత్రమే, పాలనను దాటవేయడం కాదు.",
   "more_threads_last_week": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత వారానికి మరిన్ని థ్రెడ్‌లు చూపించు</1>]",
   "more_threads_last_month": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత నెల నుండి మరిన్ని థ్రెడ్‌లను చూపించండి</1>]",
-  "more_threads_last_year": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత సంవత్సరం నుండి మరిన్ని థ్రెడ్‌లను చూపించండి</1>]"
+  "more_threads_last_year": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత సంవత్సరం నుండి మరిన్ని థ్రెడ్‌లను చూపించండి</1>]",
+  "iframe_challenge_confirm": "{{board}} {{site}} ను తెరవాలని కోరుతోంది.\n\n{{publicationType}} కోసం: {{excerpt}}"
 }

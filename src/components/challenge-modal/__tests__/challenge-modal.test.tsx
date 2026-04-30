@@ -31,6 +31,9 @@ vi.mock('react-i18next', () => ({
       if (key === 'challenge_counter') {
         return `${options?.index}/${options?.total}`;
       }
+      if (key === 'iframe_challenge_confirm') {
+        return `${options?.board} wants to open ${options?.site}.\n\nFor ${options?.publicationType}: ${options?.excerpt}`;
+      }
       return key;
     },
   }),
@@ -88,8 +91,10 @@ vi.mock('@use-gesture/react', () => ({
 }));
 
 let alertSpy: ReturnType<typeof vi.spyOn>;
+let confirmSpy: ReturnType<typeof vi.spyOn>;
 let container: HTMLDivElement;
 let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+let nextStoredChallengeId = 1;
 let postMessageMock: ReturnType<typeof vi.fn>;
 let root: Root;
 
@@ -106,12 +111,15 @@ const createPublication = (): Record<string, any> => ({
 
 const createStoredChallenge = (challenge: any, publication = createPublication(), publicationTarget?: Record<string, unknown>) => ({
   challenge: [{ challenges: Array.isArray(challenge) ? challenge : [challenge] }, publication, publicationTarget],
-  id: 1,
+  id: nextStoredChallengeId++,
 });
 
 const renderModal = async () => {
   await act(async () => {
     root.render(createElement(ChallengeModal));
+  });
+  await act(async () => {
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
   });
 };
 
@@ -155,6 +163,7 @@ describe('ChallengeModal', () => {
     testState.theme = 'dark';
     testState.votePreview = 'upvote';
     alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => undefined);
+    confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     postMessageMock = vi.fn();
     Object.defineProperty(HTMLIFrameElement.prototype, 'contentWindow', {
@@ -172,6 +181,7 @@ describe('ChallengeModal', () => {
     act(() => root.unmount());
     container.remove();
     alertSpy.mockRestore();
+    confirmSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
 
@@ -264,9 +274,16 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    expect(container.textContent).toContain('mu wants to open mintpass.org');
-
-    await clickButton('Open');
+    expect(confirmSpy).toHaveBeenCalledWith('mu wants to open mintpass.org.\n\nFor post: Subject');
+    expect(container.textContent).toContain('mintpass.org');
+    expect(container.textContent).toContain('Done');
+    expect(container.textContent).not.toContain('Challenge for post');
+    expect(container.textContent).not.toContain('Open');
+    expect(container.textContent).not.toContain('Cancel');
+    expect(container.textContent).not.toContain('Alice');
+    expect(container.textContent).not.toContain('Subject');
+    expect(container.textContent).not.toContain('Publication content');
+    expect(container.textContent).not.toContain('mu wants to open');
 
     const iframe = container.querySelector('iframe');
     expect(iframe).not.toBeNull();
@@ -304,9 +321,8 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    expect(container.textContent).toContain('mu wants to open localhost:3000');
 
-    await clickButton('Open');
+    expect(confirmSpy).toHaveBeenCalledWith('mu wants to open localhost:3000.\n\nFor post: Subject');
 
     const iframe = container.querySelector('iframe');
     expect(iframe).not.toBeNull();
@@ -339,7 +355,6 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    await clickButton('Open');
 
     await act(async () => {
       window.dispatchEvent(
@@ -371,7 +386,6 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    await clickButton('Open');
 
     await act(async () => {
       window.dispatchEvent(
@@ -408,8 +422,47 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    expect(container.textContent).toContain(`${getShortAddress(longCommunityAddress)} wants to open localhost:3000`);
-    expect(container.textContent).not.toContain(`${longCommunityAddress} wants to open localhost:3000`);
+
+    expect(confirmSpy).toHaveBeenCalledWith(`${getShortAddress(longCommunityAddress)} wants to open localhost:3000.\n\nFor post: Subject`);
+    expect(confirmSpy.mock.calls[0]?.[0]).not.toContain(longCommunityAddress);
+  });
+
+  it('uses reply content in the iframe confirmation excerpt', async () => {
+    const publication = {
+      ...createPublication(),
+      content: '>>17\nA reply body with enough context',
+      title: '',
+    };
+    testState.publicationType = 'reply';
+    testState.challenges = [
+      createStoredChallenge(
+        {
+          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+          type: 'url/iframe',
+        },
+        publication,
+      ),
+    ];
+
+    await renderModal();
+
+    expect(confirmSpy).toHaveBeenCalledWith('mu wants to open spamblocker.bitsocial.net.\n\nFor reply: >>17 A reply body with enough context');
+  });
+
+  it('abandons iframe challenges when the external confirmation is canceled', async () => {
+    confirmSpy.mockReturnValueOnce(false);
+    testState.challenges = [
+      createStoredChallenge({
+        challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+        type: 'url/iframe',
+      }),
+    ];
+
+    await renderModal();
+
+    expect(confirmSpy).toHaveBeenCalledWith('mu wants to open spamblocker.bitsocial.net.\n\nFor post: Subject');
+    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
+    expect(container.querySelector('iframe')).toBeNull();
   });
 
   it('alerts when iframe challenges need a signer address and the account is missing one', async () => {
@@ -422,9 +475,10 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    await clickButton('Open');
 
     expect(alertSpy).toHaveBeenCalledWith('Error: Unable to load challenge without your address. Please sign in and try again.');
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
     expect(container.querySelector('iframe')).toBeNull();
   });
 
@@ -437,9 +491,9 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    await clickButton('Open');
 
     expect(alertSpy).toHaveBeenCalledWith('Error: Only HTTPS iframe challenges or localhost HTTP challenges are supported');
+    expect(confirmSpy).not.toHaveBeenCalled();
     expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
 
     await act(async () => {

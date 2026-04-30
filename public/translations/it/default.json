@@ -363,5 +363,6 @@
   "pass_answer_privileges": "No. Acquistare un pass non renderà qualcuno un moderator, un admin o il proprietario di una board. È un acquisto di supporto, non un aggiramento della governance.",
   "more_threads_last_week": "{{count}} thread da {{currentTimeFilterName}} — [<1>Mostra più thread dalla scorsa settimana</1>]",
   "more_threads_last_month": "{{count}} thread da {{currentTimeFilterName}} — [<1>Mostra altri thread del mese scorso</1>]",
-  "more_threads_last_year": "{{count}} thread da {{currentTimeFilterName}} — [<1>Mostra altri thread dell'anno scorso</1>]"
+  "more_threads_last_year": "{{count}} thread da {{currentTimeFilterName}} — [<1>Mostra altri thread dell'anno scorso</1>]",
+  "iframe_challenge_confirm": "{{board}} vuole aprire {{site}}.\n\nPer {{publicationType}}: {{excerpt}}"
 }

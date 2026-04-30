@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Challenge as ChallengeType, useAccount, useComment } from '@bitsocial/bitsocial-react-hooks';
-import { getPublicationPreview, getPublicationType, getVotePreview } from '../../lib/utils/challenge-utils';
+import { getPublicationPreview, getPublicationType, getVotePreview, type ChallengePublication } from '../../lib/utils/challenge-utils';
 import useIsMobile from '../../hooks/use-is-mobile';
 import useChallengesStore from '../../stores/use-challenges-store';
 import useTheme from '../../hooks/use-theme';
@@ -18,9 +18,32 @@ const useParentAddress = (parentCid?: string) => {
 
 interface ChallengeProps {
   challenge: ChallengeType;
+  challengeId: number;
   closeModal: () => void;
   abandonModal: () => void;
 }
+
+const MAX_IFRAME_CONFIRM_EXCERPT_LENGTH = 80;
+
+const getTrimmedExcerpt = (value: unknown) => (typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '');
+
+const shortenConfirmExcerpt = (excerpt: string) =>
+  excerpt.length > MAX_IFRAME_CONFIRM_EXCERPT_LENGTH ? `${excerpt.slice(0, MAX_IFRAME_CONFIRM_EXCERPT_LENGTH).trimEnd()}...` : excerpt;
+
+const getIframeConfirmExcerpt = (publication: ChallengePublication | undefined, publicationTarget: ChallengePublication | undefined, publicationType?: string) => {
+  const title = getTrimmedExcerpt(publication?.title);
+  const content = getTrimmedExcerpt(publication?.content);
+  const link = getTrimmedExcerpt(publication?.link);
+  const excerpt =
+    publicationType === 'vote' ? getTrimmedExcerpt(getPublicationPreview(publicationTarget)) : publicationType === 'reply' ? content || link : title || content || link;
+
+  return shortenConfirmExcerpt(excerpt || getTrimmedExcerpt(getPublicationPreview(publication)));
+};
+
+const getDisplayCommunityAddress = (shortCommunityAddress?: string, communityAddress?: string) =>
+  shortCommunityAddress || (communityAddress ? getShortAddress(communityAddress) : '') || communityAddress || '';
+
+const iframeChallengeConfirmDecisions = new Map<string, 'accepted' | 'rejected'>();
 
 const TextChallenge = ({ challenge }: { challenge: string }) => <div className={styles.challengeMedia}>{challenge}</div>;
 
@@ -35,6 +58,36 @@ const ImageChallenge = ({ challenge }: { challenge: string }) =>
   );
 
 const isLocalIframeHostname = (hostname: string) => hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]' || hostname.endsWith('.localhost');
+
+type ValidatedIframeUrl = { status: 'valid'; finalUrl: string; origin: string } | { status: 'invalid'; error: unknown } | { status: 'unsupported' };
+
+const validateIframeChallengeUrl = (iframeUrl: string, theme: string): ValidatedIframeUrl => {
+  let validatedUrl: URL;
+  try {
+    validatedUrl = new URL(iframeUrl);
+  } catch (error) {
+    return { status: 'invalid', error };
+  }
+
+  const isHttps = validatedUrl.protocol === 'https:';
+  const isLocalHttp = validatedUrl.protocol === 'http:' && isLocalIframeHostname(validatedUrl.hostname);
+  if (!isHttps && !isLocalHttp) {
+    return { status: 'unsupported' };
+  }
+
+  validatedUrl.pathname = validatedUrl.pathname.replace(/\/{2,}/g, '/');
+  validatedUrl.searchParams.set('theme', theme);
+  return { status: 'valid', finalUrl: validatedUrl.toString(), origin: validatedUrl.origin };
+};
+
+const postThemeToIframe = (iframe: HTMLIFrameElement | null, iframeOrigin: string, theme: string) => {
+  if (!iframe || !iframeOrigin) return;
+  try {
+    iframe.contentWindow?.postMessage({ type: 'plebbit-theme', theme, source: 'plebbit-5chan' }, iframeOrigin);
+  } catch (error) {
+    console.warn('Could not send theme to iframe:', error);
+  }
+};
 
 const getReadableIframeUrl = (challengeUrl: string) => {
   try {
@@ -57,34 +110,43 @@ const getIframeSessionId = (challengeUrl: string) => {
 
 interface IframeChallengeProps {
   challenge: string;
-  shortCommunityAddress?: string;
-  communityAddress?: string;
-  readableUrl: string;
+  confirmKey: string;
+  confirmMessage: string;
   onCancel: () => void;
   onDone: () => void;
   onAutoComplete: (challengeAnswers: string[]) => void;
-  publicationDetails: React.ReactNode;
+  onReady: () => void;
 }
 
-const IframeChallenge = ({
-  challenge,
-  shortCommunityAddress,
-  communityAddress,
-  readableUrl,
-  onCancel,
-  onDone,
-  onAutoComplete,
-  publicationDetails,
-}: IframeChallengeProps) => {
+const IframeChallenge = ({ challenge, confirmKey, confirmMessage, onCancel, onDone, onAutoComplete, onReady }: IframeChallengeProps) => {
   const account = useAccount();
   const [theme] = useTheme();
-  const [showIframeConfirmation, setShowIframeConfirmation] = useState(true);
   const [iframeUrlState, setIframeUrl] = useState('');
   const [iframeOrigin, setIframeOrigin] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const attemptedLoadRef = useRef(false);
+  const mountedRef = useRef(false);
   const handledAutoCompleteRef = useRef(false);
-  const displayCommunityAddress = shortCommunityAddress || (communityAddress ? getShortAddress(communityAddress) : '') || communityAddress || 'unknown board';
   const expectedSessionId = getIframeSessionId(challenge);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const openValidatedIframe = useCallback(
+    (validatedUrl: { finalUrl: string; origin: string }) => {
+      queueMicrotask(() => {
+        if (!mountedRef.current) return;
+        setIframeUrl(validatedUrl.finalUrl);
+        setIframeOrigin(validatedUrl.origin);
+        onReady();
+      });
+    },
+    [onReady],
+  );
 
   const handleLoadIframe = useCallback(() => {
     const iframeUrl = challenge;
@@ -95,41 +157,52 @@ const IframeChallenge = ({
 
     if (requiresUserAddress && !rawUserAddress) {
       alert('Error: Unable to load challenge without your address. Please sign in and try again.');
+      iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
+      onCancel();
       return;
     }
 
     const encodedAddress = rawUserAddress ? encodeURIComponent(rawUserAddress) : undefined;
     const replacedUrl = requiresUserAddress && encodedAddress ? iframeUrl.replace(/\{userAddress\}/g, encodedAddress) : iframeUrl;
 
-    try {
-      const validatedUrl = new URL(replacedUrl);
-      const isHttps = validatedUrl.protocol === 'https:';
-      const isLocalHttp = validatedUrl.protocol === 'http:' && isLocalIframeHostname(validatedUrl.hostname);
-      if (!isHttps && !isLocalHttp) {
-        alert('Error: Only HTTPS iframe challenges or localhost HTTP challenges are supported');
+    const validatedUrl = validateIframeChallengeUrl(replacedUrl, theme);
+    if (validatedUrl.status === 'unsupported') {
+      alert('Error: Only HTTPS iframe challenges or localhost HTTP challenges are supported');
+      iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
+      onCancel();
+      return;
+    }
+    if (validatedUrl.status === 'invalid') {
+      console.error('Invalid iframe challenge URL', { error: validatedUrl.error });
+      alert('Error: Invalid URL for authentication challenge');
+      iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
+      onCancel();
+      return;
+    }
+    const decision = iframeChallengeConfirmDecisions.get(confirmKey);
+    if (decision === 'rejected') {
+      onCancel();
+      return;
+    }
+    if (decision !== 'accepted') {
+      if (!window.confirm(confirmMessage)) {
+        iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
         onCancel();
         return;
       }
-      validatedUrl.pathname = validatedUrl.pathname.replace(/\/{2,}/g, '/');
-      validatedUrl.searchParams.set('theme', theme);
-      const finalUrl = validatedUrl.toString();
-      setIframeUrl(finalUrl);
-      setIframeOrigin(validatedUrl.origin);
-      setShowIframeConfirmation(false);
-    } catch (error) {
-      console.error('Invalid iframe challenge URL', { error });
-      alert('Error: Invalid URL for authentication challenge');
-      onCancel();
+      iframeChallengeConfirmDecisions.set(confirmKey, 'accepted');
     }
-  }, [account, challenge, onCancel, theme]);
+    openValidatedIframe(validatedUrl);
+  }, [account, challenge, confirmKey, confirmMessage, onCancel, openValidatedIframe, theme]);
+
+  useEffect(() => {
+    if (attemptedLoadRef.current) return;
+    attemptedLoadRef.current = true;
+    handleLoadIframe();
+  }, [handleLoadIframe]);
 
   const sendThemeToIframe = useCallback(() => {
-    if (!iframeRef.current || !iframeOrigin) return;
-    try {
-      iframeRef.current.contentWindow?.postMessage({ type: 'plebbit-theme', theme, source: 'plebbit-5chan' }, iframeOrigin);
-    } catch (error) {
-      console.warn('Could not send theme to iframe:', error);
-    }
+    postThemeToIframe(iframeRef.current, iframeOrigin, theme);
   }, [iframeOrigin, theme]);
 
   const handleIframeLoad = () => {
@@ -137,13 +210,13 @@ const IframeChallenge = ({
   };
 
   useEffect(() => {
-    if (iframeRef.current && iframeUrlState && iframeOrigin && !showIframeConfirmation) {
+    if (iframeRef.current && iframeUrlState && iframeOrigin) {
       sendThemeToIframe();
     }
-  }, [iframeOrigin, iframeUrlState, sendThemeToIframe, showIframeConfirmation]);
+  }, [iframeOrigin, iframeUrlState, sendThemeToIframe]);
 
   useEffect(() => {
-    if (showIframeConfirmation || !iframeOrigin || !expectedSessionId) {
+    if (!iframeOrigin || !expectedSessionId) {
       handledAutoCompleteRef.current = false;
       return;
     }
@@ -164,25 +237,10 @@ const IframeChallenge = ({
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [expectedSessionId, iframeOrigin, onAutoComplete, showIframeConfirmation]);
+  }, [expectedSessionId, iframeOrigin, onAutoComplete]);
 
-  if (showIframeConfirmation) {
-    return (
-      <>
-        {publicationDetails}
-        <div className={styles.challengeMediaWrapper}>
-          <div className={`${styles.challengeMedia} ${styles.iframeChallengeWarning}`}>
-            {displayCommunityAddress} wants to open {readableUrl || 'an external site'}
-          </div>
-        </div>
-        <div className={`${styles.challengeFooter} ${styles.iframeFooter}`}>
-          <span className={styles.buttons}>
-            <button onClick={handleLoadIframe}>Open</button>
-            <button onClick={onCancel}>Cancel</button>
-          </span>
-        </div>
-      </>
-    );
+  if (!iframeUrlState) {
+    return null;
   }
 
   return (
@@ -206,7 +264,7 @@ const IframeChallenge = ({
   );
 };
 
-const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
+const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: ChallengeProps) => {
   const { t } = useTranslation();
 
   const challenges = challenge?.[0]?.challenges;
@@ -224,6 +282,7 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
 
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
+  const [readyIframeChallengeKey, setReadyIframeChallengeKey] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -235,9 +294,11 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
   }));
 
   const currentChallenge = challenges?.[currentChallengeIndex];
+  const iframeChallengeKey = `${challengeId}:${currentChallengeIndex}:${currentChallenge?.challenge ?? ''}`;
   const isTextChallenge = currentChallenge?.type === 'text/plain';
   const isImageChallenge = currentChallenge?.type === 'image/png';
   const isIframeChallenge = currentChallenge?.type === 'url/iframe';
+  const isIframePending = isIframeChallenge && readyIframeChallengeKey !== iframeChallengeKey;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -294,6 +355,10 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
     [closeModal, publication],
   );
 
+  const onIframeReady = useCallback(() => {
+    setReadyIframeChallengeKey(iframeChallengeKey);
+  }, [iframeChallengeKey]);
+
   const onEnterKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') return;
     if (!isValidAnswer(currentChallengeIndex)) return;
@@ -340,6 +405,15 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
 
   const mobileX = isIframeVisible ? 5 : window.innerWidth / 2 - 150;
   const mobileY = isIframeVisible ? Math.max(10, (window.innerHeight - 600) / 2) : window.innerHeight / 2 - 200;
+  const displayCommunityAddress = getDisplayCommunityAddress(shortCommunityAddress, communityAddress) || t('board');
+  const iframeConfirmMessage = t('iframe_challenge_confirm', {
+    board: displayCommunityAddress,
+    excerpt: getIframeConfirmExcerpt(publication, publicationTarget, publicationType) || t('none'),
+    interpolation: { escapeValue: false },
+    publicationType: publicationType ? t(publicationType) : t('post'),
+    site: readableUrl || t('webpage'),
+  });
+  const challengeTitle = isIframeChallenge ? readableUrl || t('iframe') : `Challenge for ${publicationType}`;
 
   const publicationDetails = (
     <>
@@ -374,11 +448,12 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
       style={{
         x: isMobile ? mobileX : x.to((value) => Math.round(value)),
         y: isMobile ? mobileY : y.to((value) => Math.round(value)),
+        display: isIframePending ? 'none' : undefined,
         touchAction: 'none',
       }}
     >
       <div id='challenge-modal-title' className={`challengeHandle ${styles.title}`} {...(!isMobile ? bind() : {})}>
-        Challenge for {publicationType}
+        {challengeTitle}
         <button type='button' className={styles.closeIcon} onClick={abandonModal} title='close' aria-label={t('close')} />
       </div>
       <div className={styles.publication}>
@@ -386,13 +461,12 @@ const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
           <IframeChallenge
             key={currentChallengeIndex}
             challenge={currentChallenge?.challenge ?? ''}
-            shortCommunityAddress={shortCommunityAddress}
-            communityAddress={communityAddress}
-            readableUrl={readableUrl}
+            confirmKey={iframeChallengeKey}
+            confirmMessage={iframeConfirmMessage}
             onCancel={abandonModal}
             onDone={onIframeDone}
             onAutoComplete={onIframeAutoComplete}
-            publicationDetails={publicationDetails}
+            onReady={onIframeReady}
           />
         ) : (
           <>
@@ -450,7 +524,7 @@ const ChallengeModal = () => {
   const challenge = current?.challenge;
   const challengeId = current?.id ?? 0;
 
-  return isOpen && challenge ? <Challenge key={challengeId} challenge={challenge} closeModal={closeModal} abandonModal={abandonModal} /> : null;
+  return isOpen && challenge ? <Challenge key={challengeId} challenge={challenge} challengeId={challengeId} closeModal={closeModal} abandonModal={abandonModal} /> : null;
 };
 
 export default ChallengeModal;
