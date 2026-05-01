@@ -129,15 +129,16 @@ vi.mock('../../loading-ellipsis', () => ({
 }));
 
 vi.mock('../../error-display/error-display', () => ({
-  default: ({ error, inline, showImmediately }: { error?: Error; inline?: boolean; showImmediately?: boolean }) =>
+  default: ({ displayMessage, error, inline, showImmediately }: { displayMessage?: string; error?: Error; inline?: boolean; showImmediately?: boolean }) =>
     createElement(
       'button',
       {
+        'data-display-message': displayMessage,
         'data-testid': 'error-display',
         'data-inline': String(Boolean(inline)),
         'data-show-immediately': String(Boolean(showImmediately)),
       },
-      error?.message || String(error),
+      displayMessage || error?.message || String(error),
     ),
 }));
 
@@ -420,7 +421,8 @@ describe('CommentContent', () => {
     });
 
     const errorDisplay = container.querySelector('[data-testid="error-display"]');
-    expect(errorDisplay?.textContent).toBe('spam blocker server error');
+    expect(errorDisplay?.textContent).toBe('Error');
+    expect(errorDisplay?.getAttribute('data-display-message')).toBe('Error');
     expect(errorDisplay?.getAttribute('data-inline')).toBe('true');
     expect(errorDisplay?.getAttribute('data-show-immediately')).toBe('true');
     expect(container.querySelector('[data-testid="loading-ellipsis"]')).toBeNull();

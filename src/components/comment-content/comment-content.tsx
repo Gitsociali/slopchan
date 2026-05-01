@@ -136,7 +136,7 @@ const CommentContent = ({ comment: post, prependContent }: { comment: Comment; p
   const loadingString = (
     <div className={styles.stateString}>
       {failedError ? (
-        <ErrorDisplay error={failedError} inline={true} showImmediately={true} />
+        <ErrorDisplay error={failedError} displayMessage={capitalize(t('error'))} inline={true} showImmediately={true} />
       ) : !hasFailedState ? (
         <LoadingEllipsis string={stateString || t('loading')} />
       ) : (
