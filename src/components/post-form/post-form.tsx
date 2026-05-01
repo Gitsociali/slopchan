@@ -21,6 +21,7 @@ import { getShowUploadControls, isWebRuntime } from '../../lib/media-hosting/sho
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import useMediaHostingStore from '../../stores/use-media-hosting-store';
 import BoardOfflineAlert from '../board-offline-alert/board-offline-alert';
+import LoadingEllipsis from '../loading-ellipsis';
 import styles from './post-form.module.css';
 import capitalize from 'lodash/capitalize';
 import debounce from 'lodash/debounce';
@@ -258,7 +259,7 @@ const PostFormFields = ({
             isUploading={isUploading}
             showUploadControls={showUploadControls}
           />
-          <span>{isUploading ? t('uploading') : getPublishURLFilename(url) || uploadedFileName || t('no_file_chosen')}</span>
+          <span>{isUploading ? <LoadingEllipsis string={t('uploading')} /> : getPublishURLFilename(url) || uploadedFileName || t('no_file_chosen')}</span>
         </td>
       </tr>
     )}

@@ -25,6 +25,7 @@ const testState = vi.hoisted(() => ({
   handleUploadMock: vi.fn(),
   isOffline: false,
   isOnlineStatusLoading: false,
+  isUploading: false,
   isResolvingExternalQuotes: false,
   navigateMock: vi.fn(),
   offlineTitle: 'offline board',
@@ -172,10 +173,14 @@ vi.mock('../../../hooks/use-file-upload', () => ({
     testState.uploadComplete = onUploadComplete;
     return {
       handleUpload: testState.handleUploadMock,
-      isUploading: false,
+      isUploading: testState.isUploading,
       uploadedFileName: testState.uploadedFileName,
     };
   },
+}));
+
+vi.mock('../../loading-ellipsis', () => ({
+  default: ({ string }: { string: string }) => createElement('span', { 'data-testid': 'loading-ellipsis' }, string),
 }));
 
 vi.mock('../../../lib/utils/media-utils', () => ({
@@ -293,6 +298,7 @@ describe('PostForm', () => {
     testState.gifFrameStatus = 'idle';
     testState.isOffline = false;
     testState.isOnlineStatusLoading = false;
+    testState.isUploading = false;
     testState.isResolvingExternalQuotes = false;
     testState.offlineTitle = 'offline board';
     testState.postIndex = undefined;
@@ -431,6 +437,15 @@ describe('PostForm', () => {
     await dispatchInput(linkInput as HTMLInputElement, 'https://example.com/images/file%20name.jpg?size=large');
 
     expect(table?.textContent).toContain('file name.jpg');
+  });
+
+  it('uses the shared loading ellipsis while a post form upload is running', async () => {
+    testState.isUploading = true;
+
+    await renderPostForm('/all');
+    await clickByText(container, 'start_new_thread');
+
+    expect(container.querySelector('[data-testid="loading-ellipsis"]')?.textContent).toBe('uploading');
   });
 
   it('redirects to the pending route when a post publish index is already available on mount', async () => {

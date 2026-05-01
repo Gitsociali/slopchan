@@ -165,6 +165,10 @@ vi.mock('../../../hooks/use-file-upload', () => ({
   },
 }));
 
+vi.mock('../../loading-ellipsis', () => ({
+  default: ({ string }: { string: string }) => createElement('span', { 'data-testid': 'loading-ellipsis' }, string),
+}));
+
 vi.mock('lodash/debounce', () => ({
   default: <T extends (...args: any[]) => void>(fn: T) => {
     const wrapped = ((...args: Parameters<T>) => fn(...args)) as T & { cancel: () => void };
@@ -342,6 +346,14 @@ describe('ReplyModal', () => {
     expect(container.textContent).toContain('posts_last_synced_info:{"time":"ago:1000"}');
     expect(testState.setPublishReplyOptionsMock).toHaveBeenCalledWith({ content: '>>42\nselected text' });
     expect(testState.setPublishReplyOptionsMock).toHaveBeenCalledWith({ displayName: 'Alice' });
+  });
+
+  it('uses the shared loading ellipsis while a reply upload is running', async () => {
+    testState.isUploading = true;
+
+    await renderReplyModal('/mu/thread/post-1');
+
+    expect(container.querySelector('[data-testid="loading-ellipsis"]')?.textContent).toBe('uploading');
   });
 
   it('does not render an offline warning when the shared offline hook reports the board as online', async () => {

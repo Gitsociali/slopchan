@@ -14,6 +14,7 @@ import usePublishReply from '../../hooks/use-publish-reply';
 import useIsMobile from '../../hooks/use-is-mobile';
 import { useFileUpload } from '../../hooks/use-file-upload';
 import BoardOfflineAlert from '../board-offline-alert/board-offline-alert';
+import LoadingEllipsis from '../loading-ellipsis';
 import styles from './reply-modal.module.css';
 import capitalize from 'lodash/capitalize';
 import debounce from 'lodash/debounce';
@@ -374,7 +375,7 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
                 </button>
               </span>
               <span className={styles.uploadFileName} title={displayedFileName || t('no_file_chosen')}>
-                {isUploading ? t('uploading') : displayedFileName || t('no_file_chosen')}
+                {isUploading ? <LoadingEllipsis string={t('uploading')} /> : displayedFileName || t('no_file_chosen')}
               </span>
             </span>
           )}
