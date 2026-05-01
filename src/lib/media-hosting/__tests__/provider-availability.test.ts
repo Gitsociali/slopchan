@@ -36,7 +36,7 @@ describe('provider-availability', () => {
 
     expect(snapshot.catbox).toBe('available');
     expect(snapshot.imgbb).toBe('available');
-    expect(snapshot.imgur).toBe('unknown');
+    expect(snapshot.imgur).toBe('available');
   });
 
   it('marks a provider unavailable when one of its media probes fails', async () => {

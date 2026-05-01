@@ -28,6 +28,14 @@ describe('useMediaHostingStore', () => {
       availabilityProbeUrls: ['https://catbox.moe/pictures/logo.png', 'https://files.catbox.moe/8ten4y.png'],
       supportedRuntimes: ['web', 'electron', 'android'],
     });
+    const imgur = MEDIA_HOSTING_PROVIDERS.find((p) => p.id === 'imgur');
+    expect(imgur).toEqual({
+      id: 'imgur',
+      label: 'Imgur',
+      homepageUrl: 'https://imgur.com',
+      availabilityProbeUrls: ['https://s.imgur.com/images/favicon-32x32.png', 'https://i.imgur.com/YpB7qfa.jpg'],
+      supportedRuntimes: ['electron', 'android'],
+    });
     const imgbb = MEDIA_HOSTING_PROVIDERS.find((p) => p.id === 'imgbb');
     expect(imgbb).toEqual({
       id: 'imgbb',

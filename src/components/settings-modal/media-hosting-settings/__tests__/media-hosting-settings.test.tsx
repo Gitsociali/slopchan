@@ -107,18 +107,18 @@ describe('MediaHostingSettings', () => {
     expect(mockSetUploadMode).toHaveBeenCalledWith('none');
   });
 
-  it('disables unsupported providers on Android', async () => {
+  it('enables Imgur on Android', async () => {
     uploadModeRef.value = 'preferred';
     preferredProviderRef.value = 'catbox';
     mockGetPlatform.mockReturnValue('android');
     render();
     const imgurRadio = container.querySelector<HTMLInputElement>('input[value="imgur"]');
     expect(imgurRadio).not.toBeNull();
-    expect(imgurRadio?.disabled).toBe(true);
+    expect(imgurRadio?.disabled).toBe(false);
     await act(async () => {
       imgurRadio?.click();
     });
-    expect(mockSetPreferredProvider).not.toHaveBeenCalled();
+    expect(mockSetPreferredProvider).toHaveBeenCalledWith('imgur');
   });
 
   it('clicking supported provider in preferred mode calls setPreferredProvider', async () => {

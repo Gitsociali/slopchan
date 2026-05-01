@@ -40,7 +40,7 @@ public class ImgurLiveUploadTest {
     }
 
     @Test
-    @Ignore("Imgur upload is no longer supported on Android WebView; keep for manual diagnostics.")
+    @Ignore("Live provider diagnostic; may fail when Imgur is unavailable from the current network.")
     public void imgur_liveUpload_fromGeneratedPng_succeeds() throws Exception {
         Intent launchIntent = new Intent(appContext, MainActivity.class);
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

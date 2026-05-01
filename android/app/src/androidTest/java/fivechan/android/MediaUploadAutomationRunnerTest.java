@@ -18,10 +18,10 @@ import org.junit.runner.RunWith;
  * Instrumentation tests for MediaUploadAutomationRunner against controlled HTML fixtures.
  * Uses DataTransfer injection (no chooser). Simulates: delayed DOM, missing selectors,
  * success URL extraction, blocked. Validates timeout/error classification (input_not_found,
- * blocked/captcha, upload_timed_out). Kept for opt-in diagnostics because Android app uploads no
- * longer use this WebView path.
+ * blocked/captcha, upload_timed_out). Kept opt-in because these instrumentation tests exercise
+ * WebView timing behavior rather than ordinary unit logic.
  */
-@Ignore("Imgur WebView upload is no longer supported on Android; keep for manual diagnostics.")
+@Ignore("WebView automation fixture diagnostics; run manually with connected Android tests.")
 @RunWith(AndroidJUnit4.class)
 public class MediaUploadAutomationRunnerTest {
 

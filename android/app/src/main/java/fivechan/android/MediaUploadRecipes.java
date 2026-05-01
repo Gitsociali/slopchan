@@ -5,9 +5,9 @@ package fivechan.android;
  * Reconciled with electron/media-upload-recipes.js for imgbb and imgur.
  *
  * Android vs Electron (prevent drift):
- * - Android app uploads use native catbox and WebView automation for imgbb. The imgur runner
- *   is retained for diagnostics/tests only. Real Uri attempts use the WebView file chooser
- *   callback; fixtures/fallback use DataTransfer JS injection.
+ * - Android app uploads use native catbox and WebView automation for imgur/imgbb. Real Uri
+ *   attempts use the WebView file chooser callback when possible; fixtures/fallback use
+ *   DataTransfer JS injection.
  * - Electron: catbox/imgur/imgbb. CDP DOM.setFileInputFiles + submit click.
  * - Selectors: file input, submit, success extractor, blocked indicators kept in sync for imgbb
  *   and imgur.
@@ -36,7 +36,7 @@ public final class MediaUploadRecipes {
     }
 
     public static boolean isAndroidUploadProvider(String provider) {
-        return PROVIDER_IMGBB.equals(provider);
+        return PROVIDER_IMGUR.equals(provider) || PROVIDER_IMGBB.equals(provider);
     }
 
     public static String getUploadUrl(String provider) {

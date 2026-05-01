@@ -59,6 +59,13 @@ describe('provider-order', () => {
         getProviderOrder({
           mode: 'preferred',
           preferredProvider: 'imgur',
+          runtime: 'android',
+        }),
+      ).toEqual(['imgur']);
+      expect(
+        getProviderOrder({
+          mode: 'preferred',
+          preferredProvider: 'imgur',
           runtime: 'electron',
         }),
       ).toEqual(['imgur']);
@@ -77,13 +84,6 @@ describe('provider-order', () => {
           mode: 'preferred',
           preferredProvider: 'imgur',
           runtime: 'web',
-        }),
-      ).toEqual([]);
-      expect(
-        getProviderOrder({
-          mode: 'preferred',
-          preferredProvider: 'imgur',
-          runtime: 'android',
         }),
       ).toEqual([]);
       expect(
@@ -137,14 +137,14 @@ describe('provider-order', () => {
       expect(order).toEqual(['catbox']);
     });
 
-    it('uses catbox and imgbb for android random mode', () => {
+    it('uses catbox, imgur, and imgbb for android random mode', () => {
       const order = getProviderOrder({
         mode: 'random',
         preferredProvider: 'catbox',
         runtime: 'android',
       });
-      expect(order).toHaveLength(2);
-      expect([...order].sort()).toEqual(['catbox', 'imgbb']);
+      expect(order).toHaveLength(3);
+      expect([...order].sort()).toEqual(['catbox', 'imgbb', 'imgur']);
     });
   });
 });

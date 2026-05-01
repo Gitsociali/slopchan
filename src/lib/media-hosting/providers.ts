@@ -24,7 +24,7 @@ export const MEDIA_HOSTING_PROVIDERS: readonly ProviderDefinition[] = [
     label: 'Imgur',
     homepageUrl: 'https://imgur.com',
     availabilityProbeUrls: ['https://s.imgur.com/images/favicon-32x32.png', 'https://i.imgur.com/YpB7qfa.jpg'],
-    supportedRuntimes: ['electron'],
+    supportedRuntimes: ['electron', 'android'],
   },
   {
     id: 'imgbb',
