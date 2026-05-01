@@ -46,7 +46,7 @@
   color: var(--homepage-box-bar-text-color);
 }
 
-.content a:visited {
+.boxContent a:visited {
   color: #00e;
 }
 
