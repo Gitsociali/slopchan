@@ -1,3 +1,26 @@
+## [0.8.3](https://github.com/bitsocialnet/5chan/compare/v0.8.2...v0.8.3) (2026-05-01)
+
+
+### Bug Fixes
+
+* **android upload:** handle transient imgur errors ([3de8552](https://github.com/bitsocialnet/5chan/commit/3de85520bdf8e0666314aa5da50d89c83abc0183))
+* **android upload:** restore provider uploads ([e2154b3](https://github.com/bitsocialnet/5chan/commit/e2154b3edf9c57491d41c0c027d0970d75f8fe51))
+* **android:** stop intercepting app fetches ([24619ac](https://github.com/bitsocialnet/5chan/commit/24619ac02f3f0616f240ef2ffb6d3dc43b3ab98d))
+* **challenge modal:** avoid native iframe consent on WebKit ([0180c4e](https://github.com/bitsocialnet/5chan/commit/0180c4e59f0e8313d291009318e94a0ed36dbb54))
+* **comment content:** hide detailed publish errors ([f4f1458](https://github.com/bitsocialnet/5chan/commit/f4f14583c6207bc470838cded27483f36c168b46))
+* **faq:** keep visited links blue ([0cbae87](https://github.com/bitsocialnet/5chan/commit/0cbae87aef2b8e3d851a54ae85e85beed94cb83c))
+* **media hosting:** restore android imgur support ([9f38869](https://github.com/bitsocialnet/5chan/commit/9f388693eb2291ab5b9671edb97c86601e393416))
+* **posting:** clarify direct file links ([bc213ec](https://github.com/bitsocialnet/5chan/commit/bc213ecea26fa65bd59767f6bba6090b1b9fb843))
+* **upload:** animate uploading ellipsis ([70791fa](https://github.com/bitsocialnet/5chan/commit/70791fa80a45d615051a991b6ee1c5deafceceff))
+
+
+### Features
+
+* **media hosting:** add imgbb provider ([78e5d58](https://github.com/bitsocialnet/5chan/commit/78e5d58d08457f1835106eb7687c5f9b0f249dc4))
+* **media hosting:** disable unreachable providers ([7e1513b](https://github.com/bitsocialnet/5chan/commit/7e1513b6884c1d80fd28c054356e3bed60ad4606))
+
+
+
 ## [0.8.2](https://github.com/bitsocialnet/5chan/compare/v0.8.1...v0.8.2) (2026-04-30)
 
 

@@ -105,7 +105,7 @@ const downloads = [macSection, winSection, linuxSection, androidSection, htmlSec
 
 // One-liner summary of what changed in this release. Update before each release.
 const oneLinerDescription =
-  'This release prepares the Android app for F-Droid, improves the FAQ, and fixes challenge consent, failed pending posts, and popular thread previews.';
+  'This version adds ImgBB uploads, network-aware media providers, Android upload fixes, F-Droid preparation, and several posting and display fixes.';
 
 const releaseBody = `${oneLinerDescription}
 
