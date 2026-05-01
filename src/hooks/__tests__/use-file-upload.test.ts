@@ -442,9 +442,39 @@ describe('useFileUpload', () => {
     });
     const call = vi.mocked(FileUploader.pickAndUploadMedia).mock.calls[0][0];
     expect(call?.providerOrder).toEqual(expect.arrayContaining(['catbox']));
-    expect(call?.providerOrder).toEqual(expect.arrayContaining(['imgur']));
     expect(call?.providerOrder).toEqual(expect.arrayContaining(['imgbb']));
+    expect(call?.providerOrder).toEqual(expect.arrayContaining(['imgur']));
     expect(onUploadComplete).toHaveBeenCalledWith('https://files.catbox.moe/random.jpg', 'random.jpg');
+  });
+
+  it('surfaces Android provider errors with their stage', async () => {
+    uploadModeRef.value = 'random';
+    preferredProviderRef.value = 'catbox';
+    vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
+    const error = new Error('All providers failed') as Error & { data: { attempts: unknown[] } };
+    error.data = {
+      attempts: [
+        {
+          provider: 'imgur',
+          success: false,
+          error: 'Provider error: CREATE_ALBUM_FAIL',
+          stage: 'provider_error',
+          elapsedMs: 2200,
+          matchedSelectors: '#file-input',
+        },
+      ],
+    };
+    vi.mocked(FileUploader.pickAndUploadMedia).mockRejectedValue(error);
+    const { onUploadComplete, hook } = mountHook();
+
+    await act(async () => {
+      await hook().handleUpload();
+    });
+
+    expect(window.alert).toHaveBeenCalledWith(
+      'upload_failed. upload_failed_all_providers: imgur: Provider error: CREATE_ALBUM_FAIL (stage=provider_error, 2200ms, tried=[#file-input])',
+    );
+    expect(onUploadComplete).not.toHaveBeenCalled();
   });
 
   it('random mode: Electron upload succeeds when orchestrator resolves', async () => {

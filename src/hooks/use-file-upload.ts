@@ -15,6 +15,7 @@ const ANDROID_STAGE_MAP: Record<string, UploadAttemptStage> = {
   chooser_not_triggered: 'file_input',
   upload_timed_out: 'timeout',
   blocked_detected: 'blocked',
+  provider_error: 'provider_error',
   no_recipe: 'unknown',
   page_loaded: 'page_load',
   blocked: 'blocked',

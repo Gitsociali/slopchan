@@ -81,6 +81,7 @@ public class MediaUploadAutomationRunner {
     static final String STAGE_SUBMIT_CLICKED = "submit_clicked";
     static final String STAGE_SUCCESS_SELECTOR_MATCHED = "success_selector_matched";
     static final String STAGE_BLOCKED_DETECTED = "blocked_detected";
+    static final String STAGE_PROVIDER_ERROR = "provider_error";
     static final String STAGE_INPUT_NOT_FOUND = "input_not_found";
     static final String STAGE_CHOOSER_NOT_TRIGGERED = "chooser_not_triggered";
     static final String STAGE_FILE_PAYLOAD_UNAVAILABLE = "file_payload_unavailable";
@@ -500,6 +501,7 @@ public class MediaUploadAutomationRunner {
 
         String successJs = MediaUploadRecipes.getSuccessJs(provider);
         String blockedJs = MediaUploadRecipes.getBlockedJs(provider);
+        String providerErrorJs = MediaUploadRecipes.getProviderErrorJs(provider);
         if (successJs == null || blockedJs == null) {
             finish(
                     new MediaUploadResult(
@@ -523,21 +525,53 @@ public class MediaUploadAutomationRunner {
                                         null));
                         return;
                     }
-                    webView.evaluateJavascript(
-                            successJs,
-                            url -> {
-                                if (finished) return;
-                                if (url != null && !"null".equals(url) && url.length() > 2) {
+                    if (providerErrorJs != null) {
+                        webView.evaluateJavascript(
+                                providerErrorJs,
+                                providerError -> {
+                                    if (finished) return;
                                     String cleaned =
-                                            url.replaceAll("^\"|\"$", "").replace("\\u003d", "=");
-                                    if (cleaned.startsWith("http")) {
-                                        logStage(STAGE_SUCCESS_SELECTOR_MATCHED);
-                                        finish(new MediaUploadResult(true, cleaned, null));
+                                            providerError == null
+                                                    ? ""
+                                                    : providerError
+                                                            .replaceAll("^\"|\"$", "")
+                                                            .replace("\\u003d", "=")
+                                                            .replace("\\\"", "\"")
+                                                            .trim();
+                                    if (!cleaned.isEmpty() && !"null".equals(cleaned)) {
+                                        finish(
+                                                new MediaUploadResult(
+                                                        false,
+                                                        null,
+                                                        "Provider error: " + cleaned,
+                                                        STAGE_PROVIDER_ERROR,
+                                                        elapsedMs(),
+                                                        lastMatchedSelector));
                                         return;
                                     }
-                                }
-                                schedulePoll();
-                            });
+                                    evaluateSuccess(successJs);
+                                });
+                        return;
+                    }
+                    evaluateSuccess(successJs);
+                });
+    }
+
+    private void evaluateSuccess(String successJs) {
+        webView.evaluateJavascript(
+                successJs,
+                url -> {
+                    if (finished) return;
+                    if (url != null && !"null".equals(url) && url.length() > 2) {
+                        String cleaned =
+                                url.replaceAll("^\"|\"$", "").replace("\\u003d", "=");
+                        if (cleaned.startsWith("http")) {
+                            logStage(STAGE_SUCCESS_SELECTOR_MATCHED);
+                            finish(new MediaUploadResult(true, cleaned, null));
+                            return;
+                        }
+                    }
+                    schedulePoll();
                 });
     }
 

@@ -40,7 +40,7 @@ public class ImgurLiveUploadTest {
     }
 
     @Test
-    @Ignore("Live provider diagnostic; may fail when Imgur is unavailable from the current network.")
+    @Ignore("Live provider diagnostic; may fail when Imgur is unavailable or temporarily rejecting anonymous uploads.")
     public void imgur_liveUpload_fromGeneratedPng_succeeds() throws Exception {
         Intent launchIntent = new Intent(appContext, MainActivity.class);
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -10,6 +10,7 @@ export type MediaHostingRuntime = 'web' | 'electron' | 'android';
 /** Stage at which an upload attempt failed (enables comparable errors across Electron/Android) */
 export type UploadAttemptStage =
   | 'blocked' /** captcha/login/challenge detected */
+  | 'provider_error' /** provider returned an upload-specific error */
   | 'file_input' /** file input not found */
   | 'submit' /** submit button not found */
   | 'timeout' /** upload or extraction timeout */

@@ -51,6 +51,12 @@ public class MediaUploadRecipesTest {
     }
 
     @Test
+    public void isAndroidUploadProvider_includesAndroidUploadProviders() {
+        assertTrue(MediaUploadRecipes.isAndroidUploadProvider(MediaUploadRecipes.PROVIDER_IMGUR));
+        assertTrue(MediaUploadRecipes.isAndroidUploadProvider(MediaUploadRecipes.PROVIDER_IMGBB));
+    }
+
+    @Test
     public void getTriggerFileInputJs_imgur_containsSelectors() {
         String js = MediaUploadRecipes.getTriggerFileInputJs(MediaUploadRecipes.PROVIDER_IMGUR);
         assertNotNull(js);
@@ -111,6 +117,13 @@ public class MediaUploadRecipesTest {
     }
 
     @Test
+    public void getProviderErrorJs_imgur_detectsCreateAlbumFail() {
+        String js = MediaUploadRecipes.getProviderErrorJs(MediaUploadRecipes.PROVIDER_IMGUR);
+        assertNotNull(js);
+        assertTrue(js.contains("CREATE_ALBUM_FAIL"));
+    }
+
+    @Test
     public void failureClassification_inputNotFound_stageConstant() {
         assertEquals(MediaUploadAutomationRunner.STAGE_INPUT_NOT_FOUND, "input_not_found");
     }
@@ -125,6 +138,11 @@ public class MediaUploadRecipesTest {
     @Test
     public void failureClassification_blocked_stageConstant() {
         assertEquals(MediaUploadAutomationRunner.STAGE_BLOCKED_DETECTED, "blocked_detected");
+    }
+
+    @Test
+    public void failureClassification_providerError_stageConstant() {
+        assertEquals(MediaUploadAutomationRunner.STAGE_PROVIDER_ERROR, "provider_error");
     }
 
     @Test

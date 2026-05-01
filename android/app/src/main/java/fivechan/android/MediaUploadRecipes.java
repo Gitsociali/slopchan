@@ -339,6 +339,21 @@ public final class MediaUploadRecipes {
         return null;
     }
 
+    /**
+     * JS to detect visible provider-side upload failures that are not CAPTCHA/login blocks.
+     * Returns an error string when a known provider failure is present, null otherwise.
+     */
+    public static String getProviderErrorJs(String provider) {
+        if (PROVIDER_IMGUR.equals(provider)) {
+            return "(function(){"
+                    + "var text=((document.body&&document.body.innerText)||'');"
+                    + "if(text.indexOf('CREATE_ALBUM_FAIL')!==-1)return 'CREATE_ALBUM_FAIL';"
+                    + "if(text.indexOf('Something went wrong')!==-1)return 'Something went wrong';"
+                    + "return null;})()";
+        }
+        return null;
+    }
+
     private static String buildBlockedJs(String[] selectors) {
         StringBuilder sb = new StringBuilder("(function(){var s=[");
         for (int i = 0; i < selectors.length; i++) {
