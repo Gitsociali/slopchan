@@ -155,6 +155,28 @@ describe('media-upload-automation', () => {
       expect(fakeWindow.destroy).toHaveBeenCalledOnce();
     });
 
+    it('uploads to ImgBB through the hidden BrowserWindow recipe', async () => {
+      const recipe = MEDIA_UPLOAD_RECIPES.imgbb;
+      const fakeWindow = createFakeBrowserWindow({
+        getNodeId: (selector) => {
+          if (selector === recipe.fileInputSelectorCandidates[0]) return 10;
+          if (selector === recipe.submitSelectorCandidates[0]) return 20;
+          return 0;
+        },
+        runtimeValues: [true, 'https://i.ibb.co/example/uploaded.png'],
+      });
+      electronState.createWindow = () => fakeWindow;
+
+      const result = await automateUploadMedia({ provider: 'imgbb', filePath: '/tmp/upload.png' });
+
+      expect(result).toEqual({ url: 'https://i.ibb.co/example/uploaded.png', provider: 'imgbb' });
+      expect(fakeWindow.loadURL).toHaveBeenCalledWith(recipe.uploadUrl);
+      expect(fakeWindow.webContents.debugger.sendCommand).toHaveBeenCalledWith('DOM.setFileInputFiles', {
+        nodeId: 10,
+        files: ['/tmp/upload.png'],
+      });
+    });
+
     it('fails fast when a blocked indicator is present before upload begins', async () => {
       const recipe = MEDIA_UPLOAD_RECIPES.imgur;
       const fakeWindow = createFakeBrowserWindow({
@@ -241,5 +263,10 @@ describe('media-upload-automation + recipes integration', () => {
       expect(recipe.submitSelectorCandidates.length).toBeGreaterThanOrEqual(1);
       expect(recipe.successExtractor.selectorCandidates.length).toBeGreaterThanOrEqual(1);
     }
+  });
+
+  it('imgbb success extractor targets direct-media domain', () => {
+    const imgbbSelectors = MEDIA_UPLOAD_RECIPES.imgbb.successExtractor.selectorCandidates;
+    expect(imgbbSelectors.some((selector) => selector.includes('i.ibb.co') || selector.includes('html-embed-medium'))).toBe(true);
   });
 });

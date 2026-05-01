@@ -58,11 +58,11 @@ function resolveElectronFilePath(file: File): string | null {
 
 /**
  * Uploads a file via a single provider. Catbox uses the web API;
- * imgur uses Electron automation when available.
+ * imgur/imgbb use Electron automation when available.
  */
 async function uploadViaProvider(provider: ProviderId, file: File): Promise<string> {
   if (provider === 'catbox') return uploadToCatbox(file);
-  if (provider === 'imgur') {
+  if (provider === 'imgur' || provider === 'imgbb') {
     const fn = typeof window !== 'undefined' && window.electronApi?.automateUploadMedia;
     if (fn) {
       const filePath = resolveElectronFilePath(file);

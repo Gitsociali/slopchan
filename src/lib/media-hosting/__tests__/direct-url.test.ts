@@ -5,6 +5,7 @@ describe('direct-url', () => {
   describe('isDirectMediaUrl', () => {
     it('returns true for image extensions', () => {
       expect(isDirectMediaUrl('https://example.com/photo.jpg')).toBe(true);
+      expect(isDirectMediaUrl('https://i.ibb.co/example/photo.jpg')).toBe(true);
       expect(isDirectMediaUrl('https://example.com/photo.jpeg')).toBe(true);
       expect(isDirectMediaUrl('https://example.com/photo.png')).toBe(true);
       expect(isDirectMediaUrl('https://example.com/photo.gif')).toBe(true);

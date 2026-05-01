@@ -19,13 +19,22 @@ describe('useMediaHostingStore', () => {
 
   it('exports MEDIA_HOSTING_PROVIDERS with ids, labels, homepage URLs, runtime metadata', () => {
     expect(MEDIA_HOSTING_PROVIDERS).toBeDefined();
-    expect(MEDIA_HOSTING_PROVIDERS.length).toBe(2);
+    expect(MEDIA_HOSTING_PROVIDERS.length).toBe(3);
     const catbox = MEDIA_HOSTING_PROVIDERS.find((p) => p.id === 'catbox');
     expect(catbox).toEqual({
       id: 'catbox',
       label: 'Catbox',
       homepageUrl: 'https://catbox.moe',
+      availabilityProbeUrls: ['https://catbox.moe/pictures/logo.png', 'https://files.catbox.moe/8ten4y.png'],
       supportedRuntimes: ['web', 'electron', 'android'],
+    });
+    const imgbb = MEDIA_HOSTING_PROVIDERS.find((p) => p.id === 'imgbb');
+    expect(imgbb).toEqual({
+      id: 'imgbb',
+      label: 'ImgBB',
+      homepageUrl: 'https://imgbb.com',
+      availabilityProbeUrls: ['https://simgbb.com/images/logo.png', 'https://i.ibb.co/7Jsq00V5/spoiler.png'],
+      supportedRuntimes: ['electron', 'android'],
     });
   });
 

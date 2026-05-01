@@ -9,6 +9,7 @@ describe('media-upload-recipes', () => {
   it('exports MEDIA_UPLOAD_RECIPES with expected providers', () => {
     expect(Object.keys(MEDIA_UPLOAD_RECIPES)).toContain('catbox');
     expect(Object.keys(MEDIA_UPLOAD_RECIPES)).toContain('imgur');
+    expect(Object.keys(MEDIA_UPLOAD_RECIPES)).toContain('imgbb');
   });
 
   it('validateRecipes passes for current recipes', () => {
@@ -29,6 +30,12 @@ describe('media-upload-recipes', () => {
 
   it('imgur has 45s timeout (parity with Android)', () => {
     expect(MEDIA_UPLOAD_RECIPES.imgur.timeoutMs).toBe(45_000);
+  });
+
+  it('imgbb targets full image embed codes and has Android parity timeout', () => {
+    expect(MEDIA_UPLOAD_RECIPES.imgbb.timeoutMs).toBe(60_000);
+    expect(MEDIA_UPLOAD_RECIPES.imgbb.uploadUrl).toBe('https://imgbb.com/');
+    expect(MEDIA_UPLOAD_RECIPES.imgbb.successExtractor.selectorCandidates).toContain('input[name="html-embed-medium"]');
   });
 
   it('selector fallback order: generic file input before provider-specific', () => {

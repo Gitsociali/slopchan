@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { orchestrateElectronUpload } from '../upload-orchestrator';
 import { uploadToCatbox } from '../../utils/catbox-utils';
+import type { ProviderId } from '../types';
 
 vi.mock('../../utils/catbox-utils', () => ({
   uploadToCatbox: vi.fn(),
@@ -11,7 +12,7 @@ function createElectronApiMock() {
     isElectron: true,
     copyToClipboard: vi.fn(async () => ({ success: true })),
     getPlatform: vi.fn(async () => ({ platform: 'darwin' as NodeJS.Platform, arch: 'x64', version: 'v20.0.0' })),
-    automateUploadMedia: vi.fn(async () => ({ url: 'https://i.imgur.com/abc.png', provider: 'imgur' as const })),
+    automateUploadMedia: vi.fn(async (options: { provider: ProviderId }) => ({ url: 'https://i.imgur.com/abc.png', provider: options.provider })),
     getPathForFile: vi.fn((): string | null => '/tmp/image.png'),
   };
 }
@@ -44,6 +45,21 @@ describe('orchestrateElectronUpload', () => {
     expect(electronApi.getPathForFile).toHaveBeenCalledWith(file);
     expect(electronApi.automateUploadMedia).toHaveBeenCalledWith({
       provider: 'imgur',
+      filePath: '/tmp/image.png',
+    });
+  });
+
+  it('routes ImgBB through Electron automation', async () => {
+    const electronApi = createElectronApiMock();
+    electronApi.automateUploadMedia = vi.fn(async () => ({ url: 'https://i.ibb.co/example/image.png', provider: 'imgbb' as const }));
+    window.electronApi = electronApi;
+
+    const file = new File(['x'], 'x.png', { type: 'image/png' });
+    const url = await orchestrateElectronUpload(file, ['imgbb']);
+
+    expect(url).toBe('https://i.ibb.co/example/image.png');
+    expect(electronApi.automateUploadMedia).toHaveBeenCalledWith({
+      provider: 'imgbb',
       filePath: '/tmp/image.png',
     });
   });

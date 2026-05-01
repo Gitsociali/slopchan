@@ -29,7 +29,7 @@ export function isDirectMediaUrl(url) {
 /**
  * Run automated upload for a provider.
  * @param {Object} options
- * @param {string} options.provider - Provider id (catbox, imgur)
+ * @param {string} options.provider - Provider id (catbox, imgur, imgbb)
  * @param {string} options.filePath - Absolute path to the file to upload
  * @returns {Promise<{ url: string; provider: string }>}
  * @throws {Error} On missing recipe, blocked indicators, timeout, or invalid URL
@@ -129,6 +129,14 @@ export async function automateUploadMedia(options) {
       nodeId: fileInputNodeId,
       files: [filePath],
     });
+    await new Promise((r) => setTimeout(r, 500));
+
+    if (recipe.prepareSubmitJs) {
+      await sendCommand('Runtime.evaluate', {
+        expression: recipe.prepareSubmitJs,
+        returnByValue: true,
+      });
+    }
 
     let submitNodeId = null;
     for (const sel of recipe.submitSelectorCandidates) {
@@ -173,6 +181,27 @@ export async function automateUploadMedia(options) {
         (function() {
           const selectors = ${JSON.stringify(selectorCandidates)};
           const attr = ${JSON.stringify(attr)};
+          function normalizeUrl(value) {
+            if (!value) return '';
+            let url = String(value).trim();
+            if (url.startsWith('//')) url = 'https:' + url;
+            return url;
+          }
+          function hasMediaExtension(url) {
+            return /\\.(?:jpe?g|png|gif|webp|bmp|avif|mp4|webm|mov|avi|mkv|gifv)(?:[?#].*)?$/i.test(url);
+          }
+          function pickDirectMediaUrl(value) {
+            const text = String(value || '');
+            const candidates = text.match(/https?:\\/\\/[^\\s"'<>\\[\\]]+/g) || [];
+            for (const candidate of candidates) {
+              const normalized = normalizeUrl(candidate);
+              if (hasMediaExtension(normalized)) return normalized;
+            }
+            const normalized = normalizeUrl(text);
+            if (normalized.startsWith('http') && hasMediaExtension(normalized)) return normalized;
+            if (normalized.startsWith('http')) return normalized;
+            return '';
+          }
           for (const sel of selectors) {
             try {
               const el = document.querySelector(sel);
@@ -185,7 +214,8 @@ export async function automateUploadMedia(options) {
               } else {
                 url = (el.getAttribute(attr) || el[attr] || '').trim();
               }
-              if (url && url.startsWith('http')) return url;
+              const directUrl = pickDirectMediaUrl(url);
+              if (directUrl) return directUrl;
             } catch (e) {}
           }
           return null;

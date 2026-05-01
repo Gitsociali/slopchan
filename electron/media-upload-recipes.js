@@ -4,12 +4,14 @@
  * Selectors are candidate-based: try each until one matches. Fail fast on blocked indicators.
  *
  * Android vs Electron differences (documented to prevent drift):
- * - Android (MediaUploadRecipes.java): imgur only; no catbox (uses different flow).
- *   Uses DataTransfer JS injection.
- * - Electron: catbox/imgur. Uses CDP DOM.setFileInputFiles + submit button click.
+ * - Android (MediaUploadRecipes.java): app uploads use native catbox, plus WebView
+ *   automation for imgbb. The imgur runner is retained for diagnostics/tests only.
+ *   Real Uri attempts use the WebView file chooser callback; fixtures/fallback use
+ *   DataTransfer.
+ * - Electron: catbox/imgur/imgbb. Uses CDP DOM.setFileInputFiles + submit button click.
  *   Catbox: Electron-only; keep behavior unchanged.
- * - Blocked/success selectors: reconciled with Android for imgur.
- * - Timeouts: imgur 45s; catbox 30s (Electron-only).
+ * - Blocked/success selectors: reconciled with Android for imgbb and imgur.
+ * - Timeouts: imgbb 60s; imgur 45s; catbox 30s (Electron-only).
  *
  * @typedef {Object} ProviderRecipe
  * @property {string} uploadUrl - Full URL of the provider's upload page
@@ -18,6 +20,7 @@
  * @property {Object} successExtractor - How to extract the result URL from the page
  * @property {readonly string[]} successExtractor.selectorCandidates - Selectors for element containing result URL
  * @property {'href'|'src'|'value'|'text'} successExtractor.attribute - Attribute or 'text' for textContent
+ * @property {string=} prepareSubmitJs - Optional JS to normalize provider controls before clicking submit
  * @property {readonly string[]} blockedIndicators - Selectors that indicate captcha/login/challenge (fail immediately if present)
  * @property {number} timeoutMs - Max time to wait for upload completion
  */
@@ -47,6 +50,26 @@ export const MEDIA_UPLOAD_RECIPES = Object.freeze({
     /* Android: .signin, .login. Electron adds: [data-captcha], .login-form for DOM variations. */
     blockedIndicators: Object.freeze(['#challenge', '.captcha', '[data-captcha]', '.g-recaptcha', '#recaptcha', '.login-form', '.signin', '.login']),
     timeoutMs: 45_000,
+  }),
+  imgbb: Object.freeze({
+    uploadUrl: 'https://imgbb.com/',
+    fileInputSelectorCandidates: Object.freeze(['input[type="file"]', '#anywhere-upload-input', 'input[data-action="anywhere-upload-input"]']),
+    submitSelectorCandidates: Object.freeze(['button[data-action="upload"]', 'button.btn.green', 'button[type="submit"]', '[data-action="upload"]']),
+    successExtractor: Object.freeze({
+      selectorCandidates: Object.freeze([
+        'input[name="html-embed-medium"]',
+        'textarea[name="html-embed-medium"]',
+        '#uploaded-embed-code-1',
+        'input[value*="i.ibb.co"]',
+        'textarea',
+        'img[src*="i.ibb.co"]',
+      ]),
+      attribute: 'value',
+    }),
+    prepareSubmitJs:
+      "(function(){var select=document.querySelector('#upload-expiration,select[name=\"upload-expiration\"]');if(select){select.value='';select.dispatchEvent(new Event('change',{bubbles:true}));}return true;})()",
+    blockedIndicators: Object.freeze(['#challenge', '.captcha', '[data-captcha]', '.g-recaptcha', '#recaptcha', '.login-form', '.signin', '.login']),
+    timeoutMs: 60_000,
   }),
 });
 
