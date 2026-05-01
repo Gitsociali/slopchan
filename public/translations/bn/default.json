@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "সমস্ত প্রদানকারী ব্যর্থ হয়েছে",
   "upload_failed_preferred_guidance": "একটি ভিন্ন প্রদানকারী নির্বাচন করুন বা র‍্যান্ডমে সেট করুন।",
   "media_hosting_random": "এলোমেলো",
-  "media_hosting_preferred": "পছন্দের প্রদানকারী",
+  "media_hosting_preferred": "প্রদানকারী নির্বাচন করুন",
   "media_hosting_preferred_provider_label": "প্রদানকারী নির্বাচন করুন",
   "media_hosting_preferred_failure_guidance": "যদি আপনার পছন্দের প্রদানকারী ব্যর্থ হয়, অ্যাপটি অন্যান্য প্রদানকারীদের চেষ্টা করবে (এলোমেলো মোড) বা একটি ত্রুটি দেখাবে (পছন্দের মোড)।",
   "media_hosting_all_providers_failed_guidance": "সমস্ত আপলোড প্রদানকারী ব্যর্থ। আবার চেষ্টা করুন বা লিঙ্ক ম্যানুয়ালি পেস্ট করুন।",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত সপ্তাহের আরও থ্রেড দেখান</1>]",
   "more_threads_last_month": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত মাসের আরও থ্রেড দেখান</1>]",
   "more_threads_last_year": "{{count}} থ্রেড {{currentTimeFilterName}} থেকে — [<1>গত বছরের আরও থ্রেড দেখান</1>]",
-  "iframe_challenge_confirm": "{{board}} {{site}} খুলতে চায়।\n\n{{publicationType}}-এর জন্য: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} {{site}} খুলতে চায়।\n\n{{publicationType}}-এর জন্য: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

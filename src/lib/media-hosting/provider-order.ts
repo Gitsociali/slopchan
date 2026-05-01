@@ -1,5 +1,6 @@
 import type { MediaHostingRuntime, ProviderId, UploadMode } from './types';
 import { MEDIA_HOSTING_PROVIDERS } from './providers';
+import type { ProviderAvailabilitySnapshot } from './provider-availability';
 
 /** Returns [preferredProvider] for preferred mode */
 export function getPreferredOrder(preferredProvider: ProviderId): ProviderId[] {
@@ -22,9 +23,14 @@ function getSupportedProviders(runtime: MediaHostingRuntime): ProviderId[] {
 }
 
 /** Get ordered provider list for an upload attempt */
-export function getProviderOrder(options: { mode: UploadMode; preferredProvider: ProviderId; runtime: MediaHostingRuntime }): ProviderId[] {
-  const { mode, preferredProvider, runtime } = options;
-  const supported = getSupportedProviders(runtime);
+export function getProviderOrder(options: {
+  mode: UploadMode;
+  preferredProvider: ProviderId;
+  runtime: MediaHostingRuntime;
+  availability?: ProviderAvailabilitySnapshot;
+}): ProviderId[] {
+  const { mode, preferredProvider, runtime, availability } = options;
+  const supported = getSupportedProviders(runtime).filter((provider) => availability?.[provider] !== 'unavailable');
 
   if (mode === 'none') return [];
   if (mode === 'preferred') {

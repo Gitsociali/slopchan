@@ -6,24 +6,25 @@ describe('provider-order', () => {
     it('returns single-element array with preferred provider', () => {
       expect(getPreferredOrder('catbox')).toEqual(['catbox']);
       expect(getPreferredOrder('imgur')).toEqual(['imgur']);
+      expect(getPreferredOrder('imgbb')).toEqual(['imgbb']);
     });
   });
 
   describe('getRandomOrder', () => {
     it('returns shuffled copy (Fisher-Yates) with default rng', () => {
-      const providers = ['catbox', 'imgur'] as const;
+      const providers = ['catbox', 'imgur', 'imgbb'] as const;
       const result = getRandomOrder(providers);
-      expect(result).toHaveLength(2);
-      expect([...result].sort()).toEqual(['catbox', 'imgur']);
+      expect(result).toHaveLength(3);
+      expect([...result].sort()).toEqual(['catbox', 'imgbb', 'imgur']);
       expect(result).not.toBe(providers);
     });
 
     it('uses provided rng for deterministic shuffle', () => {
-      const providers = ['catbox', 'imgur'] as const;
+      const providers = ['catbox', 'imgur', 'imgbb'] as const;
       const rng = vi.fn().mockReturnValue(0.5);
       const result = getRandomOrder(providers, rng);
       expect(rng).toHaveBeenCalled();
-      expect(result).toHaveLength(2);
+      expect(result).toHaveLength(3);
     });
 
     it('handles empty array', () => {
@@ -61,6 +62,13 @@ describe('provider-order', () => {
           runtime: 'electron',
         }),
       ).toEqual(['imgur']);
+      expect(
+        getProviderOrder({
+          mode: 'preferred',
+          preferredProvider: 'imgbb',
+          runtime: 'android',
+        }),
+      ).toEqual(['imgbb']);
     });
 
     it('returns empty when preferred provider not supported on runtime', () => {
@@ -68,6 +76,20 @@ describe('provider-order', () => {
         getProviderOrder({
           mode: 'preferred',
           preferredProvider: 'imgur',
+          runtime: 'web',
+        }),
+      ).toEqual([]);
+      expect(
+        getProviderOrder({
+          mode: 'preferred',
+          preferredProvider: 'imgur',
+          runtime: 'android',
+        }),
+      ).toEqual([]);
+      expect(
+        getProviderOrder({
+          mode: 'preferred',
+          preferredProvider: 'imgbb',
           runtime: 'web',
         }),
       ).toEqual([]);
@@ -79,8 +101,30 @@ describe('provider-order', () => {
         preferredProvider: 'catbox',
         runtime: 'electron',
       });
+      expect(order).toHaveLength(3);
+      expect([...order].sort()).toEqual(['catbox', 'imgbb', 'imgur']);
+    });
+
+    it('filters unavailable providers from random mode', () => {
+      const order = getProviderOrder({
+        mode: 'random',
+        preferredProvider: 'catbox',
+        runtime: 'electron',
+        availability: { imgur: 'unavailable' },
+      });
       expect(order).toHaveLength(2);
-      expect([...order].sort()).toEqual(['catbox', 'imgur']);
+      expect([...order].sort()).toEqual(['catbox', 'imgbb']);
+    });
+
+    it('returns empty when preferred provider is unavailable', () => {
+      expect(
+        getProviderOrder({
+          mode: 'preferred',
+          preferredProvider: 'imgbb',
+          runtime: 'android',
+          availability: { imgbb: 'unavailable' },
+        }),
+      ).toEqual([]);
     });
 
     it('filters by runtime for random mode', () => {
@@ -91,6 +135,16 @@ describe('provider-order', () => {
       });
       expect(order).toHaveLength(1);
       expect(order).toEqual(['catbox']);
+    });
+
+    it('uses catbox and imgbb for android random mode', () => {
+      const order = getProviderOrder({
+        mode: 'random',
+        preferredProvider: 'catbox',
+        runtime: 'android',
+      });
+      expect(order).toHaveLength(2);
+      expect([...order].sort()).toEqual(['catbox', 'imgbb']);
     });
   });
 });

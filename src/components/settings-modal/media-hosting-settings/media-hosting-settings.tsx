@@ -2,7 +2,8 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import useMediaHostingStore, { MEDIA_HOSTING_PROVIDERS } from '../../../stores/use-media-hosting-store';
 import type { ProviderId } from '../../../lib/media-hosting/types';
-import { isWebRuntime } from '../../../lib/media-hosting/show-upload-controls';
+import { getMediaHostingRuntime } from '../../../lib/media-hosting/show-upload-controls';
+import { useProviderAvailability } from '../../../hooks/use-provider-availability';
 import styles from '../interface-settings/interface-settings.module.css';
 
 const RADIO_NAME = 'media-hosting-provider';
@@ -14,7 +15,9 @@ const MediaHostingSettings = () => {
   const preferredProvider = useMediaHostingStore((state) => state.preferredProvider);
   const setUploadMode = useMediaHostingStore((state) => state.setUploadMode);
   const setPreferredProvider = useMediaHostingStore((state) => state.setPreferredProvider);
-  const isWeb = isWebRuntime();
+  const runtime = getMediaHostingRuntime();
+  const isWeb = runtime === 'web';
+  const availability = useProviderAvailability(runtime);
 
   return (
     <div className={styles.interfaceSettings}>
@@ -40,25 +43,30 @@ const MediaHostingSettings = () => {
           </label>
           {uploadMode === 'preferred' && (
             <div role='radiogroup' aria-label={t('media_hosting_preferred_provider_label')}>
-              {MEDIA_HOSTING_PROVIDERS.map((provider) => (
-                <div key={provider.id} className={styles.setting}>
-                  <label>
-                    <input
-                      type='radio'
-                      name={`${RADIO_NAME}-provider`}
-                      value={provider.id}
-                      checked={preferredProvider === provider.id}
-                      onChange={() => setPreferredProvider(provider.id as ProviderId)}
-                      disabled={isWeb}
-                    />
-                    {provider.label} (
-                    <a href={provider.homepageUrl} target='_blank' rel='noopener noreferrer'>
-                      {provider.homepageUrl}
-                    </a>
-                    )
-                  </label>
-                </div>
-              ))}
+              {MEDIA_HOSTING_PROVIDERS.map((provider) => {
+                const providerUnavailable = availability[provider.id] === 'unavailable';
+                const providerDisabled = isWeb || !provider.supportedRuntimes.includes(runtime) || providerUnavailable;
+                return (
+                  <div key={provider.id} className={styles.setting}>
+                    <label title={providerUnavailable ? t('media_hosting_provider_unavailable') : undefined}>
+                      <input
+                        type='radio'
+                        name={`${RADIO_NAME}-provider`}
+                        value={provider.id}
+                        checked={preferredProvider === provider.id}
+                        onChange={() => setPreferredProvider(provider.id as ProviderId)}
+                        disabled={providerDisabled}
+                      />
+                      {provider.label} (
+                      <a href={provider.homepageUrl} target='_blank' rel='noopener noreferrer'>
+                        {provider.homepageUrl}
+                      </a>
+                      )
+                    </label>
+                    {providerUnavailable && <div className={styles.settingTip}>{t('media_hosting_provider_unavailable')}</div>}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

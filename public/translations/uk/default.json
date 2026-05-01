@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "Усі провайдери не справились",
   "upload_failed_preferred_guidance": "Оберіть іншого провайдера або встановіть випадковий.",
   "media_hosting_random": "Випадковий",
-  "media_hosting_preferred": "Уподобаний провайдер",
+  "media_hosting_preferred": "Оберіть провайдера",
   "media_hosting_preferred_provider_label": "Оберіть провайдера",
   "media_hosting_preferred_failure_guidance": "Якщо ваш уподобаний провайдер не спрацює, застосунок спробує інших провайдерів (випадковий режим) або покаже помилку (режим уподобання).",
   "media_hosting_all_providers_failed_guidance": "Усі провайдери завантаження не справились. Спробуйте знову або вставте посилання вручну.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} тем з {{currentTimeFilterName}} — [<1>Показати більше тем з минулого тижня</1>]",
   "more_threads_last_month": "{{count}} тем з {{currentTimeFilterName}} — [<1>Показати більше тем з минулого місяця</1>]",
   "more_threads_last_year": "{{count}} тем з {{currentTimeFilterName}} — [<1>Показати більше тем з минулого року</1>]",
-  "iframe_challenge_confirm": "{{board}} хоче відкрити {{site}}.\n\nДля {{publicationType}}: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} хоче відкрити {{site}}.\n\nДля {{publicationType}}: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

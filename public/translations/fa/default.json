@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "همه ارائه‌دهندگان ناموفق بودند",
   "upload_failed_preferred_guidance": "ارائه‌دهنده دیگری انتخاب کنید یا روی تصادفی تنظیم کنید.",
   "media_hosting_random": "تصادفی",
-  "media_hosting_preferred": "ارائه‌دهنده ترجیحی",
+  "media_hosting_preferred": "ارائه‌دهنده را انتخاب کنید",
   "media_hosting_preferred_provider_label": "ارائه‌دهنده را انتخاب کنید",
   "media_hosting_preferred_failure_guidance": "اگر ارائه‌دهنده ترجیحی شما ناموفق باشد، برنامه ارائه‌دهندگان دیگر را امتحان می‌کند (حالت تصادفی) یا خطا نمایش می‌دهد (حالت ترجیحی).",
   "media_hosting_all_providers_failed_guidance": "همه ارائه‌دهندگان آپلود ناموفق بودند. دوباره تلاش کنید یا لینک را دستی جایگذاری کنید.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} موضوع از {{currentTimeFilterName}} — [<1>نمایش موضوعات بیشتر از هفته گذشته</1>]",
   "more_threads_last_month": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های ماه گذشته</1>]",
   "more_threads_last_year": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های سال گذشته</1>]",
-  "iframe_challenge_confirm": "{{board}} می‌خواهد {{site}} را باز کند.\n\nبرای {{publicationType}}: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} می‌خواهد {{site}} را باز کند.\n\nبرای {{publicationType}}: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

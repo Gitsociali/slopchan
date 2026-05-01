@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "Kaikki palveluntarjoajat epäonnistuivat",
   "upload_failed_preferred_guidance": "Valitse toinen palveluntarjoaja tai aseta satunnaiseksi.",
   "media_hosting_random": "Satunnainen",
-  "media_hosting_preferred": "Suosikki palveluntarjoaja",
+  "media_hosting_preferred": "Valitse palveluntarjoaja",
   "media_hosting_preferred_provider_label": "Valitse palveluntarjoaja",
   "media_hosting_preferred_failure_guidance": "Jos suosikki palveluntarjoajasi epäonnistuu, sovellus kokeilee muita palveluntarjoajia (satunnainen tila) tai näyttää virheen (suosikki tila).",
   "media_hosting_all_providers_failed_guidance": "Kaikki latauspalveluntarjoajat epäonnistuivat. Yritä uudelleen tai liitä linkki manuaalisesti.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} ketjua sitten {{currentTimeFilterName}} — [<1>Näytä lisää ketjuja viime viikolta</1>]",
   "more_threads_last_month": "{{count}} ketjua sitten {{currentTimeFilterName}} — [<1>Näytä lisää viime kuun ketjuja</1>]",
   "more_threads_last_year": "{{count}} ketjua sitten {{currentTimeFilterName}} — [<1>Näytä lisää viime vuoden ketjuja</1>]",
-  "iframe_challenge_confirm": "{{board}} haluaa avata sivuston {{site}}.\n\nKohteelle {{publicationType}}: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} haluaa avata sivuston {{site}}.\n\nKohteelle {{publicationType}}: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

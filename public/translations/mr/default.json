@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "सर्व प्रदाते अयशस्वी झाले",
   "upload_failed_preferred_guidance": "वेगळा प्रदाता निवडा किंवा यादृच्छिक वर सेट करा.",
   "media_hosting_random": "यादृच्छिक",
-  "media_hosting_preferred": "पसंतीचा प्रदाता",
+  "media_hosting_preferred": "प्रदाता निवडा",
   "media_hosting_preferred_provider_label": "प्रदाता निवडा",
   "media_hosting_preferred_failure_guidance": "जर तुमचा पसंतीचा प्रदाता अयशस्वी झाला, तर अॅप इतर प्रदात्यांना वापरेल (यादृच्छिक मोड) किंवा त्रुटी दर्शवेल (पसंतीचा मोड).",
   "media_hosting_all_providers_failed_guidance": "सर्व अपलोड प्रदाते अयशस्वी झाले. पुन्हा प्रयत्न करा किंवा लिंक स्वहस्ते पेस्ट करा.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} थ्रेड {{currentTimeFilterName}} पासून — [<1>गेल्या आठवड्यातील अधिक थ्रेड्स पहा</1>]",
   "more_threads_last_month": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या महिन्यातील आणखी थ्रेड्स दाखवा</1>]",
   "more_threads_last_year": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या वर्षातील आणखी थ्रेड्स दाखवा</1>]",
-  "iframe_challenge_confirm": "{{board}} ला {{site}} उघडायचे आहे.\n\n{{publicationType}} साठी: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} ला {{site}} उघडायचे आहे.\n\n{{publicationType}} साठी: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

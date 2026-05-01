@@ -17,11 +17,18 @@ vi.mock('@capacitor/core', () => ({
   Capacitor: { getPlatform: () => mockGetPlatform() },
 }));
 
+const providerAvailabilityRef = vi.hoisted(() => ({
+  value: {} as Record<string, 'unknown' | 'checking' | 'available' | 'unavailable'>,
+}));
+vi.mock('../../../../hooks/use-provider-availability', () => ({
+  useProviderAvailability: () => providerAvailabilityRef.value,
+}));
+
 const mockSetUploadMode = vi.fn();
 const mockSetPreferredProvider = vi.fn();
 const uploadModeRef = vi.hoisted(() => ({ value: 'random' as 'random' | 'preferred' | 'none' }));
 const preferredProviderRef = vi.hoisted(() => ({
-  value: 'catbox' as 'catbox' | 'imgur',
+  value: 'catbox' as 'catbox' | 'imgur' | 'imgbb',
 }));
 vi.mock('../../../../stores/use-media-hosting-store', async (importOriginal) => {
   const mod = await importOriginal<typeof import('../../../../stores/use-media-hosting-store')>();
@@ -51,6 +58,7 @@ describe('MediaHostingSettings', () => {
     vi.clearAllMocks();
     uploadModeRef.value = 'random';
     preferredProviderRef.value = 'catbox';
+    providerAvailabilityRef.value = {};
     mockGetPlatform.mockReturnValue('web');
     (window as unknown as { electronApi?: unknown }).electronApi = undefined;
     container = document.createElement('div');
@@ -99,18 +107,63 @@ describe('MediaHostingSettings', () => {
     expect(mockSetUploadMode).toHaveBeenCalledWith('none');
   });
 
-  it('clicking provider in preferred mode calls setPreferredProvider', async () => {
+  it('disables unsupported providers on Android', async () => {
     uploadModeRef.value = 'preferred';
     preferredProviderRef.value = 'catbox';
     mockGetPlatform.mockReturnValue('android');
     render();
     const imgurRadio = container.querySelector<HTMLInputElement>('input[value="imgur"]');
     expect(imgurRadio).not.toBeNull();
-    expect(imgurRadio?.disabled).toBe(false);
+    expect(imgurRadio?.disabled).toBe(true);
     await act(async () => {
       imgurRadio?.click();
     });
-    expect(mockSetPreferredProvider).toHaveBeenCalledWith('imgur');
+    expect(mockSetPreferredProvider).not.toHaveBeenCalled();
+  });
+
+  it('clicking supported provider in preferred mode calls setPreferredProvider', async () => {
+    uploadModeRef.value = 'preferred';
+    preferredProviderRef.value = 'imgur';
+    mockGetPlatform.mockReturnValue('android');
+    render();
+    const catboxRadio = container.querySelector<HTMLInputElement>('input[value="catbox"]');
+    expect(catboxRadio).not.toBeNull();
+    expect(catboxRadio?.disabled).toBe(false);
+    await act(async () => {
+      catboxRadio?.click();
+    });
+    expect(mockSetPreferredProvider).toHaveBeenCalledWith('catbox');
+  });
+
+  it('enables ImgBB on Android', async () => {
+    uploadModeRef.value = 'preferred';
+    preferredProviderRef.value = 'catbox';
+    mockGetPlatform.mockReturnValue('android');
+    render();
+    const imgbbRadio = container.querySelector<HTMLInputElement>('input[value="imgbb"]');
+    expect(imgbbRadio).not.toBeNull();
+    expect(imgbbRadio?.disabled).toBe(false);
+    await act(async () => {
+      imgbbRadio?.click();
+    });
+    expect(mockSetPreferredProvider).toHaveBeenCalledWith('imgbb');
+  });
+
+  it('disables providers that are unavailable from this network', async () => {
+    uploadModeRef.value = 'preferred';
+    preferredProviderRef.value = 'catbox';
+    providerAvailabilityRef.value = { imgbb: 'unavailable' };
+    mockGetPlatform.mockReturnValue('android');
+    render();
+    const imgbbRadio = container.querySelector<HTMLInputElement>('input[value="imgbb"]');
+    expect(imgbbRadio).not.toBeNull();
+    expect(imgbbRadio?.disabled).toBe(true);
+    expect(imgbbRadio?.closest('label')?.title).toBe('media_hosting_provider_unavailable');
+    expect(container.textContent).toContain('media_hosting_provider_unavailable');
+    await act(async () => {
+      imgbbRadio?.click();
+    });
+    expect(mockSetPreferredProvider).not.toHaveBeenCalled();
   });
 
   it('clicking Random updates store via setUploadMode', async () => {

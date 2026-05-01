@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "Tüm sağlayıcılar başarısız oldu",
   "upload_failed_preferred_guidance": "Farklı bir sağlayıcı seçin veya rastgeleye ayarlayın.",
   "media_hosting_random": "Rastgele",
-  "media_hosting_preferred": "Tercih edilen sağlayıcı",
+  "media_hosting_preferred": "Sağlayıcı seç",
   "media_hosting_preferred_provider_label": "Sağlayıcı seç",
   "media_hosting_preferred_failure_guidance": "Tercih edilen sağlayıcı başarısız olursa, uygulama diğer sağlayıcıları dener (Rastgele mod) veya hata gösterir (Tercih modu).",
   "media_hosting_all_providers_failed_guidance": "Tüm yükleme sağlayıcıları başarısız oldu. Tekrar deneyin veya bir bağlantıyı manuel olarak yapıştırın.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} başlık {{currentTimeFilterName}}’den itibaren — [<1>Geçen haftadan daha fazla başlık göster</1>]",
   "more_threads_last_month": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen aydan daha fazla konu göster</1>]",
   "more_threads_last_year": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen yıldan daha fazla konu göster</1>]",
-  "iframe_challenge_confirm": "{{board}}, {{site}} sitesini açmak istiyor.\n\n{{publicationType}} için: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}}, {{site}} sitesini açmak istiyor.\n\n{{publicationType}} için: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

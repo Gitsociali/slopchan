@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "所有提供商均失败",
   "upload_failed_preferred_guidance": "选择其他提供商或设置为随机。",
   "media_hosting_random": "随机",
-  "media_hosting_preferred": "首选提供商",
+  "media_hosting_preferred": "选择提供商",
   "media_hosting_preferred_provider_label": "选择提供商",
   "media_hosting_preferred_failure_guidance": "如果首选提供商失败，应用将尝试其他提供商（随机模式）或显示错误（首选模式）。",
   "media_hosting_all_providers_failed_guidance": "所有上传提供商均失败。请重试或手动粘贴链接。",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多来自上周的主题</1>]",
   "more_threads_last_month": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多上个月的主题</1>]",
   "more_threads_last_year": "{{count}} 主题自 {{currentTimeFilterName}} — [<1>显示更多去年的主题</1>]",
-  "iframe_challenge_confirm": "{{board}} 想要打开 {{site}}。\n\n对于 {{publicationType}}：{{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} 想要打开 {{site}}。\n\n对于 {{publicationType}}：{{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

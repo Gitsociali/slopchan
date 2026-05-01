@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "Të gjithë ofruesit dështuan",
   "upload_failed_preferred_guidance": "Zgjidhni një ofrues tjetër ose vendosni në rastësishëm.",
   "media_hosting_random": "Rastësishëm",
-  "media_hosting_preferred": "Ofrues i preferuar",
+  "media_hosting_preferred": "Zgjidhni ofruesin",
   "media_hosting_preferred_provider_label": "Zgjidhni ofruesin",
   "media_hosting_preferred_failure_guidance": "Nëse ofruesi juaj i preferuar dështon, aplikacioni do të provojë ofrues të tjerë (modalitet i rastësishëm) ose do të shfaqë një gabim (modalitet i preferuar).",
   "media_hosting_all_providers_failed_guidance": "Të gjithë ofruesit e ngarkimit dështuan. Provoni përsëri ose ngjisni një lidhje manualisht.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} tema nga {{currentTimeFilterName}} — [<1>Shfaq më shumë tema nga java e kaluar</1>]",
   "more_threads_last_month": "{{count}} tema nga {{currentTimeFilterName}} — [<1>Shfaq më shumë tema nga muaji i kaluar</1>]",
   "more_threads_last_year": "{{count}} tema nga {{currentTimeFilterName}} — [<1>Shfaq më shumë tema nga viti i kaluar</1>]",
-  "iframe_challenge_confirm": "{{board}} dëshiron të hapë {{site}}.\n\nPër {{publicationType}}: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} dëshiron të hapë {{site}}.\n\nPër {{publicationType}}: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

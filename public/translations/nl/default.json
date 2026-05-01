@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "Alle providers zijn mislukt",
   "upload_failed_preferred_guidance": "Kies een andere provider of zet op willekeurig.",
   "media_hosting_random": "Willekeurig",
-  "media_hosting_preferred": "Voorkeursprovider",
+  "media_hosting_preferred": "Provider kiezen",
   "media_hosting_preferred_provider_label": "Provider kiezen",
   "media_hosting_preferred_failure_guidance": "Als uw voorkeursprovider faalt, probeert de app andere providers (willekeurige modus) of toont een fout (geprefereerde modus).",
   "media_hosting_all_providers_failed_guidance": "Alle upload-providers zijn mislukt. Probeer opnieuw of plak een link handmatig.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Toon meer threads van vorige week</1>]",
   "more_threads_last_month": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen maand tonen</1>]",
   "more_threads_last_year": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen jaar tonen</1>]",
-  "iframe_challenge_confirm": "{{board}} wil {{site}} openen.\n\nVoor {{publicationType}}: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} wil {{site}} openen.\n\nVoor {{publicationType}}: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

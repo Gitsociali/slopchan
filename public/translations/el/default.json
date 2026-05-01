@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "Όλοι οι πάροχοι απέτυχαν",
   "upload_failed_preferred_guidance": "Επιλέξτε διαφορετικό πάροχο ή ορίστε τυχαιότητα.",
   "media_hosting_random": "Τυχαίο",
-  "media_hosting_preferred": "Προτιμώμενος πάροχος",
+  "media_hosting_preferred": "Επιλέξτε πάροχο",
   "media_hosting_preferred_provider_label": "Επιλέξτε πάροχο",
   "media_hosting_preferred_failure_guidance": "Αν ο προτιμώμενος πάροχος σας αποτύχει, η εφαρμογή θα δοκιμάσει άλλους πάροχους (τυχαία λειτουργία) ή θα εμφανίσει σφάλμα (προτιμώμενη λειτουργία).",
   "media_hosting_all_providers_failed_guidance": "Όλοι οι πάροχοι μεταφόρτωσης απέτυχαν. Δοκιμάστε ξανά ή επικολλήστε έναν σύνδεσμο χειροκίνητα.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} θέματα από {{currentTimeFilterName}} — [<1>Εμφάνιση περισσότερων θεμάτων από την περασμένη εβδομάδα</1>]",
   "more_threads_last_month": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από τον τελευταίο μήνα</1>]",
   "more_threads_last_year": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από το περασμένο έτος</1>]",
-  "iframe_challenge_confirm": "Το {{board}} θέλει να ανοίξει το {{site}}.\n\nΓια {{publicationType}}: {{excerpt}}"
+  "iframe_challenge_confirm": "Το {{board}} θέλει να ανοίξει το {{site}}.\n\nΓια {{publicationType}}: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

@@ -1,13 +1,19 @@
 import { Capacitor } from '@capacitor/core';
-import type { UploadMode } from './types';
+import type { MediaHostingRuntime, UploadMode } from './types';
 
-function isElectronRuntime(): boolean {
+export function isElectronRuntime(): boolean {
   return window.electronApi?.isElectron === true || window.isElectron === true;
+}
+
+export function getMediaHostingRuntime(): MediaHostingRuntime {
+  if (Capacitor.getPlatform() === 'android') return 'android';
+  if (isElectronRuntime()) return 'electron';
+  return 'web';
 }
 
 /** Web runtime = web browser, not Electron */
 export function isWebRuntime(): boolean {
-  return Capacitor.getPlatform() === 'web' && !isElectronRuntime();
+  return getMediaHostingRuntime() === 'web';
 }
 
 /**

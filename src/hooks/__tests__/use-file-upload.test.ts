@@ -31,16 +31,28 @@ vi.mock('../../lib/media-hosting/upload-orchestrator', () => ({
   orchestrateElectronUpload: vi.fn(),
 }));
 
+const providerAvailabilityRef = vi.hoisted(() => ({
+  value: {} as Record<string, 'unknown' | 'checking' | 'available' | 'unavailable'>,
+}));
+vi.mock('../../lib/media-hosting/provider-availability', () => ({
+  ensureProviderAvailability: vi.fn(async () => providerAvailabilityRef.value),
+}));
+
 vi.mock('../../lib/media-hosting/provider-order', () => ({
-  getProviderOrder: vi.fn((opts: { mode: string; preferredProvider: string; runtime: string }) => {
+  getProviderOrder: vi.fn((opts: { mode: string; preferredProvider: string; runtime: string; availability?: Record<string, string> }) => {
+    const filterAvailable = (providers: string[]) => providers.filter((provider) => opts.availability?.[provider] !== 'unavailable');
     if (opts.mode === 'none') return [];
-    if (opts.runtime === 'web') return opts.preferredProvider === 'catbox' ? ['catbox'] : [];
-    return opts.mode === 'preferred' ? [opts.preferredProvider] : ['catbox', 'imgur'];
+    if (opts.runtime === 'web') return filterAvailable(opts.preferredProvider === 'catbox' ? ['catbox'] : []);
+    if (opts.runtime === 'android') {
+      if (opts.mode === 'preferred') return filterAvailable(opts.preferredProvider === 'catbox' || opts.preferredProvider === 'imgbb' ? [opts.preferredProvider] : []);
+      return filterAvailable(['catbox', 'imgbb']);
+    }
+    return filterAvailable(opts.mode === 'preferred' ? [opts.preferredProvider] : ['catbox', 'imgur', 'imgbb']);
   }),
 }));
 
 const uploadModeRef = vi.hoisted(() => ({ value: 'random' as 'random' | 'preferred' | 'none' }));
-const preferredProviderRef = vi.hoisted(() => ({ value: 'catbox' as 'catbox' | 'imgur' }));
+const preferredProviderRef = vi.hoisted(() => ({ value: 'catbox' as 'catbox' | 'imgur' | 'imgbb' }));
 vi.mock('../../stores/use-media-hosting-store', () => ({
   default: (selector: (s: { uploadMode: string; preferredProvider: string }) => unknown) =>
     selector({ uploadMode: uploadModeRef.value, preferredProvider: preferredProviderRef.value }),
@@ -89,6 +101,7 @@ describe('useFileUpload', () => {
     vi.clearAllMocks();
     uploadModeRef.value = 'random';
     preferredProviderRef.value = 'catbox';
+    providerAvailabilityRef.value = {};
     latestHook = null;
     container = document.createElement('div');
     document.body.append(container);
@@ -268,7 +281,7 @@ describe('useFileUpload', () => {
     capacitorRejection.data = {
       attempts: [
         { provider: 'catbox', error: 'timeout' },
-        { provider: 'imgur', error: 'rate limit' },
+        { provider: 'imgbb', error: 'rate limit' },
       ],
     };
     vi.mocked(FileUploader.pickAndUploadMedia).mockRejectedValue(capacitorRejection);
@@ -278,7 +291,7 @@ describe('useFileUpload', () => {
       await hook().handleUpload();
     });
 
-    expect(window.alert).toHaveBeenCalledWith('upload_failed. upload_failed_all_providers: catbox: timeout; imgur: rate limit');
+    expect(window.alert).toHaveBeenCalledWith('upload_failed. upload_failed_all_providers: catbox: timeout; imgbb: rate limit');
     expect(onUploadComplete).not.toHaveBeenCalled();
     expect(hook().isUploading).toBe(false);
   });
@@ -319,6 +332,75 @@ describe('useFileUpload', () => {
     expect(hook().isUploading).toBe(false);
   });
 
+  it('does not call Android plugin when preferred provider is unsupported', async () => {
+    uploadModeRef.value = 'preferred';
+    preferredProviderRef.value = 'imgur';
+    vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
+    const { onUploadComplete, hook } = mountHook();
+
+    await act(async () => {
+      await hook().handleUpload();
+    });
+
+    expect(FileUploader.pickAndUploadMedia).not.toHaveBeenCalled();
+    expect(window.alert).toHaveBeenCalledWith('upload_failed: imgur is not supported on android. upload_failed_preferred_guidance');
+    expect(onUploadComplete).not.toHaveBeenCalled();
+    expect(hook().isUploading).toBe(false);
+  });
+
+  it('does not call Android plugin when preferred provider is unavailable from this network', async () => {
+    uploadModeRef.value = 'preferred';
+    preferredProviderRef.value = 'imgbb';
+    providerAvailabilityRef.value = { imgbb: 'unavailable' };
+    vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
+    const { onUploadComplete, hook } = mountHook();
+
+    await act(async () => {
+      await hook().handleUpload();
+    });
+
+    expect(FileUploader.pickAndUploadMedia).not.toHaveBeenCalled();
+    expect(window.alert).toHaveBeenCalledWith('upload_failed: imgbb is unavailable from this network. upload_failed_preferred_guidance');
+    expect(onUploadComplete).not.toHaveBeenCalled();
+    expect(hook().isUploading).toBe(false);
+  });
+
+  it('does not call Android plugin when random mode has no reachable providers', async () => {
+    uploadModeRef.value = 'random';
+    preferredProviderRef.value = 'catbox';
+    providerAvailabilityRef.value = { catbox: 'unavailable', imgbb: 'unavailable' };
+    vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
+    const { onUploadComplete, hook } = mountHook();
+
+    await act(async () => {
+      await hook().handleUpload();
+    });
+
+    expect(FileUploader.pickAndUploadMedia).not.toHaveBeenCalled();
+    expect(window.alert).toHaveBeenCalledWith('upload_failed: No reachable upload providers are available from this network');
+    expect(onUploadComplete).not.toHaveBeenCalled();
+    expect(hook().isUploading).toBe(false);
+  });
+
+  it('calls Android plugin with only ImgBB when ImgBB is chosen', async () => {
+    uploadModeRef.value = 'preferred';
+    preferredProviderRef.value = 'imgbb';
+    vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
+    vi.mocked(FileUploader.pickAndUploadMedia).mockResolvedValue({
+      url: 'https://i.ibb.co/example/android.png',
+      fileName: 'android.png',
+      provider: 'imgbb',
+    });
+    const { onUploadComplete, hook } = mountHook();
+
+    await act(async () => {
+      await hook().handleUpload();
+    });
+
+    expect(FileUploader.pickAndUploadMedia).toHaveBeenCalledWith({ providerOrder: ['imgbb'] });
+    expect(onUploadComplete).toHaveBeenCalledWith('https://i.ibb.co/example/android.png', 'android.png');
+  });
+
   it('Android call includes provider order payload', async () => {
     uploadModeRef.value = 'random';
     preferredProviderRef.value = 'catbox';
@@ -340,6 +422,7 @@ describe('useFileUpload', () => {
     });
     const call = vi.mocked(FileUploader.pickAndUploadMedia).mock.calls[0][0];
     expect(call?.providerOrder).toEqual(expect.arrayContaining(['catbox']));
+    expect(call?.providerOrder).toEqual(expect.arrayContaining(['imgbb']));
     expect(onUploadComplete).toHaveBeenCalledWith('https://files.catbox.moe/random.jpg', 'random.jpg');
   });
 
@@ -376,6 +459,7 @@ describe('useFileUpload', () => {
     err.attempts = [
       { provider: 'catbox', error: 'timeout' },
       { provider: 'imgur', error: 'rate limit' },
+      { provider: 'imgbb', error: 'blocked' },
     ];
     vi.mocked(orchestrateElectronUpload).mockRejectedValue(err);
 
@@ -391,7 +475,7 @@ describe('useFileUpload', () => {
       await uploadPromise;
     });
 
-    expect(window.alert).toHaveBeenCalledWith('upload_failed. upload_failed_all_providers: catbox: timeout; imgur: rate limit');
+    expect(window.alert).toHaveBeenCalledWith('upload_failed. upload_failed_all_providers: catbox: timeout; imgur: rate limit; imgbb: blocked');
     expect(onUploadComplete).not.toHaveBeenCalled();
     expect(hook().isUploading).toBe(false);
   });

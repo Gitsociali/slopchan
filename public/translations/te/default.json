@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "అన్ని ప్రొవైడర్లు విఫలమయ్యాయి",
   "upload_failed_preferred_guidance": "వేరే ప్రొవైడర్ ఎంచుకోండి లేదా యాదృచ్ఛికంగా సెట్ చేయండి.",
   "media_hosting_random": "యాదృచ్ఛికం",
-  "media_hosting_preferred": "ఇష్టప్రదమైన ప్రొవైడర్",
+  "media_hosting_preferred": "ప్రొవైడర్ ఎంచుకోండి",
   "media_hosting_preferred_provider_label": "ప్రొవైడర్ ఎంచుకోండి",
   "media_hosting_preferred_failure_guidance": "మీ ఇష్టప్రదమైన ప్రొవైడర్ విఫలమైతే, యాప్ ఇతర ప్రొవైడర్లను ప్రయత్నిస్తుంది (యాదృచ్ఛిక మోడ్) లేదా లోపం చూపిస్తుంది (ఇష్టప్రదమైన మోడ్).",
   "media_hosting_all_providers_failed_guidance": "అన్ని అప్‌లోడ్ ప్రొవైడర్లు విఫలమయ్యాయి. మళ్ళీ ప్రయత్నించండి లేదా లింక్‌ను మాన్యువల్‌గా అతికించండి.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత వారానికి మరిన్ని థ్రెడ్‌లు చూపించు</1>]",
   "more_threads_last_month": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత నెల నుండి మరిన్ని థ్రెడ్‌లను చూపించండి</1>]",
   "more_threads_last_year": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత సంవత్సరం నుండి మరిన్ని థ్రెడ్‌లను చూపించండి</1>]",
-  "iframe_challenge_confirm": "{{board}} {{site}} ను తెరవాలని కోరుతోంది.\n\n{{publicationType}} కోసం: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} {{site}} ను తెరవాలని కోరుతోంది.\n\n{{publicationType}} కోసం: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

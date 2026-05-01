@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "모든 제공업체가 실패했습니다",
   "upload_failed_preferred_guidance": "다른 제공업체를 선택하거나 무작위로 설정하세요.",
   "media_hosting_random": "무작위",
-  "media_hosting_preferred": "선호하는 제공업체",
+  "media_hosting_preferred": "제공업체 선택",
   "media_hosting_preferred_provider_label": "제공업체 선택",
   "media_hosting_preferred_failure_guidance": "선호하는 제공업체가 실패하면 앱이 다른 제공업체를 시도합니다(무작위 모드) 또는 오류를 표시합니다(선호 모드).",
   "media_hosting_all_providers_failed_guidance": "모든 업로드 제공업체가 실패했습니다. 다시 시도하거나 링크를 수동으로 붙여넣으세요.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>지난 주의 더 많은 스레드 보기</1>]",
   "more_threads_last_month": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>지난 달의 스레드 더 보기</1>]",
   "more_threads_last_year": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>작년의 스레드 더 보기</1>]",
-  "iframe_challenge_confirm": "{{board}}에서 {{site}} 열기를 요청했습니다.\n\n{{publicationType}}의 경우: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}}에서 {{site}} 열기를 요청했습니다.\n\n{{publicationType}}의 경우: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

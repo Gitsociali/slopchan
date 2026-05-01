@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "تمام فراہم کنندہ ناکام ہو گئے",
   "upload_failed_preferred_guidance": "مختلف فراہم کنندہ منتخب کریں یا بے ترتیب پر سیٹ کریں۔",
   "media_hosting_random": "بے ترتیب",
-  "media_hosting_preferred": "پسندیدہ فراہم کنندہ",
+  "media_hosting_preferred": "فراہم کنندہ منتخب کریں",
   "media_hosting_preferred_provider_label": "فراہم کنندہ منتخب کریں",
   "media_hosting_preferred_failure_guidance": "اگر آپ کا پسندیدہ فراہم کنندہ ناکام ہو جاتا ہے، ایپ دیگر فراہم کنندوں کو آزماے گی (بے ترتیب موڈ) یا خرابی دکھائے گی (پسندیدہ موڈ)۔",
   "media_hosting_all_providers_failed_guidance": "تمام اپ لوڈ فراہم کنندہ ناکام ہو گئے۔ دوبارہ کوشش کریں یا لنک دستی طور پر پیسٹ کریں۔",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} تھریڈ {{currentTimeFilterName}} سے — [<1>گزشتہ ہفتے کے مزید تھریڈ دیکھیں</1>]",
   "more_threads_last_month": "{{count}} تھریڈز {{currentTimeFilterName}} سے — [<1>پچھلے ماہ کے مزید تھریڈز دکھائیں</1>]",
   "more_threads_last_year": "{{count}} تھریڈز {{currentTimeFilterName}} سے — [<1>گزشتہ سال کے مزید تھریڈز دکھائیں</1>]",
-  "iframe_challenge_confirm": "{{board}}، {{site}} کھولنا چاہتا ہے۔\n\n{{publicationType}} کے لیے: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}}، {{site}} کھولنا چاہتا ہے۔\n\n{{publicationType}} کے لیے: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

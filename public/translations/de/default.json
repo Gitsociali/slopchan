@@ -256,7 +256,7 @@
   "upload_failed_all_providers": "Alle Anbieter sind fehlgeschlagen",
   "upload_failed_preferred_guidance": "Wählen Sie einen anderen Anbieter oder setzen Sie auf Zufall.",
   "media_hosting_random": "Zufällig",
-  "media_hosting_preferred": "Bevorzugter Anbieter",
+  "media_hosting_preferred": "Anbieter wählen",
   "media_hosting_preferred_provider_label": "Anbieter wählen",
   "media_hosting_preferred_failure_guidance": "Wenn Ihr bevorzugter Anbieter fehlschlägt, versucht die App andere Anbieter (Zufallsmodus) oder zeigt einen Fehler an (Bevorzugter Modus).",
   "media_hosting_all_providers_failed_guidance": "Alle Upload-Anbieter sind fehlgeschlagen. Versuchen Sie es erneut oder fügen Sie einen Link manuell ein.",
@@ -364,5 +364,6 @@
   "more_threads_last_week": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads aus der letzten Woche anzeigen</1>]",
   "more_threads_last_month": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Monat anzeigen</1>]",
   "more_threads_last_year": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Jahr anzeigen</1>]",
-  "iframe_challenge_confirm": "{{board}} möchte {{site}} öffnen.\n\nFür {{publicationType}}: {{excerpt}}"
+  "iframe_challenge_confirm": "{{board}} möchte {{site}} öffnen.\n\nFür {{publicationType}}: {{excerpt}}",
+  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
 }

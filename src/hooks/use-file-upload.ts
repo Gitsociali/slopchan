@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
-import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 import FileUploader from '../plugins/file-uploader';
 import { formatAggregatedError, formatPreferredModeError, type ProviderAttempt } from '../lib/media-hosting/error-format';
 import { getProviderOrder } from '../lib/media-hosting/provider-order';
+import { getMediaHostingRuntime, isElectronRuntime } from '../lib/media-hosting/show-upload-controls';
 import { orchestrateElectronUpload } from '../lib/media-hosting/upload-orchestrator';
+import { ensureProviderAvailability } from '../lib/media-hosting/provider-availability';
 import useMediaHostingStore from '../stores/use-media-hosting-store';
 import type { ProviderId, UploadAttemptStage } from '../lib/media-hosting/types';
 
@@ -26,7 +27,7 @@ const ANDROID_STAGE_MAP: Record<string, UploadAttemptStage> = {
 
 const FILE_SELECTION_CANCELLED_ERROR = 'File selection cancelled';
 
-const VALID_PROVIDERS: ProviderId[] = ['catbox', 'imgur'];
+const VALID_PROVIDERS: ProviderId[] = ['catbox', 'imgur', 'imgbb'];
 
 /** Raw attempt shape from Android plugin rejection payload */
 interface RawAttempt {
@@ -80,16 +81,6 @@ function normalizeAndroidRejection(error: unknown): Error & { attempts?: Provide
     (err as Error & { attempts?: ProviderAttempt[] }).attempts = attempts;
   }
   return err as Error & { attempts?: ProviderAttempt[] };
-}
-
-function isElectronRuntime(): boolean {
-  return window.electronApi?.isElectron === true || window.isElectron === true;
-}
-
-function getRuntime(): 'web' | 'electron' | 'android' {
-  if (Capacitor.getPlatform() === 'android') return 'android';
-  if (isElectronRuntime()) return 'electron';
-  return 'web';
 }
 
 interface UseFileUploadOptions {
@@ -162,14 +153,30 @@ export function useFileUpload(options: UseFileUploadOptions) {
   const handleUpload = useCallback(async () => {
     if (uploadMode === 'none') return;
 
-    const runtime = getRuntime();
-    const order = getProviderOrder({ mode: uploadMode, preferredProvider, runtime });
-
+    const runtime = getMediaHostingRuntime();
     try {
       setIsUploading(true);
       setUploadedFileName(null);
+      const supportedOrder = getProviderOrder({ mode: uploadMode, preferredProvider, runtime });
+      const availability = await ensureProviderAvailability(runtime);
+      const order = getProviderOrder({ mode: uploadMode, preferredProvider, runtime, availability });
 
-      if (Capacitor.getPlatform() === 'android') {
+      if (order.length === 0) {
+        if (runtime === 'web') {
+          window.alert(t('upload_not_supported_web'));
+          return;
+        }
+        if (supportedOrder.length > 0) {
+          const message =
+            uploadMode === 'preferred' && availability[preferredProvider] === 'unavailable'
+              ? `${preferredProvider} is unavailable from this network`
+              : 'No reachable upload providers are available from this network';
+          throw new Error(message);
+        }
+        throw new Error(`${preferredProvider} is not supported on ${runtime}`);
+      }
+
+      if (runtime === 'android') {
         const result = await FileUploader.pickAndUploadMedia({ providerOrder: order });
         if (result.url) {
           if (result.fileName) setUploadedFileName(result.fileName);
