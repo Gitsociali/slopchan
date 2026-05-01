@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'build',
   plugins: {
     CapacitorHttp: {
-      enabled: true,
+      enabled: false,
     },
     FileUploader: {
       enabled: true,

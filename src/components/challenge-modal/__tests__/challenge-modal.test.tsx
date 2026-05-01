@@ -520,6 +520,40 @@ describe('ChallengeModal', () => {
     expect(testState.abandonCurrentChallengeMock).not.toHaveBeenCalled();
   });
 
+  it('uses inline iframe confirmation in Android WebView even when Capacitor reports web', async () => {
+    testState.capacitorPlatform = 'web';
+    setNavigatorValue(
+      'userAgent',
+      'Mozilla/5.0 (Linux; Android 15; Pixel 9 Build/AP3A.241105.007) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/147.0.7727.137 Mobile Safari/537.36 wv',
+    );
+    testState.publicationType = 'reply';
+    testState.challenges = [
+      createStoredChallenge(
+        {
+          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+          type: 'url/iframe',
+        },
+        {
+          ...createPublication(),
+          content: '>>17\nreply from webview',
+          title: '',
+        },
+      ),
+    ];
+
+    await renderModal();
+
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('mu wants to open spamblocker.bitsocial.net.\n\nFor reply: >>17 reply from webview');
+    expect(container.querySelector('iframe')).toBeNull();
+
+    await clickButton('Open');
+
+    const iframe = container.querySelector('iframe');
+    expect(iframe).not.toBeNull();
+    expect(iframe?.getAttribute('src')).toContain('https://spamblocker.bitsocial.net/api/v1/iframe/session-123?theme=dark');
+  });
+
   it('abandons Android iframe challenges when inline confirmation is closed', async () => {
     testState.capacitorPlatform = 'android';
     testState.challenges = [

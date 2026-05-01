@@ -45,6 +45,14 @@ const getDisplayCommunityAddress = (shortCommunityAddress?: string, communityAdd
   shortCommunityAddress || (communityAddress ? getShortAddress(communityAddress) : '') || communityAddress || '';
 
 const iframeChallengeConfirmDecisions = new Map<string, 'accepted' | 'rejected'>();
+const ANDROID_USER_AGENT_REGEX = /Android/;
+const ANDROID_WEBVIEW_USER_AGENT_REGEX = /\bwv\b|Version\/\d+(?:\.\d+)?\s+Chrome\//;
+
+const isAndroidWebViewUserAgent = () => {
+  if (typeof navigator === 'undefined') return false;
+  return ANDROID_USER_AGENT_REGEX.test(navigator.userAgent) && ANDROID_WEBVIEW_USER_AGENT_REGEX.test(navigator.userAgent);
+};
+
 const isIosWebKitUserAgent = () => {
   if (typeof navigator === 'undefined') return false;
   return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -60,7 +68,7 @@ const isDesktopSafariUserAgent = () => {
 
 const shouldUseInlineIframeConfirm = () => {
   const platform = Capacitor.getPlatform();
-  return platform === 'android' || platform === 'ios' || isIosWebKitUserAgent() || isDesktopSafariUserAgent();
+  return platform === 'android' || platform === 'ios' || isAndroidWebViewUserAgent() || isIosWebKitUserAgent() || isDesktopSafariUserAgent();
 };
 
 const TextChallenge = ({ challenge }: { challenge: string }) => <div className={styles.challengeMedia}>{challenge}</div>;
