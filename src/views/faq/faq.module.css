@@ -46,6 +46,10 @@
   color: var(--homepage-box-bar-text-color);
 }
 
+.content a:visited {
+  color: #00e;
+}
+
 .infoBox .boxContent a,
 .infoBox .boxContent a:visited {
   color: var(--homepage-infobox-link-text-color);
