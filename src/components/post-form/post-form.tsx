@@ -5,8 +5,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Comment, setAccount, useAccount, useEditedComment } from '@bitsocial/bitsocial-react-hooks';
 import getShortAddress from '../../lib/get-short-address';
 import useCommunitiesPagesStore from '@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages';
-import { getLinkMediaInfo } from '../../lib/utils/media-utils';
-import { isValidPublishURL, isValidURL } from '../../lib/utils/url-utils';
+import { getDisplayMediaInfoType, getLinkMediaInfo } from '../../lib/utils/media-utils';
+import { getPublishURLFilename, isValidPublishURL, isValidURL } from '../../lib/utils/url-utils';
 import { isAllView, isCatalogView, isModQueueView, isModView, isPostPageView, isSubscriptionsView } from '../../lib/utils/view-utils';
 import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
 import { useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';
@@ -25,6 +25,8 @@ import styles from './post-form.module.css';
 import capitalize from 'lodash/capitalize';
 import debounce from 'lodash/debounce';
 
+const FILE_LINK_PLACEHOLDER = 'https://website.com/image.jpg';
+
 export const LinkTypePreviewer = ({ link }: { link: string }) => {
   const { t } = useTranslation();
   const mediaInfo = getLinkMediaInfo(link);
@@ -35,9 +37,11 @@ export const LinkTypePreviewer = ({ link }: { link: string }) => {
     type = t('animated_gif');
   } else if (type === 'gif') {
     type = t('gif');
+  } else if (type) {
+    type = getDisplayMediaInfoType(type, t);
   }
 
-  return isValidURL(link) ? type : t('invalid_url');
+  return isValidURL(link) ? `type: ${type}` : t('invalid_url');
 };
 
 const PostFormActions = ({
@@ -224,6 +228,7 @@ const PostFormFields = ({
           autoCorrect='off'
           autoComplete='off'
           spellCheck='false'
+          placeholder={requirePostLinkIsMedia ? FILE_LINK_PLACEHOLDER : undefined}
           ref={urlRef}
           disabled={isUploading}
           onChange={(e) => {
@@ -253,7 +258,7 @@ const PostFormFields = ({
             isUploading={isUploading}
             showUploadControls={showUploadControls}
           />
-          <span>{isUploading ? t('uploading') : uploadedFileName || t('no_file_chosen')}</span>
+          <span>{isUploading ? t('uploading') : getPublishURLFilename(url) || uploadedFileName || t('no_file_chosen')}</span>
         </td>
       </tr>
     )}

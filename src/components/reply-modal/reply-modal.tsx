@@ -3,7 +3,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { setAccount, useAccount } from '@bitsocial/bitsocial-react-hooks';
-import { isValidPublishURL } from '../../lib/utils/url-utils';
+import { getPublishURLFilename, isValidPublishURL } from '../../lib/utils/url-utils';
 import { isAllView, isModView, isSubscriptionsView } from '../../lib/utils/view-utils';
 import useSelectedTextStore from '../../stores/use-selected-text-store';
 import useReplyModalStore from '../../stores/use-reply-modal-store';
@@ -19,6 +19,8 @@ import capitalize from 'lodash/capitalize';
 import debounce from 'lodash/debounce';
 import { useSpring, animated } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
+
+const FILE_LINK_PLACEHOLDER = 'https://website.com/image.jpg';
 
 interface ReplyModalProps {
   closeModal: () => void;
@@ -63,6 +65,7 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
 
   const [error, setError] = useState<string | null>(null);
   const [lengthError, setLengthError] = useState<string | null>(null);
+  const [url, setUrl] = useState('');
 
   const checkContentLengthRef = useRef(
     debounce((content: string, t: TFunction) => {
@@ -270,6 +273,7 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
   const { isUploading, uploadedFileName, handleUpload } = useFileUpload({
     onUploadComplete: (uploadedUrl: string) => {
       if (uploadedUrl) {
+        setUrl(uploadedUrl);
         if (urlRef.current) {
           urlRef.current.value = uploadedUrl;
         }
@@ -279,6 +283,7 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
   });
   const uploadMode = useMediaHostingStore((state) => state.uploadMode);
   const showUploadControls = getShowUploadControls(uploadMode, isWebRuntime());
+  const displayedFileName = getPublishURLFilename(url) || uploadedFileName;
 
   const hasInitializedDisplayName = useRef(false);
   useEffect(() => {
@@ -332,9 +337,12 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
             type='text'
             ref={urlRef}
             aria-label={requirePostLinkIsMedia ? t('link_to_file') : t('link')}
-            placeholder={capitalize(requirePostLinkIsMedia ? t('link_to_file') : t('link'))}
+            placeholder={requirePostLinkIsMedia ? FILE_LINK_PLACEHOLDER : capitalize(t('link'))}
             disabled={isUploading}
-            onChange={(e) => setPublishReplyOptions({ link: e.target.value })}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              setPublishReplyOptions({ link: e.target.value });
+            }}
           />
         </div>
         <div className={styles.content}>
@@ -365,8 +373,8 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
                   {t('choose_file')}
                 </button>
               </span>
-              <span className={styles.uploadFileName} title={uploadedFileName || t('no_file_chosen')}>
-                {isUploading ? t('uploading') : uploadedFileName || t('no_file_chosen')}
+              <span className={styles.uploadFileName} title={displayedFileName || t('no_file_chosen')}>
+                {isUploading ? t('uploading') : displayedFileName || t('no_file_chosen')}
               </span>
             </span>
           )}

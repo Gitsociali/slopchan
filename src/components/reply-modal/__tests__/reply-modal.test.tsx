@@ -398,6 +398,7 @@ describe('ReplyModal', () => {
     await dispatchInput(linkInput, 'https://example.com/file.png');
     await clickButtonByText('post');
 
+    expect(container.textContent).toContain('file.png');
     expect(testState.setPublishReplyOptionsMock).toHaveBeenCalledWith({ link: 'https://example.com/file.png' });
     expect(testState.publishReplyMock).toHaveBeenCalledTimes(1);
   });
@@ -419,6 +420,7 @@ describe('ReplyModal', () => {
     });
 
     expect(linkInput?.value).toBe('https://cdn.example/uploaded.png');
+    expect(container.textContent).toContain('uploaded.png');
     expect(testState.setPublishReplyOptionsMock).toHaveBeenCalledWith({ link: 'https://cdn.example/uploaded.png' });
 
     testState.replyIndex = 3;
@@ -463,7 +465,7 @@ describe('ReplyModal', () => {
     await renderReplyModal('/all/thread/post-1');
 
     const linkInput = container.querySelectorAll<HTMLInputElement>('input[type="text"]')[1];
-    expect(linkInput?.getAttribute('placeholder')).toContain('Link_to_file');
+    expect(linkInput?.getAttribute('placeholder')).toBe('https://website.com/image.jpg');
     expect(container.textContent).not.toContain('warning');
     expect(container.textContent).not.toContain('Spoiler?');
   });

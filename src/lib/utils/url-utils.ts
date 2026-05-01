@@ -75,6 +75,24 @@ export const isValidPublishURL = (url: string) => {
   }
 };
 
+export const getPublishURLFilename = (url: string): string | null => {
+  if (!isValidPublishURL(url)) {
+    return null;
+  }
+
+  const parsedUrl = new URL(normalizePublishURL(url));
+  const filename = parsedUrl.pathname.split('/').filter(Boolean).pop();
+  if (!filename) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(filename);
+  } catch {
+    return filename;
+  }
+};
+
 const CHAN_5_HOSTNAMES = ['5chan.app', '5chan.eth.limo', '5chan.eth.link', '5chan.eth.sucks', '5chan.netlify.app'];
 
 function getShareBaseUrl(): string {

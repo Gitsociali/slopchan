@@ -179,12 +179,16 @@ vi.mock('../../../hooks/use-file-upload', () => ({
 }));
 
 vi.mock('../../../lib/utils/media-utils', () => ({
+  getDisplayMediaInfoType: (type: string, t: (key: string) => string) => t(type),
   getLinkMediaInfo: (link: string) => {
     if (link.endsWith('.gif')) {
       return { type: 'gif', url: link };
     }
     if (link.endsWith('.png')) {
       return { type: 'image', url: link };
+    }
+    if (link.endsWith('.mp4')) {
+      return { type: 'video', url: link };
     }
     return { type: 'link', url: link };
   },
@@ -252,7 +256,9 @@ const clickByText = async (scope: ParentNode, text: string, index = 0) => {
 
 const dispatchInput = async (element: HTMLInputElement | HTMLTextAreaElement, value: string) => {
   await act(async () => {
-    element.value = value;
+    const prototype = element instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+    descriptor?.set?.call(element, value);
     element.dispatchEvent(new Event('input', { bubbles: true }));
     element.dispatchEvent(new Event('change', { bubbles: true }));
   });
@@ -379,6 +385,7 @@ describe('PostForm', () => {
     expect(nameInput).toBeTruthy();
     expect(subjectInput).toBeTruthy();
     expect(linkInput).toBeTruthy();
+    expect(linkInput?.getAttribute('placeholder')).toBe('https://website.com/image.jpg');
     expect(textarea).toBeTruthy();
     expect(select).toBeTruthy();
 
@@ -407,6 +414,23 @@ describe('PostForm', () => {
 
     expect(testState.publishPostMock).toHaveBeenCalledTimes(1);
     expect(testState.setPublishPostOptionsMock).toHaveBeenCalledWith({ communityAddress: 'music-posting.eth' });
+  });
+
+  it('shows the pasted file-link filename next to the upload button', async () => {
+    testState.uploadedFileName = null;
+
+    await renderPostForm('/all');
+    await clickByText(container, 'start_new_thread');
+
+    const table = container.querySelector('table');
+    const textInputs = table?.querySelectorAll<HTMLInputElement>('input[type="text"]') || [];
+    const linkInput = textInputs[2];
+
+    expect(table?.textContent).toContain('no_file_chosen');
+
+    await dispatchInput(linkInput as HTMLInputElement, 'https://example.com/images/file%20name.jpg?size=large');
+
+    expect(table?.textContent).toContain('file name.jpg');
   });
 
   it('redirects to the pending route when a post publish index is already available on mount', async () => {
@@ -480,7 +504,12 @@ describe('LinkTypePreviewer', () => {
     await act(async () => {
       root.render(createElement(LinkTypePreviewer, { link: 'https://example.com/file.gif' }));
     });
-    expect(container.textContent).toBe('animated_gif');
+    expect(container.textContent).toBe('type: animated_gif');
+
+    await act(async () => {
+      root.render(createElement(LinkTypePreviewer, { link: 'https://example.com/file.mp4' }));
+    });
+    expect(container.textContent).toBe('type: video');
 
     await act(async () => {
       root.render(createElement(LinkTypePreviewer, { link: 'not-a-url' }));

@@ -11,6 +11,7 @@ vi.mock('../clipboard-utils', () => ({
 import {
   copyShareLinkToClipboard,
   getHostname,
+  getPublishURLFilename,
   is5chanLink,
   isPrivateNetworkHostname,
   isValidCrossboardPattern,
@@ -57,6 +58,8 @@ describe('url-utils', () => {
     expect(isValidPublishURL('https://i.imgur.com/YpB7qfa.jpg')).toBe(true);
     expect(isValidPublishURL('ftp://example.com/file.jpg')).toBe(false);
     expect(isValidPublishURL('not-a-url')).toBe(false);
+    expect(getPublishURLFilename('https://example.com/images/file%20name.jpg?size=large')).toBe('file name.jpg');
+    expect(getPublishURLFilename('not-a-url')).toBeNull();
   });
 
   it('copies share links for threads and catalog pages using the production fallback base url', async () => {
