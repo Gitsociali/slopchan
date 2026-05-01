@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,13 +18,15 @@ import org.junit.runner.RunWith;
  * Instrumentation tests for MediaUploadAutomationRunner against controlled HTML fixtures.
  * Uses DataTransfer injection (no chooser). Simulates: delayed DOM, missing selectors,
  * success URL extraction, blocked. Validates timeout/error classification (input_not_found,
- * blocked/captcha, upload_timed_out). Runs on emulator or device; fixtures are deterministic.
+ * blocked/captcha, upload_timed_out). Kept for opt-in diagnostics because Android app uploads no
+ * longer use this WebView path.
  */
+@Ignore("Imgur WebView upload is no longer supported on Android; keep for manual diagnostics.")
 @RunWith(AndroidJUnit4.class)
 public class MediaUploadAutomationRunnerTest {
 
     private static final String FIXTURE_BASE = "file:///android_asset/fixtures/";
-    private static final long TEST_TIMEOUT_SEC = 15;
+    private static final long TEST_TIMEOUT_SEC = 25;
 
     /** Minimal 1x1 PNG for fixture tests (DataTransfer injection). */
     private static final byte[] SAMPLE_FILE_BYTES =

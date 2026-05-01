@@ -1,13 +1,9 @@
 package fivechan.android;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 
 import androidx.activity.result.ActivityResult;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,13 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.json.JSONArray;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
 @CapacitorPlugin(name = "FileUploader")
 public class FileUploaderPlugin extends Plugin {
     private static final String TAG = "FileUploaderPlugin";
@@ -46,9 +35,10 @@ public class FileUploaderPlugin extends Plugin {
     @PluginMethod
     public void pickAndUploadMedia(PluginCall call) {
         Log.d(TAG, "pickAndUploadMedia called");
-        List<String> providerOrder = parseProviderOrder(call);
+        List<String> providerOrder = getProviderOrder(call);
         if (providerOrder.isEmpty()) {
-            providerOrder.add(PROVIDER_CATBOX);
+            call.reject("No supported upload providers selected");
+            return;
         }
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
@@ -66,9 +56,12 @@ public class FileUploaderPlugin extends Plugin {
                     Object o = arr.get(i);
                     if (o instanceof String) {
                         String p = (String) o;
-                        if (PROVIDER_CATBOX.equals(p)
-                                || MediaUploadRecipes.PROVIDER_IMGUR.equals(p)) {
+                        if (PROVIDER_CATBOX.equals(p)) {
                             order.add(p);
+                        } else if (MediaUploadRecipes.isAndroidUploadProvider(p)) {
+                            order.add(p);
+                        } else if (MediaUploadRecipes.PROVIDER_IMGUR.equals(p)) {
+                            Log.d(TAG, "Skipping unsupported Android upload provider: " + p);
                         }
                     }
                 } catch (Exception e) {
@@ -77,6 +70,14 @@ public class FileUploaderPlugin extends Plugin {
             }
         }
         return order;
+    }
+
+    private List<String> getProviderOrder(PluginCall call) {
+        List<String> providerOrder = parseProviderOrder(call);
+        if (providerOrder.isEmpty() && call.getArray("providerOrder") == null) {
+            providerOrder.add(PROVIDER_CATBOX);
+        }
+        return providerOrder;
     }
 
     @ActivityCallback
@@ -103,9 +104,10 @@ public class FileUploaderPlugin extends Plugin {
             return;
         }
 
-        List<String> providerOrder = parseProviderOrder(call);
+        List<String> providerOrder = getProviderOrder(call);
         if (providerOrder.isEmpty()) {
-            providerOrder.add(PROVIDER_CATBOX);
+            call.reject("No supported upload providers selected");
+            return;
         }
 
         new Thread(
@@ -143,7 +145,7 @@ public class FileUploaderPlugin extends Plugin {
                 }
                 attempt.put("error", res.error);
                 errorSummary.append(provider).append(": ").append(res.error).append("; ");
-            } else if (MediaUploadRecipes.PROVIDER_IMGUR.equals(provider)) {
+            } else if (MediaUploadRecipes.isWebViewProvider(provider)) {
                 MediaUploadResult res = uploadViaWebViewSync(fileUri, provider);
                 attempt.put("success", res.success);
                 if (res.success) {
@@ -195,82 +197,18 @@ public class FileUploaderPlugin extends Plugin {
     }
 
     private MediaUploadResult uploadToCatboxSync(Uri fileUri) {
-        try {
-            File file = FileUtils.getFileFromUri(getContext(), fileUri);
-            if (file == null) {
-                return new MediaUploadResult(false, null, "Could not resolve file");
-            }
+        JSObject statusUpdate = new JSObject();
+        statusUpdate.put("status", "Uploading to catbox.moe...");
+        notifyListeners("uploadStatus", statusUpdate);
 
-            JSObject statusUpdate = new JSObject();
-            statusUpdate.put("status", "Uploading to catbox.moe...");
-            notifyListeners("uploadStatus", statusUpdate);
-
-            OkHttpClient client =
-                    new OkHttpClient.Builder()
-                            .connectTimeout(CATBOX_TIMEOUT_SEC, TimeUnit.SECONDS)
-                            .writeTimeout(CATBOX_TIMEOUT_SEC, TimeUnit.SECONDS)
-                            .readTimeout(CATBOX_TIMEOUT_SEC, TimeUnit.SECONDS)
-                            .build();
-
-            RequestBody requestBody =
-                    new MultipartBody.Builder()
-                            .setType(MultipartBody.FORM)
-                            .addFormDataPart("reqtype", "fileupload")
-                            .addFormDataPart(
-                                    "fileToUpload",
-                                    file.getName(),
-                                    RequestBody.create(
-                                            MediaType.parse("application/octet-stream"), file))
-                            .build();
-
-            Request request =
-                    new Request.Builder().url("https://catbox.moe/user/api.php").post(requestBody).build();
-
-            try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    return new MediaUploadResult(
-                            false, null, "Unexpected response " + response.code());
-                }
-                if (response.body() == null) {
-                    return new MediaUploadResult(false, null, "Empty response body");
-                }
-                String url = response.body().string();
-                Log.d(TAG, "Catbox upload successful. URL: " + url);
-                return new MediaUploadResult(true, url.trim(), null);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Catbox upload failed", e);
-            return new MediaUploadResult(false, null, e.getMessage());
-        }
+        return CatboxUploader.upload(getContext(), fileUri, CATBOX_TIMEOUT_SEC);
     }
 
     private MediaUploadResult uploadViaWebViewSync(Uri fileUri, String provider) {
-        ContentResolver resolver = getContext().getContentResolver();
-        byte[] fileBytes;
-        String mimeType;
-        try {
-            try (InputStream is = resolver.openInputStream(fileUri)) {
-                if (is == null) {
-                    return new MediaUploadResult(false, null, "Could not open file stream");
-                }
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = is.read(buf)) != -1) {
-                    baos.write(buf, 0, n);
-                }
-                fileBytes = baos.toByteArray();
-            }
-            String resolvedMime = resolver.getType(fileUri);
-            mimeType = (resolvedMime == null || resolvedMime.isEmpty())
-                    ? "application/octet-stream" : resolvedMime;
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to read file", e);
-            return new MediaUploadResult(false, null, "Could not read file: " + e.getMessage());
-        }
+        JSObject statusUpdate = new JSObject();
+        statusUpdate.put("status", "Uploading to " + provider + "...");
+        notifyListeners("uploadStatus", statusUpdate);
 
-        final byte[] finalFileBytes = fileBytes;
-        final String finalMimeType = mimeType;
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<MediaUploadResult> resultRef = new AtomicReference<>();
 
@@ -291,12 +229,10 @@ public class FileUploaderPlugin extends Plugin {
                     MediaUploadAutomationRunner runner =
                             new MediaUploadAutomationRunner(
                                     getContext(),
-                                    finalFileBytes,
+                                    fileUri,
                                     fileName,
-                                    finalMimeType,
                                     provider,
-                                    callback,
-                                    null);
+                                    callback);
                     runner.run();
                 });
 

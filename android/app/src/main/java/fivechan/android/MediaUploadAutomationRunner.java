@@ -4,10 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
+import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -63,9 +65,9 @@ interface MediaUploadCallback {
 }
 
 /**
- * Non-interactive WebView automation for imgur uploads.
- * Primary path injects file bytes with DataTransfer, then polls for success/blocked.
- * Legacy Uri chooser interception is retained only as passive fallback.
+ * Non-interactive WebView automation for provider uploads.
+ * Android uploads use the WebView file chooser when providers support it. ImgBB and fixture
+ * tests use DataTransfer byte injection, then poll for success/blocked.
  */
 @SuppressLint("SetJavaScriptEnabled")
 public class MediaUploadAutomationRunner {
@@ -80,28 +82,33 @@ public class MediaUploadAutomationRunner {
     static final String STAGE_SUCCESS_SELECTOR_MATCHED = "success_selector_matched";
     static final String STAGE_BLOCKED_DETECTED = "blocked_detected";
     static final String STAGE_INPUT_NOT_FOUND = "input_not_found";
+    static final String STAGE_CHOOSER_NOT_TRIGGERED = "chooser_not_triggered";
     static final String STAGE_FILE_PAYLOAD_UNAVAILABLE = "file_payload_unavailable";
     static final String STAGE_UPLOAD_TIMED_OUT = "upload_timed_out";
 
     private final Context context;
+    private final Uri fileUri;
     private final String fileName;
-    private final byte[] fileBytes;
-    private final String mimeType;
+    private byte[] fileBytes;
+    private String mimeType;
     private final String provider;
     private final MediaUploadCallback callback;
     /** When non-null (test fixtures), use instead of getUploadUrl(provider). */
     private final String overrideUploadUrl;
 
     private WebView webView;
+    private ValueCallback<Uri[]> filePathCallback;
     private final Handler mainHandler;
     private final Runnable pollRunnable;
+    private final Runnable overallTimeoutRunnable;
     private boolean finished;
     private boolean fileInjected;
+    private boolean dataTransferFallbackAttempted;
     private boolean submitClicked;
     private long startTime;
     /** Last matched selector (for diagnostics). */
     private String lastMatchedSelector;
-    /** Number of injection attempts so far (for diagnostics). */
+    /** Number of trigger or injection attempts so far (for diagnostics). */
     private int triggerAttemptCount;
 
     private static final class ResolvedFilePayload {
@@ -155,6 +162,7 @@ public class MediaUploadAutomationRunner {
             MediaUploadCallback callback,
             String overrideUploadUrl) {
         this.context = context.getApplicationContext();
+        this.fileUri = null;
         this.fileName = fileName != null ? fileName : "file";
         this.fileBytes = fileBytes;
         this.mimeType = mimeType != null ? mimeType : "application/octet-stream";
@@ -163,20 +171,18 @@ public class MediaUploadAutomationRunner {
         this.overrideUploadUrl = overrideUploadUrl;
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.pollRunnable = this::pollForResult;
+        this.overallTimeoutRunnable = this::handleOverallTimeout;
     }
 
-    /**
-     * Legacy constructor (Uri-based). Kept for backward compat; prefer bytes constructor.
-     * Resolves bytes once so legacy callers still use DataTransfer by default.
-     */
+    /** Real Android upload constructor: prefer native WebView file chooser with this Uri. */
     public MediaUploadAutomationRunner(
             Context context, Uri fileUri, String fileName, String provider, MediaUploadCallback callback) {
         this(context, fileUri, fileName, provider, callback, null);
     }
 
     /**
-     * Legacy test constructor: overrideUploadUrl loads fixture instead of live provider URL.
-     * Package-visible for instrumentation tests. Requires fileBytes to be passed via bytes constructor.
+     * Uri constructor with optional fixture URL.
+     * Package-visible for instrumentation tests, though fixture tests usually use the bytes constructor.
      */
     MediaUploadAutomationRunner(
             Context context,
@@ -186,15 +192,21 @@ public class MediaUploadAutomationRunner {
             MediaUploadCallback callback,
             String overrideUploadUrl) {
         this.context = context.getApplicationContext();
+        this.fileUri = fileUri;
         this.fileName = fileName != null ? fileName : "file";
-        ResolvedFilePayload payload = resolveFilePayload(this.context, fileUri);
-        this.fileBytes = payload.fileBytes;
-        this.mimeType = payload.mimeType;
+        this.fileBytes = null;
+        ContentResolver resolver = this.context.getContentResolver();
+        String resolvedMime = fileUri != null ? resolver.getType(fileUri) : null;
+        this.mimeType =
+                (resolvedMime == null || resolvedMime.isEmpty())
+                        ? "application/octet-stream"
+                        : resolvedMime;
         this.provider = provider;
         this.callback = callback;
         this.overrideUploadUrl = overrideUploadUrl;
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.pollRunnable = this::pollForResult;
+        this.overallTimeoutRunnable = this::handleOverallTimeout;
     }
 
     public void run() {
@@ -209,6 +221,38 @@ public class MediaUploadAutomationRunner {
         Log.d(TAG, "[" + provider + "] " + stage + " elapsed=" + elapsedMs() + "ms");
     }
 
+    private boolean shouldUseFileChooser() {
+        return fileUri != null
+                && overrideUploadUrl == null
+                && !MediaUploadRecipes.PROVIDER_IMGBB.equals(provider);
+    }
+
+    private boolean ensureFilePayload() {
+        if (fileBytes != null && fileBytes.length > 0) {
+            return true;
+        }
+        if (fileUri == null) {
+            return false;
+        }
+        ResolvedFilePayload payload = resolveFilePayload(context, fileUri);
+        fileBytes = payload.fileBytes;
+        mimeType = payload.mimeType;
+        return fileBytes != null && fileBytes.length > 0;
+    }
+
+    private void handleOverallTimeout() {
+        if (finished) return;
+        finish(
+                new MediaUploadResult(
+                        false,
+                        null,
+                        "Upload timeout",
+                        STAGE_UPLOAD_TIMED_OUT,
+                        elapsedMs(),
+                        lastMatchedSelector,
+                        triggerAttemptCount));
+    }
+
     private void startWebView() {
         webView = new WebView(context);
         webView.setVisibility(android.view.View.GONE);
@@ -219,6 +263,13 @@ public class MediaUploadAutomationRunner {
         settings.setAllowContentAccess(true);
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
+        settings.setUserAgentString(
+                "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36");
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.setAcceptThirdPartyCookies(webView, true);
+        }
 
         webView.setWebChromeClient(
                 new WebChromeClient() {
@@ -227,10 +278,18 @@ public class MediaUploadAutomationRunner {
                             WebView webView,
                             ValueCallback<Uri[]> filePathCallback,
                             FileChooserParams fileChooserParams) {
-                        // Passive fallback only: observe callback, do not drive chooser flow.
-                        Log.d(TAG, "[" + provider + "] chooser callback observed (passive fallback)");
+                        if (!shouldUseFileChooser()) {
+                            return false;
+                        }
                         logStage(STAGE_FILE_CHOOSER_CALLBACK);
-                        return false;
+                        MediaUploadAutomationRunner.this.filePathCallback = filePathCallback;
+                        fileInjected = true;
+                        schedulePoll();
+                        if (fileUri != null) {
+                            filePathCallback.onReceiveValue(new Uri[] {fileUri});
+                            MediaUploadAutomationRunner.this.filePathCallback = null;
+                        }
+                        return true;
                     }
                 });
 
@@ -239,7 +298,13 @@ public class MediaUploadAutomationRunner {
                     @Override
                     public void onPageFinished(WebView view, String url) {
                         logStage(STAGE_PAGE_LOADED);
-                        if (fileBytes == null || fileBytes.length == 0) {
+                        if (shouldUseFileChooser()) {
+                            mainHandler.postDelayed(
+                                    MediaUploadAutomationRunner.this::triggerFileInput,
+                                    MediaUploadRecipes.TRIGGER_INITIAL_DELAY_MS);
+                            return;
+                        }
+                        if (!ensureFilePayload()) {
                             finish(
                                     new MediaUploadResult(
                                             false,
@@ -266,12 +331,70 @@ public class MediaUploadAutomationRunner {
         }
         startTime = System.currentTimeMillis();
         webView.loadUrl(uploadUrl);
+        mainHandler.postDelayed(overallTimeoutRunnable, MediaUploadRecipes.getUploadTimeoutMs(provider));
         Log.d(TAG, "Loaded " + uploadUrl + " for provider " + provider);
+    }
+
+    private void triggerFileInput() {
+        if (finished || fileInjected) return;
+        String js = MediaUploadRecipes.getTriggerFileInputJs(provider);
+        if (js == null) {
+            finish(
+                    new MediaUploadResult(
+                            false, null, "No trigger JS for " + provider, "no_recipe", elapsedMs(), null));
+            return;
+        }
+        triggerAttemptCount++;
+        webView.evaluateJavascript(
+                js,
+                value -> {
+                    if (finished || fileInjected) return;
+                    String raw = value == null ? "" : value.trim();
+                    String unquoted =
+                            raw.replaceAll("^\"|\"$", "")
+                                    .replace("\\u003d", "=")
+                                    .replace("\\\"", "\"")
+                                    .trim();
+                    boolean matched = !"false".equals(raw) && unquoted.length() > 0;
+                    if (matched) {
+                        lastMatchedSelector = unquoted;
+                        logStage(STAGE_SELECTOR_MATCHED);
+                    }
+                    scheduleTriggerRetry();
+                });
+    }
+
+    private void scheduleTriggerRetry() {
+        if (finished || fileInjected) return;
+        long elapsed = elapsedMs();
+        if (elapsed >= MediaUploadRecipes.FILE_INPUT_TIMEOUT_MS) {
+            if (lastMatchedSelector != null && !dataTransferFallbackAttempted) {
+                dataTransferFallbackAttempted = true;
+                injectFileViaDataTransfer();
+                return;
+            }
+            String stage = lastMatchedSelector != null ? STAGE_CHOOSER_NOT_TRIGGERED : STAGE_INPUT_NOT_FOUND;
+            String error =
+                    lastMatchedSelector != null
+                            ? "File chooser not triggered"
+                            : "File input not found";
+            finish(
+                    new MediaUploadResult(
+                            false,
+                            null,
+                            error,
+                            stage,
+                            elapsed,
+                            lastMatchedSelector,
+                            triggerAttemptCount));
+            return;
+        }
+        mainHandler.postDelayed(this::triggerFileInput, MediaUploadRecipes.TRIGGER_RETRY_INTERVAL_MS);
     }
 
     private void injectFileViaDataTransfer() {
         if (finished || fileInjected) return;
-        if (fileBytes == null || fileBytes.length == 0) {
+        if (!ensureFilePayload()) {
             finish(
                     new MediaUploadResult(
                             false,
@@ -353,7 +476,7 @@ public class MediaUploadAutomationRunner {
             return;
         }
 
-        // Optional submit step after DataTransfer injection: some providers need explicit submit.
+        // Optional submit step after file selection/injection: some providers need explicit submit.
         // Retry submit attempts until one actually clicks; some pages render/enable controls late.
         if (fileInjected && !submitClicked) {
             String submitJs = MediaUploadRecipes.getSubmitClickJs(provider);
@@ -422,25 +545,38 @@ public class MediaUploadAutomationRunner {
         if (finished) return;
         finished = true;
         mainHandler.removeCallbacks(pollRunnable);
+        mainHandler.removeCallbacks(overallTimeoutRunnable);
+        if (filePathCallback != null) {
+            try {
+                filePathCallback.onReceiveValue(null);
+            } catch (Exception ignored) {}
+            filePathCallback = null;
+        }
         tearDown();
         callback.onComplete(result);
     }
 
     private void tearDown() {
-        mainHandler.post(
+        Runnable cleanup =
                 () -> {
-                    if (webView != null) {
-                        try {
-                            webView.stopLoading();
-                            webView.clearHistory();
-                            webView.clearCache(true);
-                            webView.clearSslPreferences();
-                            webView.destroy();
-                        } catch (Exception e) {
-                            Log.w(TAG, "Teardown warning", e);
-                        }
-                        webView = null;
+                    if (webView == null) {
+                        return;
                     }
-                });
+                    try {
+                        webView.stopLoading();
+                        webView.clearHistory();
+                        webView.clearCache(true);
+                        webView.clearSslPreferences();
+                        webView.destroy();
+                    } catch (Exception e) {
+                        Log.w(TAG, "Teardown warning", e);
+                    }
+                    webView = null;
+                };
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            cleanup.run();
+            return;
+        }
+        mainHandler.post(cleanup);
     }
 }

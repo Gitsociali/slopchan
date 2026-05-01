@@ -24,6 +24,9 @@ public class MediaUploadRecipesTest {
     public void uploadTimeout_exceedsFileInputTimeout() {
         assertTrue(
                 MediaUploadRecipes.UPLOAD_TIMEOUT_MS > MediaUploadRecipes.FILE_INPUT_TIMEOUT_MS);
+        assertTrue(
+                MediaUploadRecipes.IMGBB_UPLOAD_TIMEOUT_MS
+                        > MediaUploadRecipes.FILE_INPUT_TIMEOUT_MS);
     }
 
     @Test
@@ -31,6 +34,13 @@ public class MediaUploadRecipesTest {
         assertEquals(
                 "https://imgur.com/upload",
                 MediaUploadRecipes.getUploadUrl(MediaUploadRecipes.PROVIDER_IMGUR));
+    }
+
+    @Test
+    public void getUploadUrl_imgbb() {
+        assertEquals(
+                "https://imgbb.com/",
+                MediaUploadRecipes.getUploadUrl(MediaUploadRecipes.PROVIDER_IMGBB));
     }
 
     @Test
@@ -49,6 +59,14 @@ public class MediaUploadRecipesTest {
     }
 
     @Test
+    public void getTriggerFileInputJs_imgbb_containsSelectors() {
+        String js = MediaUploadRecipes.getTriggerFileInputJs(MediaUploadRecipes.PROVIDER_IMGBB);
+        assertNotNull(js);
+        assertTrue(js.contains("anywhere-upload-input"));
+        assertTrue(js.contains("btn-big"));
+    }
+
+    @Test
     public void getTriggerFileInputJs_unknownProvider_returnsNull() {
         assertNull(MediaUploadRecipes.getTriggerFileInputJs("unknown"));
     }
@@ -62,10 +80,27 @@ public class MediaUploadRecipesTest {
     }
 
     @Test
+    public void getSubmitClickJs_imgbb_setsNoAutodeleteAndClicksUpload() {
+        String js = MediaUploadRecipes.getSubmitClickJs(MediaUploadRecipes.PROVIDER_IMGBB);
+        assertNotNull(js);
+        assertTrue(js.contains("upload-expiration"));
+        assertTrue(js.contains("data-action"));
+        assertTrue(js.contains("click"));
+    }
+
+    @Test
     public void getSuccessJs_imgur_containsImgurSelectors() {
         String js = MediaUploadRecipes.getSuccessJs(MediaUploadRecipes.PROVIDER_IMGUR);
         assertNotNull(js);
         assertTrue(js.contains("i.imgur.com"));
+    }
+
+    @Test
+    public void getSuccessJs_imgbb_containsImgbbSelectors() {
+        String js = MediaUploadRecipes.getSuccessJs(MediaUploadRecipes.PROVIDER_IMGBB);
+        assertNotNull(js);
+        assertTrue(js.contains("i.ibb.co"));
+        assertTrue(js.contains("html-embed-medium"));
     }
 
     @Test
