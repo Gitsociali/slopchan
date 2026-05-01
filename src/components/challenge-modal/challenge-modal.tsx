@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Challenge as ChallengeType, useAccount, useComment } from '@bitsocial/bitsocial-react-hooks';
+import { Capacitor } from '@capacitor/core';
 import { getPublicationPreview, getPublicationType, getVotePreview, type ChallengePublication } from '../../lib/utils/challenge-utils';
 import useIsMobile from '../../hooks/use-is-mobile';
 import useChallengesStore from '../../stores/use-challenges-store';
@@ -44,6 +45,23 @@ const getDisplayCommunityAddress = (shortCommunityAddress?: string, communityAdd
   shortCommunityAddress || (communityAddress ? getShortAddress(communityAddress) : '') || communityAddress || '';
 
 const iframeChallengeConfirmDecisions = new Map<string, 'accepted' | 'rejected'>();
+const isIosWebKitUserAgent = () => {
+  if (typeof navigator === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
+const isDesktopSafariUserAgent = () => {
+  if (typeof navigator === 'undefined') return false;
+  const isAppleVendor = navigator.vendor === 'Apple Computer, Inc.';
+  const isSafari = /Safari/.test(navigator.userAgent);
+  const isOtherBrowser = /Chrome|Chromium|CriOS|FxiOS|Edg|OPR|SamsungBrowser/.test(navigator.userAgent);
+  return isAppleVendor && isSafari && !isOtherBrowser;
+};
+
+const shouldUseInlineIframeConfirm = () => {
+  const platform = Capacitor.getPlatform();
+  return platform === 'android' || platform === 'ios' || isIosWebKitUserAgent() || isDesktopSafariUserAgent();
+};
 
 const TextChallenge = ({ challenge }: { challenge: string }) => <div className={styles.challengeMedia}>{challenge}</div>;
 
@@ -112,17 +130,34 @@ interface IframeChallengeProps {
   challenge: string;
   confirmKey: string;
   confirmMessage: string;
+  inlineConfirm: boolean;
   onCancel: () => void;
   onDone: () => void;
   onAutoComplete: (challengeAnswers: string[]) => void;
   onReady: () => void;
+  openLabel: string;
+  closeLabel: string;
 }
 
-const IframeChallenge = ({ challenge, confirmKey, confirmMessage, onCancel, onDone, onAutoComplete, onReady }: IframeChallengeProps) => {
+type IframeConfirmSource = 'native' | 'inline';
+
+const IframeChallenge = ({
+  challenge,
+  confirmKey,
+  confirmMessage,
+  inlineConfirm,
+  onCancel,
+  onDone,
+  onAutoComplete,
+  onReady,
+  openLabel,
+  closeLabel,
+}: IframeChallengeProps) => {
   const account = useAccount();
   const [theme] = useTheme();
   const [iframeUrlState, setIframeUrl] = useState('');
   const [iframeOrigin, setIframeOrigin] = useState('');
+  const [inlineErrorMessage, setInlineErrorMessage] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const attemptedLoadRef = useRef(false);
   const mountedRef = useRef(false);
@@ -148,58 +183,77 @@ const IframeChallenge = ({ challenge, confirmKey, confirmMessage, onCancel, onDo
     [onReady],
   );
 
-  const handleLoadIframe = useCallback(() => {
-    const iframeUrl = challenge;
-    if (!iframeUrl) return;
+  const handleLoadIframe = useCallback(
+    (confirmSource: IframeConfirmSource) => {
+      const iframeUrl = challenge;
+      if (!iframeUrl) return;
 
-    const rawUserAddress = account?.author?.address?.trim();
-    const requiresUserAddress = iframeUrl.includes('{userAddress}');
-
-    if (requiresUserAddress && !rawUserAddress) {
-      alert('Error: Unable to load challenge without your address. Please sign in and try again.');
-      iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
-      onCancel();
-      return;
-    }
-
-    const encodedAddress = rawUserAddress ? encodeURIComponent(rawUserAddress) : undefined;
-    const replacedUrl = requiresUserAddress && encodedAddress ? iframeUrl.replace(/\{userAddress\}/g, encodedAddress) : iframeUrl;
-
-    const validatedUrl = validateIframeChallengeUrl(replacedUrl, theme);
-    if (validatedUrl.status === 'unsupported') {
-      alert('Error: Only HTTPS iframe challenges or localhost HTTP challenges are supported');
-      iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
-      onCancel();
-      return;
-    }
-    if (validatedUrl.status === 'invalid') {
-      console.error('Invalid iframe challenge URL', { error: validatedUrl.error });
-      alert('Error: Invalid URL for authentication challenge');
-      iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
-      onCancel();
-      return;
-    }
-    const decision = iframeChallengeConfirmDecisions.get(confirmKey);
-    if (decision === 'rejected') {
-      onCancel();
-      return;
-    }
-    if (decision !== 'accepted') {
-      if (!window.confirm(confirmMessage)) {
+      const rejectChallenge = (message: string) => {
         iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
+        if (inlineConfirm) {
+          setInlineErrorMessage(message);
+          return;
+        }
+        alert(message);
+        onCancel();
+      };
+
+      const rawUserAddress = account?.author?.address?.trim();
+      const requiresUserAddress = iframeUrl.includes('{userAddress}');
+
+      if (requiresUserAddress && !rawUserAddress) {
+        rejectChallenge('Error: Unable to load challenge without your address. Please sign in and try again.');
+        return;
+      }
+
+      const encodedAddress = rawUserAddress ? encodeURIComponent(rawUserAddress) : undefined;
+      const replacedUrl = requiresUserAddress && encodedAddress ? iframeUrl.replace(/\{userAddress\}/g, encodedAddress) : iframeUrl;
+
+      const validatedUrl = validateIframeChallengeUrl(replacedUrl, theme);
+      if (validatedUrl.status === 'unsupported') {
+        rejectChallenge('Error: Only HTTPS iframe challenges or localhost HTTP challenges are supported');
+        return;
+      }
+      if (validatedUrl.status === 'invalid') {
+        console.error('Invalid iframe challenge URL', { error: validatedUrl.error });
+        rejectChallenge('Error: Invalid URL for authentication challenge');
+        return;
+      }
+      const decision = iframeChallengeConfirmDecisions.get(confirmKey);
+      if (decision === 'rejected') {
         onCancel();
         return;
       }
-      iframeChallengeConfirmDecisions.set(confirmKey, 'accepted');
-    }
-    openValidatedIframe(validatedUrl);
-  }, [account, challenge, confirmKey, confirmMessage, onCancel, openValidatedIframe, theme]);
+      if (decision !== 'accepted') {
+        if (confirmSource === 'native' && !window.confirm(confirmMessage)) {
+          iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
+          onCancel();
+          return;
+        }
+        iframeChallengeConfirmDecisions.set(confirmKey, 'accepted');
+      }
+      openValidatedIframe(validatedUrl);
+    },
+    [account, challenge, confirmKey, confirmMessage, inlineConfirm, onCancel, openValidatedIframe, theme],
+  );
 
   useEffect(() => {
+    if (inlineConfirm) return;
     if (attemptedLoadRef.current) return;
     attemptedLoadRef.current = true;
-    handleLoadIframe();
+    handleLoadIframe('native');
+  }, [handleLoadIframe, inlineConfirm]);
+
+  const handleInlineConfirm = useCallback(() => {
+    if (attemptedLoadRef.current) return;
+    attemptedLoadRef.current = true;
+    handleLoadIframe('inline');
   }, [handleLoadIframe]);
+
+  const handleInlineCancel = useCallback(() => {
+    iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
+    onCancel();
+  }, [confirmKey, onCancel]);
 
   const sendThemeToIframe = useCallback(() => {
     postThemeToIframe(iframeRef.current, iframeOrigin, theme);
@@ -240,6 +294,27 @@ const IframeChallenge = ({ challenge, confirmKey, confirmMessage, onCancel, onDo
   }, [expectedSessionId, iframeOrigin, onAutoComplete]);
 
   if (!iframeUrlState) {
+    if (inlineConfirm) {
+      return (
+        <>
+          <div className={`${styles.challengeMediaWrapper} ${styles.iframeConsentWrapper}`}>
+            <div className={styles.iframeConsentMessage}>{inlineErrorMessage || confirmMessage}</div>
+          </div>
+          <div className={`${styles.challengeFooter} ${styles.iframeFooter}`}>
+            <span>
+              {!inlineErrorMessage && (
+                <button type='button' onClick={handleInlineConfirm}>
+                  {openLabel}
+                </button>
+              )}
+              <button type='button' onClick={handleInlineCancel}>
+                {closeLabel}
+              </button>
+            </span>
+          </div>
+        </>
+      );
+    }
     return null;
   }
 
@@ -298,7 +373,8 @@ const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: Challen
   const isTextChallenge = currentChallenge?.type === 'text/plain';
   const isImageChallenge = currentChallenge?.type === 'image/png';
   const isIframeChallenge = currentChallenge?.type === 'url/iframe';
-  const isIframePending = isIframeChallenge && readyIframeChallengeKey !== iframeChallengeKey;
+  const inlineIframeConfirm = isIframeChallenge && shouldUseInlineIframeConfirm();
+  const isIframePending = isIframeChallenge && !inlineIframeConfirm && readyIframeChallengeKey !== iframeChallengeKey;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -463,10 +539,13 @@ const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: Challen
             challenge={currentChallenge?.challenge ?? ''}
             confirmKey={iframeChallengeKey}
             confirmMessage={iframeConfirmMessage}
+            inlineConfirm={inlineIframeConfirm}
             onCancel={abandonModal}
             onDone={onIframeDone}
             onAutoComplete={onIframeAutoComplete}
             onReady={onIframeReady}
+            openLabel={capitalize(t('open'))}
+            closeLabel={t('close')}
           />
         ) : (
           <>

@@ -15,6 +15,7 @@ const testState = vi.hoisted(() => ({
       address: '0xabc123',
     },
   } as Record<string, any>,
+  capacitorPlatform: 'web',
   challenges: [] as Array<{ challenge: any; id: number }>,
   commentsByCid: {} as Record<string, { author?: { shortAddress?: string } }>,
   publicationPreview: 'preview body',
@@ -42,6 +43,12 @@ vi.mock('react-i18next', () => ({
 vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useComment: ({ commentCid }: { commentCid?: string }) => (commentCid ? testState.commentsByCid[commentCid] : undefined),
+}));
+
+vi.mock('@capacitor/core', () => ({
+  Capacitor: {
+    getPlatform: () => testState.capacitorPlatform,
+  },
 }));
 
 vi.mock('../../../lib/utils/challenge-utils', () => ({
@@ -139,6 +146,13 @@ const clickButton = async (text: string) => {
   });
 };
 
+const setNavigatorValue = (key: keyof Navigator, value: unknown) => {
+  Object.defineProperty(window.navigator, key, {
+    configurable: true,
+    value,
+  });
+};
+
 describe('ChallengeModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -148,6 +162,7 @@ describe('ChallengeModal', () => {
         address: '0xabc123',
       },
     };
+    testState.capacitorPlatform = 'web';
     testState.challenges = [];
     testState.commentsByCid = {
       'parent-1': {
@@ -162,6 +177,10 @@ describe('ChallengeModal', () => {
     testState.springStartMock.mockReset();
     testState.theme = 'dark';
     testState.votePreview = 'upvote';
+    setNavigatorValue('maxTouchPoints', 0);
+    setNavigatorValue('platform', 'MacIntel');
+    setNavigatorValue('userAgent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125 Safari/537.36');
+    setNavigatorValue('vendor', 'Google Inc.');
     alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -463,6 +482,113 @@ describe('ChallengeModal', () => {
     expect(confirmSpy).toHaveBeenCalledWith('mu wants to open spamblocker.bitsocial.net.\n\nFor post: Subject');
     expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
     expect(container.querySelector('iframe')).toBeNull();
+  });
+
+  it('uses inline iframe confirmation on Android instead of window.confirm', async () => {
+    const publication = createPublication();
+    testState.capacitorPlatform = 'android';
+    testState.publicationType = 'reply';
+    testState.challenges = [
+      createStoredChallenge(
+        {
+          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+          type: 'url/iframe',
+        },
+        {
+          ...publication,
+          content: '>>17\nreply from android',
+          title: '',
+        },
+      ),
+    ];
+
+    await renderModal();
+
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('spamblocker.bitsocial.net');
+    expect(container.textContent).toContain('mu wants to open spamblocker.bitsocial.net.\n\nFor reply: >>17 reply from android');
+    expect(container.textContent).toContain('Open');
+    expect(container.textContent).toContain('close');
+    expect(container.textContent).not.toContain('Challenge for reply');
+    expect(container.querySelector('iframe')).toBeNull();
+
+    await clickButton('Open');
+
+    const iframe = container.querySelector('iframe');
+    expect(iframe).not.toBeNull();
+    expect(iframe?.getAttribute('src')).toContain('https://spamblocker.bitsocial.net/api/v1/iframe/session-123?theme=dark');
+    expect(testState.abandonCurrentChallengeMock).not.toHaveBeenCalled();
+  });
+
+  it('abandons Android iframe challenges when inline confirmation is closed', async () => {
+    testState.capacitorPlatform = 'android';
+    testState.challenges = [
+      createStoredChallenge({
+        challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+        type: 'url/iframe',
+      }),
+    ];
+
+    await renderModal();
+    await clickButton('close');
+
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
+    expect(container.querySelector('iframe')).toBeNull();
+  });
+
+  it('uses inline iframe confirmation on Safari instead of window.confirm', async () => {
+    testState.publicationType = 'reply';
+    setNavigatorValue('userAgent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15');
+    setNavigatorValue('vendor', 'Apple Computer, Inc.');
+    testState.challenges = [
+      createStoredChallenge(
+        {
+          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+          type: 'url/iframe',
+        },
+        {
+          ...createPublication(),
+          content: '>>17\nreply from safari',
+          title: '',
+        },
+      ),
+    ];
+
+    await renderModal();
+
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('mu wants to open spamblocker.bitsocial.net.\n\nFor reply: >>17 reply from safari');
+    expect(container.querySelector('iframe')).toBeNull();
+
+    await clickButton('Open');
+
+    const iframe = container.querySelector('iframe');
+    expect(iframe).not.toBeNull();
+    expect(iframe?.getAttribute('src')).toContain('https://spamblocker.bitsocial.net/api/v1/iframe/session-123?theme=dark');
+  });
+
+  it('shows iframe challenge errors inline on Safari instead of relying on alert', async () => {
+    testState.account = { author: { address: '' } };
+    setNavigatorValue('userAgent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15');
+    setNavigatorValue('vendor', 'Apple Computer, Inc.');
+    testState.challenges = [
+      createStoredChallenge({
+        challenge: 'https://mintpass.org/auth?user={userAddress}',
+        type: 'url/iframe',
+      }),
+    ];
+
+    await renderModal();
+    await clickButton('Open');
+
+    expect(alertSpy).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('Error: Unable to load challenge without your address. Please sign in and try again.');
+    expect(container.textContent).not.toContain('Open');
+    expect(container.querySelector('iframe')).toBeNull();
+
+    await clickButton('close');
+    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
   });
 
   it('alerts when iframe challenges need a signer address and the account is missing one', async () => {
