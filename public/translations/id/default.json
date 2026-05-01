@@ -365,5 +365,5 @@
   "more_threads_last_month": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari bulan lalu</1>]",
   "more_threads_last_year": "{{count}} thread sejak {{currentTimeFilterName}} — [<1>Tampilkan lebih banyak thread dari tahun lalu</1>]",
   "iframe_challenge_confirm": "{{board}} ingin membuka {{site}}.\n\nUntuk {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
+  "media_hosting_provider_unavailable": "Tidak tersedia dari jaringan ini. Coba jaringan lain atau VPN."
 }

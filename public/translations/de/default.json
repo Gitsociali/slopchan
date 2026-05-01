@@ -365,5 +365,5 @@
   "more_threads_last_month": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Monat anzeigen</1>]",
   "more_threads_last_year": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Jahr anzeigen</1>]",
   "iframe_challenge_confirm": "{{board}} möchte {{site}} öffnen.\n\nFür {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Unavailable from this network. Try another network or a VPN."
+  "media_hosting_provider_unavailable": "Von diesem Netzwerk aus nicht verfügbar. Versuche ein anderes Netzwerk oder ein VPN."
 }
