@@ -128,6 +128,7 @@ describe('media-utils', () => {
       url: 'https://ibb.co/abc123',
     });
     expect(getLinkMediaInfo('https://example.com/file.gif')).toMatchObject({ type: 'gif' });
+    expect(getLinkMediaInfo('https://external-preview.redd.it/example.gif?width=480&format=mp4')).toMatchObject({ type: 'video' });
     expect(getLinkMediaInfo('https://example.com/file.png')).toMatchObject({ type: 'image' });
     expect(getLinkMediaInfo('https://example.com/file.mp4')).toMatchObject({ type: 'video' });
     expect(getLinkMediaInfo('https://example.com/file.mp3')).toMatchObject({ type: 'audio' });

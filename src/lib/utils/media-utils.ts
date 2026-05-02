@@ -79,6 +79,7 @@ const getPatternThumbnailUrl = (url: URL): string | undefined => {
 const KNOWN_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff'];
 const KNOWN_VIDEO_EXTENSIONS = ['mp4', 'webm', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'm4v'];
 const KNOWN_AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma'];
+const KNOWN_MEDIA_EXTENSIONS = new Set([...KNOWN_IMAGE_EXTENSIONS, ...KNOWN_VIDEO_EXTENSIONS, ...KNOWN_AUDIO_EXTENSIONS]);
 
 // some sites don't show thumbnails, so the backend-side thumbnail fetching needs to be  disabled, or it might fetch non-thumbnails such as emojis
 const THUMBNAIL_BLACKLISTED_DOMAINS = ['twitter.com', 'x.com'];
@@ -114,6 +115,16 @@ const getAllowedThumbnailUrl = (value: string, baseUrl: string): string | undefi
   }
 };
 
+const getDirectMediaExtension = (url: URL): string => {
+  const format = url.searchParams.get('format')?.toLowerCase() ?? '';
+  if (KNOWN_MEDIA_EXTENSIONS.has(format)) {
+    return format;
+  }
+
+  const pathParts = url.pathname.toLowerCase().split('.');
+  return pathParts.length > 1 ? pathParts[pathParts.length - 1] : '';
+};
+
 export const getLinkMediaInfo = memoize(
   (link: string): CommentMediaInfo | undefined => {
     if (!isValidURL(link)) {
@@ -134,9 +145,7 @@ export const getLinkMediaInfo = memoize(
     }
 
     try {
-      // Extract file extension
-      const pathParts = url.pathname.toLowerCase().split('.');
-      const extension = pathParts.length > 1 ? pathParts[pathParts.length - 1] : '';
+      const extension = getDirectMediaExtension(url);
 
       // Only classify as media if we explicitly know the extension
       if (KNOWN_IMAGE_EXTENSIONS.includes(extension)) {
@@ -147,10 +156,6 @@ export const getLinkMediaInfo = memoize(
         type = 'audio';
       }
       // Unknown extensions remain as 'webpage'
-
-      if (!url.pathname.includes('.')) {
-        type = 'webpage';
-      }
 
       if (canEmbed(url) || url.host.startsWith('yt.')) {
         type = 'iframe';
