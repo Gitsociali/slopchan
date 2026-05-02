@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocial/bitsocial-react-hooks": "npm:0.1.4"
+    "@bitsocial/bitsocial-react-hooks": "npm:0.1.5"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/cli": "npm:7.4.5"
@@ -1522,9 +1522,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocial/bitsocial-react-hooks@npm:0.1.4":
-  version: 0.1.4
-  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.4"
+"@bitsocial/bitsocial-react-hooks@npm:0.1.5":
+  version: 0.1.5
+  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.5"
   dependencies:
     "@bitsocial/bso-resolver": "npm:0.0.6"
     "@pkcprotocol/pkc-js": "npm:0.0.23"
@@ -1543,7 +1543,7 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/96da738bc9ec88ff831b3191844b197b1f72c8a63123a25fcfc547503c4d5e3efa79afa24eead2ecafdf41e99e2282ccb01515220a0ba050cadd1f2eeee1691a
+  checksum: 10c0/e8f1359dba264949d375fe27f5ec328b3ba0da3bafea8872bf930bf5d57fefada68c86ca1bdcdca2f84bce0a118775ed9bcb176de4f0c17f557cc532700acd64
   languageName: node
   linkType: hard
 
