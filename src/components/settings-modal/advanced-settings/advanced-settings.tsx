@@ -9,7 +9,6 @@ interface SettingsProps {
   pubsubProvidersRef?: RefObject<HTMLTextAreaElement>;
   httpRoutersRef?: RefObject<HTMLTextAreaElement>;
   ethRpcRef?: RefObject<HTMLTextAreaElement>;
-  solRpcRef?: RefObject<HTMLTextAreaElement>;
   p2pRpcRef?: RefObject<HTMLInputElement>;
   p2pDataPathRef?: RefObject<HTMLInputElement>;
 }
@@ -131,11 +130,10 @@ const HttpRoutersSettings = ({ httpRoutersRef }: SettingsProps) => {
   );
 };
 
-const BlockchainProvidersSettings = ({ ethRpcRef, solRpcRef }: SettingsProps) => {
+const BlockchainProvidersSettings = ({ ethRpcRef }: SettingsProps) => {
   const account = useAccount() as AccountShape | undefined;
   const chainProviders = getChainProviders(account);
   const ethRpcDefaultValue = chainProviders?.['eth']?.urls?.join('\n');
-  const solRpcDefaultValue = chainProviders?.['sol']?.urls?.join('\n');
 
   return (
     <div className={styles.blockchainProvidersSettings}>
@@ -148,17 +146,6 @@ const BlockchainProvidersSettings = ({ ethRpcRef, solRpcRef }: SettingsProps) =>
           autoComplete='off'
           spellCheck='false'
           rows={chainProviders?.['eth']?.urls?.length || 1}
-        />
-      </div>
-      <span className={styles.settingTip}>Solana RPC, for .sol domains</span>
-      <div>
-        <textarea
-          defaultValue={solRpcDefaultValue}
-          ref={solRpcRef}
-          autoCorrect='off'
-          autoComplete='off'
-          spellCheck='false'
-          rows={chainProviders?.['sol']?.urls?.length || 1}
         />
       </div>
     </div>
@@ -221,7 +208,6 @@ const AdvancedSettings = () => {
   const mediaIpfsGatewayUrlRef = useRef<HTMLInputElement>(null);
   const pubsubProvidersRef = useRef<HTMLTextAreaElement>(null);
   const ethRpcRef = useRef<HTMLTextAreaElement>(null);
-  const solRpcRef = useRef<HTMLTextAreaElement>(null);
   const httpRoutersRef = useRef<HTMLTextAreaElement>(null);
   const p2pRpcRef = useRef<HTMLInputElement>(null);
   const p2pDataPathRef = useRef<HTMLInputElement>(null);
@@ -244,11 +230,6 @@ const AdvancedSettings = () => {
       .map((url) => url.trim())
       .filter((url) => url !== '');
 
-    const solRpcUrls = solRpcRef.current?.value
-      .split('\n')
-      .map((url) => url.trim())
-      .filter((url) => url !== '');
-
     const httpRoutersOptions = httpRoutersRef.current?.value
       .split('\n')
       .map((url) => url.trim())
@@ -260,9 +241,6 @@ const AdvancedSettings = () => {
     const chainProviders: Record<string, { urls: string[] | undefined; chainId: number }> = {};
     if (ethRpcUrls && ethRpcUrls.length > 0) {
       chainProviders.eth = { urls: ethRpcUrls, chainId: 1 };
-    }
-    if (solRpcUrls && solRpcUrls.length > 0) {
-      chainProviders.sol = { urls: solRpcUrls, chainId: 101 };
     }
 
     try {
@@ -316,7 +294,7 @@ const AdvancedSettings = () => {
           blockchain providers:
         </span>
         <span className={styles.categorySettings}>
-          <BlockchainProvidersSettings ethRpcRef={ethRpcRef} solRpcRef={solRpcRef} />
+          <BlockchainProvidersSettings ethRpcRef={ethRpcRef} />
         </span>
       </div>
       <div className={styles.category}>

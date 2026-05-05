@@ -139,15 +139,15 @@ describe('AdvancedSettings', () => {
 
     const textareas = container.querySelectorAll<HTMLTextAreaElement>('textarea');
     const textInputs = container.querySelectorAll<HTMLInputElement>('input[type="text"]');
-    expect(textareas.length).toBe(5);
+    expect(textareas.length).toBe(4);
     expect(textInputs.length).toBe(3);
+    expect(container.textContent).not.toContain('Solana RPC');
 
     await dispatchInput(textareas[0], ' https://ipfs.one.example \n\nhttps://ipfs.two.example ');
     await dispatchInput(textInputs[0], ' https://media.new.example ');
     await dispatchInput(textareas[1], ' https://pubsub.one.example \n');
     await dispatchInput(textareas[2], ' https://router.one.example \n');
     await dispatchInput(textareas[3], ' https://eth.one.example \n');
-    await dispatchInput(textareas[4], ' https://sol.one.example \n');
     await dispatchInput(textInputs[1], ' ws://127.0.0.1:9138/secret ');
     await dispatchInput(textInputs[2], ' /tmp/next-pkc ');
     await clickButton('save_advanced_settings');
@@ -156,7 +156,6 @@ describe('AdvancedSettings', () => {
       mediaIpfsGatewayUrl: 'https://media.new.example',
       chainProviders: {
         eth: { chainId: 1, urls: ['https://eth.one.example'] },
-        sol: { chainId: 101, urls: ['https://sol.one.example'] },
       },
       pkcOptions: {
         dataPath: '/tmp/next-pkc',
