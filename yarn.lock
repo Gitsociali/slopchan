@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocial/bitsocial-react-hooks": "npm:0.1.6"
+    "@bitsocial/bitsocial-react-hooks": "npm:0.1.7"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/browser": "npm:7.0.5"
@@ -1523,12 +1523,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocial/bitsocial-react-hooks@npm:0.1.6":
-  version: 0.1.6
-  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.6"
+"@bitsocial/bitsocial-react-hooks@npm:0.1.7":
+  version: 0.1.7
+  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.7"
   dependencies:
-    "@bitsocial/bso-resolver": "npm:0.0.6"
-    "@pkcprotocol/pkc-js": "npm:0.0.24"
+    "@bitsocial/bso-resolver": "npm:0.0.8"
+    "@pkcprotocol/pkc-js": "npm:0.0.27"
     "@pkcprotocol/pkc-logger": "npm:0.1.0"
     assert: "npm:2.0.0"
     ethers: "npm:5.8.0"
@@ -1544,18 +1544,17 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/7c93c9430303ed60f32d2eff8601b700ea103f7d801e831967a8f7d34a4876f1087eeaf9bb0250ff36008a7276ad7146934713c3c5f52411faa46219e31576bd
+  checksum: 10c0/39bd3f263fac36108127ab11f9161092c50860373bd77fa8d933de75f79fd758215d16ddcad207c319ea01cc0564fd5526857a5517c212e46325977e687e07c1
   languageName: node
   linkType: hard
 
-"@bitsocial/bso-resolver@npm:0.0.6":
-  version: 0.0.6
-  resolution: "@bitsocial/bso-resolver@npm:0.0.6"
+"@bitsocial/bso-resolver@npm:0.0.8":
+  version: 0.0.8
+  resolution: "@bitsocial/bso-resolver@npm:0.0.8"
   dependencies:
     "@pkcprotocol/pkc-logger": "npm:0.1.0"
-    better-sqlite3: "npm:12.6.2"
     viem: "npm:2.48.1"
-  checksum: 10c0/113e54c08dd86c1e356318e6be1b2b1682753209bba229256352a47bbaef81d340a46c5124f4abf8f49d1289caae479637e902b45ac33e950fc05a34caf0e044
+  checksum: 10c0/0acb033cac4f8860323e154a5a53b95e9d107326e78bc9febd36091cd96dc2c095b31996d594fba9d676c132305c5504d5b7e1b3e5af1f78e2c372f1eebc2f7a
   languageName: node
   linkType: hard
 
@@ -5829,9 +5828,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkcprotocol/pkc-js@npm:0.0.24":
-  version: 0.0.24
-  resolution: "@pkcprotocol/pkc-js@npm:0.0.24"
+"@pkcprotocol/pkc-js@npm:0.0.27":
+  version: 0.0.27
+  resolution: "@pkcprotocol/pkc-js@npm:0.0.27"
   dependencies:
     "@enhances/with-resolvers": "npm:0.0.5"
     "@helia/block-brokers": "npm:5.2.4"
@@ -5844,19 +5843,15 @@ __metadata:
     "@libp2p/identify": "npm:4.1.3"
     "@libp2p/interfaces": "npm:3.3.2"
     "@libp2p/peer-id": "npm:6.0.8"
-    "@libp2p/websockets": "npm:10.1.11"
     "@noble/curves": "npm:2.2.0"
     "@pkcprotocol/pkc-logger": "npm:0.1.0"
     "@pkcprotocol/proper-lock-file": "npm:4.2.1"
     assert: "npm:2.1.0"
     better-sqlite3: "npm:12.9.0"
     blockstore-core: "npm:6.1.2"
-    blockstore-fs: "npm:3.0.2"
-    blockstore-idb: "npm:3.0.1"
     buffer: "npm:6.0.3"
     cbor: "npm:10.0.11"
     debounce: "npm:1.2.1"
-    err-code: "npm:3.0.1"
     ext-name: "npm:5.0.0"
     helia: "npm:6.1.4"
     hpagent: "npm:1.2.0"
@@ -5877,7 +5872,6 @@ __metadata:
     retry: "npm:0.13.1"
     rpc-websockets: "npm:9.3.8"
     safe-stable-stringify: "npm:2.4.3"
-    sha1-uint8array: "npm:0.10.7"
     tcp-port-used: "npm:1.0.2"
     tiny-typed-emitter: "npm:2.1.0"
     tinycache: "npm:1.1.2"
@@ -5885,7 +5879,7 @@ __metadata:
     typestub-ipfs-only-hash: "npm:4.0.0"
     uuid: "npm:13.0.0"
     zod: "npm:4.3.6"
-  checksum: 10c0/8acff68a6ce5f1d545ce0a2f47e4a67eb9cc166d37fb9f13c8b3582b2124f984317b68a3ed4e8b7d386c19789f59a1acce8ac1284b40b18715b12a4ba488d7f8
+  checksum: 10c0/19360d831a9ea3ecb586ca02d1763611224bdcc72f2586dc50ffe1a550a56e72c79f173ebce8422ab15623f277889dd96666016ab042d208fb4d185879b82784
   languageName: node
   linkType: hard
 
@@ -7511,17 +7505,6 @@ __metadata:
   version: 1.1.4
   resolution: "bech32@npm:1.1.4"
   checksum: 10c0/5f62ca47b8df99ace9c0e0d8deb36a919d91bf40066700aaa9920a45f86bb10eb56d537d559416fd8703aa0fb60dddb642e58f049701e7291df678b2033e5ee5
-  languageName: node
-  linkType: hard
-
-"better-sqlite3@npm:12.6.2":
-  version: 12.6.2
-  resolution: "better-sqlite3@npm:12.6.2"
-  dependencies:
-    bindings: "npm:^1.5.0"
-    node-gyp: "npm:latest"
-    prebuild-install: "npm:^7.1.1"
-  checksum: 10c0/a58fb3f7a7f5469ba0b8de0855aa67396ff34f951a6975746e4b21987f530be6a34427d1d4bd5958cf48c67ed7ba1df038ae163d2ee9d944237f6b8112f6640d
   languageName: node
   linkType: hard
 
