@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ChallengeModal from '../challenge-modal';
 import getShortAddress from '../../../lib/get-short-address';
+import useTrustedBoardUrlPermissionsStore from '../../../stores/use-trusted-board-url-permissions-store';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -15,7 +16,6 @@ const testState = vi.hoisted(() => ({
       address: '0xabc123',
     },
   } as Record<string, any>,
-  capacitorPlatform: 'web',
   challenges: [] as Array<{ challenge: any; id: number }>,
   commentsByCid: {} as Record<string, { author?: { shortAddress?: string } }>,
   publicationPreview: 'preview body',
@@ -33,7 +33,10 @@ vi.mock('react-i18next', () => ({
         return `${options?.index}/${options?.total}`;
       }
       if (key === 'iframe_challenge_confirm') {
-        return `${options?.board} wants to open ${options?.site}.\n\nFor ${options?.publicationType}: ${options?.excerpt}`;
+        return `${options?.board} wants to open ${options?.site}.\n\nFor {{publicationType}}: {{excerpt}}`;
+      }
+      if (key === 'trusted_board_link_checkbox') {
+        return 'Always allow boards to open this website';
       }
       return key;
     },
@@ -43,12 +46,6 @@ vi.mock('react-i18next', () => ({
 vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useComment: ({ commentCid }: { commentCid?: string }) => (commentCid ? testState.commentsByCid[commentCid] : undefined),
-}));
-
-vi.mock('@capacitor/core', () => ({
-  Capacitor: {
-    getPlatform: () => testState.capacitorPlatform,
-  },
 }));
 
 vi.mock('../../../lib/utils/challenge-utils', () => ({
@@ -146,23 +143,17 @@ const clickButton = async (text: string) => {
   });
 };
 
-const setNavigatorValue = (key: keyof Navigator, value: unknown) => {
-  Object.defineProperty(window.navigator, key, {
-    configurable: true,
-    value,
-  });
-};
-
 describe('ChallengeModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
+    useTrustedBoardUrlPermissionsStore.setState({ trustedOrigins: {} });
     testState.abandonCurrentChallengeMock.mockReset().mockResolvedValue(undefined);
     testState.account = {
       author: {
         address: '0xabc123',
       },
     };
-    testState.capacitorPlatform = 'web';
     testState.challenges = [];
     testState.commentsByCid = {
       'parent-1': {
@@ -177,10 +168,6 @@ describe('ChallengeModal', () => {
     testState.springStartMock.mockReset();
     testState.theme = 'dark';
     testState.votePreview = 'upvote';
-    setNavigatorValue('maxTouchPoints', 0);
-    setNavigatorValue('platform', 'MacIntel');
-    setNavigatorValue('userAgent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125 Safari/537.36');
-    setNavigatorValue('vendor', 'Google Inc.');
     alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -280,7 +267,7 @@ describe('ChallengeModal', () => {
     expect(testState.removeChallengeMock).toHaveBeenCalledOnce();
   });
 
-  it('opens iframe challenges, injects the theme, and completes them', async () => {
+  it('opens iframe challenges through the custom modal, injects the theme, and completes them', async () => {
     const publication = createPublication();
     testState.challenges = [
       createStoredChallenge(
@@ -293,16 +280,25 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    expect(confirmSpy).toHaveBeenCalledWith('mu wants to open mintpass.org.\n\nFor post: Subject');
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(container.querySelector('#challenge-modal-title')?.textContent).toContain('Challenge for post');
     expect(container.textContent).toContain('mintpass.org');
-    expect(container.textContent).toContain('Done');
-    expect(container.textContent).not.toContain('Challenge for post');
-    expect(container.textContent).not.toContain('Open');
+    expect(container.textContent).toContain('mu wants to open mintpass.org.');
+    expect(container.textContent).not.toContain('For post:');
+    expect(container.textContent).not.toContain('For {{publicationType}}: {{excerpt}}');
+    expect(container.textContent).toContain('Open');
+    expect(container.textContent).toContain('Always allow boards to open this website');
+    expect(container.textContent).not.toContain('Always allow boards to open mintpass.org');
     expect(container.textContent).not.toContain('Cancel');
-    expect(container.textContent).not.toContain('Alice');
-    expect(container.textContent).not.toContain('Subject');
-    expect(container.textContent).not.toContain('Publication content');
-    expect(container.textContent).not.toContain('mu wants to open');
+    const publicationFields = Array.from(container.querySelectorAll<HTMLInputElement>('input[type="text"]'));
+    expect(publicationFields.map((input) => input.value)).toEqual(['Alice', 'Subject', 'https://example.com/link']);
+    expect(publicationFields.every((input) => input.disabled)).toBe(true);
+    const publicationTextarea = container.querySelector<HTMLTextAreaElement>('textarea');
+    expect(publicationTextarea?.value).toBe('Publication content');
+    expect(publicationTextarea?.disabled).toBe(true);
+    expect(container.querySelector('iframe')).toBeNull();
+
+    await clickButton('Open');
 
     const iframe = container.querySelector('iframe');
     expect(iframe).not.toBeNull();
@@ -327,6 +323,47 @@ describe('ChallengeModal', () => {
     expect(testState.removeChallengeMock).toHaveBeenCalledOnce();
   });
 
+  it('remembers a trusted iframe origin when the checkbox is selected', async () => {
+    testState.challenges = [
+      createStoredChallenge({
+        challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+        type: 'url/iframe',
+      }),
+    ];
+
+    await renderModal();
+
+    const checkbox = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    await act(async () => {
+      checkbox?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    await clickButton('Open');
+
+    expect(useTrustedBoardUrlPermissionsStore.getState().isOriginTrusted('https://spamblocker.bitsocial.net')).toBe(true);
+    expect(useTrustedBoardUrlPermissionsStore.getState().getTrustedOrigins()).toEqual([
+      expect.objectContaining({
+        origin: 'https://spamblocker.bitsocial.net',
+        site: 'spamblocker.bitsocial.net',
+      }),
+    ]);
+  });
+
+  it('opens trusted iframe origins without asking again', async () => {
+    useTrustedBoardUrlPermissionsStore.getState().trustOrigin('https://spamblocker.bitsocial.net', 'spamblocker.bitsocial.net');
+    testState.challenges = [
+      createStoredChallenge({
+        challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
+        type: 'url/iframe',
+      }),
+    ];
+
+    await renderModal();
+
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(container.textContent).not.toContain('wants to open');
+    expect(container.querySelector('iframe')?.getAttribute('src')).toContain('https://spamblocker.bitsocial.net/api/v1/iframe/session-123?theme=dark');
+  });
+
   it('allows localhost http iframe challenges for local spam blocker testing', async () => {
     const publication = createPublication();
     testState.challenges = [
@@ -341,7 +378,12 @@ describe('ChallengeModal', () => {
 
     await renderModal();
 
-    expect(confirmSpy).toHaveBeenCalledWith('mu wants to open localhost:3000.\n\nFor post: Subject');
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('mu wants to open localhost:3000.');
+    expect(container.textContent).not.toContain('For post:');
+    expect(container.textContent).not.toContain('For {{publicationType}}: {{excerpt}}');
+
+    await clickButton('Open');
 
     const iframe = container.querySelector('iframe');
     expect(iframe).not.toBeNull();
@@ -374,6 +416,7 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
+    await clickButton('Open');
 
     await act(async () => {
       window.dispatchEvent(
@@ -405,6 +448,7 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
+    await clickButton('Open');
 
     await act(async () => {
       window.dispatchEvent(
@@ -442,11 +486,14 @@ describe('ChallengeModal', () => {
 
     await renderModal();
 
-    expect(confirmSpy).toHaveBeenCalledWith(`${getShortAddress(longCommunityAddress)} wants to open localhost:3000.\n\nFor post: Subject`);
-    expect(confirmSpy.mock.calls[0]?.[0]).not.toContain(longCommunityAddress);
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(container.textContent).toContain(`${getShortAddress(longCommunityAddress)} wants to open localhost:3000.`);
+    expect(container.textContent).not.toContain('For post:');
+    expect(container.textContent).not.toContain('For {{publicationType}}: {{excerpt}}');
+    expect(container.textContent).not.toContain(longCommunityAddress);
   });
 
-  it('uses reply content in the iframe confirmation excerpt', async () => {
+  it('shows reply content in disabled fields instead of the iframe confirmation message', async () => {
     const publication = {
       ...createPublication(),
       content: '>>17\nA reply body with enough context',
@@ -465,97 +512,15 @@ describe('ChallengeModal', () => {
 
     await renderModal();
 
-    expect(confirmSpy).toHaveBeenCalledWith('mu wants to open spamblocker.bitsocial.net.\n\nFor reply: >>17 A reply body with enough context');
-  });
-
-  it('abandons iframe challenges when the external confirmation is canceled', async () => {
-    confirmSpy.mockReturnValueOnce(false);
-    testState.challenges = [
-      createStoredChallenge({
-        challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
-        type: 'url/iframe',
-      }),
-    ];
-
-    await renderModal();
-
-    expect(confirmSpy).toHaveBeenCalledWith('mu wants to open spamblocker.bitsocial.net.\n\nFor post: Subject');
-    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
-    expect(container.querySelector('iframe')).toBeNull();
-  });
-
-  it('uses inline iframe confirmation on Android instead of window.confirm', async () => {
-    const publication = createPublication();
-    testState.capacitorPlatform = 'android';
-    testState.publicationType = 'reply';
-    testState.challenges = [
-      createStoredChallenge(
-        {
-          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
-          type: 'url/iframe',
-        },
-        {
-          ...publication,
-          content: '>>17\nreply from android',
-          title: '',
-        },
-      ),
-    ];
-
-    await renderModal();
-
     expect(confirmSpy).not.toHaveBeenCalled();
-    expect(container.textContent).toContain('spamblocker.bitsocial.net');
-    expect(container.textContent).toContain('mu wants to open spamblocker.bitsocial.net.\n\nFor reply: >>17 reply from android');
-    expect(container.textContent).toContain('Open');
-    expect(container.textContent).toContain('close');
-    expect(container.textContent).not.toContain('Challenge for reply');
-    expect(container.querySelector('iframe')).toBeNull();
-
-    await clickButton('Open');
-
-    const iframe = container.querySelector('iframe');
-    expect(iframe).not.toBeNull();
-    expect(iframe?.getAttribute('src')).toContain('https://spamblocker.bitsocial.net/api/v1/iframe/session-123?theme=dark');
-    expect(testState.abandonCurrentChallengeMock).not.toHaveBeenCalled();
+    expect(container.querySelector('#challenge-modal-title')?.textContent).toContain('Challenge for reply');
+    expect(container.textContent).toContain('mu wants to open spamblocker.bitsocial.net.');
+    expect(container.textContent).not.toContain('For reply:');
+    expect(container.textContent).not.toContain('For {{publicationType}}: {{excerpt}}');
+    expect(container.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('>>17\nA reply body with enough context');
   });
 
-  it('uses inline iframe confirmation in Android WebView even when Capacitor reports web', async () => {
-    testState.capacitorPlatform = 'web';
-    setNavigatorValue(
-      'userAgent',
-      'Mozilla/5.0 (Linux; Android 15; Pixel 9 Build/AP3A.241105.007) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/147.0.7727.137 Mobile Safari/537.36 wv',
-    );
-    testState.publicationType = 'reply';
-    testState.challenges = [
-      createStoredChallenge(
-        {
-          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
-          type: 'url/iframe',
-        },
-        {
-          ...createPublication(),
-          content: '>>17\nreply from webview',
-          title: '',
-        },
-      ),
-    ];
-
-    await renderModal();
-
-    expect(confirmSpy).not.toHaveBeenCalled();
-    expect(container.textContent).toContain('mu wants to open spamblocker.bitsocial.net.\n\nFor reply: >>17 reply from webview');
-    expect(container.querySelector('iframe')).toBeNull();
-
-    await clickButton('Open');
-
-    const iframe = container.querySelector('iframe');
-    expect(iframe).not.toBeNull();
-    expect(iframe?.getAttribute('src')).toContain('https://spamblocker.bitsocial.net/api/v1/iframe/session-123?theme=dark');
-  });
-
-  it('abandons Android iframe challenges when inline confirmation is closed', async () => {
-    testState.capacitorPlatform = 'android';
+  it('abandons iframe challenges when the custom confirmation is closed', async () => {
     testState.challenges = [
       createStoredChallenge({
         challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
@@ -571,41 +536,8 @@ describe('ChallengeModal', () => {
     expect(container.querySelector('iframe')).toBeNull();
   });
 
-  it('uses inline iframe confirmation on Safari instead of window.confirm', async () => {
-    testState.publicationType = 'reply';
-    setNavigatorValue('userAgent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15');
-    setNavigatorValue('vendor', 'Apple Computer, Inc.');
-    testState.challenges = [
-      createStoredChallenge(
-        {
-          challenge: 'https://spamblocker.bitsocial.net/api/v1/iframe/session-123',
-          type: 'url/iframe',
-        },
-        {
-          ...createPublication(),
-          content: '>>17\nreply from safari',
-          title: '',
-        },
-      ),
-    ];
-
-    await renderModal();
-
-    expect(confirmSpy).not.toHaveBeenCalled();
-    expect(container.textContent).toContain('mu wants to open spamblocker.bitsocial.net.\n\nFor reply: >>17 reply from safari');
-    expect(container.querySelector('iframe')).toBeNull();
-
-    await clickButton('Open');
-
-    const iframe = container.querySelector('iframe');
-    expect(iframe).not.toBeNull();
-    expect(iframe?.getAttribute('src')).toContain('https://spamblocker.bitsocial.net/api/v1/iframe/session-123?theme=dark');
-  });
-
-  it('shows iframe challenge errors inline on Safari instead of relying on alert', async () => {
+  it('shows iframe challenge errors inline instead of relying on alert', async () => {
     testState.account = { author: { address: '' } };
-    setNavigatorValue('userAgent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15');
-    setNavigatorValue('vendor', 'Apple Computer, Inc.');
     testState.challenges = [
       createStoredChallenge({
         challenge: 'https://mintpass.org/auth?user={userAddress}',
@@ -614,7 +546,6 @@ describe('ChallengeModal', () => {
     ];
 
     await renderModal();
-    await clickButton('Open');
 
     expect(alertSpy).not.toHaveBeenCalled();
     expect(container.textContent).toContain('Error: Unable to load challenge without your address. Please sign in and try again.');
@@ -625,24 +556,7 @@ describe('ChallengeModal', () => {
     expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
   });
 
-  it('alerts when iframe challenges need a signer address and the account is missing one', async () => {
-    testState.account = { author: { address: '' } };
-    testState.challenges = [
-      createStoredChallenge({
-        challenge: 'https://mintpass.org/auth?user={userAddress}',
-        type: 'url/iframe',
-      }),
-    ];
-
-    await renderModal();
-
-    expect(alertSpy).toHaveBeenCalledWith('Error: Unable to load challenge without your address. Please sign in and try again.');
-    expect(confirmSpy).not.toHaveBeenCalled();
-    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
-    expect(container.querySelector('iframe')).toBeNull();
-  });
-
-  it('abandons invalid iframe challenges and responds to Escape', async () => {
+  it('shows invalid iframe challenge errors inline and still responds to Escape', async () => {
     testState.challenges = [
       createStoredChallenge({
         challenge: 'http://example.com/unsafe',
@@ -652,14 +566,15 @@ describe('ChallengeModal', () => {
 
     await renderModal();
 
-    expect(alertSpy).toHaveBeenCalledWith('Error: Only HTTPS iframe challenges or localhost HTTP challenges are supported');
+    expect(alertSpy).not.toHaveBeenCalled();
     expect(confirmSpy).not.toHaveBeenCalled();
-    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
+    expect(container.textContent).toContain('Error: Only HTTPS iframe challenges or localhost HTTP challenges are supported');
+    expect(testState.abandonCurrentChallengeMock).not.toHaveBeenCalled();
 
     await act(async () => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     });
 
-    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledTimes(2);
+    expect(testState.abandonCurrentChallengeMock).toHaveBeenCalledOnce();
   });
 });

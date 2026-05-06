@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} tema nga {{currentTimeFilterName}} — [<1>Shfaq më shumë tema nga java e kaluar</1>]",
   "more_threads_last_month": "{{count}} tema nga {{currentTimeFilterName}} — [<1>Shfaq më shumë tema nga muaji i kaluar</1>]",
   "more_threads_last_year": "{{count}} tema nga {{currentTimeFilterName}} — [<1>Shfaq më shumë tema nga viti i kaluar</1>]",
-  "iframe_challenge_confirm": "{{board}} dëshiron të hapë {{site}}.\n\nPër {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Nuk disponohet nga ky rrjet. Provoni një rrjet tjetër ose një VPN."
+  "iframe_challenge_confirm": "{{board}} dëshiron të hapë {{site}}.",
+  "media_hosting_provider_unavailable": "Nuk disponohet nga ky rrjet. Provoni një rrjet tjetër ose një VPN.",
+  "board_link_permissions": "Lejet e lidhjeve të bordeve",
+  "trusted_board_links_intro": "Bordet mund t'i hapin këto faqe pa pyetur.",
+  "trusted_board_links_empty": "Nuk ka lidhje bordesh të besuara.",
+  "trusted_board_link_until_revoked": "derisa të revokohet",
+  "trusted_board_link_checkbox": "Lejo gjithmonë bordet të hapin këtë faqe interneti",
+  "revoke": "Revoko"
 }

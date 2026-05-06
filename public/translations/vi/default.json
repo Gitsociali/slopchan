@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Xem thêm chủ đề từ tuần trước</1>]",
   "more_threads_last_month": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ tháng trước</1>]",
   "more_threads_last_year": "{{count}} chủ đề từ {{currentTimeFilterName}} — [<1>Hiển thị thêm các chủ đề từ năm ngoái</1>]",
-  "iframe_challenge_confirm": "{{board}} muốn mở {{site}}.\n\nDành cho {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Không khả dụng từ mạng này. Hãy thử mạng khác hoặc VPN."
+  "iframe_challenge_confirm": "{{board}} muốn mở {{site}}.",
+  "media_hosting_provider_unavailable": "Không khả dụng từ mạng này. Hãy thử mạng khác hoặc VPN.",
+  "board_link_permissions": "Quyền liên kết bảng",
+  "trusted_board_links_intro": "Các bảng có thể mở những trang này mà không cần hỏi.",
+  "trusted_board_links_empty": "Không có liên kết bảng đáng tin cậy.",
+  "trusted_board_link_until_revoked": "cho đến khi thu hồi",
+  "trusted_board_link_checkbox": "Luôn cho phép các bảng mở trang web này",
+  "revoke": "Thu hồi"
 }

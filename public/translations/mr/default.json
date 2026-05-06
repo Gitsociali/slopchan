@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} थ्रेड {{currentTimeFilterName}} पासून — [<1>गेल्या आठवड्यातील अधिक थ्रेड्स पहा</1>]",
   "more_threads_last_month": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या महिन्यातील आणखी थ्रेड्स दाखवा</1>]",
   "more_threads_last_year": "{{count}} ध糀ं {{currentTimeFilterName}} पासून — [<1>गेल्या वर्षातील आणखी थ्रेड्स दाखवा</1>]",
-  "iframe_challenge_confirm": "{{board}} ला {{site}} उघडायचे आहे.\n\n{{publicationType}} साठी: {{excerpt}}",
-  "media_hosting_provider_unavailable": "या नेटवर्कवरून उपलब्ध नाही. दुसरे नेटवर्क किंवा VPN वापरून पाहा."
+  "iframe_challenge_confirm": "{{board}} ला {{site}} उघडायचे आहे.",
+  "media_hosting_provider_unavailable": "या नेटवर्कवरून उपलब्ध नाही. दुसरे नेटवर्क किंवा VPN वापरून पाहा.",
+  "board_link_permissions": "बोर्ड दुवा परवानग्या",
+  "trusted_board_links_intro": "बोर्ड विचारल्याशिवाय या साइट्स उघडू शकतात.",
+  "trusted_board_links_empty": "विश्वसनीय बोर्ड दुवे नाहीत.",
+  "trusted_board_link_until_revoked": "रद्द करेपर्यंत",
+  "trusted_board_link_checkbox": "बोर्डना नेहमी ही वेबसाइट उघडण्याची परवानगी द्या",
+  "revoke": "रद्द करा"
 }

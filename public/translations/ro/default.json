@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} fire de discuție de la {{currentTimeFilterName}} — [<1>Arată mai multe fire din săptămâna trecută</1>]",
   "more_threads_last_month": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de luna trecută</1>]",
   "more_threads_last_year": "{{count}} subiecte din {{currentTimeFilterName}} — [<1>Afișați mai multe subiecte de anul trecut</1>]",
-  "iframe_challenge_confirm": "{{board}} vrea să deschidă {{site}}.\n\nPentru {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Indisponibil din această rețea. Încearcă altă rețea sau un VPN."
+  "iframe_challenge_confirm": "{{board}} vrea să deschidă {{site}}.",
+  "media_hosting_provider_unavailable": "Indisponibil din această rețea. Încearcă altă rețea sau un VPN.",
+  "board_link_permissions": "Permisiuni pentru linkurile boardurilor",
+  "trusted_board_links_intro": "Boardurile pot deschide aceste site-uri fără să întrebe.",
+  "trusted_board_links_empty": "Nu există linkuri de board de încredere.",
+  "trusted_board_link_until_revoked": "până la revocare",
+  "trusted_board_link_checkbox": "Permite mereu boardurilor să deschidă acest site web",
+  "revoke": "Revocă"
 }
