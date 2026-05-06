@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>지난 주의 더 많은 스레드 보기</1>]",
   "more_threads_last_month": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>지난 달의 스레드 더 보기</1>]",
   "more_threads_last_year": "{{count}} 스레드 {{currentTimeFilterName}} 이후 — [<1>작년의 스레드 더 보기</1>]",
-  "iframe_challenge_confirm": "{{board}}에서 {{site}} 열기를 요청했습니다.\n\n{{publicationType}}의 경우: {{excerpt}}",
-  "media_hosting_provider_unavailable": "이 네트워크에서는 사용할 수 없습니다. 다른 네트워크나 VPN을 시도해 보세요."
+  "iframe_challenge_confirm": "{{board}}에서 {{site}} 열기를 요청했습니다.",
+  "media_hosting_provider_unavailable": "이 네트워크에서는 사용할 수 없습니다. 다른 네트워크나 VPN을 시도해 보세요.",
+  "board_link_permissions": "게시판 링크 권한",
+  "trusted_board_links_intro": "게시판이 묻지 않고 이 사이트들을 열 수 있습니다.",
+  "trusted_board_links_empty": "신뢰한 게시판 링크가 없습니다.",
+  "trusted_board_link_until_revoked": "취소할 때까지",
+  "trusted_board_link_checkbox": "게시판이 항상 이 웹사이트를 열도록 허용",
+  "revoke": "취소"
 }

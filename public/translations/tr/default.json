@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} başlık {{currentTimeFilterName}}’den itibaren — [<1>Geçen haftadan daha fazla başlık göster</1>]",
   "more_threads_last_month": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen aydan daha fazla konu göster</1>]",
   "more_threads_last_year": "{{count}} konu {{currentTimeFilterName}} itibariyle — [<1>Geçen yıldan daha fazla konu göster</1>]",
-  "iframe_challenge_confirm": "{{board}}, {{site}} sitesini açmak istiyor.\n\n{{publicationType}} için: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Bu ağdan kullanılamıyor. Başka bir ağ veya VPN deneyin."
+  "iframe_challenge_confirm": "{{board}}, {{site}} sitesini açmak istiyor.",
+  "media_hosting_provider_unavailable": "Bu ağdan kullanılamıyor. Başka bir ağ veya VPN deneyin.",
+  "board_link_permissions": "Pano bağlantısı izinleri",
+  "trusted_board_links_intro": "Panolar bu siteleri sormadan açabilir.",
+  "trusted_board_links_empty": "Güvenilir pano bağlantısı yok.",
+  "trusted_board_link_until_revoked": "iptal edilene kadar",
+  "trusted_board_link_checkbox": "Panoların bu web sitesini her zaman açmasına izin ver",
+  "revoke": "İptal et"
 }

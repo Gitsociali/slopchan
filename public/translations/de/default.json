@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads aus der letzten Woche anzeigen</1>]",
   "more_threads_last_month": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Monat anzeigen</1>]",
   "more_threads_last_year": "{{count}} Threads seit {{currentTimeFilterName}} — [<1>Mehr Threads vom letzten Jahr anzeigen</1>]",
-  "iframe_challenge_confirm": "{{board}} möchte {{site}} öffnen.\n\nFür {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Von diesem Netzwerk aus nicht verfügbar. Versuche ein anderes Netzwerk oder ein VPN."
+  "iframe_challenge_confirm": "{{board}} möchte {{site}} öffnen.",
+  "media_hosting_provider_unavailable": "Von diesem Netzwerk aus nicht verfügbar. Versuche ein anderes Netzwerk oder ein VPN.",
+  "board_link_permissions": "Berechtigungen für Board-Links",
+  "trusted_board_links_intro": "Boards können diese Websites ohne Nachfrage öffnen.",
+  "trusted_board_links_empty": "Keine vertrauenswürdigen Board-Links.",
+  "trusted_board_link_until_revoked": "bis zum Widerruf",
+  "trusted_board_link_checkbox": "Boards immer erlauben, diese Website zu öffnen",
+  "revoke": "Widerrufen"
 }

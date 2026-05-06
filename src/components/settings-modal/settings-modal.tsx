@@ -9,8 +9,16 @@ import InterfaceSettings from './interface-settings';
 import MediaHostingSettings from './media-hosting-settings';
 import AdvancedSettings from './advanced-settings';
 import SubscriptionsSetting from './subscriptions-setting';
+import TrustedBoardLinksSetting from './trusted-board-links-setting';
 
-const allSectionIds = ['interface-settings', 'media-hosting-settings', 'account-settings', 'subscriptions-settings', 'advanced-settings'];
+const allSectionIds = [
+  'interface-settings',
+  'media-hosting-settings',
+  'account-settings',
+  'subscriptions-settings',
+  'board-link-permissions-settings',
+  'advanced-settings',
+];
 
 const hashToSection = (hash: string): string | null => {
   if (hash === 'crypto-address-settings' || hash === 'crypto-wallet-settings') return 'account-settings';
@@ -58,6 +66,7 @@ const SettingsModal = () => {
   const showMediaHostingSettings = visibleExpandedSections.has('media-hosting-settings');
   const showAccountSettings = visibleExpandedSections.has('account-settings');
   const showSubscriptionsSettings = visibleExpandedSections.has('subscriptions-settings');
+  const showBoardLinkPermissionsSettings = visibleExpandedSections.has('board-link-permissions-settings');
   const showAdvancedSettings = visibleExpandedSections.has('advanced-settings');
 
   const allExpanded = useMemo(() => allSectionIds.every((id) => visibleExpandedSections.has(id)), [visibleExpandedSections]);
@@ -162,6 +171,13 @@ const SettingsModal = () => {
           </label>
         </div>
         {showSubscriptionsSettings && <SubscriptionsSetting />}
+        <div id='board-link-permissions-settings' className={`${styles.setting} ${styles.category}`}>
+          <label onClick={() => handleCategoryClick('board-link-permissions-settings')}>
+            <span className={showBoardLinkPermissionsSettings ? styles.hideButton : styles.showButton} />
+            {t('board_link_permissions')}
+          </label>
+        </div>
+        {showBoardLinkPermissionsSettings && <TrustedBoardLinksSetting />}
         <div id='advanced-settings' className={`${styles.setting} ${styles.category}`}>
           <label onClick={() => handleCategoryClick('advanced-settings')}>
             <span className={showAdvancedSettings ? styles.hideButton : styles.showButton} />

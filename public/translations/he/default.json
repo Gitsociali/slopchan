@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} אשכולות מאז {{currentTimeFilterName}} — [<1>הצג עוד אשכולות מהשבוע שעבר</1>]",
   "more_threads_last_month": "{{count}} חוטים מאז {{currentTimeFilterName}} — [<1>הצג עוד חוטים מהחודש שעבר</1>]",
   "more_threads_last_year": "{{count}} חוטים מאז {{currentTimeFilterName}} — [<1>הצג עוד חוטים מהשנה שעברה</1>]",
-  "iframe_challenge_confirm": "{{board}} רוצה לפתוח את {{site}}.\n\nעבור {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "לא זמין מהרשת הזו. נסו רשת אחרת או VPN."
+  "iframe_challenge_confirm": "{{board}} רוצה לפתוח את {{site}}.",
+  "media_hosting_provider_unavailable": "לא זמין מהרשת הזו. נסו רשת אחרת או VPN.",
+  "board_link_permissions": "הרשאות קישורי לוחות",
+  "trusted_board_links_intro": "לוחות יכולים לפתוח את האתרים האלה בלי לשאול.",
+  "trusted_board_links_empty": "אין קישורי לוחות מהימנים.",
+  "trusted_board_link_until_revoked": "עד לביטול",
+  "trusted_board_link_checkbox": "לאפשר תמיד ללוחות לפתוח את האתר הזה",
+  "revoke": "בטל"
 }

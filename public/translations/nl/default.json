@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Toon meer threads van vorige week</1>]",
   "more_threads_last_month": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen maand tonen</1>]",
   "more_threads_last_year": "{{count}} threads sinds {{currentTimeFilterName}} — [<1>Meer threads van afgelopen jaar tonen</1>]",
-  "iframe_challenge_confirm": "{{board}} wil {{site}} openen.\n\nVoor {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Niet beschikbaar via dit netwerk. Probeer een ander netwerk of een VPN."
+  "iframe_challenge_confirm": "{{board}} wil {{site}} openen.",
+  "media_hosting_provider_unavailable": "Niet beschikbaar via dit netwerk. Probeer een ander netwerk of een VPN.",
+  "board_link_permissions": "Machtigingen voor boardlinks",
+  "trusted_board_links_intro": "Boards kunnen deze sites openen zonder te vragen.",
+  "trusted_board_links_empty": "Geen vertrouwde boardlinks.",
+  "trusted_board_link_until_revoked": "tot intrekking",
+  "trusted_board_link_checkbox": "Sta boards altijd toe deze website te openen",
+  "revoke": "Intrekken"
 }

@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} موضوع از {{currentTimeFilterName}} — [<1>نمایش موضوعات بیشتر از هفته گذشته</1>]",
   "more_threads_last_month": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های ماه گذشته</1>]",
   "more_threads_last_year": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های سال گذشته</1>]",
-  "iframe_challenge_confirm": "{{board}} می‌خواهد {{site}} را باز کند.\n\nبرای {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "از این شبکه در دسترس نیست. شبکه دیگری یا یک VPN را امتحان کنید."
+  "iframe_challenge_confirm": "{{board}} می‌خواهد {{site}} را باز کند.",
+  "media_hosting_provider_unavailable": "از این شبکه در دسترس نیست. شبکه دیگری یا یک VPN را امتحان کنید.",
+  "board_link_permissions": "مجوزهای پیوندهای برد",
+  "trusted_board_links_intro": "بردها می‌توانند این سایت‌ها را بدون پرسش باز کنند.",
+  "trusted_board_links_empty": "هیچ پیوند برد مورد اعتمادی وجود ندارد.",
+  "trusted_board_link_until_revoked": "تا زمان لغو",
+  "trusted_board_link_checkbox": "همیشه به بردها اجازه دهید این وب‌سایت را باز کنند",
+  "revoke": "لغو"
 }

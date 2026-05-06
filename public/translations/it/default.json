@@ -364,6 +364,12 @@
   "more_threads_last_week": "{{count}} thread da {{currentTimeFilterName}} — [<1>Mostra più thread dalla scorsa settimana</1>]",
   "more_threads_last_month": "{{count}} thread da {{currentTimeFilterName}} — [<1>Mostra altri thread del mese scorso</1>]",
   "more_threads_last_year": "{{count}} thread da {{currentTimeFilterName}} — [<1>Mostra altri thread dell'anno scorso</1>]",
-  "iframe_challenge_confirm": "{{board}} vuole aprire {{site}}.\n\nPer {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Non disponibile da questa rete. Prova un'altra rete o una VPN."
+  "iframe_challenge_confirm": "{{board}} vuole aprire {{site}}.",
+  "media_hosting_provider_unavailable": "Non disponibile da questa rete. Prova un'altra rete o una VPN.",
+  "board_link_permissions": "Autorizzazioni dei link delle bacheche",
+  "trusted_board_links_intro": "Le bacheche possono aprire questi siti senza chiedere.",
+  "trusted_board_links_empty": "Nessun link di bacheca attendibile.",
+  "trusted_board_link_until_revoked": "fino alla revoca",
+  "trusted_board_link_checkbox": "Consenti sempre alle bacheche di aprire questo sito web",
+  "revoke": "Revoca"
 }

@@ -42,6 +42,10 @@ vi.mock('../subscriptions-setting', () => ({
   default: () => <div data-testid='subscriptions-settings-panel'>subscriptions-settings</div>,
 }));
 
+vi.mock('../trusted-board-links-setting', () => ({
+  default: () => <div data-testid='trusted-board-links-settings-panel'>trusted-board-links-settings</div>,
+}));
+
 const LocationProbe = () => {
   const location = useLocation();
   return <div data-testid='location'>{location.pathname + location.hash}</div>;
@@ -133,6 +137,7 @@ describe('SettingsModal', () => {
     expect(container.querySelector('[data-testid="media-hosting-settings-panel"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="account-settings"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="subscriptions-settings-panel"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="trusted-board-links-settings-panel"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="advanced-settings-panel"]')).not.toBeNull();
 
     const collapseAllControl = Array.from(container.querySelectorAll('[role="button"]')).find((candidate) =>
@@ -150,6 +155,7 @@ describe('SettingsModal', () => {
     expect(container.querySelector('[data-testid="media-hosting-settings-panel"]')).toBeNull();
     expect(container.querySelector('[data-testid="account-settings"]')).toBeNull();
     expect(container.querySelector('[data-testid="subscriptions-settings-panel"]')).toBeNull();
+    expect(container.querySelector('[data-testid="trusted-board-links-settings-panel"]')).toBeNull();
     expect(container.querySelector('[data-testid="advanced-settings-panel"]')).toBeNull();
   });
 

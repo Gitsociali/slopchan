@@ -1,10 +1,10 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Challenge as ChallengeType, useAccount, useComment } from '@bitsocial/bitsocial-react-hooks';
-import { Capacitor } from '@capacitor/core';
-import { getPublicationPreview, getPublicationType, getVotePreview, type ChallengePublication } from '../../lib/utils/challenge-utils';
+import { getPublicationPreview, getPublicationType, getVotePreview } from '../../lib/utils/challenge-utils';
 import useIsMobile from '../../hooks/use-is-mobile';
 import useChallengesStore from '../../stores/use-challenges-store';
+import useTrustedBoardUrlPermissionsStore from '../../stores/use-trusted-board-url-permissions-store';
 import useTheme from '../../hooks/use-theme';
 import styles from './challenge-modal.module.css';
 import capitalize from 'lodash/capitalize';
@@ -19,57 +19,14 @@ const useParentAddress = (parentCid?: string) => {
 
 interface ChallengeProps {
   challenge: ChallengeType;
-  challengeId: number;
   closeModal: () => void;
   abandonModal: () => void;
 }
 
-const MAX_IFRAME_CONFIRM_EXCERPT_LENGTH = 80;
-
-const getTrimmedExcerpt = (value: unknown) => (typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '');
-
-const shortenConfirmExcerpt = (excerpt: string) =>
-  excerpt.length > MAX_IFRAME_CONFIRM_EXCERPT_LENGTH ? `${excerpt.slice(0, MAX_IFRAME_CONFIRM_EXCERPT_LENGTH).trimEnd()}...` : excerpt;
-
-const getIframeConfirmExcerpt = (publication: ChallengePublication | undefined, publicationTarget: ChallengePublication | undefined, publicationType?: string) => {
-  const title = getTrimmedExcerpt(publication?.title);
-  const content = getTrimmedExcerpt(publication?.content);
-  const link = getTrimmedExcerpt(publication?.link);
-  const excerpt =
-    publicationType === 'vote' ? getTrimmedExcerpt(getPublicationPreview(publicationTarget)) : publicationType === 'reply' ? content || link : title || content || link;
-
-  return shortenConfirmExcerpt(excerpt || getTrimmedExcerpt(getPublicationPreview(publication)));
-};
-
 const getDisplayCommunityAddress = (shortCommunityAddress?: string, communityAddress?: string) =>
   shortCommunityAddress || (communityAddress ? getShortAddress(communityAddress) : '') || communityAddress || '';
 
-const iframeChallengeConfirmDecisions = new Map<string, 'accepted' | 'rejected'>();
-const ANDROID_USER_AGENT_REGEX = /Android/;
-const ANDROID_WEBVIEW_USER_AGENT_REGEX = /\bwv\b|Version\/\d+(?:\.\d+)?\s+Chrome\//;
-
-const isAndroidWebViewUserAgent = () => {
-  if (typeof navigator === 'undefined') return false;
-  return ANDROID_USER_AGENT_REGEX.test(navigator.userAgent) && ANDROID_WEBVIEW_USER_AGENT_REGEX.test(navigator.userAgent);
-};
-
-const isIosWebKitUserAgent = () => {
-  if (typeof navigator === 'undefined') return false;
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-};
-
-const isDesktopSafariUserAgent = () => {
-  if (typeof navigator === 'undefined') return false;
-  const isAppleVendor = navigator.vendor === 'Apple Computer, Inc.';
-  const isSafari = /Safari/.test(navigator.userAgent);
-  const isOtherBrowser = /Chrome|Chromium|CriOS|FxiOS|Edg|OPR|SamsungBrowser/.test(navigator.userAgent);
-  return isAppleVendor && isSafari && !isOtherBrowser;
-};
-
-const shouldUseInlineIframeConfirm = () => {
-  const platform = Capacitor.getPlatform();
-  return platform === 'android' || platform === 'ios' || isAndroidWebViewUserAgent() || isIosWebKitUserAgent() || isDesktopSafariUserAgent();
-};
+const stripLegacyIframeConfirmDetails = (message: string) => message.split(/\r?\n\s*\r?\n/)[0] ?? message;
 
 const TextChallenge = ({ challenge }: { challenge: string }) => <div className={styles.challengeMedia}>{challenge}</div>;
 
@@ -136,36 +93,38 @@ const getIframeSessionId = (challengeUrl: string) => {
 
 interface IframeChallengeProps {
   challenge: string;
-  confirmKey: string;
   confirmMessage: string;
-  inlineConfirm: boolean;
   onCancel: () => void;
   onDone: () => void;
   onAutoComplete: (challengeAnswers: string[]) => void;
   onReady: () => void;
   openLabel: string;
   closeLabel: string;
+  rememberPermissionLabel: string;
+  publicationDetails: React.ReactNode;
 }
 
-type IframeConfirmSource = 'native' | 'inline';
+type IframeOpenMode = 'trusted' | 'manual';
 
 const IframeChallenge = ({
   challenge,
-  confirmKey,
   confirmMessage,
-  inlineConfirm,
   onCancel,
   onDone,
   onAutoComplete,
   onReady,
   openLabel,
   closeLabel,
+  rememberPermissionLabel,
+  publicationDetails,
 }: IframeChallengeProps) => {
   const account = useAccount();
   const [theme] = useTheme();
+  const trustOrigin = useTrustedBoardUrlPermissionsStore((state) => state.trustOrigin);
   const [iframeUrlState, setIframeUrl] = useState('');
   const [iframeOrigin, setIframeOrigin] = useState('');
   const [inlineErrorMessage, setInlineErrorMessage] = useState('');
+  const [rememberPermission, setRememberPermission] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const attemptedLoadRef = useRef(false);
   const mountedRef = useRef(false);
@@ -192,18 +151,14 @@ const IframeChallenge = ({
   );
 
   const handleLoadIframe = useCallback(
-    (confirmSource: IframeConfirmSource) => {
+    (mode: IframeOpenMode) => {
+      if (attemptedLoadRef.current) return;
       const iframeUrl = challenge;
       if (!iframeUrl) return;
 
       const rejectChallenge = (message: string) => {
-        iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
-        if (inlineConfirm) {
-          setInlineErrorMessage(message);
-          return;
-        }
-        alert(message);
-        onCancel();
+        attemptedLoadRef.current = true;
+        setInlineErrorMessage(message);
       };
 
       const rawUserAddress = account?.author?.address?.trim();
@@ -227,41 +182,31 @@ const IframeChallenge = ({
         rejectChallenge('Error: Invalid URL for authentication challenge');
         return;
       }
-      const decision = iframeChallengeConfirmDecisions.get(confirmKey);
-      if (decision === 'rejected') {
-        onCancel();
+
+      const isTrusted = useTrustedBoardUrlPermissionsStore.getState().isOriginTrusted(validatedUrl.origin);
+      if (!isTrusted && mode === 'trusted') {
         return;
       }
-      if (decision !== 'accepted') {
-        if (confirmSource === 'native' && !window.confirm(confirmMessage)) {
-          iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
-          onCancel();
-          return;
-        }
-        iframeChallengeConfirmDecisions.set(confirmKey, 'accepted');
+      attemptedLoadRef.current = true;
+      if (!isTrusted && rememberPermission) {
+        trustOrigin(validatedUrl.origin, getReadableIframeUrl(replacedUrl), null);
       }
       openValidatedIframe(validatedUrl);
     },
-    [account, challenge, confirmKey, confirmMessage, inlineConfirm, onCancel, openValidatedIframe, theme],
+    [account, challenge, openValidatedIframe, rememberPermission, theme, trustOrigin],
   );
 
   useEffect(() => {
-    if (inlineConfirm) return;
-    if (attemptedLoadRef.current) return;
-    attemptedLoadRef.current = true;
-    handleLoadIframe('native');
-  }, [handleLoadIframe, inlineConfirm]);
+    handleLoadIframe('trusted');
+  }, [handleLoadIframe]);
 
   const handleInlineConfirm = useCallback(() => {
-    if (attemptedLoadRef.current) return;
-    attemptedLoadRef.current = true;
-    handleLoadIframe('inline');
+    handleLoadIframe('manual');
   }, [handleLoadIframe]);
 
   const handleInlineCancel = useCallback(() => {
-    iframeChallengeConfirmDecisions.set(confirmKey, 'rejected');
     onCancel();
-  }, [confirmKey, onCancel]);
+  }, [onCancel]);
 
   const sendThemeToIframe = useCallback(() => {
     postThemeToIframe(iframeRef.current, iframeOrigin, theme);
@@ -302,28 +247,32 @@ const IframeChallenge = ({
   }, [expectedSessionId, iframeOrigin, onAutoComplete]);
 
   if (!iframeUrlState) {
-    if (inlineConfirm) {
-      return (
-        <>
-          <div className={`${styles.challengeMediaWrapper} ${styles.iframeConsentWrapper}`}>
-            <div className={styles.iframeConsentMessage}>{inlineErrorMessage || confirmMessage}</div>
-          </div>
-          <div className={`${styles.challengeFooter} ${styles.iframeFooter}`}>
-            <span>
-              {!inlineErrorMessage && (
-                <button type='button' onClick={handleInlineConfirm}>
-                  {openLabel}
-                </button>
-              )}
-              <button type='button' onClick={handleInlineCancel}>
-                {closeLabel}
+    return (
+      <>
+        {publicationDetails}
+        <div className={`${styles.challengeMediaWrapper} ${styles.iframeConsentWrapper}`}>
+          <div className={styles.iframeConsentMessage}>{inlineErrorMessage || confirmMessage}</div>
+          {!inlineErrorMessage && (
+            <label className={styles.iframeTrustCheckbox}>
+              <input type='checkbox' checked={rememberPermission} onChange={(event) => setRememberPermission(event.target.checked)} />
+              {rememberPermissionLabel}
+            </label>
+          )}
+        </div>
+        <div className={`${styles.challengeFooter} ${styles.iframeFooter}`}>
+          <span>
+            {!inlineErrorMessage && (
+              <button type='button' onClick={handleInlineConfirm}>
+                {openLabel}
               </button>
-            </span>
-          </div>
-        </>
-      );
-    }
-    return null;
+            )}
+            <button type='button' onClick={handleInlineCancel}>
+              {closeLabel}
+            </button>
+          </span>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -347,7 +296,7 @@ const IframeChallenge = ({
   );
 };
 
-const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: ChallengeProps) => {
+const Challenge = ({ challenge, closeModal, abandonModal }: ChallengeProps) => {
   const { t } = useTranslation();
 
   const challenges = challenge?.[0]?.challenges;
@@ -377,12 +326,10 @@ const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: Challen
   }));
 
   const currentChallenge = challenges?.[currentChallengeIndex];
-  const iframeChallengeKey = `${challengeId}:${currentChallengeIndex}:${currentChallenge?.challenge ?? ''}`;
+  const iframeChallengeKey = `${currentChallengeIndex}:${currentChallenge?.challenge ?? ''}`;
   const isTextChallenge = currentChallenge?.type === 'text/plain';
   const isImageChallenge = currentChallenge?.type === 'image/png';
   const isIframeChallenge = currentChallenge?.type === 'url/iframe';
-  const inlineIframeConfirm = isIframeChallenge && shouldUseInlineIframeConfirm();
-  const isIframePending = isIframeChallenge && !inlineIframeConfirm && readyIframeChallengeKey !== iframeChallengeKey;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -474,7 +421,7 @@ const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: Challen
     return null;
   }
 
-  const isIframeVisible = isIframeChallenge;
+  const isIframeVisible = isIframeChallenge && readyIframeChallengeKey === iframeChallengeKey;
 
   const containerClasses = [styles.container];
   if (isIframeVisible) {
@@ -490,14 +437,14 @@ const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: Challen
   const mobileX = isIframeVisible ? 5 : window.innerWidth / 2 - 150;
   const mobileY = isIframeVisible ? Math.max(10, (window.innerHeight - 600) / 2) : window.innerHeight / 2 - 200;
   const displayCommunityAddress = getDisplayCommunityAddress(shortCommunityAddress, communityAddress) || t('board');
-  const iframeConfirmMessage = t('iframe_challenge_confirm', {
-    board: displayCommunityAddress,
-    excerpt: getIframeConfirmExcerpt(publication, publicationTarget, publicationType) || t('none'),
-    interpolation: { escapeValue: false },
-    publicationType: publicationType ? t(publicationType) : t('post'),
-    site: readableUrl || t('webpage'),
-  });
-  const challengeTitle = isIframeChallenge ? readableUrl || t('iframe') : `Challenge for ${publicationType}`;
+  const iframeConfirmMessage = stripLegacyIframeConfirmDetails(
+    t('iframe_challenge_confirm', {
+      board: displayCommunityAddress,
+      interpolation: { escapeValue: false },
+      site: readableUrl || t('webpage'),
+    }),
+  );
+  const challengeTitle = `Challenge for ${publicationType || t('post')}`;
 
   const publicationDetails = (
     <>
@@ -532,7 +479,6 @@ const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: Challen
       style={{
         x: isMobile ? mobileX : x.to((value) => Math.round(value)),
         y: isMobile ? mobileY : y.to((value) => Math.round(value)),
-        display: isIframePending ? 'none' : undefined,
         touchAction: 'none',
       }}
     >
@@ -545,15 +491,15 @@ const Challenge = ({ challenge, challengeId, closeModal, abandonModal }: Challen
           <IframeChallenge
             key={currentChallengeIndex}
             challenge={currentChallenge?.challenge ?? ''}
-            confirmKey={iframeChallengeKey}
             confirmMessage={iframeConfirmMessage}
-            inlineConfirm={inlineIframeConfirm}
             onCancel={abandonModal}
             onDone={onIframeDone}
             onAutoComplete={onIframeAutoComplete}
             onReady={onIframeReady}
             openLabel={capitalize(t('open'))}
             closeLabel={t('close')}
+            rememberPermissionLabel={t('trusted_board_link_checkbox')}
+            publicationDetails={publicationDetails}
           />
         ) : (
           <>
@@ -611,7 +557,7 @@ const ChallengeModal = () => {
   const challenge = current?.challenge;
   const challengeId = current?.id ?? 0;
 
-  return isOpen && challenge ? <Challenge key={challengeId} challenge={challenge} challengeId={challengeId} closeModal={closeModal} abandonModal={abandonModal} /> : null;
+  return isOpen && challenge ? <Challenge key={challengeId} challenge={challenge} closeModal={closeModal} abandonModal={abandonModal} /> : null;
 };
 
 export default ChallengeModal;
