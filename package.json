@@ -178,7 +178,7 @@
   "resolutions": {
     "follow-redirects": "1.16.0",
     "protobufjs": "7.5.5",
-    "axios": "1.15.0",
+    "axios": "1.15.2",
     "js-yaml": "4.1.1",
     "baseline-browser-mapping": "^2.9.11",
     "vite": "8.0.5",
