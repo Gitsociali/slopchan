@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAccount } from '@bitsocial/bitsocial-react-hooks';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styles from './settings-modal.module.css';
@@ -10,6 +11,8 @@ import MediaHostingSettings from './media-hosting-settings';
 import AdvancedSettings from './advanced-settings';
 import SubscriptionsSetting from './subscriptions-setting';
 import TrustedBoardLinksSetting from './trusted-board-links-setting';
+import P2PStatsSettings from './p2p-stats-settings';
+import { P2P_STATS_SECTION_ID, shouldShowP2PSettingsSection } from '../../lib/p2p-runtime';
 
 const allSectionIds = [
   'interface-settings',
@@ -20,18 +23,20 @@ const allSectionIds = [
   'advanced-settings',
 ];
 
-const hashToSection = (hash: string): string | null => {
+const hashToSection = (hash: string, sectionIds = allSectionIds): string | null => {
   if (hash === 'crypto-address-settings' || hash === 'crypto-wallet-settings') return 'account-settings';
-  if (allSectionIds.includes(hash)) return hash;
+  if (sectionIds.includes(hash)) return hash;
   return null;
 };
 
 const SettingsModal = () => {
   const { t } = useTranslation();
+  const account = useAccount();
   const location = useLocation();
   const navigate = useNavigate();
   const hash = location.hash.slice(1);
-  const hashSection = hashToSection(hash);
+  const sectionIds = useMemo(() => (shouldShowP2PSettingsSection(account) ? [...allSectionIds, P2P_STATS_SECTION_ID] : allSectionIds), [account]);
+  const hashSection = hashToSection(hash, sectionIds);
 
   const closeModal = useCallback(() => {
     const newPath = location.pathname.replace(/\/settings$/, '');
@@ -68,8 +73,9 @@ const SettingsModal = () => {
   const showSubscriptionsSettings = visibleExpandedSections.has('subscriptions-settings');
   const showBoardLinkPermissionsSettings = visibleExpandedSections.has('board-link-permissions-settings');
   const showAdvancedSettings = visibleExpandedSections.has('advanced-settings');
+  const showP2PStatsSettings = visibleExpandedSections.has(P2P_STATS_SECTION_ID);
 
-  const allExpanded = useMemo(() => allSectionIds.every((id) => visibleExpandedSections.has(id)), [visibleExpandedSections]);
+  const allExpanded = useMemo(() => sectionIds.every((id) => visibleExpandedSections.has(id)), [sectionIds, visibleExpandedSections]);
 
   const basePath = location.pathname;
 
@@ -98,7 +104,7 @@ const SettingsModal = () => {
       setExpandedSections(new Set());
       navigate(basePath, { replace: true });
     } else {
-      setExpandedSections(new Set(allSectionIds));
+      setExpandedSections(new Set(sectionIds));
       navigate(basePath, { replace: true });
     }
   };
@@ -185,6 +191,17 @@ const SettingsModal = () => {
           </label>
         </div>
         {showAdvancedSettings && <AdvancedSettings />}
+        {sectionIds.includes(P2P_STATS_SECTION_ID) && (
+          <>
+            <div id={P2P_STATS_SECTION_ID} className={`${styles.setting} ${styles.category}`}>
+              <label onClick={() => handleCategoryClick(P2P_STATS_SECTION_ID)}>
+                <span className={showP2PStatsSettings ? styles.hideButton : styles.showButton} />
+                {t('p2p_stats')}
+              </label>
+            </div>
+            {showP2PStatsSettings && <P2PStatsSettings />}
+          </>
+        )}
       </div>
     </>
   );

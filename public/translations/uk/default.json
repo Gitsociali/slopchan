@@ -371,5 +371,11 @@
   "trusted_board_links_empty": "Немає довірених посилань дощок.",
   "trusted_board_link_until_revoked": "до відкликання",
   "trusted_board_link_checkbox": "Завжди дозволяти дошкам відкривати цей сайт",
-  "revoke": "Відкликати"
+  "revoke": "Відкликати",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

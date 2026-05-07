@@ -1,0 +1,54 @@
+.content {
+  margin-left: 10px;
+}
+
+.setting {
+  margin-bottom: 15px;
+}
+
+.settingTip {
+  display: block;
+  font-size: 0.85em;
+  margin: 4px 0 0 20px;
+}
+
+.stats {
+  margin: 6px 0 0;
+  width: calc(100% - 8px);
+  border-collapse: collapse;
+}
+
+.stats th {
+  text-align: left;
+  font-weight: 700;
+}
+
+.stats th,
+.stats td {
+  padding: 2px 4px 3px 0;
+  vertical-align: top;
+}
+
+.statName {
+  width: 34%;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.statValue {
+  word-break: break-word;
+}
+
+.statsMeta {
+  margin-top: 5px;
+  font-size: 0.85em;
+}
+
+.statsMeta button {
+  margin-left: 5px;
+}
+
+.error {
+  color: var(--error-text-color, #b00020);
+  word-break: break-word;
+}

@@ -84,6 +84,7 @@ const clickButton = async (text: string) => {
 describe('AdvancedSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
     testState.account = {
       mediaIpfsGatewayUrl: 'https://media.old.example',
       chainProviders: {
@@ -189,6 +190,66 @@ describe('AdvancedSettings', () => {
     expect(textInputs[0]?.disabled).toBe(true);
     expect(textInputs[2]?.disabled).toBe(false);
     expect(textInputs[2]?.value).toBe('/tmp/connected-node');
+  });
+
+  it('saves the browser pure p2p toggle through advanced settings', async () => {
+    await renderSettings(false);
+
+    const checkbox = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    expect(checkbox?.checked).toBe(false);
+    expect(container.textContent).not.toContain('pure P2P:');
+    expect(checkbox?.closest('label')?.nextElementSibling?.textContent).toBe('enable_pure_p2p_tip');
+
+    await act(async () => {
+      checkbox?.click();
+    });
+    await clickButton('save_advanced_settings');
+
+    expect(testState.setAccountMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pkcOptions: expect.objectContaining({
+          httpRoutersOptions: ['https://router.old.example'],
+          ipfsGatewayUrls: undefined,
+          libp2pJsClientsOptions: [{ key: 'libp2pjs' }],
+          pkcRpcClientsOptions: undefined,
+          pubsubKuboRpcClientsOptions: undefined,
+        }),
+      }),
+    );
+    expect(localStorage.getItem('5chan:pure-p2p-browser-enabled')).toBe('true');
+    expect(reloadMock).toHaveBeenCalledOnce();
+  });
+
+  it('saves gateway mode defaults when browser pure p2p is disabled', async () => {
+    testState.account = {
+      mediaIpfsGatewayUrl: 'https://media.old.example',
+      pkcOptions: {
+        httpRoutersOptions: ['https://peers.pleb.bot'],
+        libp2pJsClientsOptions: [{ key: 'libp2pjs' }],
+      },
+    };
+
+    await renderSettings(false);
+
+    const checkbox = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    expect(checkbox?.checked).toBe(true);
+
+    await act(async () => {
+      checkbox?.click();
+    });
+    await clickButton('save_advanced_settings');
+
+    expect(testState.setAccountMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pkcOptions: expect.objectContaining({
+          httpRoutersOptions: ['https://peers.pleb.bot'],
+          ipfsGatewayUrls: ['https://ipfsgateway.xyz', 'https://gateway.plebpubsub.xyz', 'https://gateway.forumindex.com'],
+          libp2pJsClientsOptions: undefined,
+          pubsubKuboRpcClientsOptions: ['https://pubsubprovider.xyz/api/v0', 'https://plebpubsub.xyz/api/v0', 'https://rannithepleb.com/api/v0'],
+        }),
+      }),
+    );
+    expect(localStorage.getItem('5chan:pure-p2p-browser-enabled')).toBe('false');
   });
 
   it('toggles the node rpc instructions panel', async () => {

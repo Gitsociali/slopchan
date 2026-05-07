@@ -78,6 +78,19 @@
   padding-left: 1px;
 }
 
+.pureP2PSettings {
+  margin-bottom: 15px;
+}
+
+.pureP2PSettings .settingTip {
+  margin: 2px 0 5px 0;
+  padding-left: 19px;
+}
+
+.pureP2PCheckbox {
+  margin-right: 5px;
+}
+
 .p2pRPCSettings button {
   margin-left: 5px;
 }

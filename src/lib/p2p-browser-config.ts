@@ -1,24 +1,85 @@
+export const PURE_P2P_BROWSER_SETTING_KEY = '5chan:pure-p2p-browser-enabled';
+
 export const P2P_BROWSER_PKC_OPTIONS = {
   libp2pJsClientsOptions: [{ key: 'libp2pjs' }],
+  ipfsGatewayUrls: undefined,
+  kuboRpcClientsOptions: undefined,
+  pubsubHttpClientsOptions: undefined,
+  pubsubKuboRpcClientsOptions: undefined,
   httpRoutersOptions: ['https://peers.pleb.bot', 'https://peers.forumindex.com'],
+};
+
+const GATEWAY_BROWSER_PKC_OPTIONS = {
+  ipfsGatewayUrls: ['https://ipfsgateway.xyz', 'https://gateway.plebpubsub.xyz', 'https://gateway.forumindex.com'],
+  kuboRpcClientsOptions: undefined,
+  libp2pJsClientsOptions: undefined,
+  pubsubHttpClientsOptions: undefined,
+  pubsubKuboRpcClientsOptions: ['https://pubsubprovider.xyz/api/v0', 'https://plebpubsub.xyz/api/v0', 'https://rannithepleb.com/api/v0'],
+  httpRoutersOptions: ['https://routing.lol', 'https://peers.pleb.bot', 'https://peers.plebpubsub.xyz', 'https://peers.forumindex.com'],
 };
 
 type P2PBrowserConfigWindow = {
   location: Pick<Location, 'hostname'>;
   defaultPkcOptions?: Record<string, unknown>;
+  electronApi?: { isElectron?: boolean };
+  isElectron?: boolean;
+  localStorage?: Pick<Storage, 'getItem' | 'setItem'>;
 };
 
 export const isP2PBrowserHostname = (hostname: string) => hostname.toLowerCase().startsWith('p2p.');
 
+export const getBrowserPureP2PPkcOptions = () => ({
+  ...P2P_BROWSER_PKC_OPTIONS,
+  libp2pJsClientsOptions: P2P_BROWSER_PKC_OPTIONS.libp2pJsClientsOptions.map((options) => ({ ...options })),
+  httpRoutersOptions: [...P2P_BROWSER_PKC_OPTIONS.httpRoutersOptions],
+});
+
+export const getBrowserGatewayPkcOptions = () => ({
+  ...GATEWAY_BROWSER_PKC_OPTIONS,
+  ipfsGatewayUrls: [...GATEWAY_BROWSER_PKC_OPTIONS.ipfsGatewayUrls],
+  pubsubKuboRpcClientsOptions: [...GATEWAY_BROWSER_PKC_OPTIONS.pubsubKuboRpcClientsOptions],
+  httpRoutersOptions: [...GATEWAY_BROWSER_PKC_OPTIONS.httpRoutersOptions],
+});
+
+export const getPureP2PBrowserPreference = (targetWindow: P2PBrowserConfigWindow = window) => {
+  try {
+    const storedValue = targetWindow.localStorage?.getItem(PURE_P2P_BROWSER_SETTING_KEY);
+    if (storedValue === 'true') return true;
+    if (storedValue === 'false') return false;
+  } catch {
+    return undefined;
+  }
+
+  return undefined;
+};
+
+export const setPureP2PBrowserPreference = (enabled: boolean, targetWindow: P2PBrowserConfigWindow = window) => {
+  try {
+    targetWindow.localStorage?.setItem(PURE_P2P_BROWSER_SETTING_KEY, String(enabled));
+  } catch {
+    return;
+  }
+};
+
+export const isElectronRuntime = (targetWindow: P2PBrowserConfigWindow = window) => targetWindow.electronApi?.isElectron === true || targetWindow.isElectron === true;
+
+export const shouldUsePureP2PBrowser = (targetWindow: P2PBrowserConfigWindow = window) => {
+  if (isElectronRuntime(targetWindow)) return false;
+
+  const preference = getPureP2PBrowserPreference(targetWindow);
+  if (preference !== undefined) return preference;
+
+  return false;
+};
+
 export const configureP2PBrowserPkcOptions = (targetWindow: P2PBrowserConfigWindow = window) => {
-  if (!isP2PBrowserHostname(targetWindow.location.hostname)) {
+  if (!shouldUsePureP2PBrowser(targetWindow)) {
     return false;
   }
 
   targetWindow.defaultPkcOptions = {
     ...targetWindow.defaultPkcOptions,
-    libp2pJsClientsOptions: P2P_BROWSER_PKC_OPTIONS.libp2pJsClientsOptions.map((options) => ({ ...options })),
-    httpRoutersOptions: [...P2P_BROWSER_PKC_OPTIONS.httpRoutersOptions],
+    ...getBrowserPureP2PPkcOptions(),
   };
 
   return true;

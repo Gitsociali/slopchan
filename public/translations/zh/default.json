@@ -371,5 +371,11 @@
   "trusted_board_links_empty": "没有受信任的版块链接。",
   "trusted_board_link_until_revoked": "直到撤销",
   "trusted_board_link_checkbox": "始终允许版块打开此网站",
-  "revoke": "撤销"
+  "revoke": "撤销",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

@@ -371,5 +371,11 @@
   "trusted_board_links_empty": "신뢰한 게시판 링크가 없습니다.",
   "trusted_board_link_until_revoked": "취소할 때까지",
   "trusted_board_link_checkbox": "게시판이 항상 이 웹사이트를 열도록 허용",
-  "revoke": "취소"
+  "revoke": "취소",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

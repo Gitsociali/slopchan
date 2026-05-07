@@ -1,6 +1,8 @@
 import { memo, RefObject, useRef, useState } from 'react';
 import { setAccount, useAccount, usePkcRpcSettings } from '@bitsocial/bitsocial-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { getBrowserGatewayPkcOptions, getBrowserPureP2PPkcOptions, setPureP2PBrowserPreference } from '../../../lib/p2p-browser-config';
+import { canConfigureBrowserPureP2P, isBrowserPureP2PEnabled } from '../../../lib/p2p-runtime';
 import styles from './advanced-settings.module.css';
 
 interface SettingsProps {
@@ -11,6 +13,7 @@ interface SettingsProps {
   ethRpcRef?: RefObject<HTMLTextAreaElement>;
   p2pRpcRef?: RefObject<HTMLInputElement>;
   p2pDataPathRef?: RefObject<HTMLInputElement>;
+  pureP2PBrowserRef?: RefObject<HTMLInputElement>;
 }
 
 type AccountProtocolOptions = {
@@ -18,6 +21,8 @@ type AccountProtocolOptions = {
   dataPath?: string;
   httpRoutersOptions?: string[];
   ipfsGatewayUrls?: string[];
+  kuboRpcClientsOptions?: unknown[];
+  libp2pJsClientsOptions?: unknown[];
   pkcRpcClientsOptions?: string[];
   pubsubHttpClientsOptions?: string[];
   pubsubKuboRpcClientsOptions?: string[];
@@ -197,6 +202,21 @@ const P2pDataPathSettings = ({ p2pDataPathRef }: SettingsProps) => {
   );
 };
 
+const PureP2PBrowserSettings = ({ pureP2PBrowserRef }: SettingsProps) => {
+  const { t } = useTranslation();
+  const account = useAccount() as AccountShape | undefined;
+
+  return (
+    <div className={styles.pureP2PSettings}>
+      <label>
+        <input className={styles.pureP2PCheckbox} type='checkbox' defaultChecked={isBrowserPureP2PEnabled(account)} ref={pureP2PBrowserRef} />
+        {t('enable_pure_p2p')}
+      </label>
+      <div className={styles.settingTip}>{t('enable_pure_p2p_tip')}</div>
+    </div>
+  );
+};
+
 const isElectron = window.electronApi?.isElectron === true;
 
 const AdvancedSettings = () => {
@@ -211,6 +231,7 @@ const AdvancedSettings = () => {
   const httpRoutersRef = useRef<HTMLTextAreaElement>(null);
   const p2pRpcRef = useRef<HTMLInputElement>(null);
   const p2pDataPathRef = useRef<HTMLInputElement>(null);
+  const pureP2PBrowserRef = useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
     const ipfsGatewayUrls = ipfsGatewayUrlsRef.current?.value
@@ -237,10 +258,41 @@ const AdvancedSettings = () => {
 
     const pkcRpcClientsOptions = p2pRpcRef.current?.value.trim() ? [p2pRpcRef.current.value.trim()] : undefined;
     const dataPath = p2pDataPathRef.current?.value.trim() || undefined;
+    const pureP2PBrowserPreference = canConfigureBrowserPureP2P() ? pureP2PBrowserRef.current?.checked : undefined;
 
     const chainProviders: Record<string, { urls: string[] | undefined; chainId: number }> = {};
     if (ethRpcUrls && ethRpcUrls.length > 0) {
       chainProviders.eth = { urls: ethRpcUrls, chainId: 1 };
+    }
+
+    let pkcOptions: AccountProtocolOptions = {
+      ...protocolOptions,
+      ipfsGatewayUrls,
+      pubsubKuboRpcClientsOptions,
+      httpRoutersOptions,
+      pkcRpcClientsOptions,
+      dataPath,
+    };
+
+    if (pureP2PBrowserPreference !== undefined) {
+      if (pureP2PBrowserPreference) {
+        const pureP2POptions = getBrowserPureP2PPkcOptions();
+        pkcOptions = {
+          ...pkcOptions,
+          ...pureP2POptions,
+          httpRoutersOptions: httpRoutersOptions?.length ? httpRoutersOptions : pureP2POptions.httpRoutersOptions,
+          pkcRpcClientsOptions: undefined,
+        };
+      } else {
+        const gatewayOptions = getBrowserGatewayPkcOptions();
+        pkcOptions = {
+          ...pkcOptions,
+          ...gatewayOptions,
+          ipfsGatewayUrls: ipfsGatewayUrls?.length ? ipfsGatewayUrls : gatewayOptions.ipfsGatewayUrls,
+          pubsubKuboRpcClientsOptions: pubsubKuboRpcClientsOptions?.length ? pubsubKuboRpcClientsOptions : gatewayOptions.pubsubKuboRpcClientsOptions,
+          httpRoutersOptions: httpRoutersOptions?.length ? httpRoutersOptions : gatewayOptions.httpRoutersOptions,
+        };
+      }
     }
 
     try {
@@ -248,15 +300,9 @@ const AdvancedSettings = () => {
         ...account,
         mediaIpfsGatewayUrl,
         chainProviders,
-        pkcOptions: {
-          ...protocolOptions,
-          ipfsGatewayUrls,
-          pubsubKuboRpcClientsOptions,
-          httpRoutersOptions,
-          pkcRpcClientsOptions,
-          dataPath,
-        },
+        pkcOptions,
       });
+      if (pureP2PBrowserPreference !== undefined) setPureP2PBrowserPreference(pureP2PBrowserPreference);
       alert('Options saved, reloading...');
       window.location.reload();
     } catch (e) {
@@ -271,6 +317,7 @@ const AdvancedSettings = () => {
 
   return (
     <div className={styles.content}>
+      {canConfigureBrowserPureP2P() && <PureP2PBrowserSettings pureP2PBrowserRef={pureP2PBrowserRef} />}
       <div className={styles.category}>
         <span className={styles.categoryTitle}>IPFS gateways:</span>
         <span className={styles.categorySettings}>
