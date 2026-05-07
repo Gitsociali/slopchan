@@ -365,5 +365,11 @@
   "more_threads_last_month": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από τον τελευταίο μήνα</1>]",
   "more_threads_last_year": "{{count}} νήματα από {{currentTimeFilterName}} — [<1>Προβολή περισσότερων νημάτων από το περασμένο έτος</1>]",
   "iframe_challenge_confirm": "Το {{board}} θέλει να ανοίξει το {{site}}.\n\nΓια {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Δεν είναι διαθέσιμο από αυτό το δίκτυο. Δοκιμάστε άλλο δίκτυο ή VPN."
+  "media_hosting_provider_unavailable": "Δεν είναι διαθέσιμο από αυτό το δίκτυο. Δοκιμάστε άλλο δίκτυο ή VPN.",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

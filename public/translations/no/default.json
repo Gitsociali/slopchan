@@ -365,5 +365,11 @@
   "more_threads_last_month": "{{count}} tråder siden {{currentTimeFilterName}} — [<1>Vis flere tråder fra forrige måned</1>]",
   "more_threads_last_year": "{{count}} tråder siden {{currentTimeFilterName}} — [<1>Vis flere tråder fra forrige år</1>]",
   "iframe_challenge_confirm": "{{board}} vil åpne {{site}}.\n\nFor {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Ikke tilgjengelig fra dette nettverket. Prøv et annet nettverk eller en VPN."
+  "media_hosting_provider_unavailable": "Ikke tilgjengelig fra dette nettverket. Prøv et annet nettverk eller en VPN.",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

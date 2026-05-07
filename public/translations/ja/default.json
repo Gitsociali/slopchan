@@ -365,5 +365,11 @@
   "more_threads_last_month": "{{count}} スレッド {{currentTimeFilterName}} から — [<1>先月のスレッドをさらに表示</1>]",
   "more_threads_last_year": "{{count}} スレッド {{currentTimeFilterName}} から — [<1>去年のスレッドをさらに表示</1>]",
   "iframe_challenge_confirm": "{{board}}が{{site}}を開こうとしています。\n\n{{publicationType}}の場合: {{excerpt}}",
-  "media_hosting_provider_unavailable": "このネットワークからは利用できません。別のネットワークかVPNをお試しください。"
+  "media_hosting_provider_unavailable": "このネットワークからは利用できません。別のネットワークかVPNをお試しください。",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

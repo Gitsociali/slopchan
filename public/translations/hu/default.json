@@ -365,5 +365,11 @@
   "more_threads_last_month": "{{count}} szál {{currentTimeFilterName}} óta — [<1>Több szál megjelenítése a múlt hónapból</1>]",
   "more_threads_last_year": "{{count}} szál {{currentTimeFilterName}} óta — [<1>Több szál megjelenítése a múlt évből</1>]",
   "iframe_challenge_confirm": "{{board}} meg szeretné nyitni a következőt: {{site}}.\n\n{{publicationType}} esetén: {{excerpt}}",
-  "media_hosting_provider_unavailable": "Erről a hálózatról nem érhető el. Próbálj ki egy másik hálózatot vagy VPN-t."
+  "media_hosting_provider_unavailable": "Erről a hálózatról nem érhető el. Próbálj ki egy másik hálózatot vagy VPN-t.",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

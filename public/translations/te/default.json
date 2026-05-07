@@ -365,5 +365,11 @@
   "more_threads_last_month": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత నెల నుండి మరిన్ని థ్రెడ్‌లను చూపించండి</1>]",
   "more_threads_last_year": "{{count}} థ్రెడ్‌లు {{currentTimeFilterName}} నుండి — [<1>గత సంవత్సరం నుండి మరిన్ని థ్రెడ్‌లను చూపించండి</1>]",
   "iframe_challenge_confirm": "{{board}} {{site}} ను తెరవాలని కోరుతోంది.\n\n{{publicationType}} కోసం: {{excerpt}}",
-  "media_hosting_provider_unavailable": "ఈ నెట్‌వర్క్ నుండి అందుబాటులో లేదు. మరో నెట్‌వర్క్ లేదా VPN ప్రయత్నించండి."
+  "media_hosting_provider_unavailable": "ఈ నెట్‌వర్క్ నుండి అందుబాటులో లేదు. మరో నెట్‌వర్క్ లేదా VPN ప్రయత్నించండి.",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

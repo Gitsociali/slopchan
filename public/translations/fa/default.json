@@ -365,5 +365,11 @@
   "more_threads_last_month": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های ماه گذشته</1>]",
   "more_threads_last_year": "{{count}} پست از {{currentTimeFilterName}} — [<1>نمایش بیشتر پست‌های سال گذشته</1>]",
   "iframe_challenge_confirm": "{{board}} می‌خواهد {{site}} را باز کند.\n\nبرای {{publicationType}}: {{excerpt}}",
-  "media_hosting_provider_unavailable": "از این شبکه در دسترس نیست. شبکه دیگری یا یک VPN را امتحان کنید."
+  "media_hosting_provider_unavailable": "از این شبکه در دسترس نیست. شبکه دیگری یا یک VPN را امتحان کنید.",
+  "p2p_stats": "P2P stats",
+  "enable_pure_p2p": "Enable pure P2P",
+  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "p2p_stats_loading": "Loading P2P stats...",
+  "p2p_stats_updated": "Updated",
+  "p2p_stats_starting": "P2P stats appear after the P2P client starts."
 }

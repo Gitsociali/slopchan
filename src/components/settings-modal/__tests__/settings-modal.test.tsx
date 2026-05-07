@@ -8,6 +8,18 @@ import SettingsModal from '../settings-modal';
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
 
+const testState = vi.hoisted(() => ({
+  account: {
+    pkcOptions: {
+      libp2pJsClientsOptions: [{ key: 'libp2pjs' }],
+    },
+  } as Record<string, any>,
+}));
+
+vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
+  useAccount: () => testState.account,
+}));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
@@ -40,6 +52,10 @@ vi.mock('../advanced-settings', () => ({
 
 vi.mock('../subscriptions-setting', () => ({
   default: () => <div data-testid='subscriptions-settings-panel'>subscriptions-settings</div>,
+}));
+
+vi.mock('../p2p-stats-settings', () => ({
+  default: () => <div data-testid='p2p-stats-settings-panel'>p2p-stats-settings</div>,
 }));
 
 const LocationProbe = () => {
@@ -134,6 +150,7 @@ describe('SettingsModal', () => {
     expect(container.querySelector('[data-testid="account-settings"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="subscriptions-settings-panel"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="advanced-settings-panel"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="p2p-stats-settings-panel"]')).not.toBeNull();
 
     const collapseAllControl = Array.from(container.querySelectorAll('[role="button"]')).find((candidate) =>
       (candidate.textContent ?? '').includes('collapse_all_settings'),
@@ -151,6 +168,13 @@ describe('SettingsModal', () => {
     expect(container.querySelector('[data-testid="account-settings"]')).toBeNull();
     expect(container.querySelector('[data-testid="subscriptions-settings-panel"]')).toBeNull();
     expect(container.querySelector('[data-testid="advanced-settings-panel"]')).toBeNull();
+    expect(container.querySelector('[data-testid="p2p-stats-settings-panel"]')).toBeNull();
+  });
+
+  it('opens the p2p stats section from its hash', () => {
+    render('/all/settings#p2p-stats-settings');
+
+    expect(container.querySelector('[data-testid="p2p-stats-settings-panel"]')).not.toBeNull();
   });
 
   it('closes the modal when the overlay is clicked', async () => {
