@@ -39,10 +39,12 @@ describe('Embed', () => {
     expect(container.querySelector<HTMLIFrameElement>('iframe')?.getAttribute('src')).toContain(`parent=${window.location.hostname}`);
   });
 
-  it('renders x and reddit embeds through iframe markup and leaves unsupported urls empty', async () => {
+  it('renders x as a direct tweet iframe, renders reddit through iframe markup, and leaves unsupported urls empty', async () => {
     await renderEmbed('https://x.com/test/status/123');
 
-    expect(container.querySelector<HTMLIFrameElement>('iframe')?.getAttribute('srcdoc')).toContain('twitter-tweet');
+    expect(container.querySelector<HTMLIFrameElement>('iframe')?.getAttribute('src')).toBe(
+      'https://platform.twitter.com/embed/Tweet.html?id=123&theme=dark&dnt=false&hideThread=false&hideCard=false&lang=en',
+    );
 
     await renderEmbed('https://www.reddit.com/r/test/comments/abc123/example/');
 
@@ -56,6 +58,8 @@ describe('Embed', () => {
   it('reports embeddable hosts through canEmbed and rejects unsupported reddit pages', () => {
     expect(canEmbed(new URL('https://www.youtube.com/watch?v=abc123'))).toBe(true);
     expect(canEmbed(new URL('https://yt.example/watch?v=abc123'))).toBe(true);
+    expect(canEmbed(new URL('https://x.com/test/status/123'))).toBe(true);
+    expect(canEmbed(new URL('https://x.com/test'))).toBe(false);
     expect(canEmbed(new URL('https://www.reddit.com/r/test/comments/abc123/example/'))).toBe(true);
     expect(canEmbed(new URL('https://www.reddit.com/r/test/'))).toBe(false);
     expect(canEmbed(new URL('https://example.com/plain-link'))).toBe(false);

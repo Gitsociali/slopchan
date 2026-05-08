@@ -110,7 +110,29 @@ const YoutubeEmbed = ({ parsedUrl }: EmbedComponentProps) => {
 
 const xHosts = new Set<string>(['twitter.com', 'www.twitter.com', 'x.com', 'www.x.com']);
 
+const getXTweetId = (parsedUrl: URL): string | undefined => {
+  const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
+  const statusIndex = pathParts.findIndex((part) => part === 'status' || part === 'statuses');
+  const statusId = statusIndex === -1 ? undefined : pathParts[statusIndex + 1];
+
+  return statusId && /^\d+$/.test(statusId) ? statusId : undefined;
+};
+
 const XEmbed = ({ parsedUrl }: EmbedComponentProps) => {
+  const tweetId = getXTweetId(parsedUrl);
+  if (!tweetId) {
+    return null;
+  }
+
+  const searchParams = new URLSearchParams({
+    id: tweetId,
+    theme: 'dark',
+    dnt: 'false',
+    hideThread: 'false',
+    hideCard: 'false',
+    lang: 'en',
+  });
+
   return (
     <iframe
       className={styles.xEmbed}
@@ -118,14 +140,9 @@ const XEmbed = ({ parsedUrl }: EmbedComponentProps) => {
       width='100%'
       referrerPolicy='no-referrer'
       allow='accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share'
-      sandbox={srcDocSandbox}
+      sandbox={`${srcDocSandbox} allow-same-origin`}
       title={parsedUrl.href}
-      srcDoc={`
-      <blockquote class="twitter-tweet" data-theme="dark">
-        <a href="${parsedUrl.href.replace('x.com', 'twitter.com')}"></a>
-      </blockquote>
-      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-    `}
+      src={`https://platform.twitter.com/embed/Tweet.html?${searchParams.toString()}`}
     />
   );
 };
@@ -335,6 +352,10 @@ const canEmbedHosts = new Set<string>([
 ]);
 
 export const canEmbed = (parsedUrl: URL): boolean => {
+  if (xHosts.has(parsedUrl.host)) {
+    return Boolean(getXTweetId(parsedUrl));
+  }
+
   if (redditHosts.has(parsedUrl.host)) {
     // Reddit posts are not embeddable if the URL does not include '/comments/'
     return parsedUrl.pathname.includes('/comments/');
