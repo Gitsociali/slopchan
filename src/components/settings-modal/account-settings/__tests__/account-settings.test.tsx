@@ -350,6 +350,40 @@ describe('AccountSettings', () => {
     expect(getLocationText()).toBe('/subs/settings#account-settings');
   });
 
+  it('activates the resolved account name when an imported account name already exists', async () => {
+    hookMocks.useAccounts.mockReturnValue({
+      accounts: [
+        { id: 'test-id', name: 'Account 1', author: { shortAddress: '0x1...3' } },
+        { id: 'existing-imported-id', name: 'Imported', author: { shortAddress: '0x9...9' } },
+      ],
+    });
+    fileReaderState.result = JSON.stringify({
+      account: {
+        id: 'imported-id',
+        name: 'Imported',
+        author: { address: '0xabc' },
+      },
+    });
+    hookMocks.importAccount.mockResolvedValue(undefined);
+    hookMocks.setActiveAccount.mockResolvedValue(undefined);
+
+    render();
+
+    await act(async () => {
+      getButtonByText('import_account_backup').click();
+    });
+
+    const file = new File(['{}'], 'account.json', { type: 'application/json' });
+    await act(async () => {
+      createdInput?.onchange?.({ target: { files: [file] } } as unknown as Event);
+      await Promise.resolve();
+    });
+    await flushMicrotasks();
+
+    expect(hookMocks.importAccount).toHaveBeenCalledOnce();
+    expect(hookMocks.setActiveAccount).toHaveBeenCalledWith('Imported 2');
+  });
+
   it('surfaces import errors without navigating or reloading', async () => {
     fileReaderState.result = JSON.stringify({
       account: {
