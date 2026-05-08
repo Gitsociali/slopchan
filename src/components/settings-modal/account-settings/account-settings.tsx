@@ -57,6 +57,13 @@ const getSafeAccountBackupFileName = (accountName: string | undefined): string =
   return `${safeName}.json`;
 };
 
+const getImportedAccountActiveName = (importedAccountName: string | undefined, accounts: Array<{ name?: string }>): string | undefined => {
+  if (!importedAccountName) {
+    return undefined;
+  }
+  return accounts.some((account) => account?.name === importedAccountName) ? `${importedAccountName} 2` : importedAccountName;
+};
+
 // Inner component keyed by account id so state resets when user switches account
 const AccountSettingsEditor = ({
   account,
@@ -154,14 +161,15 @@ const AccountSettingsEditor = ({
         }
 
         const modifiedAccountJson = JSON.stringify(accountData);
+        const importedAccountActiveName = getImportedAccountActiveName(accountData.account?.name, accounts);
         const result = await withErrorHandling(
           async () => {
             await importAccount(modifiedAccountJson);
             if (accountData.account?.author?.address) {
               rememberImportedAccountAddress(accountData.account.author.address);
             }
-            if (accountData.account?.name) {
-              await setActiveAccount(accountData.account.name);
+            if (importedAccountActiveName) {
+              await setActiveAccount(importedAccountActiveName);
             }
             return true;
           },
