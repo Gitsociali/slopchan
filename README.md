@@ -21,13 +21,13 @@ Unlike traditional imageboards, 5chan has no global admins or central authority.
 ### Competitive Directory System
 5chan maintains the familiar imageboard directory structure (Japanese Culture, Video Games, Interests, Creative, etc.), but introduces competition: **multiple boards can compete for each directory slot**. For example, there can be unlimited "Business & Finance" boards, but only the highest-voted one appears in the directory on the homepage.
 
-Currently, directory assignments are temporarily handpicked by developers through GitHub pull requests. In the future, each directory will have its own voting page, and only users who purchased 5chan Pass will be able to vote.
+Currently, directory assignments are temporarily handpicked by developers through GitHub pull requests. In the future, each directory will have its own voting page. 5chan Pass holders are expected to participate in directory voting, while final governance mechanics are still being designed to include BSO-holder alignment instead of pass-only final control.
 
 ### How It Works
 
 - **Current System**: Developers manually curate directory assignments by reviewing pull requests to the [5chan-directories.json](https://github.com/bitsocialnet/lists/blob/master/5chan-directories.json) file.
 
-- **Future System**: Each directory will have its own voting page listing the boards competing for that slot. Only users who purchased 5chan Pass will be able to vote on which board is assigned to the directory.
+- **Future System**: Each directory will have its own voting page listing the boards competing for that slot. 5chan Pass holders are expected to participate in directory voting, while final governance mechanics are still being designed to include BSO-holder alignment instead of pass-only final control.
 
 - **Accessing Boards**: Users can access any board at any time using its address, regardless of directory assignment. Boards can be accessed via the search bar, by subscribing to them (which adds them to the top bar), or by directly navigating to their address.
 
@@ -39,7 +39,7 @@ Creating boards directly from the 5chan web app (5chan.app) is planned. This req
 
 #### Directory Voting
 
-Directory voting pages are planned for each slot on 5chan. These pages will list the competing boards for that directory, and only users who purchased 5chan Pass will be able to vote.
+Directory voting pages are planned for each slot on 5chan. These pages will list the competing boards for that directory, and 5chan Pass holders are expected to participate in voting. Final governance mechanics are still being designed to include BSO-holder alignment instead of pass-only final control.
 
 ## Downloads
 

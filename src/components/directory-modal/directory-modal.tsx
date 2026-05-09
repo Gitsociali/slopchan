@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import useDirectoryModalStore from '../../stores/use-directory-modal-store';
 import styles from './directory-modal.module.css';
 
@@ -68,8 +68,8 @@ const DirectoryModal = () => {
           <div className={styles.section}>
             <h3>Future: Directory Voting</h3>
             <p>
-              Each directory will have its own voting page listing the boards competing for that slot. Only 5chan users who purchased <Link to='/pass'>5chan Pass</Link>{' '}
-              will be able to vote.
+              Each directory will have its own voting page listing the boards competing for that slot. 5chan Pass holders will be able to participate in directory voting,
+              while final governance mechanics are still being designed to include BSO-holder alignment.
             </p>
           </div>
         </div>

@@ -9,6 +9,7 @@ const overviewQuestionLinks = [
   { id: 'whatpass', key: 'pass_question_what_is' },
   { id: 'available', key: 'pass_question_available' },
   { id: 'whatdoes', key: 'pass_question_what_does' },
+  { id: 'governance', key: 'pass_question_governance' },
   { id: 'whatnot', key: 'pass_question_what_not' },
   { id: 'vip', key: 'pass_question_vip' },
   { id: 'challenge', key: 'pass_question_challenge' },
@@ -117,6 +118,8 @@ const Pass = () => {
                     }}
                   />
                 </dd>
+                <dt id='governance'>{t('pass_question_governance')}</dt>
+                <dd>{t('pass_answer_governance')}</dd>
                 <dt id='whatnot'>{t('pass_question_what_not')}</dt>
                 <dd>
                   <Trans

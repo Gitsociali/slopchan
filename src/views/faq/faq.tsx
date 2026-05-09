@@ -457,7 +457,8 @@ const FAQ_SECTIONS: FAQSection[] = [
         answer: (
           <>
             <Link to='/pass'>5chan Pass</Link> is a planned supporter pass. It is not available to buy, activate, or renew yet. The current plan is for pass holders to
-            vote on directory assignments, post on <code>/vip/</code>, and skip compatible posting challenges on boards that support the pass challenge.
+            participate in directory voting, post on <code>/vip/</code>, and skip compatible posting challenges on boards that support the pass challenge. Final directory
+            governance mechanics are still being designed and are expected to include BSO-holder alignment rather than pass-only final control.
           </>
         ),
       },

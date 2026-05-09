@@ -82,6 +82,8 @@ describe('Pass', () => {
     expect(container.textContent).toContain('not available yet');
     expect(container.textContent).toContain('crypto only');
     expect(container.textContent).toContain('directory voting');
+    expect(container.textContent).toContain('BSO-holder alignment');
+    expect(container.textContent).toContain('pass-only final control');
     expect(container.textContent).toContain('/vip/');
     expect(container.textContent).toContain('zero-friction');
     expect(container.textContent).toContain('CAPTCHA verification');
