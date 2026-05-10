@@ -317,7 +317,6 @@ const AdvancedSettings = () => {
 
   return (
     <div className={styles.content}>
-      {canConfigureBrowserPureP2P() && <PureP2PBrowserSettings pureP2PBrowserRef={pureP2PBrowserRef} />}
       <div className={styles.category}>
         <span className={styles.categoryTitle}>IPFS gateways:</span>
         <span className={styles.categorySettings}>
@@ -358,6 +357,7 @@ const AdvancedSettings = () => {
           </span>
         </div>
       )}
+      {canConfigureBrowserPureP2P() && <PureP2PBrowserSettings pureP2PBrowserRef={pureP2PBrowserRef} />}
       <button className={styles.saveOptions} onClick={handleSave}>
         {t('save_advanced_settings')}
       </button>

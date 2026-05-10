@@ -81,6 +81,12 @@ const clickButton = async (text: string) => {
   });
 };
 
+const getSaveAdvancedSettingsButton = () => {
+  const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'save_advanced_settings');
+  expect(button).toBeTruthy();
+  return button as HTMLButtonElement;
+};
+
 describe('AdvancedSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -199,6 +205,7 @@ describe('AdvancedSettings', () => {
     expect(checkbox?.checked).toBe(false);
     expect(container.textContent).not.toContain('pure P2P:');
     expect(checkbox?.closest('label')?.nextElementSibling?.textContent).toBe('enable_pure_p2p_tip');
+    expect(getSaveAdvancedSettingsButton().previousElementSibling).toBe(checkbox?.closest('div'));
 
     await act(async () => {
       checkbox?.click();
