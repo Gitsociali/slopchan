@@ -54,6 +54,16 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
   const account = useAccount();
   const { displayName } = account?.author || {};
   const textRef = useRef<HTMLTextAreaElement | null>(null);
+  const setTextRef = useRef((element: HTMLTextAreaElement | null) => {
+    textRef.current = element;
+    if (!element) return;
+
+    window.setTimeout(() => {
+      if (textRef.current === element) {
+        element.focus();
+      }
+    }, 0);
+  });
   const urlRef = useRef<HTMLInputElement>(null);
   const lastSelectionStartRef = useRef(0);
   const lastSelectionEndRef = useRef(0);
@@ -126,6 +136,27 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
     [],
   );
 
+  const bodySelectionStyleBeforeDragRef = useRef<{ userSelect: string; webkitUserSelect: string } | null>(null);
+
+  const disableBodyTextSelection = () => {
+    if (!bodySelectionStyleBeforeDragRef.current) {
+      bodySelectionStyleBeforeDragRef.current = {
+        userSelect: document.body.style.userSelect,
+        webkitUserSelect: document.body.style.webkitUserSelect,
+      };
+    }
+    Object.assign(document.body.style, { userSelect: 'none', webkitUserSelect: 'none' });
+  };
+
+  const restoreBodyTextSelection = () => {
+    const previousStyle = bodySelectionStyleBeforeDragRef.current;
+    Object.assign(document.body.style, {
+      userSelect: previousStyle?.userSelect ?? '',
+      webkitUserSelect: previousStyle?.webkitUserSelect ?? '',
+    });
+    bodySelectionStyleBeforeDragRef.current = null;
+  };
+
   const bind = useDrag(
     ({ active, event, offset: [ox, oy] }) => {
       const nextLeft = Math.round(ox);
@@ -133,11 +164,9 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
 
       if (active) {
         event.preventDefault();
-        document.body.style.userSelect = 'none';
-        document.body.style.webkitUserSelect = 'none';
+        disableBodyTextSelection();
       } else {
-        document.body.style.userSelect = '';
-        document.body.style.webkitUserSelect = '';
+        restoreBodyTextSelection();
       }
       api.start({ left: nextLeft, top: nextTop, immediate: true });
     },
@@ -147,6 +176,12 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
       bounds: undefined,
     },
   );
+
+  useEffect(() => {
+    return () => {
+      restoreBodyTextSelection();
+    };
+  }, []);
 
   useEffect(() => {
     if (nodeRef.current && isMobile) {
@@ -159,34 +194,26 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
   const parentCidRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    if (!showReplyModal || isMobile) {
+      return;
+    }
+
+    const closeReplyModalOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    };
+
+    document.addEventListener('keydown', closeReplyModalOnEscape);
+    return () => document.removeEventListener('keydown', closeReplyModalOnEscape);
+  }, [showReplyModal, isMobile, closeModal]);
+
+  useEffect(() => {
     if (parentCidRef.current) {
       const cidWidth = parentCidRef.current.offsetWidth;
       parentCidRef.current.style.width = `${cidWidth}px`;
     }
   }, [parentCid]);
-
-  useEffect(() => {
-    if (showReplyModal) {
-      setTimeout(() => {
-        if (textRef.current) {
-          textRef.current.focus();
-        }
-      }, 0);
-
-      if (!isMobile) {
-        const handleEscape = (e: KeyboardEvent) => {
-          if (e.key === 'Escape') {
-            closeModal();
-          }
-        };
-        document.addEventListener('keydown', handleEscape);
-
-        return () => {
-          document.removeEventListener('keydown', handleEscape);
-        };
-      }
-    }
-  }, [showReplyModal, closeModal, isMobile]);
 
   useEffect(() => {
     if (textRef.current) {
@@ -209,11 +236,15 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
       setPublishReplyOptions({ content });
       checkContentLengthRef.current(content, t);
 
-      setTimeout(() => {
+      const spellcheckTimeout = window.setTimeout(() => {
         if (textRef.current) {
           textRef.current.spellcheck = true;
         }
       }, 100);
+
+      return () => {
+        window.clearTimeout(spellcheckTimeout);
+      };
     }
   }, [showReplyModal, openEmpty, defaultParentQuote, selectedText]);
 
@@ -351,7 +382,7 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
             cols={48}
             rows={4}
             wrap='soft'
-            ref={textRef}
+            ref={setTextRef.current}
             aria-label={t('comment')}
             spellCheck={true}
             onInput={handleContentInput}
