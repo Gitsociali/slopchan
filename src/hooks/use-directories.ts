@@ -48,10 +48,13 @@ const GITHUB_URL = 'https://raw.githubusercontent.com/bitsocialnet/lists/master/
 const LOCALSTORAGE_KEY = '5chan-directories-cache';
 const LOCALSTORAGE_TIMESTAMP_KEY = '5chan-directories-cache-timestamp';
 const CACHE_MAX_AGE_MS = 60 * 60 * 1000; // 1 hour
+const FETCH_RETRY_DELAY_MS = 60 * 1000; // 1 minute
 
 let cacheCommunities: DirectoryCommunity[] | null = null;
 let cacheMetadata: DirectoriesMetadata | null = null;
 let inFlightGitHubFetch: Promise<DirectoriesData> | null = null;
+let lastSuccessfulGitHubFetchAt: number | null = null;
+let lastGitHubFetchAttemptAt: number | null = null;
 const DIRECTORY_ALIAS_SUFFIXES = ['.bso', '.eth'] as const;
 
 // Exposed for deterministic unit tests around module-level cache state.
@@ -59,6 +62,8 @@ export const __resetDirectoriesModuleStateForTests = () => {
   cacheCommunities = null;
   cacheMetadata = null;
   inFlightGitHubFetch = null;
+  lastSuccessfulGitHubFetchAt = null;
+  lastGitHubFetchAttemptAt = null;
   fallbackDirectoriesData = null;
 };
 
@@ -305,6 +310,18 @@ const saveToLocalStorage = (data: DirectoriesData) => {
   }
 };
 
+const toDirectoriesMetadata = (data: DirectoriesData): DirectoriesMetadata => ({
+  title: data.title,
+  description: data.description,
+  createdAt: data.createdAt,
+  updatedAt: data.updatedAt,
+});
+
+const hydrateModuleCaches = (data: DirectoriesData) => {
+  cacheCommunities = data.communities;
+  cacheMetadata = toDirectoriesMetadata(data);
+};
+
 const fetchDirectoriesFromGitHub = async (): Promise<DirectoriesData> => {
   const response = await fetch(GITHUB_URL, { cache: 'no-cache' });
   if (!response.ok) {
@@ -314,17 +331,38 @@ const fetchDirectoriesFromGitHub = async (): Promise<DirectoriesData> => {
   if (!data) {
     throw new Error('Invalid directories payload');
   }
-  // Save successful fetch to localStorage
+  hydrateModuleCaches(data);
+  lastSuccessfulGitHubFetchAt = Date.now();
   saveToLocalStorage(data);
   return data;
 };
 
-const fetchDirectoriesFromGitHubDeduped = async (): Promise<DirectoriesData> => {
-  if (!inFlightGitHubFetch) {
-    inFlightGitHubFetch = fetchDirectoriesFromGitHub().finally(() => {
-      inFlightGitHubFetch = null;
-    });
+const shouldRefreshFromGitHub = () => {
+  const now = Date.now();
+  if (lastSuccessfulGitHubFetchAt !== null && now - lastSuccessfulGitHubFetchAt < CACHE_MAX_AGE_MS) {
+    return false;
   }
+
+  if (lastGitHubFetchAttemptAt !== null && now - lastGitHubFetchAttemptAt < FETCH_RETRY_DELAY_MS) {
+    return false;
+  }
+
+  return true;
+};
+
+const fetchDirectoriesFromGitHubDeduped = async (): Promise<DirectoriesData | null> => {
+  if (inFlightGitHubFetch) {
+    return inFlightGitHubFetch;
+  }
+
+  if (!shouldRefreshFromGitHub()) {
+    return null;
+  }
+
+  lastGitHubFetchAttemptAt = Date.now();
+  inFlightGitHubFetch = fetchDirectoriesFromGitHub().finally(() => {
+    inFlightGitHubFetch = null;
+  });
   return inFlightGitHubFetch;
 };
 
@@ -366,9 +404,13 @@ export const useDirectories = () => {
       }
 
       try {
-        // Always attempt a background refresh from GitHub to pick up list updates
+        // Refresh from GitHub when the session cache is stale, without refetching for every hook mount.
         const directories = await fetchDirectoriesFromGitHubDeduped();
-        hydrateCommunities(directories);
+        if (directories) {
+          hydrateCommunities(directories);
+        } else if (!cacheCommunities) {
+          hydrateCommunities(getFallbackDirectoriesData());
+        }
       } catch (e) {
         console.warn('Failed to fetch directories from GitHub:', e);
         // Keep each hook instance in sync even if a sibling hook populated the module cache first.
@@ -434,9 +476,13 @@ export const useDirectoriesState = () => {
       }
 
       try {
-        // Always attempt a background refresh from GitHub to pick up list updates
+        // Refresh from GitHub when the session cache is stale, without refetching for every hook mount.
         const directories = await fetchDirectoriesFromGitHubDeduped();
-        hydrateCommunities(directories);
+        if (directories) {
+          hydrateCommunities(directories);
+        } else if (!cacheCommunities) {
+          hydrateCommunities(getFallbackDirectoriesData());
+        }
       } catch (e) {
         console.warn('Failed to fetch directories from GitHub:', e);
         // Keep each hook instance in sync even if a sibling hook populated the module cache first.
@@ -480,12 +526,7 @@ export const useDirectoriesMetadata = () => {
   useEffect(() => {
     let isMounted = true;
     const hydrateMetadata = (data: DirectoriesData) => {
-      const nextMetadata: DirectoriesMetadata = {
-        title: data.title,
-        description: data.description,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-      };
+      const nextMetadata = toDirectoriesMetadata(data);
       cacheMetadata = nextMetadata;
       if (isMounted) {
         setMetadata(nextMetadata);
@@ -504,9 +545,13 @@ export const useDirectoriesMetadata = () => {
       }
 
       try {
-        // Always attempt a background refresh from GitHub to pick up metadata updates
+        // Refresh from GitHub when the session cache is stale, without refetching for every hook mount.
         const directories = await fetchDirectoriesFromGitHubDeduped();
-        hydrateMetadata(directories);
+        if (directories) {
+          hydrateMetadata(directories);
+        } else if (!cacheMetadata) {
+          hydrateMetadata(getFallbackDirectoriesData());
+        }
       } catch (e) {
         console.warn('Failed to fetch directory metadata from GitHub:', e);
         // Keep each hook instance in sync even if a sibling hook populated the module cache first.

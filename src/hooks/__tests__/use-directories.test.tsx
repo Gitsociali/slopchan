@@ -92,6 +92,11 @@ const renderHarness = (address?: string) => {
   });
 };
 
+const expectLatestSnapshot = (): Snapshot => {
+  expect(latestSnapshot).not.toBeNull();
+  return latestSnapshot as Snapshot;
+};
+
 describe('use-directories', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -234,6 +239,47 @@ describe('use-directories', () => {
     const persisted = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) ?? '{}');
     expect(persisted.title).toBe('Fresh directories');
     expect(persisted.communities).toHaveLength(2);
+  });
+
+  it('does not refetch GitHub directories for each later hook mount after a successful refresh', async () => {
+    const remotePayload = {
+      title: 'Fresh directories',
+      description: 'fresh description',
+      createdAt: 3,
+      updatedAt: 4,
+      directories: [
+        {
+          name: 'music-posting.bso',
+          publicKey: 'music-public-key',
+          title: '/mu/ - Music',
+          directoryCode: 'mu',
+          features: { safeForWork: true, postsPerPage: 25 },
+        },
+      ],
+    };
+
+    fetchMock.mockResolvedValueOnce(createFetchResponse(remotePayload));
+
+    renderHarness();
+    await flushEffects(8);
+
+    const firstSnapshot = expectLatestSnapshot();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(firstSnapshot.directories.map((community) => community.address)).toEqual(['music-posting.bso']);
+    expect(firstSnapshot.metadata?.title).toBe('Fresh directories');
+
+    latestSnapshot = null;
+    act(() => {
+      root.render(null);
+    });
+
+    renderHarness();
+    await flushEffects(8);
+
+    const secondSnapshot = expectLatestSnapshot();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(secondSnapshot.directories.map((community) => community.address)).toEqual(['music-posting.bso']);
+    expect(secondSnapshot.metadata?.title).toBe('Fresh directories');
   });
 
   it('clears invalid recent cache entries and falls back to vendored data when GitHub refresh fails', async () => {
