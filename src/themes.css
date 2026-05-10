@@ -680,7 +680,7 @@
 
   /* boardsbar */
   --boardsbar-font-size: 11pt;
-  --boardsbar-separator-color: transparent;
+  --boardsbar-separator-color: #800;
   --boardsbar-desktop-link-text-color: #00e;
   --boardsbar-desktop-link-text-color-hover: red;
   --boardsbar-desktop-link-text-decoration: underline;
@@ -901,7 +901,7 @@
 
   /* boardsbar */
   --boardsbar-font-size: 11pt;
-  --boardsbar-separator-color: transparent;
+  --boardsbar-separator-color: #000;
   --boardsbar-desktop-link-text-color: #34345c;
   --boardsbar-desktop-link-text-color-hover: #d00;
   --boardsbar-desktop-link-text-decoration: underline;
