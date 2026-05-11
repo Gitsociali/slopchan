@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocial/bitsocial-react-hooks": "npm:0.1.8"
+    "@bitsocial/bitsocial-react-hooks": "npm:0.1.9"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/browser": "npm:7.0.5"
@@ -24,7 +24,7 @@ __metadata:
     "@electron-forge/maker-zip": "npm:7.8.0"
     "@electron/rebuild": "npm:3.7.2"
     "@floating-ui/react": "npm:0.26.1"
-    "@pkcprotocol/pkc-js": "npm:0.0.29"
+    "@pkcprotocol/pkc-js": "npm:0.0.30"
     "@react-spring/web": "npm:10.0.3"
     "@reforged/maker-appimage": "npm:5.1.1"
     "@types/lodash": "npm:4.17.24"
@@ -1523,12 +1523,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocial/bitsocial-react-hooks@npm:0.1.8":
-  version: 0.1.8
-  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.8"
+"@bitsocial/bitsocial-react-hooks@npm:0.1.9":
+  version: 0.1.9
+  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.9"
   dependencies:
     "@bitsocial/bso-resolver": "npm:0.0.8"
-    "@pkcprotocol/pkc-js": "npm:0.0.29"
+    "@pkcprotocol/pkc-js": "npm:0.0.30"
     "@pkcprotocol/pkc-logger": "npm:0.1.0"
     assert: "npm:2.0.0"
     ethers: "npm:5.8.0"
@@ -1544,7 +1544,7 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/0222c68180ff30372b1ff415bc4c47c47bf1de2ef74bd08457730922498d0eff6ce42b379f96ebefd32a18f37cddff5e2431a7d338634efa7fb6e404e1fc9c2a
+  checksum: 10c0/477c4543b130a054e969ec3079fafe165e7aeb6480c2ec4f0ea6ee122a1ff226b315346d7ce55930ef32a5aad57cf10ccc7cf6baceae49378212c7d8b99f7df9
   languageName: node
   linkType: hard
 
@@ -5702,9 +5702,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkcprotocol/pkc-js@npm:0.0.29":
-  version: 0.0.29
-  resolution: "@pkcprotocol/pkc-js@npm:0.0.29"
+"@pkcprotocol/pkc-js@npm:0.0.30":
+  version: 0.0.30
+  resolution: "@pkcprotocol/pkc-js@npm:0.0.30"
   dependencies:
     "@enhances/with-resolvers": "npm:0.0.5"
     "@helia/block-brokers": "npm:5.2.4"
@@ -5754,7 +5754,7 @@ __metadata:
     typestub-ipfs-only-hash: "npm:4.0.0"
     uuid: "npm:13.0.0"
     zod: "npm:4.3.6"
-  checksum: 10c0/089100e75d4b2c735f3a9b9f6b087970afb9dc606e21be6e5e1e84daf2e3350793f5cfa8f6508a3db7bc518a1173e517f449174185b2a07f5df7d33f73cffdac
+  checksum: 10c0/b6fa8a8e6474d4d7150c6fd29ac8caef9a8d1fd67a2444f9b3e4354ed95b80427693387618363eb059ad4775834857e58ca8fb5b85c9daafc795a16349b34d11
   languageName: node
   linkType: hard
 
