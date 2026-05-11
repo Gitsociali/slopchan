@@ -19,7 +19,7 @@ const GATEWAY_BROWSER_PKC_OPTIONS = {
 };
 
 type P2PBrowserConfigWindow = {
-  location: Pick<Location, 'hostname'>;
+  location?: Pick<Location, 'hostname'>;
   defaultPkcOptions?: Record<string, unknown>;
   electronApi?: { isElectron?: boolean };
   isElectron?: boolean;
@@ -63,8 +63,12 @@ export const setPureP2PBrowserPreference = (enabled: boolean, targetWindow: P2PB
 
 export const isElectronRuntime = (targetWindow: P2PBrowserConfigWindow = window) => targetWindow.electronApi?.isElectron === true || targetWindow.isElectron === true;
 
+export const isPureP2PBrowserForced = (targetWindow: P2PBrowserConfigWindow = window) =>
+  !isElectronRuntime(targetWindow) && isP2PBrowserHostname(targetWindow.location?.hostname ?? '');
+
 export const shouldUsePureP2PBrowser = (targetWindow: P2PBrowserConfigWindow = window) => {
   if (isElectronRuntime(targetWindow)) return false;
+  if (isPureP2PBrowserForced(targetWindow)) return true;
 
   const preference = getPureP2PBrowserPreference(targetWindow);
   if (preference !== undefined) return preference;

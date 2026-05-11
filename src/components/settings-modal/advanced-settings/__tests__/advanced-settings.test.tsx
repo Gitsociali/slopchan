@@ -87,6 +87,17 @@ const getSaveAdvancedSettingsButton = () => {
   return button as HTMLButtonElement;
 };
 
+const setTestHostname = (hostname: string) => {
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: {
+      ...originalLocation,
+      hostname,
+      reload: reloadMock,
+    },
+  });
+};
+
 describe('AdvancedSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -120,6 +131,7 @@ describe('AdvancedSettings', () => {
       configurable: true,
       value: {
         ...originalLocation,
+        hostname: '5chan.app',
         reload: reloadMock,
       },
     });
@@ -225,6 +237,31 @@ describe('AdvancedSettings', () => {
     );
     expect(localStorage.getItem('5chan:pure-p2p-browser-enabled')).toBe('true');
     expect(reloadMock).toHaveBeenCalledOnce();
+  });
+
+  it('forces the browser pure p2p toggle on p2p subdomains', async () => {
+    localStorage.setItem('5chan:pure-p2p-browser-enabled', 'false');
+    setTestHostname('p2p.5chan.app');
+
+    await renderSettings(false);
+
+    const checkbox = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    expect(checkbox?.checked).toBe(true);
+    expect(checkbox?.disabled).toBe(true);
+
+    await clickButton('save_advanced_settings');
+
+    expect(testState.setAccountMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pkcOptions: expect.objectContaining({
+          ipfsGatewayUrls: undefined,
+          libp2pJsClientsOptions: [{ key: 'libp2pjs' }],
+          pkcRpcClientsOptions: undefined,
+          pubsubKuboRpcClientsOptions: undefined,
+        }),
+      }),
+    );
+    expect(localStorage.getItem('5chan:pure-p2p-browser-enabled')).toBe('true');
   });
 
   it('saves gateway mode defaults when browser pure p2p is disabled', async () => {
