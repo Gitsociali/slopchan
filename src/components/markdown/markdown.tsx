@@ -160,6 +160,12 @@ const COMBINED_REGEX = new RegExp(
 
 const makeTokenKey = (prefix: string, type: Token['type'], start: number, end: number): string => `${prefix}${type}:${start}:${end}`;
 
+const isGreentextLine = (line: string): boolean => {
+  if (line === '>') return true;
+  if (!/^>+[^>]/.test(line)) return false;
+  return !/^>>\d/.test(line) && !line.startsWith('>>>/');
+};
+
 function normalizeInternalRouteHref(href: string): string {
   if (href.startsWith('/#/')) {
     return href.slice(2);
@@ -458,7 +464,7 @@ const Markdown = ({ content, title, postCid, communityAddress }: MarkdownProps) 
 
       if (line.length === 0) return;
 
-      const isGreentext = /^>[^>]/.test(line) || line === '>';
+      const isGreentext = isGreentextLine(line);
 
       const tokens = tokenize(line);
       const lineElements = <TokenList tokens={tokens} context={context} />;

@@ -230,6 +230,17 @@ describe('Markdown', () => {
     expect(links.find((link) => link.getAttribute('href') === '/fit')?.textContent).toBe('>>>/fit/');
   });
 
+  it('renders greentext for any leading marker run while preserving quote links', async () => {
+    await renderMarkdown({
+      content: '>green line\n>>test\n>>>>>>>test\n>>42\n>>>/fit/',
+      communityAddress: 'music-posting.eth',
+    });
+
+    expect(Array.from(container.querySelectorAll('.greentext')).map((node) => node.textContent)).toEqual(['>green line', '>>test', '>>>>>>>test']);
+    expect(container.querySelector('[data-testid="external-number-quote-link"]')?.textContent).toBe('>>42');
+    expect(Array.from(container.querySelectorAll('a')).find((link) => link.getAttribute('href') === '/fit')?.textContent).toBe('>>>/fit/');
+  });
+
   it('preserves trailing punctuation outside cross-board links', async () => {
     await renderMarkdown({
       content: 'see >>>/fit/, next',
