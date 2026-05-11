@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useClientsStates, useCommunity, useCommunitiesStates } from '@bitsocial/bitsocial-react-hooks';
 import debounce from 'lodash/debounce';
 import getShortAddress from '../lib/get-short-address';
+import { isBrowserPureP2PEnabled } from '../lib/p2p-runtime';
 import { useCommunityIdentifiers } from './use-community-identifiers';
 
 interface CommentOrCommunity {
@@ -21,6 +22,11 @@ type CommunityLoadingState = {
 
 const isCommunityLoadingState = (state: string[] | CommunityLoadingState | undefined): state is CommunityLoadingState =>
   Boolean(state && !Array.isArray(state) && 'communityAddresses' in state && 'clientUrls' in state);
+
+const isBrowserLibp2pClient = (clientUrl: string) => clientUrl === 'libp2pjs';
+
+const getDownloadSourceSuffix = (clientUrls: string[], isBrowserPureP2P: boolean) =>
+  (clientUrls.length > 0 ? clientUrls.every(isBrowserLibp2pClient) : isBrowserPureP2P) ? ' from peers' : ' via IPFS';
 
 const friendlyStateNames: Record<string, string> = {
   'fetching-ipns': 'downloading board',
@@ -49,6 +55,7 @@ const sanitizeSingleFeedLoadingState = (stateString?: string): string | undefine
 
 const useStateString = (commentOrCommunity: CommentOrCommunity | undefined): string | undefined => {
   const { states: rawStates } = useClientsStates({ comment: commentOrCommunity }) as { states: States };
+  const isBrowserPureP2P = isBrowserPureP2PEnabled();
 
   const debouncedStates = useMemo(() => {
     const debouncedValue = debounce((value: States) => value, 300);
@@ -59,6 +66,7 @@ const useStateString = (commentOrCommunity: CommentOrCommunity | undefined): str
     let stateString: string | undefined = '';
     const resolvingParts: string[] = [];
     const downloadingParts: string[] = [];
+    const downloadingClientUrls: string[] = [];
 
     for (const state in debouncedStates) {
       if (debouncedStates[state].length === 0) continue;
@@ -67,6 +75,7 @@ const useStateString = (commentOrCommunity: CommentOrCommunity | undefined): str
         resolvingParts.push(friendlyName);
       } else {
         downloadingParts.push(friendlyName);
+        downloadingClientUrls.push(...debouncedStates[state]);
       }
     }
 
@@ -75,7 +84,7 @@ const useStateString = (commentOrCommunity: CommentOrCommunity | undefined): str
     }
     if (downloadingParts.length) {
       if (stateString) stateString += ', ';
-      stateString += downloadingParts.join(', ') + ' via IPFS';
+      stateString += downloadingParts.join(', ') + getDownloadSourceSuffix(downloadingClientUrls, isBrowserPureP2P);
     }
 
     if (!stateString && commentOrCommunity?.state !== 'succeeded') {
@@ -94,7 +103,7 @@ const useStateString = (commentOrCommunity: CommentOrCommunity | undefined): str
           .replace('community community', 'board')
           .replace('downloading community', 'downloading board');
         if (isIpfsRelated) {
-          stateString += ' via IPFS';
+          stateString += getDownloadSourceSuffix([], isBrowserPureP2P);
         }
       }
     }
@@ -104,10 +113,11 @@ const useStateString = (commentOrCommunity: CommentOrCommunity | undefined): str
     }
 
     return stateString === '' ? undefined : stateString;
-  }, [debouncedStates, commentOrCommunity]);
+  }, [debouncedStates, commentOrCommunity, isBrowserPureP2P]);
 };
 
 export const useFeedStateString = (communityAddresses?: string[]): string | undefined => {
+  const isBrowserPureP2P = isBrowserPureP2PEnabled();
   const communities = useCommunityIdentifiers(communityAddresses);
 
   // single community feed state string
@@ -136,11 +146,13 @@ export const useFeedStateString = (communityAddresses?: string[]): string | unde
     }
 
     const pagesStatesCommunityAddresses = new Set<string>();
+    const downloadingClientUrls: string[] = [];
     for (const state in states) {
       if (state.match('page')) {
         const communityState = states[state];
         if (isCommunityLoadingState(communityState)) {
           communityState.communityAddresses.forEach((address: string) => pagesStatesCommunityAddresses.add(address));
+          downloadingClientUrls.push(...communityState.clientUrls);
         }
       }
     }
@@ -151,6 +163,7 @@ export const useFeedStateString = (communityAddresses?: string[]): string | unde
       if (states['fetching-ipns']) {
         const fetchingIpnsState = states['fetching-ipns'];
         if (isCommunityLoadingState(fetchingIpnsState)) {
+          downloadingClientUrls.push(...fetchingIpnsState.clientUrls);
           const count = fetchingIpnsState.communityAddresses.length;
           stateString += `${count} ${count === 1 ? 'board' : 'boards'}`;
           if (count <= 5) {
@@ -162,6 +175,7 @@ export const useFeedStateString = (communityAddresses?: string[]): string | unde
       if (states['fetching-ipfs']) {
         const fetchingIpfsState = states['fetching-ipfs'];
         if (isCommunityLoadingState(fetchingIpfsState)) {
+          downloadingClientUrls.push(...fetchingIpfsState.clientUrls);
           if (stateString[stateString.length - 1] !== ' ') {
             stateString += ', ';
           }
@@ -176,7 +190,7 @@ export const useFeedStateString = (communityAddresses?: string[]): string | unde
         stateString += `${count} ${count === 1 ? 'page' : 'pages'}`;
       }
 
-      stateString += ' via IPFS';
+      stateString += getDownloadSourceSuffix(downloadingClientUrls, isBrowserPureP2P);
     }
 
     if (!stateString && communityAddresses?.length) {
@@ -192,7 +206,7 @@ export const useFeedStateString = (communityAddresses?: string[]): string | unde
 
     // if string is empty, return undefined instead
     return stateString === '' ? undefined : stateString;
-  }, [states, communityAddress, communityAddresses]);
+  }, [states, communityAddress, communityAddresses, isBrowserPureP2P]);
 
   if (singleCommunityFeedStateString) {
     return singleCommunityFeedStateString;

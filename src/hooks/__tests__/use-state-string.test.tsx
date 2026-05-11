@@ -62,6 +62,7 @@ const FeedStateStringHarness = ({ addresses }: { addresses?: string[] }) => {
 describe('use-state-string', () => {
   beforeEach(() => {
     latestValue = undefined;
+    localStorage.removeItem('5chan:pure-p2p-browser-enabled');
     testState.clientsStates = {};
     testState.community = undefined;
     testState.communitiesStates = {};
@@ -88,6 +89,29 @@ describe('use-state-string', () => {
     expect(latestValue).toBe('Resolving address, downloading board via IPFS');
   });
 
+  it('formats browser libp2p client state strings as peer downloads', () => {
+    testState.clientsStates = {
+      'fetching-ipns': ['libp2pjs'],
+      'resolving-address': ['https://ens.example.com'],
+    };
+
+    act(() => {
+      root.render(createElement(StateStringHarness, { value: { state: 'updating' } }));
+    });
+
+    expect(latestValue).toBe('Resolving address, downloading board from peers');
+  });
+
+  it('formats browser p2p fallback publishing states as peer downloads', () => {
+    localStorage.setItem('5chan:pure-p2p-browser-enabled', 'true');
+
+    act(() => {
+      root.render(createElement(StateStringHarness, { value: { publishingState: 'fetching-ipfs', state: 'publishing' } }));
+    });
+
+    expect(latestValue).toBe('Downloading thread from peers');
+  });
+
   it('falls back to publishing and updating states when no client states are available', () => {
     act(() => {
       root.render(createElement(StateStringHarness, { value: { publishingState: 'fetching-ipfs', state: 'publishing' } }));
@@ -98,6 +122,20 @@ describe('use-state-string', () => {
       root.render(createElement(StateStringHarness, { value: { state: 'updating', updatingState: 'fetching-ipns' } }));
     });
     expect(latestValue).toBe('Downloading board via IPFS');
+  });
+
+  it('formats browser p2p single-board feed fallback states as peer downloads', () => {
+    localStorage.setItem('5chan:pure-p2p-browser-enabled', 'true');
+    testState.community = {
+      state: 'updating',
+      updatingState: 'fetching-ipfs',
+    };
+
+    act(() => {
+      root.render(createElement(FeedStateStringHarness, { addresses: ['music-posting.eth'] }));
+    });
+
+    expect(latestValue).toBe('Downloading board from peers');
   });
 
   it('sanitizes single-board feed state strings to board wording', () => {
@@ -138,6 +176,29 @@ describe('use-state-string', () => {
     });
 
     expect(latestValue).toBe('Resolving 2 board addresses, downloading 2 boards (music-posting.eth, tech-posting.eth), 1 thread, 1 page via IPFS');
+  });
+
+  it('aggregates browser libp2p feed states as peer downloads', () => {
+    testState.communitiesStates = {
+      'fetching-ipfs': {
+        clientUrls: ['libp2pjs'],
+        communityAddresses: ['music-posting.eth'],
+      },
+      'fetching-ipns': {
+        clientUrls: ['libp2pjs'],
+        communityAddresses: ['music-posting.eth', 'tech-posting.eth'],
+      },
+      'page-1': {
+        clientUrls: ['libp2pjs'],
+        communityAddresses: ['music-posting.eth'],
+      },
+    };
+
+    act(() => {
+      root.render(createElement(FeedStateStringHarness, { addresses: ['music-posting.eth', 'tech-posting.eth'] }));
+    });
+
+    expect(latestValue).toBe('Downloading 2 boards (music-posting.eth, tech-posting.eth), 1 thread, 1 page from peers');
   });
 
   it('shows an immediate board-specific loading string before detailed multi-board states arrive', () => {
