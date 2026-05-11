@@ -1,3 +1,34 @@
+## [0.8.4](https://github.com/bitsocialnet/5chan/compare/v0.8.3...v0.8.4) (2026-05-11)
+
+
+### Bug Fixes
+
+* **account settings:** activate imported account ([4f1b4d9](https://github.com/bitsocialnet/5chan/commit/4f1b4d96776d51792a2c73358176af97a7fe2151))
+* **deps:** update vulnerable transitive dependencies ([529e8ed](https://github.com/bitsocialnet/5chan/commit/529e8ed48fc9dbfed90949f01feb02855cacc57d))
+* **embed:** restore x status embeds ([5187938](https://github.com/bitsocialnet/5chan/commit/5187938dc656020dfe1289ea1e5ec6274d4e9fe7))
+* **faq:** scope visited link color to content ([a860859](https://github.com/bitsocialnet/5chan/commit/a860859507cc163bb4d2c4a872582b13d01485c5))
+* **markdown:** allow repeated greentext markers ([719005e](https://github.com/bitsocialnet/5chan/commit/719005e9355ea2bbdcf1ca70d074b41342006754))
+* **media:** classify mp4-formatted gif previews as video ([36bb1f7](https://github.com/bitsocialnet/5chan/commit/36bb1f726d43f6e21681fbe43f0d456654e3e29f))
+* remove Android self-install updater ([#1125](https://github.com/bitsocialnet/5chan/issues/1125)) ([aaa0d88](https://github.com/bitsocialnet/5chan/commit/aaa0d88d6aebbb7ec21c5c4c4d0eb6a3c3269259))
+* **settings:** move pure p2p toggle below fields ([cbc5088](https://github.com/bitsocialnet/5chan/commit/cbc50888d5dfe38fe57727c4cdfee11fda19922d))
+* **settings:** remove Solana RPC advanced option ([a88c2e5](https://github.com/bitsocialnet/5chan/commit/a88c2e50f515dce36d814ee78b8506f9e7fad1d3))
+* **state string:** shorten browser p2p loading text ([055ead8](https://github.com/bitsocialnet/5chan/commit/055ead84b6cb0e28b4c17edb96c7d0063ea1b5d0))
+* **themes:** restore classic topbar separators ([77dd0e9](https://github.com/bitsocialnet/5chan/commit/77dd0e9b6392b81faa3a0c382acc64c02afeb26e))
+
+
+### Features
+
+* **challenge modal:** remember trusted board websites ([cb05a8b](https://github.com/bitsocialnet/5chan/commit/cb05a8b9057fb915c27ff114e3b849d38bd9a936))
+* **p2p settings:** add browser p2p stats ([14a4790](https://github.com/bitsocialnet/5chan/commit/14a4790c8b4118427d83bad650b07ef18f04b6fb))
+* **version:** show unreleased commit label ([#1126](https://github.com/bitsocialnet/5chan/issues/1126)) ([2b2c517](https://github.com/bitsocialnet/5chan/commit/2b2c517c598b4425f71be46e66020b47828c0807))
+
+
+### Performance Improvements
+
+* **directories:** dedupe refreshes across hook mounts ([5fe6537](https://github.com/bitsocialnet/5chan/commit/5fe653726dc12ae9eb7480cc9fed1574991cb2fe))
+
+
+
 ## [0.8.3](https://github.com/bitsocialnet/5chan/compare/v0.8.2...v0.8.3) (2026-05-01)
 
 

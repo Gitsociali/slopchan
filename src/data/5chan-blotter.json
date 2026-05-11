@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "id": "release-0.8.4",
+      "kind": "release",
+      "timestamp": 1778500800,
+      "message": "v0.8.4: Trusted website permissions, browser P2P stats, safer Android updates",
+      "version": "0.8.4"
+    },
+    {
       "id": "release-0.8.3",
       "kind": "release",
       "timestamp": 1777636800,
