@@ -340,6 +340,14 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
         run: node scripts/release-body > release-body.txt
+      - name: Check Vercel deployment token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "::error::VERCEL_TOKEN is required to deploy the release HTML archive to Vercel Production."
+            exit 1
+          fi
       - name: Create GitHub release
         uses: ncipollo/release-action@v1
         with:
@@ -347,3 +355,27 @@ jobs:
           bodyFile: "release-body.txt"
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy web release to Vercel Production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_drHWHjDIQypSvbjZ1F468uLm
+          VERCEL_PROJECT_ID: prj_oeEtip9l1zUvJF00QdhMXpXn2CH7
+        run: |
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "::error::VERCEL_TOKEN is required to deploy the release HTML archive to Vercel Production."
+            exit 1
+          fi
+
+          VERSION="${GITHUB_REF_NAME#v}"
+          RELEASE_ASSET="release-assets/5chan-${VERSION}-html.zip"
+          STAGED_DIR=$(node scripts/prepare-vercel-release-deploy.mjs --tag "$GITHUB_REF_NAME" --asset "$RELEASE_ASSET" --out-dir vercel-release-deploy)
+          corepack yarn dlx vercel@50.23.2 deploy "$STAGED_DIR" \
+            --prebuilt \
+            --prod \
+            --yes \
+            --force \
+            --archive=tgz \
+            --token "$VERCEL_TOKEN" \
+            --meta source=github-release \
+            --meta releaseTag="$GITHUB_REF_NAME" \
+            --meta releaseAsset="5chan-${VERSION}-html.zip"
