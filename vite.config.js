@@ -16,6 +16,25 @@ const basePathPrefix = (() => {
   const pathname = new URL(publicBase, 'https://example.invalid/').pathname;
   return pathname === '/' ? '' : pathname.replace(/^\/+|\/+$/g, '');
 })();
+const devServerHmr = (() => {
+  if (!process.env.PORTLESS_URL) {
+    return { overlay: false };
+  }
+
+  try {
+    const url = new URL(process.env.PORTLESS_URL);
+    const isHttps = url.protocol === 'https:';
+
+    return {
+      overlay: false,
+      protocol: isHttps ? 'wss' : 'ws',
+      host: url.hostname,
+      clientPort: Number(url.port || (isHttps ? 443 : 80)),
+    };
+  } catch {
+    return { overlay: false };
+  }
+})();
 const neverPrecacheUrls = new Set(['index.html', 'version.json']);
 const vitePwaManagedAssetUrls = new Set([
   'manifest.webmanifest',
@@ -403,9 +422,7 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
-    hmr: {
-      overlay: false,
-    },
+    hmr: devServerHmr,
   },
   build: {
     // Use 'build' to match what electron/main.js expects (../build/index.html)
