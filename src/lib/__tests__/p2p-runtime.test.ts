@@ -10,6 +10,7 @@ import {
 const browserWindow = {
   electronApi: undefined,
   isElectron: false,
+  location: { hostname: '5chan.app' },
   localStorage: {
     getItem: () => null,
     setItem: () => undefined,
@@ -19,6 +20,17 @@ const browserWindow = {
 const electronWindow = {
   electronApi: { isElectron: true },
   isElectron: true,
+  location: { hostname: 'localhost' },
+} as unknown as Window;
+
+const p2pBrowserWindow = {
+  electronApi: undefined,
+  isElectron: false,
+  location: { hostname: 'p2p.5chan.app' },
+  localStorage: {
+    getItem: () => 'false',
+    setItem: () => undefined,
+  },
 } as unknown as Window;
 
 describe('p2p-runtime', () => {
@@ -38,6 +50,13 @@ describe('p2p-runtime', () => {
     expect(shouldShowP2PSettingsSection(undefined, browserWindow)).toBe(false);
     expect(shouldShowP2PSettingsSection({ pkcOptions: { ipfsGatewayUrls: ['https://gateway.example'] } }, browserWindow)).toBe(false);
     expect(isBrowserPureP2PEnabled({ pkcOptions: { ipfsGatewayUrls: ['https://gateway.example'] } }, browserWindow)).toBe(false);
+  });
+
+  it('forces browser p2p on p2p subdomains even with gateway account options', () => {
+    const gatewayAccount = { pkcOptions: { ipfsGatewayUrls: ['https://gateway.example'] } };
+
+    expect(isBrowserPureP2PEnabled(gatewayAccount, p2pBrowserWindow)).toBe(true);
+    expect(shouldShowP2PSettingsSection(gatewayAccount, p2pBrowserWindow)).toBe(true);
   });
 
   it('builds browser p2p and gateway account options without a direct pkc-js import', () => {

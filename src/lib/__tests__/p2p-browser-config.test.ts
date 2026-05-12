@@ -4,6 +4,7 @@ import {
   configureP2PBrowserPkcOptions,
   getPureP2PBrowserPreference,
   isP2PBrowserHostname,
+  isPureP2PBrowserForced,
   P2P_BROWSER_PKC_OPTIONS,
   PURE_P2P_BROWSER_SETTING_KEY,
   setPureP2PBrowserPreference,
@@ -38,6 +39,21 @@ describe('p2p-browser-config', () => {
     expect(targetWindow.defaultPkcOptions).toEqual({
       ipfsGatewayUrls: ['https://gateway.example'],
     });
+  });
+
+  it('forces browser PKC options on p2p subdomains', () => {
+    const targetWindow = {
+      location: { hostname: 'p2p.5chan.app' },
+      localStorage: createStorage({ [PURE_P2P_BROWSER_SETTING_KEY]: 'false' }),
+      defaultPkcOptions: {
+        ipfsGatewayUrls: ['https://gateway.example'],
+      },
+    };
+
+    expect(isPureP2PBrowserForced(targetWindow)).toBe(true);
+    expect(shouldUsePureP2PBrowser(targetWindow)).toBe(true);
+    expect(configureP2PBrowserPkcOptions(targetWindow)).toBe(true);
+    expect(targetWindow.defaultPkcOptions).toEqual(P2P_BROWSER_PKC_OPTIONS);
   });
 
   it('configures browser PKC options when pure p2p is enabled', () => {
@@ -80,6 +96,7 @@ describe('p2p-browser-config', () => {
 
     expect(configureP2PBrowserPkcOptions(targetWindow)).toBe(false);
     expect(targetWindow.defaultPkcOptions).toBe(defaultPkcOptions);
+    expect(isPureP2PBrowserForced({ ...targetWindow, location: { hostname: 'p2p.5chan.app' } })).toBe(false);
   });
 
   it('persists and reads the browser pure p2p preference', () => {
