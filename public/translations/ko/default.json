@@ -379,5 +379,6 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass가 디렉터리 거버넌스를 통제하나요?",
-  "pass_answer_governance": "아니요. 현재 방향은 5chan Pass 보유자가 디렉터리 투표에 참여할 수 있도록 하는 것이지만, 최종 거버넌스 메커니즘에는 pass 보유자만의 최종 통제 대신 BSO-holder 정렬과 안전장치가 포함되어야 합니다."
+  "pass_answer_governance": "아니요. 현재 방향은 5chan Pass 보유자가 디렉터리 투표에 참여할 수 있도록 하는 것이지만, 최종 거버넌스 메커니즘에는 pass 보유자만의 최종 통제 대신 BSO-holder 정렬과 안전장치가 포함되어야 합니다.",
+  "app_is_up_to_date": "최신 버전입니다"
 }

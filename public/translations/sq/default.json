@@ -379,5 +379,6 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "A do ta kontrollojë 5chan Pass qeverisjen e drejtorisë?",
-  "pass_answer_governance": "Jo. Drejtimi aktual është që mbajtësit e 5chan Pass mund të marrin pjesë në votimin e drejtorisë, por mekanizmat përfundimtarë të qeverisjes duhet të përfshijnë përputhje me BSO-holder dhe masa mbrojtëse në vend të kontrollit përfundimtar vetëm nga mbajtësit e pass-it."
+  "pass_answer_governance": "Jo. Drejtimi aktual është që mbajtësit e 5chan Pass mund të marrin pjesë në votimin e drejtorisë, por mekanizmat përfundimtarë të qeverisjes duhet të përfshijnë përputhje me BSO-holder dhe masa mbrojtëse në vend të kontrollit përfundimtar vetëm nga mbajtësit e pass-it.",
+  "app_is_up_to_date": "jeni në versionin më të fundit"
 }

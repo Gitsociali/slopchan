@@ -8,8 +8,10 @@ const UpdateButton = () => {
   const availableUpdate = useAppUpdateStore((state) => state.availableUpdate);
   const isApplyingUpdate = useAppUpdateStore((state) => state.isApplyingUpdate);
   const isCheckingForUpdate = useAppUpdateStore((state) => state.isCheckingForUpdate);
+  const appUpdateCheckStatus = useAppUpdateStore((state) => state.appUpdateCheckStatus);
   const applyAppUpdate = useAppUpdateStore((state) => state.applyAppUpdate);
   const refreshAvailableUpdate = useAppUpdateStore((state) => state.refreshAvailableUpdate);
+  const showAppUpdateUpToDateStatus = useAppUpdateStore((state) => state.showAppUpdateUpToDateStatus);
 
   const handleUpdateAction = async () => {
     try {
@@ -18,13 +20,17 @@ const UpdateButton = () => {
         return;
       }
 
-      await refreshAvailableUpdate();
+      const update = await refreshAvailableUpdate();
+      if (!update) {
+        showAppUpdateUpToDateStatus();
+      }
     } catch (error) {
       alert(String(error));
     }
   };
   const buttonLabel = availableUpdate ? t('download') : t('check');
   const isBusy = isApplyingUpdate || isCheckingForUpdate;
+  const shouldShowUpToDateStatus = !isCheckingForUpdate && !availableUpdate && appUpdateCheckStatus === 'upToDate';
 
   return (
     <>
@@ -34,6 +40,11 @@ const UpdateButton = () => {
       {isCheckingForUpdate && (
         <span className={styles.updateStatus} aria-live='polite'>
           {t('checking_for_updates')}
+        </span>
+      )}
+      {shouldShowUpToDateStatus && (
+        <span className={styles.updateStatus} aria-live='polite'>
+          {t('app_is_up_to_date')}
         </span>
       )}
       {!isCheckingForUpdate && availableUpdate && (
