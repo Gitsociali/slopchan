@@ -503,6 +503,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/helper-plugin-utils@npm:^7.28.6":
+  version: 7.28.6
+  resolution: "@babel/helper-plugin-utils@npm:7.28.6"
+  checksum: 10c0/3f5f8acc152fdbb69a84b8624145ff4f9b9f6e776cb989f9f968f8606eb7185c5c3cfcf3ba08534e37e1e0e1c118ac67080610333f56baa4f7376c99b5f1143d
+  languageName: node
+  linkType: hard
+
 "@babel/helper-remap-async-to-generator@npm:^7.27.1":
   version: 7.27.1
   resolution: "@babel/helper-remap-async-to-generator@npm:7.27.1"
@@ -1029,17 +1036,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-modules-systemjs@npm:^7.27.1":
-  version: 7.27.1
-  resolution: "@babel/plugin-transform-modules-systemjs@npm:7.27.1"
+"@babel/plugin-transform-modules-systemjs@npm:7.29.4":
+  version: 7.29.4
+  resolution: "@babel/plugin-transform-modules-systemjs@npm:7.29.4"
   dependencies:
-    "@babel/helper-module-transforms": "npm:^7.27.1"
-    "@babel/helper-plugin-utils": "npm:^7.27.1"
-    "@babel/helper-validator-identifier": "npm:^7.27.1"
-    "@babel/traverse": "npm:^7.27.1"
+    "@babel/helper-module-transforms": "npm:^7.28.6"
+    "@babel/helper-plugin-utils": "npm:^7.28.6"
+    "@babel/helper-validator-identifier": "npm:^7.28.5"
+    "@babel/traverse": "npm:^7.29.0"
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: 10c0/f16fca62d144d9cbf558e7b5f83e13bb6d0f21fdeff3024b0cecd42ffdec0b4151461da42bd0963512783ece31aafa5ffe03446b4869220ddd095b24d414e2b5
+  checksum: 10c0/1da94f89ef8ba1aa1501136a80eb4c010c6a19f5550e10db84677b3ccb7a4934c8098f2b5134def87cf513bf05747ffa523d33722a1ea5a5c8ef956e9136c4c2
   languageName: node
   linkType: hard
 
@@ -5817,10 +5824,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protobufjs/codegen@npm:^2.0.4":
-  version: 2.0.4
-  resolution: "@protobufjs/codegen@npm:2.0.4"
-  checksum: 10c0/26ae337c5659e41f091606d16465bbcc1df1f37cc1ed462438b1f67be0c1e28dfb2ca9f294f39100c52161aef82edf758c95d6d75650a1ddf31f7ddee1440b43
+"@protobufjs/codegen@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "@protobufjs/codegen@npm:2.0.5"
+  checksum: 10c0/1b8a2ae56ee60a56e9d205cd4b6072a1503c5069b8ebb905710f974ff0098a0d0700641c137e0a8d98dedf14423156a106a9433695cbf52574810f55000fdcab
   languageName: node
   linkType: hard
 
@@ -5855,6 +5862,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@protobufjs/inquire@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@protobufjs/inquire@npm:1.1.1"
+  checksum: 10c0/a638d981adabdbdd61fba04e5045e0d2f98fa557eb0e705482a6dc25e84318bc736b0cd4aaee5d6b9941f121b488ece872c203af2a665b6dfefa95c903bb0cc8
+  languageName: node
+  linkType: hard
+
 "@protobufjs/path@npm:^1.1.2":
   version: 1.1.2
   resolution: "@protobufjs/path@npm:1.1.2"
@@ -5869,10 +5883,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protobufjs/utf8@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@protobufjs/utf8@npm:1.1.0"
-  checksum: 10c0/a3fe31fe3fa29aa3349e2e04ee13dc170cc6af7c23d92ad49e3eeaf79b9766264544d3da824dba93b7855bd6a2982fb40032ef40693da98a136d835752beb487
+"@protobufjs/utf8@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@protobufjs/utf8@npm:1.1.1"
+  checksum: 10c0/641fc145f00626405e8984b6e90b9edcbcc072ffc82d0647ca3176e09c730b2d022f988e65f011a7a17e2e4d77cde7733643aa10d8ac2bfa30f134dbcad553fd
   languageName: node
   linkType: hard
 
@@ -10173,10 +10187,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-uri@npm:^3.0.1":
-  version: 3.1.0
-  resolution: "fast-uri@npm:3.1.0"
-  checksum: 10c0/44364adca566f70f40d1e9b772c923138d47efeac2ae9732a872baafd77061f26b097ba2f68f0892885ad177becd065520412b8ffeec34b16c99433c5b9e2de7
+"fast-uri@npm:3.1.2":
+  version: 3.1.2
+  resolution: "fast-uri@npm:3.1.2"
+  checksum: 10c0/5b35641895959f3f7ab7a7b1b5542bded159346f25ec9f256817b206d50b64eda5828e90d605a2e2fc645c90519a7259c2bab2c942ee728c88b88e5be21b090d
   languageName: node
   linkType: hard
 
@@ -11654,10 +11668,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ip-address@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "ip-address@npm:10.0.1"
-  checksum: 10c0/1634d79dae18394004775cb6d699dc46b7c23df6d2083164025a2b15240c1164fccde53d0e08bd5ee4fc53913d033ab6b5e395a809ad4b956a940c446e948843
+"ip-address@npm:10.1.1":
+  version: 10.1.1
+  resolution: "ip-address@npm:10.1.1"
+  checksum: 10c0/f3b46faa3850e128d08410f98592c219168dbec688b67de89fa1338921e67e46939962fa2cb2393341bab129ffbe350988679229857dd7d32309c2a4b69daca0
   languageName: node
   linkType: hard
 
@@ -16143,23 +16157,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:7.5.5":
-  version: 7.5.5
-  resolution: "protobufjs@npm:7.5.5"
+"protobufjs@npm:7.5.6":
+  version: 7.5.6
+  resolution: "protobufjs@npm:7.5.6"
   dependencies:
     "@protobufjs/aspromise": "npm:^1.1.2"
     "@protobufjs/base64": "npm:^1.1.2"
-    "@protobufjs/codegen": "npm:^2.0.4"
+    "@protobufjs/codegen": "npm:^2.0.5"
     "@protobufjs/eventemitter": "npm:^1.1.0"
     "@protobufjs/fetch": "npm:^1.1.0"
     "@protobufjs/float": "npm:^1.0.2"
-    "@protobufjs/inquire": "npm:^1.1.0"
+    "@protobufjs/inquire": "npm:^1.1.1"
     "@protobufjs/path": "npm:^1.1.2"
     "@protobufjs/pool": "npm:^1.1.0"
-    "@protobufjs/utf8": "npm:^1.1.0"
+    "@protobufjs/utf8": "npm:^1.1.1"
     "@types/node": "npm:>=13.7.0"
     long: "npm:^5.0.0"
-  checksum: 10c0/3d48896a916761e3e60b52f80027eb4fba3f5a6e3f8461e04939db18812db2cb0db4c73d03e1134a960e99525ae1d236f076a0bc01273016f573b76f33ffbd47
+  checksum: 10c0/220df6c3cf6d2346748639a9b0b688fecc994bff9fee7018a93167e8cd45ab0ee3b4270d9eaa6be33a11adb46514ef9dce7e8217fd578c36726a9e70b96327cd
   languageName: node
   linkType: hard
 
