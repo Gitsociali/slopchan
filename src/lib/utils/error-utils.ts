@@ -172,9 +172,27 @@ const normalizeUnknownErrorPart = (value: unknown, seen = new WeakSet<object>())
   return undefined;
 };
 
+export const formatErrorMessageForDisplay = (error: unknown): string | undefined => {
+  if (!error) {
+    return undefined;
+  }
+
+  if (typeof error === 'string') {
+    return normalizeUnknownErrorPart(error);
+  }
+
+  const { message } = error as ErrorLike;
+  return normalizeUnknownErrorPart(message);
+};
+
 export const formatErrorForDisplay = (error: unknown): string | undefined => {
   if (!error) {
     return undefined;
+  }
+
+  const normalizedMessage = formatErrorMessageForDisplay(error);
+  if (normalizedMessage) {
+    return normalizedMessage;
   }
 
   const normalizedString = normalizeUnknownErrorPart(error);
@@ -182,16 +200,10 @@ export const formatErrorForDisplay = (error: unknown): string | undefined => {
     return normalizedString;
   }
 
-  const { cause, details, message } = error as ErrorLike;
-  const normalizedMessage = normalizeUnknownErrorPart(message);
+  const { cause, details } = error as ErrorLike;
   const normalizedDetails = normalizeUnknownErrorPart(details);
   const normalizedCause = normalizeUnknownErrorPart(cause);
 
   const detailParts = [normalizedDetails, normalizedCause].filter(Boolean);
-  if (normalizedMessage && detailParts.length) {
-    const detailText = detailParts.join('; ');
-    return normalizedMessage.includes(detailText) ? normalizedMessage : `${normalizedMessage}: ${detailText}`;
-  }
-
-  return normalizedMessage || detailParts[0] || normalizedString;
+  return detailParts[0] || normalizedString;
 };

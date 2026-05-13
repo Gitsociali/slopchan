@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { formatErrorForDisplay, serializeErrorForClipboard } from '../error-utils';
+import { formatErrorForDisplay, formatErrorMessageForDisplay, serializeErrorForClipboard } from '../error-utils';
 
 describe('error utils', () => {
   it('returns plain string errors unchanged', () => {
     expect(formatErrorForDisplay('plain failure')).toBe('plain failure');
   });
 
-  it('appends structured details to the message', () => {
+  it('uses the message without appending structured details', () => {
     expect(
       formatErrorForDisplay({
         details: {
@@ -15,10 +15,10 @@ describe('error utils', () => {
         },
         message: 'All pubsub providers throw an error and unable to publish or subscribe',
       }),
-    ).toBe('All pubsub providers throw an error and unable to publish or subscribe: plebpubsub: timeout; pubsubprovider: connection refused');
+    ).toBe('All pubsub providers throw an error and unable to publish or subscribe');
   });
 
-  it('falls back to cause when details are missing', () => {
+  it('uses the message without appending the cause', () => {
     expect(
       formatErrorForDisplay({
         cause: {
@@ -27,10 +27,10 @@ describe('error utils', () => {
         },
         message: 'publish failed',
       }),
-    ).toBe('publish failed: provider: plebpubsub; reason: timeout');
+    ).toBe('publish failed');
   });
 
-  it('formats nested Error details without dropping the nested message', () => {
+  it('keeps the visible message compact when details contain nested errors', () => {
     expect(
       formatErrorForDisplay({
         details: {
@@ -38,7 +38,7 @@ describe('error utils', () => {
         },
         message: 'publish failed',
       }),
-    ).toBe('publish failed: reason: provider timeout');
+    ).toBe('publish failed');
   });
 
   it('formats cyclic errors without recursing forever', () => {
@@ -49,7 +49,30 @@ describe('error utils', () => {
     });
     Object.assign(error.details, { self: error.details });
 
-    expect(formatErrorForDisplay(error)).toBe('publish failed: elapsedMs: 5000; self: [Circular]');
+    expect(formatErrorForDisplay(error)).toBe('publish failed');
+  });
+
+  it('falls back to details when an object has no message', () => {
+    expect(
+      formatErrorForDisplay({
+        details: {
+          provider: 'gateway',
+          reason: 'timeout',
+        },
+      }),
+    ).toBe('provider: gateway; reason: timeout');
+  });
+
+  it('extracts only the direct message for compact display labels', () => {
+    expect(
+      formatErrorMessageForDisplay({
+        details: {
+          provider: 'gateway',
+        },
+        message: 'gateway failed',
+      }),
+    ).toBe('gateway failed');
+    expect(formatErrorMessageForDisplay({ details: { provider: 'gateway' } })).toBeUndefined();
   });
 
   it('serializes cyclic errors as valid JSON for copying', () => {

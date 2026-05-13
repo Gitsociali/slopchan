@@ -1,5 +1,6 @@
 import { useReducer, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import capitalize from 'lodash/capitalize';
 import { copyToClipboard } from '../../lib/utils/clipboard-utils';
 import { formatErrorForDisplay, serializeErrorForClipboard } from '../../lib/utils/error-utils';
 import styles from './error-display.module.css';
@@ -65,6 +66,7 @@ const ErrorDisplay = ({ error, displayMessage, inline = false, showImmediately =
 
   const copyButtonLabel =
     state.feedbackMessageKey === 'copied' ? t('copied') : state.feedbackMessageKey === 'failed' ? t('copyFailed', 'copy failed') : t('copyFullError', 'copy full error');
+  const displayCopyButtonLabel = capitalize(copyButtonLabel);
   const copyButtonClassNames = [styles.copyErrorButton];
   if (state.feedbackMessageKey === 'copied') {
     copyButtonClassNames.push(styles.feedbackSuccessMessage);
@@ -79,7 +81,7 @@ const ErrorDisplay = ({ error, displayMessage, inline = false, showImmediately =
         <span className={styles.copyErrorButtonWrapper}>
           [
           <button type='button' className={copyButtonClassNames.join(' ')} onClick={handleCopyError} title={t('copyFullError', 'copy full error')}>
-            {copyButtonLabel}
+            {displayCopyButtonLabel}
           </button>
           ]
         </span>

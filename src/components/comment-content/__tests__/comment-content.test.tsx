@@ -421,10 +421,25 @@ describe('CommentContent', () => {
     });
 
     const errorDisplay = container.querySelector('[data-testid="error-display"]');
-    expect(errorDisplay?.textContent).toBe('Error');
-    expect(errorDisplay?.getAttribute('data-display-message')).toBe('Error');
+    expect(errorDisplay?.textContent).toBe('spam blocker server error');
+    expect(errorDisplay?.getAttribute('data-display-message')).toBe('spam blocker server error');
     expect(errorDisplay?.getAttribute('data-inline')).toBe('true');
     expect(errorDisplay?.getAttribute('data-show-immediately')).toBe('true');
     expect(container.querySelector('[data-testid="loading-ellipsis"]')).toBeNull();
+  });
+
+  it('falls back to a short label for failed unpublished comments without a message', async () => {
+    testState.stateString = 'Failed';
+    await renderContent({
+      content: 'still pending',
+      errors: [{ details: { provider: 'gateway', reason: 'timeout' } }],
+      postCid: 'post-2',
+      state: 'failed',
+    });
+
+    const errorDisplay = container.querySelector('[data-testid="error-display"]');
+    expect(errorDisplay?.textContent).toBe('Error');
+    expect(errorDisplay?.getAttribute('data-display-message')).toBe('Error');
+    expect(container.textContent).not.toContain('provider: gateway');
   });
 });

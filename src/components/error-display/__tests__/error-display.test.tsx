@@ -67,22 +67,24 @@ describe('ErrorDisplay', () => {
     });
 
     const button = container.querySelector('button');
-    expect(container.textContent).toContain('error: network down: code: 500');
-    expect(button?.textContent).toBe('copy full error');
+    expect(container.textContent).toContain('error: network down');
+    expect(container.textContent).not.toContain('code: 500');
+    expect(button?.textContent).toBe('Copy full error');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(testState.copyToClipboardMock).toHaveBeenCalledWith(JSON.stringify(error, null, 2));
-    expect(container.textContent).toContain('copied');
+    expect(container.textContent).toContain('Copied');
 
     act(() => {
       vi.advanceTimersByTime(1500);
     });
 
-    expect(container.textContent).toContain('error: network down: code: 500');
-    expect(button?.textContent).toBe('copy full error');
+    expect(container.textContent).toContain('error: network down');
+    expect(container.textContent).not.toContain('code: 500');
+    expect(button?.textContent).toBe('Copy full error');
   });
 
   it('shows copy failure feedback and logs the clipboard error', async () => {
@@ -95,14 +97,14 @@ describe('ErrorDisplay', () => {
 
     const button = container.querySelector('button');
     expect(button).toBeTruthy();
-    expect(button?.textContent).toBe('copy full error');
+    expect(button?.textContent).toBe('Copy full error');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to copy error: ', expect.any(Error));
-    expect(container.textContent).toContain('copy failed');
+    expect(container.textContent).toContain('Copy failed');
   });
 
   it('copies native Error instances with message, stack, and extra fields', async () => {
@@ -118,8 +120,9 @@ describe('ErrorDisplay', () => {
     });
 
     const button = container.querySelector('button');
-    expect(container.textContent).toContain('error: native failure: status: 504');
-    expect(button?.textContent).toBe('copy full error');
+    expect(container.textContent).toContain('error: native failure');
+    expect(container.textContent).not.toContain('status: 504');
+    expect(button?.textContent).toBe('Copy full error');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -213,14 +216,14 @@ describe('ErrorDisplay', () => {
 
     const button = container.querySelector('button');
     expect(container.textContent).toContain('failed');
-    expect(button?.textContent).toBe('copy full error');
+    expect(button?.textContent).toBe('Copy full error');
 
     await act(async () => {
       button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(testState.copyToClipboardMock).toHaveBeenCalledWith('All pubsub providers throw an error and unable to publish or subscribe');
-    expect(container.textContent).toContain('copied');
+    expect(container.textContent).toContain('Copied');
   });
 
   it('renders plain string errors after the delay and hides again when the error clears', async () => {

@@ -18,6 +18,7 @@ import Tooltip from '../../components/tooltip';
 import styles from '../../views/post/post.module.css';
 import capitalize from 'lodash/capitalize';
 import { getCommentCommunityAddress, withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
+import { formatErrorMessageForDisplay } from '../../lib/utils/error-utils';
 
 const QuotedCidLink = ({ cid, postCid }: { cid: string; postCid: string }) => {
   const quotedNumber = usePostNumberStore((state) => state.cidToNumber[cid]);
@@ -131,12 +132,13 @@ const CommentContent = ({ comment: post, prependContent }: { comment: Comment; p
   const stateString = useStateString(resolvedPost);
   const hasFailedState = state === 'failed';
   const failedError = getFailedCommentError(resolvedPost);
+  const failedErrorMessage = formatErrorMessageForDisplay(failedError);
   const shouldShowUnpublishedStateDetails = !cid && (!hasFailedState || Boolean(failedError));
 
   const loadingString = (
     <div className={styles.stateString}>
       {failedError ? (
-        <ErrorDisplay error={failedError} displayMessage={capitalize(t('error'))} inline={true} showImmediately={true} />
+        <ErrorDisplay error={failedError} displayMessage={failedErrorMessage ?? capitalize(t('error'))} inline={true} showImmediately={true} />
       ) : !hasFailedState ? (
         <LoadingEllipsis string={stateString || t('loading')} />
       ) : (
