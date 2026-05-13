@@ -24,6 +24,7 @@ import styles from './catalog-row.module.css';
 import capitalize from 'lodash/capitalize';
 import { selectPostMenuProps } from '../../lib/utils/post-menu-props';
 import { getCommentCommunityAddress, withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
+import { getAuthorBadge } from '../../lib/utils/author-display-utils';
 
 interface CatalogPostMediaProps {
   cid: string;
@@ -194,14 +195,16 @@ const CatalogPost = memo(
     const { replies } = useReplies({ comment: showPortal ? resolvedPost : undefined, flat: true });
     const lastReply = replies?.length > 0 ? replies[replies.length - 1] : null;
 
-    const { isCommentAuthorMod: isCatalogPostAuthorMod, commentAuthorRole: catalogPostAuthorRole } = useEditCommentPrivileges({
+    const { commentAuthorRole: catalogPostAuthorRole } = useEditCommentPrivileges({
       commentAuthorAddress: author?.address,
       communityAddress: communityAddress ?? '',
     });
-    const { isCommentAuthorMod: isLastReplyAuthorMod, commentAuthorRole: lastReplyAuthorRole } = useEditCommentPrivileges({
+    const { commentAuthorRole: lastReplyAuthorRole } = useEditCommentPrivileges({
       commentAuthorAddress: lastReply?.author?.address,
       communityAddress: communityAddress ?? '',
     });
+    const catalogPostAuthorBadge = getAuthorBadge({ address: author?.address, role: catalogPostAuthorRole });
+    const lastReplyAuthorBadge = getAuthorBadge({ address: lastReply?.author?.address, role: lastReplyAuthorRole });
 
     const postContent = (
       <div className={`${styles.teaser} ${hidden && styles.hidden}`}>
@@ -300,18 +303,22 @@ const CatalogPost = memo(
               ) : (
                 t('posted_by')
               )}{' '}
-              <span className={`${styles.postAuthor} ${isCatalogPostAuthorMod && styles.capcode}`}>
+              <span className={`${styles.postAuthor} ${catalogPostAuthorBadge ? styles.capcode : ''}`}>
                 {author?.displayName || capitalize(t('anonymous'))}
-                {isCatalogPostAuthorMod && <span className='capitalize'>{` ## Board ${catalogPostAuthorRole}`}</span>}
+                {catalogPostAuthorBadge && (
+                  <span className={catalogPostAuthorBadge.capitalizeLabel ? 'capitalize' : undefined}>{` ## ${catalogPostAuthorBadge.label}`}</span>
+                )}
               </span>
               {(isInAllView || isInSubscriptionsView) && communityAddress && ` to p/${getShortAddress(communityAddress)}`}
               <span className={styles.postAgo}> {getFormattedTimeAgo(timestamp)}</span>
               {replyCount > 0 && (
                 <div className={styles.postLast}>
                   {t('last_reply_by')}{' '}
-                  <span className={`${styles.postAuthor} ${isLastReplyAuthorMod && styles.capcode}`}>
+                  <span className={`${styles.postAuthor} ${lastReplyAuthorBadge ? styles.capcode : ''}`}>
                     {lastReply?.author?.displayName || capitalize(t('anonymous'))}
-                    {isLastReplyAuthorMod && ` ## Board ${lastReplyAuthorRole}`}
+                    {lastReplyAuthorBadge && (
+                      <span className={lastReplyAuthorBadge.capitalizeLabel ? 'capitalize' : undefined}>{` ## ${lastReplyAuthorBadge.label}`}</span>
+                    )}
                   </span>
                   <span className={styles.postAgo}> {getFormattedTimeAgo(lastReply?.timestamp)}</span>
                 </div>

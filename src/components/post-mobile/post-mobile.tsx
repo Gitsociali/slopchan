@@ -57,6 +57,7 @@ import useDeleteFailedPost from '../../hooks/use-delete-failed-post';
 import { getThreadPostCountsByAuthor } from '../../lib/utils/author-post-counts';
 import { withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
 import { getFeedPostHeightEstimate, getReplyHeightEstimates, reportReplyHeightAuditSample } from '../../lib/utils/pretext-height-estimates';
+import { getAuthorBadge } from '../../lib/utils/author-display-utils';
 
 const { addChallenge } = useChallengesStore.getState();
 
@@ -91,7 +92,7 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
   const title = post?.title?.trim();
   const { address, shortAddress } = author || {};
   const displayName = author?.displayName?.trim();
-  const authorRole = roles?.[address]?.role?.replace('moderator', 'mod');
+  const authorBadge = getAuthorBadge({ address, role: roles?.[address]?.role });
 
   const params = useParams();
   const location = useLocation();
@@ -269,7 +270,9 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
         <PostMenuMobile postMenu={postMenuProps} editMenuPost={resolvedPost} />
         <span className={(hidden || ((removed || deleted || purged) && !reason)) && parentCid ? styles.postDesktopHidden : ''}>
           <span className={styles.nameBlock}>
-            <span className={`${styles.name} ${authorRole && !(deleted || removed || purged) && (authorRole === 'mod' ? styles.capcodeMod : styles.capcodeAdmin)}`}>
+            <span
+              className={`${styles.name} ${authorBadge && !(deleted || removed || purged) ? (authorBadge.icon === 'mod' ? styles.capcodeMod : styles.capcodeAdmin) : ''}`}
+            >
               {removed ? (
                 capitalize(t('removed'))
               ) : deleted ? (
@@ -287,14 +290,14 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
               ) : (
                 capitalize(t('anonymous'))
               )}{' '}
-              {!(deleted || removed || purged) && authorRole && (
-                <span className='capitalize'>
+              {!(deleted || removed || purged) && authorBadge && (
+                <span className={authorBadge.capitalizeLabel ? 'capitalize' : undefined}>
                   {' '}
-                  ## Board {authorRole}{' '}
+                  ## {authorBadge.label}{' '}
                   <span className={styles.capcodeIconMobileWrapper}>
                     <span
-                      className={`${styles.capcodeIconMobile} ${authorRole === 'mod' ? styles.capcodeModIcon : styles.capcodeAdminIcon}`}
-                      title={authorRole === 'mod' ? t('moderator_of_this_board') : t('administrator_of_this_board')}
+                      className={`${styles.capcodeIconMobile} ${authorBadge.icon === 'mod' ? styles.capcodeModIcon : styles.capcodeAdminIcon}`}
+                      title={authorBadge.title === '5chan Dev' ? authorBadge.title : t(authorBadge.title)}
                     />
                   </span>
                   &nbsp;

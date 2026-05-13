@@ -68,6 +68,7 @@ import useDeleteFailedPost from '../../hooks/use-delete-failed-post';
 import { getThreadPostCountsByAuthor } from '../../lib/utils/author-post-counts';
 import { withResolvedCommentCommunityAddress } from '../../lib/utils/comment-utils';
 import { getFeedPostHeightEstimate, getReplyHeightEstimates, reportReplyHeightAuditSample } from '../../lib/utils/pretext-height-estimates';
+import { getAuthorBadge } from '../../lib/utils/author-display-utils';
 
 const { addChallenge } = useChallengesStore.getState();
 
@@ -233,7 +234,7 @@ const PostInfo = ({
   const title = post?.title?.trim();
   const { address, shortAddress } = author || {};
   const displayName = author?.displayName?.trim();
-  const authorRole = roles?.[address]?.role?.replace('moderator', 'mod');
+  const authorBadge = getAuthorBadge({ address, role: roles?.[address]?.role });
   const hasFailedState = state === 'failed';
   const isReply = parentCid;
   const { showOmittedReplies } = useShowOmittedReplies();
@@ -345,7 +346,9 @@ const PostInfo = ({
             </Tooltip>
           ))}
         <span className={styles.nameBlock}>
-          <span className={`${styles.name} ${authorRole && !(deleted || removed || purged) && (authorRole === 'mod' ? styles.capcodeMod : styles.capcodeAdmin)}`}>
+          <span
+            className={`${styles.name} ${authorBadge && !(deleted || removed || purged) ? (authorBadge.icon === 'mod' ? styles.capcodeMod : styles.capcodeAdmin) : ''}`}
+          >
             {deleted ? (
               capitalize(t('deleted'))
             ) : removed ? (
@@ -363,13 +366,13 @@ const PostInfo = ({
             ) : (
               capitalize(t('anonymous'))
             )}
-            {!(deleted || removed || purged) && authorRole && (
-              <span className='capitalize'>
+            {!(deleted || removed || purged) && authorBadge && (
+              <span className={authorBadge.capitalizeLabel ? 'capitalize' : undefined}>
                 {' '}
-                ## Board {authorRole}{' '}
+                ## {authorBadge.label}{' '}
                 <span
-                  className={`${styles.capcodeIcon} ${authorRole === 'mod' ? styles.capcodeModIcon : styles.capcodeAdminIcon}`}
-                  title={authorRole === 'mod' ? t('moderator_of_this_board') : t('administrator_of_this_board')}
+                  className={`${styles.capcodeIcon} ${authorBadge.icon === 'mod' ? styles.capcodeModIcon : styles.capcodeAdminIcon}`}
+                  title={authorBadge.title === '5chan Dev' ? authorBadge.title : t(authorBadge.title)}
                 />
               </span>
             )}{' '}

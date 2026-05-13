@@ -12,6 +12,7 @@ type TestComment = {
   author?: {
     address?: string;
     displayName?: string;
+    shortAddress?: string;
   };
   cid: string;
   content?: string;
@@ -377,6 +378,44 @@ describe('CatalogRow', () => {
     expect(document.body.textContent).toContain('last_reply_by Bob ## Board Janitor');
     expect(document.body.textContent).toContain('ago:100');
     expect(document.body.textContent).toContain('ago:200');
+  });
+
+  it('uses developer badges and keeps anonymous as the default name in hover previews', async () => {
+    testState.mediaInfoByLink['https://example.com/dev.png'] = { type: 'image', url: 'https://example.com/dev.png' };
+    testState.replies = [
+      {
+        author: { address: 'rinse12.bso', shortAddress: 'rinse12.bso' },
+        cid: 'reply-dev',
+        timestamp: 200,
+      },
+    ];
+    testState.roleByAddress = {
+      'plebeius.bso': { commentAuthorRole: 'owner', isCommentAuthorMod: true },
+    };
+
+    const post: TestComment = {
+      author: { address: 'plebeius.bso', shortAddress: 'plebeius.bso' },
+      cid: 'post-dev',
+      content: 'Developer post',
+      link: 'https://example.com/dev.png',
+      replyCount: 1,
+      communityAddress: 'music-posting.eth',
+      timestamp: 100,
+      title: 'Dev thread',
+    };
+
+    await renderWithRouter(createElement(CatalogRow, { row: [post] }), '/all/catalog');
+    vi.useFakeTimers();
+
+    const previewTrigger = document.body.querySelector('a[href="/mu/thread/post-dev"] > div');
+    await act(async () => {
+      previewTrigger?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      vi.advanceTimersByTime(260);
+      await Promise.resolve();
+    });
+
+    expect(document.body.textContent).toContain('Dev thread by Anonymous ## 5chan Dev');
+    expect(document.body.textContent).toContain('last_reply_by Anonymous ## 5chan Dev');
   });
 
   it('uses alias-aware board features when deciding whether reply links are media', async () => {

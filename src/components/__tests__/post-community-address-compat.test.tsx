@@ -12,6 +12,7 @@ const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise
 type TestComment = {
   author?: {
     address?: string;
+    displayName?: string;
     shortAddress?: string;
   };
   cid?: string;
@@ -477,6 +478,24 @@ describe('post community address compatibility', () => {
     expect(document.body.querySelector('a[href="/mu"]')?.textContent).toContain('Board: mu');
     expect(container.querySelector('[data-testid="comment-media"]')).toBeTruthy();
     expect(container.textContent).toContain('reply-1');
+  });
+
+  it('renders known developer badges and keeps anonymous as the default name on desktop and mobile', async () => {
+    const post = {
+      ...makeLegacyThread(),
+      author: { address: 'plebeius.bso', shortAddress: 'plebeius.bso' },
+    };
+    const roles = { 'plebeius.bso': { role: 'owner' } };
+
+    await renderWithRoute(createElement(PostDesktop, { post, roles } as any));
+    expect(container.textContent).toContain('Anonymous');
+    expect(container.textContent).toContain('## 5chan Dev');
+    expect(container.querySelector('.capcodeAdminIcon')).toBeTruthy();
+
+    await renderWithRoute(createElement(PostMobile, { post, roles } as any));
+    expect(container.textContent).toContain('Anonymous');
+    expect(container.textContent).toContain('## 5chan Dev');
+    expect(container.querySelector('.capcodeAdminIcon')).toBeTruthy();
   });
 
   it('forwards Pretext-backed reply estimates into Virtuoso for desktop and mobile thread views', async () => {
