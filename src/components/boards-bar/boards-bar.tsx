@@ -92,6 +92,7 @@ const BoardsBarDesktop = () => {
   const location = useLocation();
   const params = useParams();
   const isInCatalogView = isCatalogView(location.pathname, params);
+  const catalogSuffix = isInCatalogView ? '/catalog' : '';
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showAllTemporarily, setShowAllTemporarily] = useState(false);
   const { openCreateBoardModal } = useCreateBoardModalStore();
@@ -170,7 +171,7 @@ const BoardsBarDesktop = () => {
             {code}
           </span>
         ) : (
-          <Link to={`/${code}${isInCatalogView ? '/catalog' : ''}`} onClick={openDirectoryForPlaceholder}>
+          <Link to={`/${code}${catalogSuffix}`} onClick={openDirectoryForPlaceholder}>
             {code}
           </Link>
         )}
@@ -192,7 +193,7 @@ const BoardsBarDesktop = () => {
 
     return (
       <span key={address}>
-        {boardPath && boardPath.trim() ? <Link to={`/${boardPath}${isInCatalogView ? '/catalog' : ''}`}>{displayText}</Link> : <span>{displayText}</span>}
+        {boardPath && boardPath.trim() ? <Link to={`/${boardPath}${catalogSuffix}`}>{displayText}</Link> : <span>{displayText}</span>}
         {index !== total - 1 && ' / '}
       </span>
     );
@@ -201,11 +202,11 @@ const BoardsBarDesktop = () => {
   return (
     <div className={styles.boardNavDesktop}>
       <span className={styles.boardList}>
-        [<Link to='/all'>all</Link> / <Link to='/subs'>subs</Link>
+        [<Link to={`/all${catalogSuffix}`}>all</Link> / <Link to={`/subs${catalogSuffix}`}>subs</Link>
         {accountCommunityAddresses.length > 0 && (
           <>
             {' '}
-            / <Link to='/mod'>mod</Link>
+            / <Link to={`/mod${catalogSuffix}`}>mod</Link>
           </>
         )}
         ]{' '}

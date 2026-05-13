@@ -125,6 +125,10 @@ let container: HTMLDivElement;
 let root: Root;
 
 const findExactText = (text: string) => Array.from(container.querySelectorAll<HTMLElement>('*')).find((element) => element.textContent?.trim() === text);
+const getLinkHref = (text: string) =>
+  Array.from(container.querySelectorAll<HTMLAnchorElement>('a'))
+    .find((element) => element.textContent?.trim() === text)
+    ?.getAttribute('href');
 
 const renderBoardsBar = async (initialEntry: string) => {
   await act(async () => {
@@ -232,6 +236,16 @@ describe('BoardsBar', () => {
     });
 
     expect(testState.navigateMock).toHaveBeenCalledWith('/new-board.eth');
+  });
+
+  it('keeps catalog navigation on desktop multiboard and board links', async () => {
+    await renderBoardsBar('/mu/catalog');
+
+    expect(getLinkHref('all')).toBe('/all/catalog');
+    expect(getLinkHref('subs')).toBe('/subs/catalog');
+    expect(getLinkHref('mod')).toBe('/mod/catalog');
+    expect(getLinkHref('mu')).toBe('/mu/catalog');
+    expect(getLinkHref('custom.eth')).toBe('/custom.eth/catalog');
   });
 
   it('keeps catalog navigation on mobile board changes and hides the navbar on downward scroll', async () => {
