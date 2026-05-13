@@ -379,5 +379,6 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Vil 5chan Pass styre katalogstyringen?",
-  "pass_answer_governance": "Nei. Den nåværende retningen er at innehavere av 5chan Pass kan delta i katalogavstemning, men de endelige styringsmekanismene bør inkludere BSO-holder-tilpasning og sikkerhetstiltak i stedet for at passinnehavere alene har endelig kontroll."
+  "pass_answer_governance": "Nei. Den nåværende retningen er at innehavere av 5chan Pass kan delta i katalogavstemning, men de endelige styringsmekanismene bør inkludere BSO-holder-tilpasning og sikkerhetstiltak i stedet for at passinnehavere alene har endelig kontroll.",
+  "app_is_up_to_date": "du har den nyeste versjonen"
 }

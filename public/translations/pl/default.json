@@ -379,5 +379,6 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Czy 5chan Pass będzie kontrolować zarządzanie katalogiem?",
-  "pass_answer_governance": "Nie. Obecny kierunek jest taki, że posiadacze 5chan Pass mogą uczestniczyć w głosowaniu katalogowym, ale ostateczne mechanizmy zarządzania powinny obejmować zgodność z BSO-holder i zabezpieczenia zamiast wyłącznej ostatecznej kontroli posiadaczy passa."
+  "pass_answer_governance": "Nie. Obecny kierunek jest taki, że posiadacze 5chan Pass mogą uczestniczyć w głosowaniu katalogowym, ale ostateczne mechanizmy zarządzania powinny obejmować zgodność z BSO-holder i zabezpieczenia zamiast wyłącznej ostatecznej kontroli posiadaczy passa.",
+  "app_is_up_to_date": "masz najnowszą wersję"
 }

@@ -92,6 +92,7 @@ describe('InterfaceSettings', () => {
     useFeedViewSettingsStore.getState().setEnableInfiniteScroll(false);
     useAppUpdateStore.setState({
       availableUpdate: null,
+      appUpdateCheckStatus: 'idle',
       isApplyingUpdate: false,
       isCheckingForUpdate: false,
       applyAppUpdate: testState.applyAppUpdateMock,
@@ -106,6 +107,8 @@ describe('InterfaceSettings', () => {
 
   afterEach(() => {
     act(() => root.unmount());
+    useAppUpdateStore.getState().clearAppUpdateCheckStatus();
+    vi.useRealTimers();
     container.remove();
     setItemSpy.mockRestore();
     vi.unstubAllGlobals();
@@ -230,6 +233,7 @@ describe('InterfaceSettings', () => {
   });
 
   it('checks for app updates when the check button is pressed', async () => {
+    testState.refreshAvailableUpdateMock.mockResolvedValueOnce(null);
     render(createElement(InterfaceSettings));
     await settleLazyImports();
 
@@ -243,6 +247,33 @@ describe('InterfaceSettings', () => {
 
     expect(testState.refreshAvailableUpdateMock).toHaveBeenCalledTimes(1);
     expect(testState.applyAppUpdateMock).not.toHaveBeenCalled();
+  });
+
+  it('shows then clears the latest-version status when no app update is available', async () => {
+    vi.useFakeTimers();
+    testState.refreshAvailableUpdateMock.mockResolvedValueOnce(null);
+    render(createElement(InterfaceSettings));
+    await settleLazyImports();
+
+    const button = findButtonByText('Check');
+    expect(button).toBeTruthy();
+
+    await act(async () => {
+      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toContain('app_is_up_to_date');
+
+    act(() => {
+      vi.advanceTimersByTime(3999);
+    });
+    expect(container.textContent).toContain('app_is_up_to_date');
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(container.textContent).not.toContain('app_is_up_to_date');
   });
 
   it('applies the available app update when the button is pressed', async () => {

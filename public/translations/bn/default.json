@@ -379,5 +379,6 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass কি ডিরেক্টরি শাসন নিয়ন্ত্রণ করবে?",
-  "pass_answer_governance": "না। বর্তমান দিকনির্দেশনা হলো 5chan Pass ধারকেরা ডিরেক্টরি ভোটিংয়ে অংশ নিতে পারবেন, তবে চূড়ান্ত শাসনব্যবস্থায় শুধু pass-ধারীদের চূড়ান্ত নিয়ন্ত্রণের বদলে BSO-holder alignment এবং সুরক্ষা ব্যবস্থা থাকতে হবে।"
+  "pass_answer_governance": "না। বর্তমান দিকনির্দেশনা হলো 5chan Pass ধারকেরা ডিরেক্টরি ভোটিংয়ে অংশ নিতে পারবেন, তবে চূড়ান্ত শাসনব্যবস্থায় শুধু pass-ধারীদের চূড়ান্ত নিয়ন্ত্রণের বদলে BSO-holder alignment এবং সুরক্ষা ব্যবস্থা থাকতে হবে।",
+  "app_is_up_to_date": "আপনি সর্বশেষ সংস্করণে আছেন"
 }
