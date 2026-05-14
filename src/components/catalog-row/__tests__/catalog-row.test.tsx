@@ -492,14 +492,15 @@ describe('CatalogRow', () => {
     testState.hiddenCids = new Set(['hidden-1']);
     testState.showOPComment = false;
 
+    const hiddenPost: TestComment = {
+      author: { address: 'hidden-author', displayName: 'Ghost' },
+      cid: 'hidden-1',
+      content: 'hidden text',
+      link: 'https://example.com/hidden.png',
+      communityAddress: 'music-posting.eth',
+    };
     const posts: TestComment[] = [
-      {
-        author: { address: 'hidden-author', displayName: 'Ghost' },
-        cid: 'hidden-1',
-        content: 'hidden text',
-        link: 'https://example.com/hidden.png',
-        communityAddress: 'music-posting.eth',
-      },
+      hiddenPost,
       {
         author: { address: 'text-author', displayName: 'Anon' },
         cid: 'text-1',
@@ -516,7 +517,13 @@ describe('CatalogRow', () => {
     expect(links).toContain('/mu/thread/hidden-1');
     expect(links).toContain('/mu/thread/text-1');
     expect(container.textContent).toContain('(hidden)');
+    expect(container.textContent).not.toContain('hidden text');
     expect(container.textContent).toContain('Text title: Plain thread body');
+
+    await renderWithRouter(createElement(CatalogRow, { row: [hiddenPost], showHiddenPosts: true }), '/mu/catalog');
+
+    expect(container.textContent).toContain('hidden text');
+    expect(container.textContent).not.toContain('(hidden)');
   });
 
   it('preserves literal catalog teaser markers without applying body markdown styles', async () => {

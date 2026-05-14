@@ -51,6 +51,7 @@ async function copyUserIdSafe(address: string): Promise<void> {
 
 type HideButtonProps = {
   cid?: string;
+  comment?: Comment;
   isReply?: boolean;
   postCid?: string;
   onClose?: () => void;
@@ -267,9 +268,9 @@ const DeletePostButton = ({ post, onClose }: DeletePostButtonProps) => {
   );
 };
 
-const HidePostButton = ({ cid, isReply, onClose, postCid }: HideButtonProps) => {
+const HidePostButton = ({ cid, comment, isReply, onClose, postCid }: HideButtonProps) => {
   const { t } = useTranslation();
-  const { hide, hidden, unhide } = useHide({ cid: cid || '' });
+  const { hide, hidden, unhide } = useHide({ cid: cid || '', comment });
   const isInPostView = isPostPageView(useLocation().pathname, useParams());
 
   const togglePostHidden = () => {
@@ -365,7 +366,7 @@ const PostMenuMobile = ({ postMenu, editMenuPost }: PostMenuMobileProps) => {
               <FloatingFocusManager context={context} modal={false}>
                 <div className={styles.postMenu} ref={refs.setFloating} style={floatingStyles} aria-labelledby={headingId} {...getFloatingProps()}>
                   <ReportPostButton onClose={handleClose} />
-                  {cid && communityAddress && <HidePostButton cid={cid} isReply={!!parentCid} postCid={postCid} onClose={handleClose} />}
+                  {cid && communityAddress && <HidePostButton cid={cid} comment={postMenu.comment} isReply={!!parentCid} postCid={postCid} onClose={handleClose} />}
                   {(isAccountCommentAuthor || canAttemptAuthorDelete) && cid && editMenuPost && <DeletePostButton post={editMenuPost} onClose={handleClose} />}
                   {cid && communityAddress && <CopyLinkButton cid={cid} communityAddress={communityAddress} linkType='thread' onClose={handleClose} />}
                   {cid && <CopyContentIdButton cid={cid} onClose={handleClose} />}

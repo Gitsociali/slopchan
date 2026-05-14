@@ -118,7 +118,7 @@ export const CatalogPostMedia = ({ cid, commentMediaInfo, linkWidth, linkHeight,
 
 // Memoize CatalogPost to prevent rerenders when parent rerenders due to updatingState
 const CatalogPost = memo(
-  ({ matchedFilterColor, post }: { matchedFilterColor?: string; post: Comment }) => {
+  ({ matchedFilterColor, post, showHiddenPost = false }: { matchedFilterColor?: string; post: Comment; showHiddenPost?: boolean }) => {
     const { t } = useTranslation();
     const resolvedPost = useMemo(() => withResolvedCommentCommunityAddress(post), [post]);
     const { author, cid, content, link, linkHeight, linkWidth, locked, pinned, replyCount, spoiler, communityAddress, timestamp, title, thumbnailUrl } =
@@ -129,7 +129,8 @@ const CatalogPost = memo(
     const commentMediaInfo = useCommentMediaInfo(link, thumbnailUrl, linkWidth, linkHeight);
     const hasThumbnail = getHasThumbnail(commentMediaInfo, link);
 
-    const { hidden } = useHide({ cid });
+    const { hidden } = useHide({ cid, comment: resolvedPost });
+    const shouldMaskPost = hidden && !showHiddenPost;
 
     const location = useLocation();
     const params = useParams();
@@ -207,8 +208,8 @@ const CatalogPost = memo(
     const lastReplyAuthorBadge = getAuthorBadge({ address: lastReply?.author?.address, role: lastReplyAuthorRole });
 
     const postContent = (
-      <div className={`${styles.teaser} ${hidden && styles.hidden}`}>
-        {hidden ? (
+      <div className={`${styles.teaser} ${shouldMaskPost && styles.hidden}`}>
+        {shouldMaskPost ? (
           <b>({t('hidden')})</b>
         ) : (
           <>
@@ -238,7 +239,7 @@ const CatalogPost = memo(
       <>
         <div className={`${styles.post} ${imageSize === 'Large' ? styles.large : ''}`} style={CSSProperties}>
           <div onMouseOver={() => setHoveredCid(cid)} onMouseLeave={() => setHoveredCid(null)}>
-            {hidden ? (
+            {shouldMaskPost ? (
               <Link to={postLink}>
                 <span className={styles.hiddenThumbnail} />
               </Link>
@@ -247,7 +248,7 @@ const CatalogPost = memo(
                 {shouldShowSnow() && hasThumbnail && <img src='assets/xmashat.gif' className={styles.xmasHat} alt='' />}
                 <Link to={postLink}>
                   <div
-                    className={`${styles.mediaPaddingWrapper} ${hidden && styles.hidden}`}
+                    className={`${styles.mediaPaddingWrapper} ${shouldMaskPost && styles.hidden}`}
                     ref={refs.setReference}
                     onMouseOver={() => (timeoutRef.current = setTimeout(() => setShowPortal(true), 250))}
                     onMouseLeave={() => {
@@ -352,7 +353,8 @@ const CatalogPost = memo(
       prev?.linkWidth === next?.linkWidth &&
       prev?.linkHeight === next?.linkHeight &&
       prevCommunityAddress === nextCommunityAddress &&
-      prevProps.matchedFilterColor === nextProps.matchedFilterColor
+      prevProps.matchedFilterColor === nextProps.matchedFilterColor &&
+      prevProps.showHiddenPost === nextProps.showHiddenPost
     );
   },
 );
@@ -362,20 +364,25 @@ interface CatalogRowProps {
   index?: number;
   matchedFilterColors?: Map<string, string>;
   row: Comment[];
+  showHiddenPosts?: boolean;
 }
 
 const CatalogRow = memo(
-  ({ estimatedHeight, matchedFilterColors, row }: CatalogRowProps) => {
+  ({ estimatedHeight, matchedFilterColors, row, showHiddenPosts = false }: CatalogRowProps) => {
     return (
       <div className={styles.row} data-pretext-height={estimatedHeight}>
         {row.map((post, index) => (
-          <CatalogPost key={post?.cid || index} matchedFilterColor={matchedFilterColors?.get(post?.cid || '')} post={post} />
+          <CatalogPost key={post?.cid || index} matchedFilterColor={matchedFilterColors?.get(post?.cid || '')} post={post} showHiddenPost={showHiddenPosts} />
         ))}
       </div>
     );
   },
   (prevProps, nextProps) => {
-    if (prevProps.estimatedHeight !== nextProps.estimatedHeight || prevProps.row.length !== nextProps.row.length) {
+    if (
+      prevProps.estimatedHeight !== nextProps.estimatedHeight ||
+      prevProps.row.length !== nextProps.row.length ||
+      prevProps.showHiddenPosts !== nextProps.showHiddenPosts
+    ) {
       return false;
     }
 

@@ -13,6 +13,7 @@ export type PostMenuProps = {
   thumbnailUrl?: string;
   deleted?: boolean;
   removed?: boolean;
+  comment?: Comment;
 };
 
 export const selectPostMenuProps = (post?: Comment): PostMenuProps => {
@@ -30,5 +31,6 @@ export const selectPostMenuProps = (post?: Comment): PostMenuProps => {
     thumbnailUrl: post?.thumbnailUrl,
     deleted: post?.deleted,
     removed: post?.removed,
+    comment: post,
   };
 };

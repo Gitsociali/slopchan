@@ -1,59 +1,91 @@
 import { useCallback, useMemo } from 'react';
-import { create } from 'zustand';
-import localForageLru from '@bitsocial/bitsocial-react-hooks/dist/lib/localforage-lru/index.js';
+import { useAccount, useBlock } from '@bitsocial/bitsocial-react-hooks';
+import type { Comment } from '@bitsocial/bitsocial-react-hooks';
+import accountsStore from '@bitsocial/bitsocial-react-hooks/dist/stores/accounts';
+import useHiddenCatalogThreadsStore from '../stores/use-hidden-catalog-threads-store';
 
-interface HideStoreState {
-  hiddenCids: { [key: string]: boolean };
-  hide: (cid: string) => void;
-  unhide: (cid: string) => void;
-}
+export type HiddenCidLookup = { [cid: string]: boolean | undefined };
 
-const hideStore = localForageLru.createInstance({
-  name: 'hideStore',
-  size: 1000,
-});
-
-const useHideStore = create<HideStoreState>((set) => ({
-  hiddenCids: {},
-  hide: (cid: string) => {
-    set((state) => ({
-      hiddenCids: { ...state.hiddenCids, [cid]: true },
-    }));
-    hideStore.setItem(cid, true);
-  },
-  unhide: (cid: string) => {
-    set((state) => {
-      const newHiddenCids = { ...state.hiddenCids };
-      delete newHiddenCids[cid];
-      return { hiddenCids: newHiddenCids };
-    });
-    hideStore.removeItem(cid);
-  },
-}));
-
-const initializeHideStore = async () => {
-  const entries: [string, boolean][] = await hideStore.entries();
-  const hiddenCids: { [key: string]: boolean } = {};
-  entries.forEach(([key, value]) => {
-    hiddenCids[key] = value;
-  });
-
-  useHideStore.setState((state) => ({
-    hiddenCids: { ...hiddenCids, ...state.hiddenCids },
-  }));
+type CommentWithCid = {
+  cid?: string;
 };
 
-initializeHideStore();
+export const isCidHidden = (hiddenCids: HiddenCidLookup | undefined, cid?: string): boolean => Boolean(cid && hiddenCids?.[cid]);
 
-const useHide = ({ cid }: { cid: string }) => {
-  const hidden = useHideStore((state) => !!state.hiddenCids[cid]);
-  const hide = useHideStore((state) => state.hide);
-  const unhide = useHideStore((state) => state.unhide);
+export const filterHiddenComments = <T extends CommentWithCid>(comments: readonly T[], hiddenCids: HiddenCidLookup | undefined): T[] =>
+  comments.filter((comment) => !isCidHidden(hiddenCids, comment?.cid));
 
-  const hideCallback = useCallback(() => hide(cid), [hide, cid]);
-  const unhideCallback = useCallback(() => unhide(cid), [unhide, cid]);
+export const useHiddenCids = (): HiddenCidLookup => {
+  const account = useAccount();
+  return useMemo(() => account?.blockedCids || {}, [account?.blockedCids]);
+};
 
-  return useMemo(() => ({ hidden, hide: hideCallback, unhide: unhideCallback }), [hidden, hideCallback, unhideCallback]);
+const shouldLogHideActionError = (cid: string, expectedHidden: boolean): boolean => {
+  const { accounts, activeAccountId } = accountsStore.getState();
+  if (!activeAccountId) {
+    return true;
+  }
+
+  return Boolean(accounts?.[activeAccountId]?.blockedCids?.[cid]) !== expectedHidden;
+};
+
+const getCurrentAccountHiddenState = (cid: string): boolean => {
+  const { accounts, activeAccountId } = accountsStore.getState();
+  return Boolean(activeAccountId && accounts?.[activeAccountId]?.blockedCids?.[cid]);
+};
+
+const useHide = ({ cid, comment }: { cid: string; comment?: Comment }) => {
+  const account = useAccount();
+  const { error, errors, state } = useBlock({ cid: cid || undefined });
+  const hidden = isCidHidden(account?.blockedCids, cid);
+  const rememberHiddenComment = useHiddenCatalogThreadsStore((state) => state.rememberHiddenComment);
+  const forgetHiddenComment = useHiddenCatalogThreadsStore((state) => state.forgetHiddenComment);
+
+  const hide = useCallback(() => {
+    if (!cid) {
+      return;
+    }
+
+    if (getCurrentAccountHiddenState(cid)) {
+      rememberHiddenComment(comment);
+      return;
+    }
+
+    rememberHiddenComment(comment);
+    void accountsStore
+      .getState()
+      .accountsActions.blockCid(cid)
+      .catch((error: unknown) => {
+        if (!getCurrentAccountHiddenState(cid)) {
+          forgetHiddenComment(cid);
+        }
+        if (shouldLogHideActionError(cid, true)) {
+          console.error('Failed to hide post', error);
+        }
+      });
+  }, [cid, comment, forgetHiddenComment, rememberHiddenComment]);
+
+  const unhide = useCallback(() => {
+    if (!cid) {
+      return;
+    }
+
+    forgetHiddenComment(cid);
+    if (!getCurrentAccountHiddenState(cid)) {
+      return;
+    }
+
+    void accountsStore
+      .getState()
+      .accountsActions.unblockCid(cid)
+      .catch((error: unknown) => {
+        if (shouldLogHideActionError(cid, false)) {
+          console.error('Failed to unhide post', error);
+        }
+      });
+  }, [cid, forgetHiddenComment]);
+
+  return useMemo(() => ({ error, errors, hidden, hide, state, unhide }), [error, errors, hidden, hide, state, unhide]);
 };
 
 export default useHide;

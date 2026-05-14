@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DesktopBoardButtons, MobileBoardButtons } from '../board-buttons';
 import useThreadLiveUpdatesStore from '../../../stores/use-thread-live-updates-store';
+import useHiddenCatalogThreadsStore from '../../../stores/use-hidden-catalog-threads-store';
 import { clearStableLastVisitTimeFilterName, LAST_VISIT_STORAGE_KEY } from '../../../lib/utils/time-filter-utils';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -17,6 +18,8 @@ type DirectoryEntry = {
 };
 
 const testState = vi.hoisted(() => ({
+  account: { blockedCids: {} as Record<string, boolean>, subscriptions: [] as string[] },
+  accountCommunityAddresses: [] as string[],
   accountComment: undefined as { communityAddress?: string } | undefined,
   alertThresholdUnit: 'minutes' as 'hours' | 'minutes',
   alertThresholdValue: 5,
@@ -28,6 +31,8 @@ const testState = vi.hoisted(() => ({
   enableInfiniteScroll: false,
   filter: 'all' as 'all' | 'nsfw' | 'sfw',
   filteredCount: 0,
+  filteredDirectoryAddresses: ['music-posting.eth', 'tech-posting.eth'] as string[],
+  hiddenThreadsByScope: {} as Record<string, Array<{ cid: string }>>,
   imageSize: 'Small' as 'Small' | 'Large',
   isMobile: true,
   linkCount: 3,
@@ -73,7 +78,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
-  useAccount: () => undefined,
+  useAccount: () => testState.account,
   useAccountComment: () => testState.accountComment,
   useComment: ({ commentCid }: { commentCid?: string }) => (commentCid ? testState.commentsByCid[commentCid] : undefined),
   useSubscribe: () => ({
@@ -81,6 +86,26 @@ vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
     subscribed: testState.subscribed,
     unsubscribe: testState.unsubscribeMock,
   }),
+}));
+
+vi.mock('../../../hooks/use-account-community-addresses', () => ({
+  useAccountCommunityAddresses: () => testState.accountCommunityAddresses,
+}));
+
+vi.mock('../../../hooks/use-filtered-directory-addresses', () => ({
+  useFilteredDirectoryAddresses: () => testState.filteredDirectoryAddresses,
+}));
+
+vi.mock('../../../hooks/use-hidden-catalog-threads', () => ({
+  default: ({ communityAddresses }: { communityAddresses: string[] }) => {
+    const scopeKey = communityAddresses.filter(Boolean).slice().sort().join('\u0000');
+    return {
+      hiddenCatalogThreads: testState.hiddenThreadsByScope[scopeKey] || [],
+      hiddenThreadCandidates: testState.hiddenThreadsByScope[scopeKey] || [],
+      isLoadingHiddenCatalogThreads: false,
+      scopeKey,
+    };
+  },
 }));
 
 vi.mock('../../../hooks/use-post-page-number', () => ({
@@ -117,10 +142,13 @@ vi.mock('../../../stores/use-feed-reset-store', () => ({
 }));
 
 vi.mock('../../../stores/use-sorting-store', () => ({
-  default: () => ({
-    setSortType: testState.setSortTypeMock,
-    sortType: testState.sortType,
-  }),
+  default: (selector?: (state: { setSortType: typeof testState.setSortTypeMock; sortType: typeof testState.sortType }) => unknown) => {
+    const state = {
+      setSortType: testState.setSortTypeMock,
+      sortType: testState.sortType,
+    };
+    return selector ? selector(state) : state;
+  },
 }));
 
 vi.mock('../../../stores/use-all-feed-filter-store', () => ({
@@ -223,9 +251,13 @@ const setTrackedInputValue = (input: HTMLInputElement, value: string) => {
   descriptor?.set?.call(input, value);
 };
 
+const getScopeKey = (communityAddresses: string[]) => communityAddresses.filter(Boolean).slice().sort().join('\u0000');
+
 describe('BoardButtons', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    testState.account = { blockedCids: {}, subscriptions: [] };
+    testState.accountCommunityAddresses = [];
     testState.accountComment = undefined;
     testState.alertThresholdUnit = 'minutes';
     testState.alertThresholdValue = 5;
@@ -237,6 +269,8 @@ describe('BoardButtons', () => {
     testState.enableInfiniteScroll = false;
     testState.filter = 'all';
     testState.filteredCount = 0;
+    testState.filteredDirectoryAddresses = ['music-posting.eth', 'tech-posting.eth'];
+    testState.hiddenThreadsByScope = {};
     testState.imageSize = 'Small';
     testState.isMobile = true;
     testState.linkCount = 3;
@@ -248,6 +282,7 @@ describe('BoardButtons', () => {
     testState.subscribed = false;
     testState.viewMode = 'compact';
     useThreadLiveUpdatesStore.getState().resetState();
+    useHiddenCatalogThreadsStore.setState({ hiddenCommentsByCid: {}, scopeHiddenThreadsCounts: {}, shownScopeKey: null });
     clearStableLastVisitTimeFilterName();
     localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(Date.now()));
     Object.defineProperty(globalThis, 'alert', {
@@ -274,6 +309,7 @@ describe('BoardButtons', () => {
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
+    useHiddenCatalogThreadsStore.setState({ hiddenCommentsByCid: {}, scopeHiddenThreadsCounts: {}, shownScopeKey: null });
     clearStableLastVisitTimeFilterName();
     localStorage.clear();
   });
@@ -338,6 +374,51 @@ describe('BoardButtons', () => {
     expect(testState.setFilterMock).toHaveBeenCalledWith('nsfw');
     expect(testState.navigateMock).toHaveBeenCalledWith({ pathname: '/all/catalog', search: '?t=1w' });
     expect(testState.resetMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the desktop hidden-thread catalog control immediately after refresh', async () => {
+    testState.hiddenThreadsByScope[getScopeKey(['music-posting.eth'])] = [{ cid: 'hidden-thread' }];
+
+    await renderWithRoute(createElement(DesktopBoardButtons), '/mu/catalog');
+
+    const control = container.querySelector<HTMLElement>('[data-testid="hidden-threads-control"]');
+    expect(control?.dataset.placement).toBe('desktop');
+    expect(control?.textContent).toContain('Hidden threads: 1');
+    expect(control?.querySelector('strong')?.textContent).toBe('1');
+    expect(container.textContent?.indexOf('refresh')).toBeLessThan(container.textContent?.indexOf('Hidden threads') ?? -1);
+
+    await clickButton('Show');
+
+    expect(useHiddenCatalogThreadsStore.getState().shownScopeKey).toBe(getScopeKey(['music-posting.eth']));
+    expect(container.querySelector<HTMLElement>('[data-testid="hidden-threads-control"]')?.textContent).toContain('Back');
+  });
+
+  it('renders the mobile hidden-thread catalog control below the refresh row', async () => {
+    testState.hiddenThreadsByScope[getScopeKey(['music-posting.eth'])] = [{ cid: 'hidden-thread' }, { cid: 'second-hidden-thread' }];
+
+    await renderWithRoute(createElement(MobileBoardButtons), '/mu/catalog');
+
+    const control = container.querySelector<HTMLElement>('[data-testid="hidden-threads-control"]');
+    expect(control?.dataset.placement).toBe('mobile');
+    expect(control?.className).toContain('mobileHiddenCatalogThreadsToggle');
+    expect(control?.textContent).toContain('Hidden threads: 2');
+    expect(container.textContent?.indexOf('refresh')).toBeLessThan(container.textContent?.indexOf('Hidden threads') ?? -1);
+  });
+
+  it('counts hidden threads for every board in the all catalog scope', async () => {
+    testState.hiddenThreadsByScope[getScopeKey(['music-posting.eth', 'tech-posting.eth'])] = [{ cid: 'hidden-music' }, { cid: 'hidden-tech' }];
+
+    await renderWithRoute(createElement(DesktopBoardButtons), '/all/catalog?t=24h');
+
+    expect(container.querySelector<HTMLElement>('[data-testid="hidden-threads-control"]')?.textContent).toContain('Hidden threads: 2');
+  });
+
+  it('uses the catalog-provided hidden count when the blocked cid lookup has not resolved yet', async () => {
+    useHiddenCatalogThreadsStore.getState().setScopeHiddenThreadsCount(getScopeKey(['music-posting.eth']), 1);
+
+    await renderWithRoute(createElement(DesktopBoardButtons), '/mu/catalog');
+
+    expect(container.querySelector<HTMLElement>('[data-testid="hidden-threads-control"]')?.textContent).toContain('Hidden threads: 1');
   });
 
   it('preserves the current multiboard time filter when searching OPs', async () => {

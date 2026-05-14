@@ -11,12 +11,16 @@ import { useFilteredDirectoryAddresses } from '../../hooks/use-filtered-director
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
 import { useFeedStateString } from '../../hooks/use-state-string';
 import useExpandedTimeFilter from '../../hooks/use-expanded-time-filter';
+import { filterHiddenComments, isCidHidden, useHiddenCids } from '../../hooks/use-hide';
+import useHiddenCatalogThreads from '../../hooks/use-hidden-catalog-threads';
+import usePruneHiddenCatalogThreads from '../../hooks/use-prune-hidden-catalog-threads';
 import { useSuggestionFeedLoader } from '../../hooks/use-suggestion-feed-loader';
 import useTimeFilter from '../../hooks/use-time-filter';
 import useIsMobile from '../../hooks/use-is-mobile';
 import useWindowWidth from '../../hooks/use-window-width';
 import useCatalogStyleStore from '../../stores/use-catalog-style-store';
 import useFeedResetStore from '../../stores/use-feed-reset-store';
+import useHiddenCatalogThreadsStore from '../../stores/use-hidden-catalog-threads-store';
 import useSortingStore from '../../stores/use-sorting-store';
 import useCatalogFiltersStore from '../../stores/use-catalog-filters-store';
 import { getCommunityAddress, isDirectoryBoard, normalizeMultiboardFeedPath } from '../../lib/utils/route-utils';
@@ -276,6 +280,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const searchText = useCatalogFiltersStore((state) => state.searchText);
 
   const account = useAccount();
+  const hiddenCids = useHiddenCids();
   const subscriptions = account?.subscriptions;
   const accountCommunityAddresses = useAccountCommunityAddresses();
   const filteredDirectoryAddresses = useFilteredDirectoryAddresses();
@@ -331,6 +336,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const feedSortType = sortType === 'new' ? 'new' : 'active';
   const catalogVirtualizationMode = useMemo(() => resolveCatalogVirtualizationMode(location.search, 'item-size'), [location.search]);
   const themeKey = typeof document !== 'undefined' ? document.body.className : '';
+  const hadVisibleHiddenThreadsRef = useRef(false);
 
   // Create a stable callback for filter matching
   const handleFilterMatch = useCallback((filterIndex: number, cid: string, communityAddress: string) => {
@@ -369,6 +375,45 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   ]);
 
   const { feed, hasMore, loadMore, reset, expandTimeWindow } = useFeed(feedOptions);
+  const {
+    hiddenCatalogThreads,
+    hiddenThreadCandidates,
+    isLoadingHiddenCatalogThreads,
+    scopeKey: hiddenCatalogThreadsScopeKey,
+  } = useHiddenCatalogThreads({
+    candidateComments: feed,
+    communityAddresses,
+    sortType: feedSortType,
+  });
+  const hiddenThreadsCount = hiddenCatalogThreads.length;
+  const requestedShowHiddenThreads = useHiddenCatalogThreadsStore((state) => state.shownScopeKey === hiddenCatalogThreadsScopeKey);
+  const setShownHiddenThreadsScopeKey = useHiddenCatalogThreadsStore((state) => state.setShownScopeKey);
+  const setScopeHiddenThreadsCount = useHiddenCatalogThreadsStore((state) => state.setScopeHiddenThreadsCount);
+  const showHiddenThreads = requestedShowHiddenThreads && (hiddenThreadsCount > 0 || isLoadingHiddenCatalogThreads);
+  useEffect(() => {
+    setScopeHiddenThreadsCount(hiddenCatalogThreadsScopeKey, hiddenThreadsCount);
+    return () => setScopeHiddenThreadsCount(hiddenCatalogThreadsScopeKey, 0);
+  }, [hiddenCatalogThreadsScopeKey, hiddenThreadsCount, setScopeHiddenThreadsCount]);
+  useEffect(() => {
+    if (!requestedShowHiddenThreads) {
+      hadVisibleHiddenThreadsRef.current = false;
+      return;
+    }
+    if (hiddenThreadsCount > 0) {
+      hadVisibleHiddenThreadsRef.current = true;
+      return;
+    }
+    if (hadVisibleHiddenThreadsRef.current || !isLoadingHiddenCatalogThreads) {
+      setShownHiddenThreadsScopeKey(null);
+    }
+  }, [hiddenThreadsCount, isLoadingHiddenCatalogThreads, requestedShowHiddenThreads, setShownHiddenThreadsScopeKey]);
+  usePruneHiddenCatalogThreads({
+    communityAddress,
+    enabled: !isMultiboard && !hasMore && !hasActiveCatalogFiltering,
+    hiddenThreadCandidates,
+    sortType: feedSortType,
+  });
+  const visibleFeed = useMemo(() => filterHiddenComments(feed, hiddenCids), [feed, hiddenCids]);
   const { currentTimeFilterName, currentTimeFilterSeconds, expandSuggestionTimeWindow } = useExpandedTimeFilter({
     timeFilterName,
     timeFilterSeconds: multiboardTimeFilterSeconds,
@@ -396,6 +441,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     filter: suggestionFilter,
     newerThan: WEEK_IN_SECONDS,
   });
+  const visibleWeeklyFeed = useMemo(() => filterHiddenComments(weeklyFeed, hiddenCids), [hiddenCids, weeklyFeed]);
   const {
     feed: monthlyFeed,
     hasMore: monthlyFeedHasMore,
@@ -407,6 +453,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     filter: suggestionFilter,
     newerThan: MONTH_IN_SECONDS,
   });
+  const visibleMonthlyFeed = useMemo(() => filterHiddenComments(monthlyFeed, hiddenCids), [hiddenCids, monthlyFeed]);
   const {
     feed: yearlyFeed,
     hasMore: yearlyFeedHasMore,
@@ -418,25 +465,26 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     filter: suggestionFilter,
     newerThan: YEAR_IN_SECONDS,
   });
+  const visibleYearlyFeed = useMemo(() => filterHiddenComments(yearlyFeed, hiddenCids), [hiddenCids, yearlyFeed]);
   useSuggestionFeedLoader({
-    currentFeedLength: feed.length,
-    feedLength: weeklyFeed.length,
+    currentFeedLength: visibleFeed.length,
+    feedLength: visibleWeeklyFeed.length,
     hasMore: weeklyFeedHasMore,
     loadMore: loadMoreWeeklyFeed,
     requestKey: `${suggestionRequestKeyBase}:1w`,
     shouldLoad: shouldProbeWeeklyFeed,
   });
   useSuggestionFeedLoader({
-    currentFeedLength: feed.length,
-    feedLength: monthlyFeed.length,
+    currentFeedLength: visibleFeed.length,
+    feedLength: visibleMonthlyFeed.length,
     hasMore: monthlyFeedHasMore,
     loadMore: loadMoreMonthlyFeed,
     requestKey: `${suggestionRequestKeyBase}:1m`,
     shouldLoad: shouldProbeMonthlyFeed,
   });
   useSuggestionFeedLoader({
-    currentFeedLength: feed.length,
-    feedLength: yearlyFeed.length,
+    currentFeedLength: visibleFeed.length,
+    feedLength: visibleYearlyFeed.length,
     hasMore: yearlyFeedHasMore,
     loadMore: loadMoreYearlyFeed,
     requestKey: `${suggestionRequestKeyBase}:1y`,
@@ -474,7 +522,8 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
           cid &&
           cid === postCid &&
           commentCommunityAddress === communityAddress &&
-          !feedCids.has(cid);
+          !feedCids.has(cid) &&
+          !isCidHidden(hiddenCids, cid);
 
         // If search is active, also check search conditions
         if (basicConditions && searchText.trim()) {
@@ -487,30 +536,34 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
 
         return basicConditions;
       }),
-    [recentAccountComments, communityAddress, feedCids, searchText],
+    [recentAccountComments, communityAddress, feedCids, hiddenCids, searchText],
   );
 
   // show newest account comment at the top of the feed but after pinned posts
   const combinedFeed = useMemo(() => {
-    const newFeed = [...feed];
+    const newFeed = [...visibleFeed];
     const lastPinnedIndex = newFeed.map((post) => post.pinned).lastIndexOf(true);
     if (filteredComments.length > 0) {
       newFeed.splice(lastPinnedIndex + 1, 0, ...filteredComments);
     }
     return newFeed;
-  }, [feed, filteredComments]);
+  }, [visibleFeed, filteredComments]);
 
   const cappedFeed = useMemo(
     () => (effectiveInfiniteScroll ? combinedFeed : combinedFeed.slice(0, boardPostsPerPage * maxGuiPages)),
     [effectiveInfiniteScroll, combinedFeed, boardPostsPerPage, maxGuiPages],
   );
   const moreThreadsSuggestion = useMemo(
-    () => (isMultiboard ? getTimeFilterSuggestion(feed.length, weeklyFeed.length, monthlyFeed.length, yearlyFeed.length, currentTimeFilterSeconds) : null),
-    [currentTimeFilterSeconds, feed.length, isMultiboard, monthlyFeed.length, weeklyFeed.length, yearlyFeed.length],
+    () =>
+      isMultiboard
+        ? getTimeFilterSuggestion(visibleFeed.length, visibleWeeklyFeed.length, visibleMonthlyFeed.length, visibleYearlyFeed.length, currentTimeFilterSeconds)
+        : null,
+    [currentTimeFilterSeconds, isMultiboard, visibleFeed.length, visibleMonthlyFeed.length, visibleWeeklyFeed.length, visibleYearlyFeed.length],
   );
   const moreThreadsSuggestionPathname = isInAllView ? '/all/catalog' : isInSubscriptionsView ? '/subs/catalog' : isInModView ? '/mod/catalog' : null;
 
-  const sortedFeed = useMemo(() => sortCatalogFeedForDisplay(cappedFeed, sortType), [cappedFeed, sortType]);
+  const catalogBaseFeed = showHiddenThreads ? hiddenCatalogThreads : cappedFeed;
+  const sortedFeed = useMemo(() => sortCatalogFeedForDisplay(catalogBaseFeed, sortType), [catalogBaseFeed, sortType]);
 
   useEffect(() => {
     if (filteredComments.length > 0 && !resetTriggeredRef.current) {
@@ -529,6 +582,10 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
 
   const community = useCommunity(communityIdentifier ? { community: communityIdentifier } : undefined);
   const { error, shortAddress, state, title } = community || {};
+  const footerHasMore = showHiddenThreads ? isLoadingHiddenCatalogThreads : hasMore;
+  const footerCombinedFeedLength = catalogBaseFeed.length;
+  const footerMoreThreadsSuggestion = showHiddenThreads ? null : moreThreadsSuggestion;
+  const footerShowLoadingEllipsis = showHiddenThreads ? isLoadingHiddenCatalogThreads : effectiveInfiniteScroll;
 
   // Memoize footer component to preserve identity across renders (Virtuoso optimization)
   // Note: useFeedStateString is called inside CatalogFooter to isolate re-renders from backend state changes
@@ -538,14 +595,14 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
         <>
           <CatalogFooter
             communityAddresses={communityAddresses}
-            hasMore={hasMore}
-            combinedFeedLength={cappedFeed.length}
+            hasMore={footerHasMore}
+            combinedFeedLength={footerCombinedFeedLength}
             currentTimeFilterName={currentTimeFilterName}
-            moreThreadsSuggestion={moreThreadsSuggestion}
+            moreThreadsSuggestion={footerMoreThreadsSuggestion}
             moreThreadsSuggestionPathname={moreThreadsSuggestionPathname}
             moreThreadsSuggestionSearch={location.search}
             onExpandTimeWindow={expandSuggestionTimeWindow}
-            showLoadingEllipsis={effectiveInfiniteScroll}
+            showLoadingEllipsis={footerShowLoadingEllipsis}
           />
           <PageFooterDesktop
             firstRow={
@@ -570,10 +627,10 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     }),
     [
       communityAddresses,
-      hasMore,
-      cappedFeed.length,
+      footerHasMore,
+      footerCombinedFeedLength,
       currentTimeFilterName,
-      moreThreadsSuggestion,
+      footerMoreThreadsSuggestion,
       moreThreadsSuggestionPathname,
       expandSuggestionTimeWindow,
       communityAddress,
@@ -581,7 +638,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
       isInSubscriptionsView,
       isInModView,
       location.search,
-      effectiveInfiniteScroll,
+      footerShowLoadingEllipsis,
     ],
   );
   const catalogFooter = useMemo(
@@ -589,14 +646,14 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
       <>
         <CatalogFooter
           communityAddresses={communityAddresses}
-          hasMore={hasMore}
-          combinedFeedLength={cappedFeed.length}
+          hasMore={footerHasMore}
+          combinedFeedLength={footerCombinedFeedLength}
           currentTimeFilterName={currentTimeFilterName}
-          moreThreadsSuggestion={moreThreadsSuggestion}
+          moreThreadsSuggestion={footerMoreThreadsSuggestion}
           moreThreadsSuggestionPathname={moreThreadsSuggestionPathname}
           moreThreadsSuggestionSearch={location.search}
           onExpandTimeWindow={expandSuggestionTimeWindow}
-          showLoadingEllipsis={effectiveInfiniteScroll}
+          showLoadingEllipsis={footerShowLoadingEllipsis}
         />
         <PageFooterDesktop
           firstRow={
@@ -620,10 +677,10 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     ),
     [
       communityAddresses,
-      hasMore,
-      cappedFeed.length,
+      footerHasMore,
+      footerCombinedFeedLength,
       currentTimeFilterName,
-      moreThreadsSuggestion,
+      footerMoreThreadsSuggestion,
       moreThreadsSuggestionPathname,
       expandSuggestionTimeWindow,
       communityAddress,
@@ -631,10 +688,10 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
       isInSubscriptionsView,
       isInModView,
       location.search,
-      effectiveInfiniteScroll,
+      footerShowLoadingEllipsis,
     ],
   );
-  const isFeedLoaded = feed.length > 0 || state === 'failed';
+  const isFeedLoaded = feed.length > 0 || hiddenThreadsCount > 0 || state === 'failed';
 
   // Process the feed to move "top" posts to the top (applied after display sort)
   const processedFeed = useMemo(() => {
@@ -669,8 +726,10 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
     return [...topPosts, ...regularPosts];
   }, [sortedFeed, filterItems]);
 
+  const processedFeedMode = showHiddenThreads ? 'hidden' : 'visible';
   const deferredProcessedFeed = useDeferredValue(processedFeed);
-  const catalogRenderFeed = getCatalogRenderFeed(processedFeed, deferredProcessedFeed);
+  const deferredProcessedFeedMode = useDeferredValue(processedFeedMode);
+  const catalogRenderFeed = getCatalogRenderFeed(processedFeed, deferredProcessedFeedMode === processedFeedMode ? deferredProcessedFeed : []);
 
   const matchedFilterColors = useMemo(() => {
     const nextMatchedFilterColors = new Map<string, string>();
@@ -739,7 +798,9 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const catalogViewportBuffer = isMultiboardView ? (isMobile ? { bottom: 2400, top: 1200 } : { bottom: 900, top: 600 }) : { bottom: 1200, top: 1200 };
 
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
-  const virtuosoStateKey = feedCacheKey ? `${feedCacheKey}-${sortType}` : `${location.pathname}${location.search}-${sortType}-catalog`;
+  const virtuosoStateKey = feedCacheKey
+    ? `${feedCacheKey}-${sortType}-${processedFeedMode}`
+    : `${location.pathname}${location.search}-${sortType}-${processedFeedMode}-catalog`;
   const navigationType = useNavigationType();
 
   const hasBeenVisibleRef = useRef(false);
@@ -773,8 +834,10 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const lastVirtuosoState = shouldVirtualizeCatalog && navigationType === 'POP' ? lastVirtuosoStates?.[virtuosoStateKey] : undefined;
 
   const renderCatalogRow = useCallback(
-    (index: number, row: Comment[]) => <CatalogRow estimatedHeight={rowHeightEstimates[index]} index={index} matchedFilterColors={matchedFilterColors} row={row} />,
-    [matchedFilterColors, rowHeightEstimates],
+    (index: number, row: Comment[]) => (
+      <CatalogRow estimatedHeight={rowHeightEstimates[index]} index={index} matchedFilterColors={matchedFilterColors} row={row} showHiddenPosts={showHiddenThreads} />
+    ),
+    [matchedFilterColors, rowHeightEstimates, showHiddenThreads],
   );
 
   useEffect(() => {
@@ -812,7 +875,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
                 itemContent={renderCatalogRow}
                 useWindowScroll={true}
                 components={footerComponents}
-                endReached={effectiveInfiniteScroll && hasMore ? loadMore : undefined}
+                endReached={!showHiddenThreads && effectiveInfiniteScroll && footerHasMore ? loadMore : undefined}
                 ref={virtuosoRef}
                 restoreStateFrom={lastVirtuosoState}
                 initialScrollTop={lastVirtuosoState?.scrollTop}
@@ -826,6 +889,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
                     index={index}
                     matchedFilterColors={matchedFilterColors}
                     row={row}
+                    showHiddenPosts={showHiddenThreads}
                   />
                 ))}
                 {catalogFooter}
@@ -837,8 +901,8 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
             <div className={styles.footer}>
               <CatalogLoading
                 communityAddresses={communityAddresses}
-                hasMore={hasMore}
-                combinedFeedLength={cappedFeed.length}
+                hasMore={footerHasMore}
+                combinedFeedLength={footerCombinedFeedLength}
                 state={state}
                 subscriptionsLength={isInSubscriptionsView ? subscriptions?.length || 0 : 1}
                 error={error}

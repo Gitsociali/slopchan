@@ -1,15 +1,20 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useComment, useSubscribe } from '@bitsocial/bitsocial-react-hooks';
+import { useAccount, useComment, useSubscribe } from '@bitsocial/bitsocial-react-hooks';
 import { isAllView, isCatalogView, isModView, isModQueueView, isPendingPostView, isPostPageView, isSubscriptionsView } from '../../lib/utils/view-utils';
 import { usePostPageNumber } from '../../hooks/use-post-page-number';
 import { useDirectories, useDirectoryByAddress } from '../../hooks/use-directories';
+import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
+import { useFilteredDirectoryAddresses } from '../../hooks/use-filtered-directory-addresses';
 import { getBoardPath, isDirectoryBoard } from '../../lib/utils/route-utils';
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
 import useSafeAccountComment from '../../hooks/use-safe-account-comment';
+import useHiddenCatalogThreads from '../../hooks/use-hidden-catalog-threads';
 import useCatalogFiltersStore from '../../stores/use-catalog-filters-store';
 import useCatalogStyleStore from '../../stores/use-catalog-style-store';
 import useFeedResetStore from '../../stores/use-feed-reset-store';
+import useHiddenCatalogThreadsStore from '../../stores/use-hidden-catalog-threads-store';
 import useSortingStore from '../../stores/use-sorting-store';
 import useAllFeedFilterStore from '../../stores/use-all-feed-filter-store';
 import useModQueueStore from '../../stores/use-mod-queue-store';
@@ -36,6 +41,8 @@ interface BoardButtonsProps {
   isInModQueueView?: boolean;
   isTopbar?: boolean;
 }
+
+const EMPTY_COMMUNITY_ADDRESSES: string[] = [];
 
 const getMultiboardPath = ({
   isInAllView,
@@ -187,6 +194,60 @@ export const RefreshButton = () => {
     <button className='button' onClick={() => reset && reset()}>
       {t('refresh')}
     </button>
+  );
+};
+
+const HiddenCatalogThreadsToggle = ({
+  address,
+  isInAllView = false,
+  isInCatalogView = false,
+  isInSubscriptionsView = false,
+  isInModView = false,
+  isMobilePlacement = false,
+}: BoardButtonsProps & { isMobilePlacement?: boolean }) => {
+  const account = useAccount();
+  const accountCommunityAddresses = useAccountCommunityAddresses();
+  const filteredDirectoryAddresses = useFilteredDirectoryAddresses();
+  const sortType = useSortingStore((state) => state.sortType);
+  const toggleShownScopeKey = useHiddenCatalogThreadsStore((state) => state.toggleShownScopeKey);
+  const communityAddresses = useMemo(() => {
+    if (isInAllView) {
+      return filteredDirectoryAddresses;
+    }
+    if (isInSubscriptionsView) {
+      return account?.subscriptions?.filter(Boolean) || EMPTY_COMMUNITY_ADDRESSES;
+    }
+    if (isInModView) {
+      return accountCommunityAddresses;
+    }
+
+    return address ? [address] : EMPTY_COMMUNITY_ADDRESSES;
+  }, [account?.subscriptions, accountCommunityAddresses, address, filteredDirectoryAddresses, isInAllView, isInModView, isInSubscriptionsView]);
+  const { hiddenCatalogThreads, isLoadingHiddenCatalogThreads, scopeKey } = useHiddenCatalogThreads({
+    communityAddresses,
+    sortType: sortType === 'new' ? 'new' : 'active',
+  });
+  const storedHiddenThreadsCount = useHiddenCatalogThreadsStore((state) => state.scopeHiddenThreadsCounts[scopeKey] || 0);
+  const hiddenThreadsCount = Math.max(hiddenCatalogThreads.length, storedHiddenThreadsCount);
+  const requestedShowHiddenThreads = useHiddenCatalogThreadsStore((state) => state.shownScopeKey === scopeKey);
+  const showHiddenThreads = requestedShowHiddenThreads && (hiddenThreadsCount > 0 || isLoadingHiddenCatalogThreads);
+
+  if (!isInCatalogView || hiddenThreadsCount === 0) {
+    return null;
+  }
+
+  return (
+    <span
+      className={`${styles.hiddenCatalogThreadsToggle} ${isMobilePlacement ? styles.mobileHiddenCatalogThreadsToggle : styles.desktopHiddenCatalogThreadsToggle}`}
+      data-testid='hidden-threads-control'
+      data-placement={isMobilePlacement ? 'mobile' : 'desktop'}
+    >
+      &mdash; Hidden threads: <strong>{hiddenThreadsCount}</strong> [
+      <button type='button' className={styles.hiddenCatalogThreadsToggleAction} data-testid='hidden-threads-toggle' onClick={() => toggleShownScopeKey(scopeKey)}>
+        {showHiddenThreads ? 'Back' : 'Show'}
+      </button>
+      ]
+    </span>
   );
 };
 
@@ -504,6 +565,14 @@ export const MobileBoardButtons = () => {
           <ArchiveButton address={communityAddress} isInAllView={isInAllView} isInSubscriptionsView={isInSubscriptionsView} isInModView={isInModView} />
           {showBottomButton && <BottomButton />}
           <RefreshButton />
+          <HiddenCatalogThreadsToggle
+            address={communityAddress}
+            isInAllView={isInAllView}
+            isInCatalogView={isInCatalogView}
+            isInSubscriptionsView={isInSubscriptionsView}
+            isInModView={isInModView}
+            isMobilePlacement={true}
+          />
           {searchText ? (
             <span className={styles.filteredThreadsCount}>
               {' '}
@@ -705,6 +774,18 @@ export const DesktopBoardButtons = () => {
               </>
             )}{' '}
             [<RefreshButton />]
+            {isInCatalogView && (
+              <>
+                {' '}
+                <HiddenCatalogThreadsToggle
+                  address={communityAddress}
+                  isInAllView={isInAllView}
+                  isInCatalogView={isInCatalogView}
+                  isInSubscriptionsView={isInSubscriptionsView}
+                  isInModView={isInModView}
+                />
+              </>
+            )}
             {!(isInAllView || isInSubscriptionsView) && (
               <>
                 {' '}
