@@ -82,6 +82,7 @@ const BoardLayout = () => {
   const isOnModQueueRoute = isModQueueRoute(pathname);
   const isOnArchiveRoute = isArchiveRoute(pathname);
   const shouldRenderOutlet = isOnPostRoute || isOnPendingPostRoute || isOnModQueueRoute || isOnArchiveRoute;
+  const shouldRenderBoardBlotter = !isOnArchiveRoute && !isOnModQueueRoute;
   const isInCatalogView = isCatalogView(pathname, params);
   // Christmas theme
   const { isEnabled: isSpecialEnabled } = useSpecialThemeStore();
@@ -164,7 +165,7 @@ const BoardLayout = () => {
           !isOnArchiveRoute && (
             <>
               <PostForm key={key} />
-              {!(isInAllView || isInSubscriptionsView || isInModView) && !isOnModQueueRoute && <BoardBlotter />}
+              {shouldRenderBoardBlotter ? <BoardBlotter /> : null}
               <DesktopBoardButtons />
             </>
           )}

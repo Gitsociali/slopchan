@@ -308,8 +308,14 @@ describe('App', () => {
     expect(container.querySelector('[data-testid="post-form"]')).toBeTruthy();
     expect(container.querySelector('[data-testid="feed-cache-container"]')).toBeTruthy();
     expect(container.querySelector('[data-testid="desktop-board-buttons"]')).toBeTruthy();
-    expect(container.querySelector('[data-testid="board-blotter"]')).toBeNull();
+    expect(container.querySelector('[data-testid="board-blotter"]')).toBeTruthy();
     expect(latestLocation).toBe('/all/settings');
+  });
+
+  it.each(['/all', '/subs', '/mod'])('renders board blotter on desktop multiboard route %s', async (route) => {
+    await renderApp(route);
+
+    expect(container.querySelector('[data-testid="board-blotter"]')).toBeTruthy();
   });
 
   it('redirects board page 1 feeds to not-found', async () => {
