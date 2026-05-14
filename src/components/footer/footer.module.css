@@ -37,12 +37,12 @@
 }
 
 .legalMeta a {
-  color: var(--boardsbar-desktop-link-text-color);
+  color: var(--post-link-text-color);
   text-decoration: var(--boardsbar-desktop-link-text-decoration);
 }
 
 .legalMeta a:hover {
-  color: var(--boardsbar-desktop-link-text-color-hover);
+  color: var(--post-link-text-color-hover);
   text-decoration: var(--boardsbar-desktop-link-text-decoration-hover);
   cursor: pointer;
 }
@@ -215,12 +215,13 @@
 }
 
 .mobileFooterLinks a {
-  color: var(--boardsbar-desktop-link-text-color);
-  text-decoration: underline;
+  color: var(--post-link-text-color);
+  text-decoration: var(--boardsbar-desktop-link-text-decoration);
 }
 
 .mobileFooterLinks a:hover {
-  color: var(--boardsbar-desktop-link-text-color-hover);
+  color: var(--post-link-text-color-hover);
+  text-decoration: var(--boardsbar-desktop-link-text-decoration-hover);
 }
 
 .mobileFooterStats {
