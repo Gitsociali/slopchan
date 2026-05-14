@@ -20,7 +20,7 @@ const testState = vi.hoisted(() => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { host?: string }) => (options?.host ? `${key}:${options.host}` : key),
   }),
 }));
 
@@ -151,24 +151,73 @@ describe('CommentMedia', () => {
     expect(container.querySelector('[data-expanded-media="true"]')).toBeTruthy();
   });
 
-  it('falls back to the deleted-file placeholder when an image fails to load', async () => {
+  it('shows a media-load warning when an image fails to load', async () => {
+    testState.hostname = 'files.catbox.moe';
+    const onMediaLoadFailureChange = vi.fn();
+
     await renderMedia({
       commentMediaInfo: {
         type: 'image',
-        url: 'https://cdn.example.com/missing.jpg',
+        url: 'https://files.catbox.moe/missing.jpg',
       },
+      onMediaLoadFailureChange,
       setShowThumbnail: setShowThumbnailMock,
       showThumbnail: true,
     });
 
-    const image = container.querySelector('img[src="https://cdn.example.com/missing.jpg"]');
+    const image = container.querySelector('img[src="https://files.catbox.moe/missing.jpg"]');
     expect(image).toBeTruthy();
 
     await act(async () => {
       image?.dispatchEvent(new Event('error', { bubbles: true }));
     });
 
-    expect(container.querySelector('img[alt="File deleted"]')).toBeTruthy();
+    expect(container.querySelector('img[src="assets/filedeleted-res.gif"]')).toBeTruthy();
+    expect(onMediaLoadFailureChange).toHaveBeenCalledWith('https://files.catbox.moe/missing.jpg');
+    const status = container.querySelector('[role="status"]');
+    expect(status?.textContent).toContain('media_failed_to_load_inline:files.catbox.moe');
+    expect(status?.textContent).toContain('media_failed_to_load_open_source');
+    expect(status?.textContent).not.toContain('media_failed_to_load_hint');
+    expect(status?.getAttribute('aria-label')).toBe(
+      'media_failed_to_load. media_failed_to_load_source:files.catbox.moe. media_failed_to_load_hint. media_failed_to_load_open_source.',
+    );
+    expect(status?.getAttribute('title')).toBe(
+      'media_failed_to_load. media_failed_to_load_source:files.catbox.moe. media_failed_to_load_hint. media_failed_to_load_open_source.',
+    );
+    expect(container.querySelector<HTMLAnchorElement>('a[href="https://files.catbox.moe/missing.jpg"]')?.textContent).toBe('media_failed_to_load_open_source');
+  });
+
+  it('moves media-load guidance below failed image thumbnails on mobile', async () => {
+    testState.hostname = 'files.catbox.moe';
+    testState.isMobile = true;
+    const onMediaLoadFailureChange = vi.fn();
+
+    await renderMedia({
+      commentMediaInfo: {
+        type: 'image',
+        url: 'https://files.catbox.moe/missing.jpg',
+      },
+      onMediaLoadFailureChange,
+      setShowThumbnail: setShowThumbnailMock,
+      showThumbnail: true,
+    });
+
+    const image = container.querySelector('img[src="https://files.catbox.moe/missing.jpg"]');
+    expect(image).toBeTruthy();
+
+    await act(async () => {
+      image?.dispatchEvent(new Event('error', { bubbles: true }));
+    });
+
+    const status = container.querySelector('[role="status"]');
+    expect(status?.textContent).toBe('');
+    expect(status?.getAttribute('aria-label')).toBe(
+      'media_failed_to_load. media_failed_to_load_source:files.catbox.moe. media_failed_to_load_hint. media_failed_to_load_open_source.',
+    );
+    expect(onMediaLoadFailureChange).toHaveBeenCalledWith('https://files.catbox.moe/missing.jpg');
+    expect(container.textContent).not.toContain('media_failed_to_load_inline:files.catbox.moe');
+    expect(container.textContent).not.toContain('media_failed_to_load_open_source');
+    expect(container.textContent).toContain('image');
   });
 
   it('renders GIF thumbnail states and toggles the media view from the placeholder', async () => {

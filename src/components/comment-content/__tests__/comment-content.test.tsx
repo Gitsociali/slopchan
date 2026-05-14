@@ -185,7 +185,7 @@ const renderContent = async (comment: TestComment) => {
   });
 };
 
-const renderContentWithProps = async (props: { comment: TestComment; prependContent?: React.ReactNode }) => {
+const renderContentWithProps = async (props: { appendContent?: React.ReactNode; comment: TestComment; prependContent?: React.ReactNode }) => {
   await act(async () => {
     root.render(createElement(CommentContent, props as any));
   });
@@ -266,6 +266,26 @@ describe('CommentContent', () => {
     expect(preview?.textContent).toBe('quoted-1');
     expect(markdown?.textContent).toBe('body');
     expect(blockquote?.querySelectorAll('br')).toHaveLength(1);
+  });
+
+  it('renders appended content after markdown with a two-line break separator', async () => {
+    await renderContentWithProps({
+      appendContent: createElement('span', { 'data-testid': 'append' }, 'media failed'),
+      comment: {
+        cid: 'post-1',
+        content: 'body',
+        postCid: 'post-1',
+      },
+    });
+
+    const blockquote = container.querySelector('blockquote');
+    const markdown = container.querySelector('[data-testid="markdown"]');
+    const append = container.querySelector('[data-testid="append"]');
+
+    expect(markdown?.textContent).toBe('body');
+    expect(append?.textContent).toBe('media failed');
+    expect(blockquote?.lastChild).toBe(append);
+    expect(blockquote?.querySelectorAll('br')).toHaveLength(2);
   });
 
   it('truncates long comments outside the post view and expands them on demand', async () => {

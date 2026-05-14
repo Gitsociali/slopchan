@@ -1,1 +1,1 @@
-export { default } from './comment-media';
+export { default, MediaLoadFailureInfo } from './comment-media';
