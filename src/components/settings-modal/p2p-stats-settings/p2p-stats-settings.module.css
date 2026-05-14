@@ -31,12 +31,51 @@
 
 .statName {
   width: 34%;
-  text-transform: capitalize;
   white-space: nowrap;
 }
 
 .statValue {
   word-break: break-word;
+}
+
+.connectedPeers summary {
+  cursor: pointer;
+}
+
+.connectedPeerList {
+  display: grid;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.connectedPeer {
+  border-top: 1px solid var(--border-color, #d9d9d9);
+  padding-top: 5px;
+}
+
+.connectedPeerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 0.9em;
+}
+
+.connectionTransport {
+  font-weight: 700;
+}
+
+.peerId,
+.connectionAddress {
+  word-break: break-all;
+}
+
+.connectionAddress {
+  display: block;
+  margin-top: 2px;
+}
+
+.connectedPeerEmpty {
+  font-style: italic;
 }
 
 .statsMeta {

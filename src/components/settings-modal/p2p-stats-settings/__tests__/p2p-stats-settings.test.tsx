@@ -42,6 +42,9 @@ const renderSettings = async (isElectron = false) => {
   });
 };
 
+const getStatRows = () =>
+  new Map(Array.from(container.querySelectorAll('tr')).map((row) => [row.children.item(0)?.textContent ?? '', row.children.item(1)?.textContent ?? '']));
+
 describe('P2PStatsSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -86,7 +89,14 @@ describe('P2PStatsSettings', () => {
               },
               _helia: {
                 libp2p: {
-                  getConnections: () => ['connection-1'],
+                  getConnections: () => [
+                    {
+                      direction: 'outbound',
+                      remoteAddr: { toString: () => '/ip4/127.0.0.1/tcp/4001/ws/p2p/peer-1' },
+                      remotePeer: { toString: () => 'peer-1' },
+                      status: 'open',
+                    },
+                  ],
                   getMultiaddrs: () => ['/ip4/127.0.0.1/tcp/4001'],
                   getPeers: () => ['peer-1', 'peer-2'],
                   metrics: {
@@ -121,16 +131,26 @@ describe('P2PStatsSettings', () => {
     await renderSettings(false);
     await act(async () => Promise.resolve());
 
-    expect(container.textContent).toContain('leeching');
+    const rows = getStatRows();
+    expect(container.textContent).toContain('Leeching');
     expect(container.textContent).not.toContain('browser Helia');
     expect(container.textContent).not.toContain('seed mode');
     expect(container.textContent).not.toContain('status');
+    expect(rows.get('Connected peers')).toContain('2 peers, 1 connection');
+    expect(rows.get('Connected peers')).toContain('WebSocket');
+    expect(rows.get('Connected peers')).toContain('/ip4/127.0.0.1/tcp/4001/ws/p2p/peer-1');
+    expect(rows.has('connections')).toBe(false);
+    expect(rows.has('Listen addresses')).toBe(false);
+    expect(rows.has('p2p_stats_updated')).toBe(true);
     expect(container.textContent).toContain('self-peer');
-    expect(container.textContent).toContain('2 peers');
-    expect(container.textContent).toContain('downloaded data');
+    expect(container.textContent).toContain('Peer ID');
+    expect(container.textContent).toContain('Data received');
     expect(container.textContent).toContain('2.00 KB');
-    expect(container.textContent).toContain('uploaded data');
+    expect(container.textContent).toContain('Data sent');
     expect(container.textContent).toContain('1.00 KB');
+    expect(container.textContent).not.toContain('client key');
+    expect(container.textContent).not.toContain('pubsub peers');
+    expect(container.textContent).not.toContain('routers');
     expect(container.textContent).not.toContain('pubsub topics');
     expect(container.textContent).not.toContain('topic subscribers');
   });
@@ -176,10 +196,43 @@ describe('P2PStatsSettings', () => {
     await renderSettings(false);
     await act(async () => Promise.resolve());
 
-    expect(container.textContent).toContain('downloaded data');
+    expect(container.textContent).toContain('Data received');
     expect(container.textContent).toContain('4.00 KB');
-    expect(container.textContent).toContain('uploaded data');
+    expect(container.textContent).toContain('Data sent');
     expect(container.textContent).toContain('2.00 KB');
+  });
+
+  it('starts browser transfer counters at zero when Helia exposes no byte totals yet', async () => {
+    testState.account = {
+      ...testState.account,
+      pkcOptions: {
+        libp2pJsClientsOptions: [{ key: 'libp2pjs' }],
+      },
+      pkc: {
+        clients: {
+          libp2pJsClients: {
+            libp2pjs: {
+              key: 'libp2pjs',
+              _helia: {
+                libp2p: {
+                  getConnections: () => [],
+                  getMultiaddrs: () => [],
+                  getPeers: () => [],
+                  peerId: { toString: () => 'self-peer' },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    await renderSettings(false);
+    await act(async () => Promise.resolve());
+
+    const rows = getStatRows();
+    expect(rows.get('Data received')).toBe('0 B');
+    expect(rows.get('Data sent')).toBe('0 B');
   });
 
   it('reports seeding only when browser Helia can add and publish provider records', async () => {
@@ -220,7 +273,7 @@ describe('P2PStatsSettings', () => {
     await renderSettings(false);
     await act(async () => Promise.resolve());
 
-    expect(container.textContent).toContain('seeding');
+    expect(container.textContent).toContain('Seeding');
     expect(container.textContent).not.toContain('seed mode');
   });
 });

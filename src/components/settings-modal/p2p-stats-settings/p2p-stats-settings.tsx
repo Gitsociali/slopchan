@@ -6,10 +6,30 @@ import styles from './p2p-stats-settings.module.css';
 
 type AccountShape = Record<string, any>;
 
-type StatRow = {
+type TextStatRow = {
   name: string;
+  type?: 'text';
   value: string;
 };
+
+type ConnectedPeerEntry = {
+  address: string;
+  direction?: string;
+  id: string;
+  peerId: string;
+  status?: string;
+  transport: string;
+};
+
+type ConnectedPeersStatRow = {
+  connectionCount: number;
+  entries: ConnectedPeerEntry[];
+  name: string;
+  peerCount: number;
+  type: 'connectedPeers';
+};
+
+type StatRow = ConnectedPeersStatRow | TextStatRow;
 
 type StatsState = {
   error?: string;
@@ -63,10 +83,18 @@ type TransferStats = {
   uploadedBytes?: number;
 };
 
+type ObservedTransferStats = {
+  connections: WeakSet<object>;
+  downloadedBytes: number;
+  streams: WeakSet<object>;
+  uploadedBytes: number;
+};
+
 const KUBO_API_URL = 'http://localhost:50019/api/v0';
 const STATS_REFRESH_MS = 5000;
 const MAX_TRANSFER_COUNTER_DEPTH = 10;
 const MAX_TRANSFER_COUNTER_OBJECTS = 400;
+const observedBrowserTransferStats = new WeakMap<object, ObservedTransferStats>();
 
 const statsReducer = (state: StatsState, action: StatsAction): StatsState => {
   if (action.type === 'loading') return { ...state, error: undefined, loading: true };
@@ -94,16 +122,19 @@ const formatBytes = (value: unknown) => {
 
 const formatRate = (value: unknown) => `${formatBytes(value)}/s`;
 
-const stringifyList = (items?: unknown[], maxItems = 5) => {
-  if (!items?.length) return 'none';
-  const values = items.map((item) => String(item));
-  const visibleValues = values.slice(0, maxItems);
-  return values.length > maxItems ? `${visibleValues.join(', ')} +${values.length - maxItems} more` : visibleValues.join(', ');
-};
-
 const getFirstObjectValue = <T,>(value?: Record<string, T>) => (value ? Object.values(value)[0] : undefined);
 
 const isRecord = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object';
+
+const getStringValue = (value: unknown, fallback = 'unknown') => {
+  if (value === null || value === undefined) return fallback;
+  try {
+    const stringValue = String(value);
+    return stringValue || fallback;
+  } catch {
+    return fallback;
+  }
+};
 
 const getFiniteNumber = (value: unknown) => {
   if (value === null || value === undefined) return undefined;
@@ -140,6 +171,24 @@ const getSafeArray = async (getValue?: () => unknown[] | Promise<unknown[]> | un
   } catch {
     return [];
   }
+};
+
+const getByteLength = (value: unknown): number | undefined => {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === 'string') return new TextEncoder().encode(value).byteLength;
+  if (value instanceof ArrayBuffer) return value.byteLength;
+  if (ArrayBuffer.isView(value)) return value.byteLength;
+  if (isRecord(value)) {
+    const directByteLength = getFiniteNumber(value.byteLength);
+    if (directByteLength !== undefined) return directByteLength;
+    const dataByteLength = getByteLength(value.data);
+    if (dataByteLength !== undefined) return dataByteLength;
+  }
+  if (Array.isArray(value)) {
+    const total = value.reduce((sum, entry) => sum + (getByteLength(entry) ?? 0), 0);
+    return total > 0 ? total : undefined;
+  }
+  return undefined;
 };
 
 const getTransferStatsFromHeliaCounters = (helia: unknown): TransferStats => {
@@ -199,17 +248,18 @@ const classifyTransferMetricPath = (path: string[]) => {
 
 const getMetricSnapshot = async (source: unknown) => {
   if (!isRecord(source)) return source;
-  for (const method of ['getMetrics', 'getMetricValues', 'toJSON']) {
-    const candidate = source[method];
-    if (typeof candidate !== 'function') continue;
-    try {
-      const snapshot = await candidate.call(source);
-      if (snapshot !== undefined) return snapshot;
-    } catch {
-      return undefined;
-    }
-  }
-  return source;
+  const snapshots = await Promise.all(
+    ['getMetrics', 'getMetricValues', 'toJSON'].map(async (method) => {
+      const candidate = source[method];
+      if (typeof candidate !== 'function') return undefined;
+      try {
+        return await candidate.call(source);
+      } catch {
+        return undefined;
+      }
+    }),
+  );
+  return snapshots.find((snapshot) => snapshot !== undefined) ?? source;
 };
 
 const getTransferStatsFromMetricSnapshot = (snapshot: unknown): TransferStats => {
@@ -249,9 +299,92 @@ const mergeTransferStats = (primary: TransferStats, fallback: TransferStats): Tr
   uploadedBytes: primary.uploadedBytes ?? fallback.uploadedBytes,
 });
 
-const getBrowserTransferStats = async (client?: Libp2pClientShape): Promise<TransferStats> => {
+const getTransferStatsFromClientShape = (client?: Libp2pClientShape): TransferStats => {
+  const clientRecord = isRecord(client) ? (client as Record<string, unknown>) : undefined;
+  const statsSources = [clientRecord, clientRecord?.stats, clientRecord?.sessionStats].filter(Boolean);
+  return statsSources.reduce<TransferStats>((stats, source) => {
+    if (!isRecord(source)) return stats;
+    const downloadedBytes = source.totalIn ?? source.downloadedBytes ?? source.bytesReceived ?? source.receivedBytes;
+    const uploadedBytes = source.totalOut ?? source.uploadedBytes ?? source.bytesSent ?? source.sentBytes;
+    addTransferStats(stats, 'downloadedBytes', downloadedBytes);
+    addTransferStats(stats, 'uploadedBytes', uploadedBytes);
+    return stats;
+  }, {});
+};
+
+const getObservedTransferStats = (client?: Libp2pClientShape): ObservedTransferStats | undefined => {
+  if (!isRecord(client)) return undefined;
+  let stats = observedBrowserTransferStats.get(client);
+  if (!stats) {
+    stats = {
+      connections: new WeakSet<object>(),
+      downloadedBytes: 0,
+      streams: new WeakSet<object>(),
+      uploadedBytes: 0,
+    };
+    observedBrowserTransferStats.set(client, stats);
+  }
+  return stats;
+};
+
+const instrumentStreamTransferStats = (stream: unknown, stats: ObservedTransferStats) => {
+  if (!isRecord(stream) || stats.streams.has(stream)) return;
+  stats.streams.add(stream);
+
+  const send = stream.send;
+  if (typeof send === 'function') {
+    try {
+      stream.send = function sendWithTransferStats(this: unknown, data: unknown, ...args: unknown[]) {
+        addTransferStats(stats, 'uploadedBytes', getByteLength(data));
+        return send.call(this, data, ...args);
+      };
+    } catch {
+      // Some stream implementations may expose read-only methods.
+    }
+  }
+
+  const addEventListener = stream.addEventListener;
+  if (typeof addEventListener === 'function') {
+    try {
+      addEventListener.call(stream, 'message', (event: unknown) => {
+        const data = isRecord(event) ? (event.data ?? event.detail) : undefined;
+        addTransferStats(stats, 'downloadedBytes', getByteLength(data));
+      });
+    } catch {
+      return;
+    }
+  }
+};
+
+const instrumentConnectionTransferStats = (connection: unknown, stats: ObservedTransferStats) => {
+  if (!isRecord(connection)) return;
+
+  if (!stats.connections.has(connection)) {
+    stats.connections.add(connection);
+    const newStream = connection.newStream;
+    if (typeof newStream === 'function') {
+      try {
+        connection.newStream = async function newStreamWithTransferStats(this: unknown, ...args: unknown[]) {
+          const stream = await newStream.apply(this, args);
+          instrumentStreamTransferStats(stream, stats);
+          return stream;
+        };
+      } catch {
+        // Some connection implementations may expose read-only methods.
+      }
+    }
+  }
+
+  for (const stream of toArray(connection.streams)) instrumentStreamTransferStats(stream, stats);
+};
+
+const getBrowserTransferStats = async (client?: Libp2pClientShape, connections: unknown[] = []): Promise<TransferStats> => {
   try {
     const helia = client?._helia;
+    const observedStats = getObservedTransferStats(client);
+    if (observedStats) connections.forEach((connection) => instrumentConnectionTransferStats(connection, observedStats));
+
+    const clientStats = getTransferStatsFromClientShape(client);
     const counterStats = getTransferStatsFromHeliaCounters(helia);
     const metricSources = [helia?.metrics, helia?.libp2p?.metrics].filter(Boolean);
     const metricSnapshots = await Promise.all(metricSources.map((source) => getMetricSnapshot(source)));
@@ -259,7 +392,7 @@ const getBrowserTransferStats = async (client?: Libp2pClientShape): Promise<Tran
       .map((snapshot) => getTransferStatsFromMetricSnapshot(snapshot))
       .reduce<TransferStats>((stats, nextStats) => mergeTransferStats(stats, nextStats), {});
 
-    return mergeTransferStats(counterStats, metricStats);
+    return mergeTransferStats(mergeTransferStats(mergeTransferStats(clientStats, counterStats), metricStats), observedStats ?? {});
   } catch {
     return {};
   }
@@ -290,33 +423,98 @@ const hasProviderPublishingRouter = (client?: Libp2pClientShape) =>
   (client?._helia?.routing?.routers ?? []).some((router) => isRecord(router) && !isKnownNoopProvide(router.provide));
 
 const getBrowserMode = (client?: Libp2pClientShape) => {
-  if (!client) return 'unknown';
-  return hasSupportedAdd(client) && hasProviderPublishingRouter(client) ? 'seeding' : 'leeching';
+  if (!client) return 'Unknown';
+  return hasSupportedAdd(client) && hasProviderPublishingRouter(client) ? 'Seeding' : 'Leeching';
+};
+
+const getTransportLabel = (address: string) => {
+  const normalizedAddress = address.toLowerCase();
+  let transport = 'Unknown transport';
+  if (normalizedAddress.includes('/webtransport')) transport = 'WebTransport';
+  else if (normalizedAddress.includes('/webrtc-direct')) transport = 'WebRTC direct';
+  else if (normalizedAddress.includes('/webrtc')) transport = 'WebRTC';
+  else if (normalizedAddress.includes('/wss')) transport = 'Secure WebSocket';
+  else if (normalizedAddress.includes('/ws')) transport = 'WebSocket';
+  else if (normalizedAddress.includes('/quic')) transport = 'QUIC';
+  else if (normalizedAddress.includes('/tcp')) transport = 'TCP';
+  else if (normalizedAddress.includes('/udp')) transport = 'UDP';
+
+  return normalizedAddress.includes('/p2p-circuit') ? `${transport} through relay` : transport;
+};
+
+const getConnectionPeerId = (connection: unknown) => (isRecord(connection) ? getStringValue(connection.remotePeer) : 'unknown');
+
+const getConnectionAddress = (connection: unknown) => (isRecord(connection) ? getStringValue(connection.remoteAddr, 'address unavailable') : 'address unavailable');
+
+const getBrowserConnectedPeersRow = (peers: unknown[], connections: unknown[]): ConnectedPeersStatRow => {
+  const entries = connections.map<ConnectedPeerEntry>((connection) => {
+    const address = getConnectionAddress(connection);
+    const peerId = getConnectionPeerId(connection);
+    const fallbackId = `${peerId}-${address}`;
+    return {
+      address,
+      direction: isRecord(connection) ? getStringValue(connection.direction, '') : undefined,
+      id: isRecord(connection) ? getStringValue(connection.id, fallbackId) : fallbackId,
+      peerId,
+      status: isRecord(connection) ? getStringValue(connection.status, '') : undefined,
+      transport: getTransportLabel(address),
+    };
+  });
+  const peerIds = [...peers, ...entries].reduce<Set<string>>((ids, peerOrEntry) => {
+    const peerId = isRecord(peerOrEntry) && 'peerId' in peerOrEntry ? getStringValue(peerOrEntry.peerId) : getStringValue(peerOrEntry);
+    if (peerId && peerId !== 'unknown') ids.add(peerId);
+    return ids;
+  }, new Set());
+
+  return {
+    connectionCount: connections.length,
+    entries,
+    name: 'Connected peers',
+    peerCount: peerIds.size || entries.length,
+    type: 'connectedPeers',
+  };
+};
+
+const getElectronConnectedPeersRow = (peers: unknown): ConnectedPeersStatRow => {
+  const peerEntries = isRecord(peers) && Array.isArray(peers.Peers) ? peers.Peers : [];
+  const entries = peerEntries.map<ConnectedPeerEntry>((peer) => {
+    const address = isRecord(peer) ? getStringValue(peer.Addr, 'address unavailable') : 'address unavailable';
+    const peerId = isRecord(peer) ? getStringValue(peer.Peer) : 'unknown';
+    const direction = isRecord(peer) ? getStringValue(peer.Direction, '') : undefined;
+    return {
+      address,
+      direction,
+      id: `${peerId}-${address}-${direction ?? ''}`,
+      peerId,
+      transport: getTransportLabel(address),
+    };
+  });
+  const peerIds = entries.reduce<Set<string>>((ids, entry) => {
+    if (entry.peerId && entry.peerId !== 'unknown') ids.add(entry.peerId);
+    return ids;
+  }, new Set());
+
+  return {
+    connectionCount: entries.length,
+    entries,
+    name: 'Connected peers',
+    peerCount: peerIds.size || entries.length,
+    type: 'connectedPeers',
+  };
 };
 
 const getBrowserLibp2pStats = async (account?: AccountShape): Promise<StatRow[]> => {
   const client = getFirstObjectValue(account?.pkc?.clients?.libp2pJsClients) as Libp2pClientShape | undefined;
   const libp2p = client?._helia?.libp2p;
-  const pubsub = libp2p?.services?.pubsub;
-  const [peers, connections, multiaddrs, pubsubPeers, transferStats] = await Promise.all([
-    getSafeArray(() => libp2p?.getPeers?.()),
-    getSafeArray(() => libp2p?.getConnections?.()),
-    getSafeArray(() => libp2p?.getMultiaddrs?.()),
-    getSafeArray(() => pubsub?.getPeers?.()),
-    getBrowserTransferStats(client),
-  ]);
+  const [peers, connections] = await Promise.all([getSafeArray(() => libp2p?.getPeers?.()), getSafeArray(() => libp2p?.getConnections?.())]);
+  const transferStats = await getBrowserTransferStats(client, connections);
 
   return [
-    { name: 'mode', value: getBrowserMode(client) },
-    { name: 'peer id', value: libp2p?.peerId?.toString() ?? 'unknown' },
-    { name: 'client key', value: client?.key ?? 'unknown' },
-    { name: 'connected peers', value: formatCount(peers.length, 'peer') },
-    { name: 'connections', value: formatCount(connections.length, 'connection') },
-    { name: 'downloaded data', value: transferStats.downloadedBytes === undefined ? 'unknown' : formatBytes(transferStats.downloadedBytes) },
-    { name: 'uploaded data', value: transferStats.uploadedBytes === undefined ? 'unknown' : formatBytes(transferStats.uploadedBytes) },
-    { name: 'listen addresses', value: stringifyList(multiaddrs) },
-    { name: 'pubsub peers', value: formatCount(pubsubPeers.length, 'peer') },
-    { name: 'routers', value: stringifyList(account?.pkcOptions?.httpRoutersOptions) },
+    { name: 'Mode', value: getBrowserMode(client) },
+    { name: 'Peer ID', value: libp2p?.peerId?.toString() ?? 'unknown' },
+    getBrowserConnectedPeersRow(peers, connections),
+    { name: 'Data received', value: transferStats.downloadedBytes === undefined ? 'unknown' : formatBytes(transferStats.downloadedBytes) },
+    { name: 'Data sent', value: transferStats.uploadedBytes === undefined ? 'unknown' : formatBytes(transferStats.uploadedBytes) },
   ];
 };
 
@@ -345,17 +543,17 @@ const getElectronKuboStats = async (rpcState?: string, signal?: AbortSignal): Pr
   ]);
 
   return [
-    { name: 'mode', value: 'desktop Kubo' },
+    { name: 'Mode', value: 'Desktop Kubo' },
     { name: 'PKC RPC', value: rpcState ?? 'unknown' },
-    { name: 'peer id', value: identity.ID ?? 'unknown' },
-    { name: 'agent', value: identity.AgentVersion ?? version.Version ?? 'unknown' },
-    { name: 'connected peers', value: formatCount(Array.isArray(peers.Peers) ? peers.Peers.length : 0, 'peer') },
-    { name: 'bandwidth in', value: `${formatBytes(bandwidth.TotalIn)} total, ${formatRate(bandwidth.RateIn)}` },
-    { name: 'bandwidth out', value: `${formatBytes(bandwidth.TotalOut)} total, ${formatRate(bandwidth.RateOut)}` },
-    { name: 'repo size', value: formatBytes(repo.RepoSize) },
-    { name: 'repo objects', value: String(repo.NumObjects ?? 'unknown') },
-    { name: 'bitswap peers', value: formatCount(Array.isArray(bitswap.Peers) ? bitswap.Peers.length : 0, 'peer') },
-    { name: 'bitswap wantlist', value: formatCount(Array.isArray(bitswap.Wantlist) ? bitswap.Wantlist.length : 0, 'item') },
+    { name: 'Peer ID', value: identity.ID ?? 'unknown' },
+    { name: 'Agent', value: identity.AgentVersion ?? version.Version ?? 'unknown' },
+    getElectronConnectedPeersRow(peers),
+    { name: 'Bandwidth in', value: `${formatBytes(bandwidth.TotalIn)} total, ${formatRate(bandwidth.RateIn)}` },
+    { name: 'Bandwidth out', value: `${formatBytes(bandwidth.TotalOut)} total, ${formatRate(bandwidth.RateOut)}` },
+    { name: 'Repo size', value: formatBytes(repo.RepoSize) },
+    { name: 'Repo objects', value: String(repo.NumObjects ?? 'unknown') },
+    { name: 'Bitswap peers', value: formatCount(Array.isArray(bitswap.Peers) ? bitswap.Peers.length : 0, 'peer') },
+    { name: 'Bitswap wantlist', value: formatCount(Array.isArray(bitswap.Wantlist) ? bitswap.Wantlist.length : 0, 'item') },
   ];
 };
 
@@ -363,6 +561,33 @@ const getP2PStats = async (mode: P2PRuntimeMode, account?: AccountShape, rpcStat
   if (mode === 'browser-libp2p') return getBrowserLibp2pStats(account);
   return getElectronKuboStats(rpcState, signal);
 };
+
+const ConnectedPeersValue = ({ row }: { row: ConnectedPeersStatRow }) => (
+  <details className={styles.connectedPeers} data-testid='connected-peers'>
+    <summary>
+      {formatCount(row.peerCount, 'peer')}, {formatCount(row.connectionCount, 'connection')}
+    </summary>
+    <div className={styles.connectedPeerList}>
+      {row.entries.length ? (
+        row.entries.map((entry) => (
+          <div className={styles.connectedPeer} key={entry.id}>
+            <div className={styles.connectedPeerMeta}>
+              <span className={styles.connectionTransport}>{entry.transport}</span>
+              {entry.direction && <span>{entry.direction}</span>}
+              {entry.status && <span>{entry.status}</span>}
+            </div>
+            <div className={styles.peerId}>{entry.peerId}</div>
+            <code className={styles.connectionAddress}>{entry.address}</code>
+          </div>
+        ))
+      ) : (
+        <div className={styles.connectedPeerEmpty}>No active peer addresses</div>
+      )}
+    </div>
+  </details>
+);
+
+const StatValue = ({ row }: { row: StatRow }) => (row.type === 'connectedPeers' ? <ConnectedPeersValue row={row} /> : row.value);
 
 const P2PStatsSettings = () => {
   const { t } = useTranslation();
@@ -413,13 +638,21 @@ const P2PStatsSettings = () => {
               {statsState.rows.map((row) => (
                 <tr key={row.name}>
                   <td className={styles.statName}>{row.name}</td>
-                  <td className={styles.statValue}>{row.value}</td>
+                  <td className={styles.statValue}>
+                    <StatValue row={row} />
+                  </td>
                 </tr>
               ))}
+              {updatedAtLabel && (
+                <tr>
+                  <td className={styles.statName}>{t('p2p_stats_updated')}</td>
+                  <td className={styles.statValue}>{updatedAtLabel}</td>
+                </tr>
+              )}
             </tbody>
           </table>
           <div className={styles.statsMeta}>
-            {statsState.loading ? t('p2p_stats_loading') : updatedAtLabel ? `${t('p2p_stats_updated')} ${updatedAtLabel}` : null}
+            {statsState.loading ? t('p2p_stats_loading') : null}
             {statsState.error && <div className={styles.error}>{statsState.error}</div>}
           </div>
         </>
