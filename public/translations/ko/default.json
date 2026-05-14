@@ -327,7 +327,7 @@
   "community_offline_info": "이 게시판이 오프라인일 수 있으며 게시가 실패할 수 있습니다.",
   "pass_questions": "질문",
   "pass_document_title": "Pass - 5chan",
-  "pass_heading": "5chan Pass로 5chan을 후원하세요",
+  "pass_heading": "5chan을 후원하세요—5chan Pass를 구매하세요",
   "pass_intro_body": "5chan Pass는 5chan을 위한 유료 서포터 pass로 기획되어 있습니다. <strong>아직 이용할 수 없습니다</strong>. 출시되면 5chan Pass 보유자는 디렉터리 투표에 참여하고, <vip>/vip/</vip>에 글을 올리며, 5chan Pass challenge를 지원하는 5chan board에서 CAPTCHA verification 또는 이와 유사한 posting challenge를 직접 입력하는 절차를 건너뛸 수 있게 됩니다. 디렉터리 거버넌스 방식은 아직 마무리 중이며, pass만의 최종 통제 대신 BSO-holder alignment를 포함하는 방향으로 예상됩니다. Checkout은 <strong>crypto only</strong>입니다. 현재는 실제 구매, 활성화, 갱신 flow가 없습니다.",
   "pass_question_what_is": "5chan Pass란 무엇인가요?",
   "pass_overview": "개요",
