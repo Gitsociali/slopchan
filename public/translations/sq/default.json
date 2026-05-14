@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "A do ta kontrollojë 5chan Pass qeverisjen e drejtorisë?",
-  "pass_answer_governance": "Jo. Drejtimi aktual është që mbajtësit e 5chan Pass mund të marrin pjesë në votimin e drejtorisë, por mekanizmat përfundimtarë të qeverisjes duhet të përfshijnë përputhje me BSO-holder dhe masa mbrojtëse në vend të kontrollit përfundimtar vetëm nga mbajtësit e pass-it."
+  "pass_answer_governance": "Jo. Drejtimi aktual është që mbajtësit e 5chan Pass mund të marrin pjesë në votimin e drejtorisë, por mekanizmat përfundimtarë të qeverisjes duhet të përfshijnë përputhje me BSO-holder dhe masa mbrojtëse në vend të kontrollit përfundimtar vetëm nga mbajtësit e pass-it.",
+  "media_failed_to_load": "Imazhi i jashtëm nuk u ngarkua",
+  "media_failed_to_load_hint": "Ai sajt mund të bllokojë rrjetin tuaj; VPN mund të ndihmojë",
+  "media_failed_to_load_source": "{{host}}, jo 5chan",
+  "media_failed_to_load_source_unknown": "Host i jashtëm, jo 5chan",
+  "media_failed_to_load_open_source": "Hap skedarin origjinal",
+  "media_failed_to_load_inline": "Imazhi i jashtëm nga {{host}} dështoi. Provoni VPN.",
+  "media_failed_to_load_inline_unknown": "Imazhi i jashtëm dështoi. Provoni VPN."
 }

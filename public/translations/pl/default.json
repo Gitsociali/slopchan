@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Czy 5chan Pass będzie kontrolować zarządzanie katalogiem?",
-  "pass_answer_governance": "Nie. Obecny kierunek jest taki, że posiadacze 5chan Pass mogą uczestniczyć w głosowaniu katalogowym, ale ostateczne mechanizmy zarządzania powinny obejmować zgodność z BSO-holder i zabezpieczenia zamiast wyłącznej ostatecznej kontroli posiadaczy passa."
+  "pass_answer_governance": "Nie. Obecny kierunek jest taki, że posiadacze 5chan Pass mogą uczestniczyć w głosowaniu katalogowym, ale ostateczne mechanizmy zarządzania powinny obejmować zgodność z BSO-holder i zabezpieczenia zamiast wyłącznej ostatecznej kontroli posiadaczy passa.",
+  "media_failed_to_load": "Obraz zewnętrzny nie załadował się",
+  "media_failed_to_load_hint": "Ta strona może blokować twoją sieć; VPN może pomóc",
+  "media_failed_to_load_source": "{{host}}, nie 5chan",
+  "media_failed_to_load_source_unknown": "Zewnętrzny host, nie 5chan",
+  "media_failed_to_load_open_source": "Otwórz oryginalny plik",
+  "media_failed_to_load_inline": "Obraz zewnętrzny z {{host}} nie załadował się. Spróbuj VPN.",
+  "media_failed_to_load_inline_unknown": "Obraz zewnętrzny nie załadował się. Spróbuj VPN."
 }

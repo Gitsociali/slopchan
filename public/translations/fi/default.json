@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Hallitseeko 5chan Pass hakemiston hallintoa?",
-  "pass_answer_governance": "Ei. Nykyinen suunta on, että 5chan Passin haltijat voivat osallistua hakemistoäänestykseen, mutta lopullisten hallintamekanismien tulisi sisältää BSO-holder-linjaus ja suojatoimet sen sijaan, että lopullinen valta olisi vain passin haltijoilla."
+  "pass_answer_governance": "Ei. Nykyinen suunta on, että 5chan Passin haltijat voivat osallistua hakemistoäänestykseen, mutta lopullisten hallintamekanismien tulisi sisältää BSO-holder-linjaus ja suojatoimet sen sijaan, että lopullinen valta olisi vain passin haltijoilla.",
+  "media_failed_to_load": "Ulkoinen kuva ei latautunut",
+  "media_failed_to_load_hint": "Sivusto voi estää verkkosi; VPN voi auttaa",
+  "media_failed_to_load_source": "{{host}}, ei 5chan",
+  "media_failed_to_load_source_unknown": "Ulkoinen host, ei 5chan",
+  "media_failed_to_load_open_source": "Avaa alkuperäinen tiedosto",
+  "media_failed_to_load_inline": "Ulkoinen kuva sivustolta {{host}} epäonnistui. Kokeile VPN:ää.",
+  "media_failed_to_load_inline_unknown": "Ulkoinen kuva epäonnistui. Kokeile VPN:ää."
 }

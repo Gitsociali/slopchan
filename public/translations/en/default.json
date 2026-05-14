@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Will 5chan Pass control directory governance?",
-  "pass_answer_governance": "No. The current direction is that 5chan Pass holders can participate in directory voting, but final governance mechanics should include BSO-holder alignment and safeguards instead of pass-only final control."
+  "pass_answer_governance": "No. The current direction is that 5chan Pass holders can participate in directory voting, but final governance mechanics should include BSO-holder alignment and safeguards instead of pass-only final control.",
+  "media_failed_to_load": "External image failed",
+  "media_failed_to_load_hint": "That site may block your network; VPN may help",
+  "media_failed_to_load_source": "{{host}} (not 5chan)",
+  "media_failed_to_load_source_unknown": "External host, not 5chan",
+  "media_failed_to_load_open_source": "Open original file",
+  "media_failed_to_load_inline": "External image from {{host}} failed. Try VPN.",
+  "media_failed_to_load_inline_unknown": "External image failed. Try VPN."
 }

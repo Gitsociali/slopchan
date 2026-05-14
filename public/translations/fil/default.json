@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Kokontrolin ba ng 5chan Pass ang pamamahala ng directory?",
-  "pass_answer_governance": "Hindi. Ang kasalukuyang direksyon ay ang mga may hawak ng 5chan Pass ay maaaring lumahok sa pagboto sa directory, pero ang pinal na mekanika ng governance ay dapat may kasamang BSO-holder alignment at mga safeguard sa halip na pass-only na pinal na kontrol."
+  "pass_answer_governance": "Hindi. Ang kasalukuyang direksyon ay ang mga may hawak ng 5chan Pass ay maaaring lumahok sa pagboto sa directory, pero ang pinal na mekanika ng governance ay dapat may kasamang BSO-holder alignment at mga safeguard sa halip na pass-only na pinal na kontrol.",
+  "media_failed_to_load": "Nabigong i-load ang panlabas na larawan",
+  "media_failed_to_load_hint": "Maaaring i-block ng site na iyon ang network mo; maaaring makatulong ang VPN",
+  "media_failed_to_load_source": "{{host}}, hindi 5chan",
+  "media_failed_to_load_source_unknown": "Panlabas na host, hindi 5chan",
+  "media_failed_to_load_open_source": "Buksan ang orihinal na file",
+  "media_failed_to_load_inline": "Nabigo ang panlabas na larawan mula sa {{host}}. Subukan ang VPN.",
+  "media_failed_to_load_inline_unknown": "Nabigo ang panlabas na larawan. Subukan ang VPN."
 }

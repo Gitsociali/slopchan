@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "آیا 5chan Pass کنترل حاکمیت دایرکتوری را در دست خواهد گرفت؟",
-  "pass_answer_governance": "خیر. جهت‌گیری فعلی این است که دارندگان 5chan Pass بتوانند در رأی‌گیری دایرکتوری شرکت کنند، اما سازوکارهای نهایی حاکمیتی باید به‌جای کنترل نهایی فقط توسط دارندگان pass، شامل هم‌راستایی با BSO-holder و سازوکارهای حفاظتی باشند."
+  "pass_answer_governance": "خیر. جهت‌گیری فعلی این است که دارندگان 5chan Pass بتوانند در رأی‌گیری دایرکتوری شرکت کنند، اما سازوکارهای نهایی حاکمیتی باید به‌جای کنترل نهایی فقط توسط دارندگان pass، شامل هم‌راستایی با BSO-holder و سازوکارهای حفاظتی باشند.",
+  "media_failed_to_load": "تصویر خارجی بارگیری نشد",
+  "media_failed_to_load_hint": "آن سایت ممکن است شبکهٔ شما را مسدود کند؛ VPN ممکن است کمک کند",
+  "media_failed_to_load_source": "{{host}}، نه 5chan",
+  "media_failed_to_load_source_unknown": "میزبان خارجی، نه 5chan",
+  "media_failed_to_load_open_source": "باز کردن فایل اصلی",
+  "media_failed_to_load_inline": "تصویر خارجی از {{host}} بارگیری نشد. VPN را امتحان کنید.",
+  "media_failed_to_load_inline_unknown": "تصویر خارجی بارگیری نشد. VPN را امتحان کنید."
 }

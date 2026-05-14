@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Чи контролюватиме 5chan Pass управління каталогом?",
-  "pass_answer_governance": "Ні. Поточний напрям полягає в тому, що власники 5chan Pass можуть брати участь у голосуванні за каталоги, але фінальні механіки врядування мають включати узгодження з BSO-holder і запобіжники замість остаточного контролю лише з боку власників pass."
+  "pass_answer_governance": "Ні. Поточний напрям полягає в тому, що власники 5chan Pass можуть брати участь у голосуванні за каталоги, але фінальні механіки врядування мають включати узгодження з BSO-holder і запобіжники замість остаточного контролю лише з боку власників pass.",
+  "media_failed_to_load": "Зовнішнє зображення не завантажилося",
+  "media_failed_to_load_hint": "Цей сайт може блокувати вашу мережу; VPN може допомогти",
+  "media_failed_to_load_source": "{{host}}, не 5chan",
+  "media_failed_to_load_source_unknown": "Зовнішній хост, не 5chan",
+  "media_failed_to_load_open_source": "Відкрити оригінальний файл",
+  "media_failed_to_load_inline": "Зовнішнє зображення з {{host}} не завантажилося. Спробуйте VPN.",
+  "media_failed_to_load_inline_unknown": "Зовнішнє зображення не завантажилося. Спробуйте VPN."
 }

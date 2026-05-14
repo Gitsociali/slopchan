@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "האם 5chan Pass ישלוט בניהול הספרייה?",
-  "pass_answer_governance": "לא. הכיוון הנוכחי הוא שמחזיקי 5chan Pass יוכלו להשתתף בהצבעה על הספרייה, אבל מנגנוני הממשל הסופיים צריכים לכלול יישור עם BSO-holder ואמצעי הגנה במקום שליטה סופית של מחזיקי pass בלבד."
+  "pass_answer_governance": "לא. הכיוון הנוכחי הוא שמחזיקי 5chan Pass יוכלו להשתתף בהצבעה על הספרייה, אבל מנגנוני הממשל הסופיים צריכים לכלול יישור עם BSO-holder ואמצעי הגנה במקום שליטה סופית של מחזיקי pass בלבד.",
+  "media_failed_to_load": "התמונה החיצונית לא נטענה",
+  "media_failed_to_load_hint": "האתר הזה עשוי לחסום את הרשת שלך; VPN עשוי לעזור",
+  "media_failed_to_load_source": "{{host}}, לא 5chan",
+  "media_failed_to_load_source_unknown": "מארח חיצוני, לא 5chan",
+  "media_failed_to_load_open_source": "פתח את הקובץ המקורי",
+  "media_failed_to_load_inline": "התמונה החיצונית מ-{{host}} נכשלה. נסה VPN.",
+  "media_failed_to_load_inline_unknown": "התמונה החיצונית נכשלה. נסה VPN."
 }

@@ -70,7 +70,7 @@ const getFailedCommentError = (comment: Comment | undefined): unknown => {
   return Array.isArray(comment.errors) ? comment.errors.find(Boolean) : undefined;
 };
 
-const CommentContent = ({ comment: post, prependContent }: { comment: Comment; prependContent?: ReactNode }) => {
+const CommentContent = ({ appendContent, comment: post, prependContent }: { appendContent?: ReactNode; comment: Comment; prependContent?: ReactNode }) => {
   const { t } = useTranslation();
   const params = useParams();
   const location = useLocation();
@@ -304,6 +304,13 @@ const CommentContent = ({ comment: post, prependContent }: { comment: Comment; p
           <br />
           <br />
           {loadingString}
+        </>
+      )}
+      {appendContent && (
+        <>
+          <br />
+          <br />
+          {appendContent}
         </>
       )}
     </blockquote>

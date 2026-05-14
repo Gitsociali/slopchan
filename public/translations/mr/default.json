@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass निर्देशिका प्रशासन नियंत्रित करेल का?",
-  "pass_answer_governance": "नाही. सध्याची दिशा अशी आहे की 5chan Pass धारक directory voting मध्ये सहभागी होऊ शकतात, पण अंतिम governance mechanics मध्ये pass-only final control ऐवजी BSO-holder alignment आणि safeguards समाविष्ट असले पाहिजेत."
+  "pass_answer_governance": "नाही. सध्याची दिशा अशी आहे की 5chan Pass धारक directory voting मध्ये सहभागी होऊ शकतात, पण अंतिम governance mechanics मध्ये pass-only final control ऐवजी BSO-holder alignment आणि safeguards समाविष्ट असले पाहिजेत.",
+  "media_failed_to_load": "बाह्य प्रतिमा लोड झाली नाही",
+  "media_failed_to_load_hint": "ती साइट तुमचे नेटवर्क ब्लॉक करू शकते; VPN मदत करू शकतो",
+  "media_failed_to_load_source": "{{host}}, 5chan नाही",
+  "media_failed_to_load_source_unknown": "बाह्य होस्ट, 5chan नाही",
+  "media_failed_to_load_open_source": "मूळ फाइल उघडा",
+  "media_failed_to_load_inline": "{{host}} वरील बाह्य प्रतिमा लोड झाली नाही. VPN वापरून पाहा.",
+  "media_failed_to_load_inline_unknown": "बाह्य प्रतिमा लोड झाली नाही. VPN वापरून पाहा."
 }

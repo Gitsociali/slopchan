@@ -25,9 +25,67 @@ interface MediaProps {
   spoiler?: boolean;
   showThumbnail?: boolean;
   setShowThumbnail: (showThumbnail: boolean) => void;
+  onMediaLoadFailureChange?: (url: string | undefined) => void;
 }
 
 type GifFrameState = ReturnType<typeof useFetchGifFirstFrame>;
+
+const getMediaLoadFailureLabels = (url: string | undefined, t: ReturnType<typeof useTranslation>['t']) => {
+  const hostname = url ? getHostname(url) : undefined;
+  const label = t('media_failed_to_load');
+  const source = hostname ? t('media_failed_to_load_source', { host: hostname }) : t('media_failed_to_load_source_unknown');
+  const hint = t('media_failed_to_load_hint');
+  const openSourceLabel = t('media_failed_to_load_open_source');
+  const inline = hostname ? t('media_failed_to_load_inline', { host: hostname }) : t('media_failed_to_load_inline_unknown');
+  const statusLabel = url ? `${label}. ${source}. ${hint}. ${openSourceLabel}.` : `${label}. ${source}. ${hint}.`;
+
+  return { inline, openSourceLabel, statusLabel };
+};
+
+const MediaLoadFailure = ({ compact = false, url }: { compact?: boolean; url?: string }) => {
+  const { t } = useTranslation();
+  const { inline, openSourceLabel, statusLabel } = getMediaLoadFailureLabels(url, t);
+
+  if (compact) {
+    return (
+      <>
+        <img className={styles.fileDeleted} src='assets/filedeleted-res.gif' alt='' aria-hidden='true' />
+        <span className={styles.mediaLoadFailureStatus} role='status' aria-label={statusLabel} title={statusLabel} />
+      </>
+    );
+  }
+
+  return (
+    <span className={styles.mediaLoadFailure} role='status' aria-label={statusLabel} title={statusLabel}>
+      <img className={styles.fileDeleted} src='assets/filedeleted-res.gif' alt='' aria-hidden='true' />
+      <span className={styles.mediaLoadFailureSource}>{inline}</span>
+      {url && (
+        <a className={styles.mediaLoadFailureLink} href={url} target='_blank' rel='noopener noreferrer'>
+          {openSourceLabel}
+        </a>
+      )}
+    </span>
+  );
+};
+
+export const MediaLoadFailureInfo = ({ url }: { url?: string }) => {
+  const { t } = useTranslation();
+  const { inline, openSourceLabel, statusLabel } = getMediaLoadFailureLabels(url, t);
+
+  return (
+    <div className={styles.mediaLoadFailureInfo} title={statusLabel}>
+      {inline}
+      {url && (
+        <>
+          {' '}
+          <a href={url} target='_blank' rel='noopener noreferrer'>
+            {openSourceLabel}
+          </a>
+        </>
+      )}
+    </div>
+  );
+};
 
 const Thumbnail = ({
   commentMediaInfo,
@@ -290,11 +348,22 @@ interface ImageProps {
   displayWidth: string;
   initialExpanded?: boolean;
   isOutOfFeed: boolean;
+  onMediaLoadFailureChange?: (url: string | undefined) => void;
   parentCid?: string;
   spoiler?: boolean;
 }
 
-const Image = ({ commentMediaInfo, disableToggle = false, displayHeight, displayWidth, initialExpanded = false, isOutOfFeed, parentCid, spoiler }: ImageProps) => {
+const Image = ({
+  commentMediaInfo,
+  disableToggle = false,
+  displayHeight,
+  displayWidth,
+  initialExpanded = false,
+  isOutOfFeed,
+  onMediaLoadFailureChange,
+  parentCid,
+  spoiler,
+}: ImageProps) => {
   const { t } = useTranslation();
   const { type, url } = commentMediaInfo || {};
   const isReply = parentCid;
@@ -310,8 +379,16 @@ const Image = ({ commentMediaInfo, disableToggle = false, displayHeight, display
   const expandedMediaAttribute = isImageExpanded ? 'true' : undefined;
   const imageMediaStyle = isImageExpanded ? undefined : thumbnailDimensions;
 
-  const [hasError, setHasError] = useState(false);
-  const handleError = () => setHasError(true);
+  const [failedUrl, setFailedUrl] = useState<string | undefined>();
+  const hasError = failedUrl === url;
+  const handleError = () => {
+    setFailedUrl(url);
+    onMediaLoadFailureChange?.(url);
+  };
+  const handleLoad = () => {
+    setFailedUrl((currentFailedUrl) => (currentFailedUrl === url ? undefined : currentFailedUrl));
+    onMediaLoadFailureChange?.(undefined);
+  };
 
   if (spoiler && !isImageExpanded) {
     const spoilerDimensions = { '--width': '150px', '--height': '150px' } as React.CSSProperties;
@@ -346,11 +423,12 @@ const Image = ({ commentMediaInfo, disableToggle = false, displayHeight, display
         style={imageMediaStyle}
       >
         {hasError ? (
-          <img src='assets/filedeleted-res.gif' alt='File deleted' />
+          <MediaLoadFailure compact url={url} />
         ) : (
           <img
             src={url}
             onError={handleError}
+            onLoad={handleLoad}
             alt=''
             role={disableToggle ? undefined : 'button'}
             tabIndex={disableToggle ? undefined : 0}
@@ -386,11 +464,12 @@ const Image = ({ commentMediaInfo, disableToggle = false, displayHeight, display
       style={imageMediaStyle}
     >
       {hasError ? (
-        <img src='assets/filedeleted-res.gif' alt='File deleted' />
+        <MediaLoadFailure url={url} />
       ) : (
         <img
           src={url}
           onError={handleError}
+          onLoad={handleLoad}
           alt=''
           role='button'
           tabIndex={0}
@@ -424,6 +503,7 @@ const CommentMedia = ({
   showThumbnail,
   setShowThumbnail,
   spoiler,
+  onMediaLoadFailureChange,
 }: MediaProps) => {
   const isReply = parentCid;
   const { t } = useTranslation();
@@ -476,6 +556,7 @@ const CommentMedia = ({
           displayWidth={displayWidth}
           initialExpanded={showThumbnail === false}
           isOutOfFeed={isOutOfFeed}
+          onMediaLoadFailureChange={onMediaLoadFailureChange}
           parentCid={parentCid}
           spoiler={spoiler}
         />
@@ -516,6 +597,7 @@ export default memo(CommentMedia, (prev, next) => {
     prev.isReply === next.isReply &&
     prev.linkHeight === next.linkHeight &&
     prev.linkWidth === next.linkWidth &&
+    prev.onMediaLoadFailureChange === next.onMediaLoadFailureChange &&
     prev.parentCid === next.parentCid &&
     prev.purged === next.purged &&
     prev.removed === next.removed &&

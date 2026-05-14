@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass কি ডিরেক্টরি শাসন নিয়ন্ত্রণ করবে?",
-  "pass_answer_governance": "না। বর্তমান দিকনির্দেশনা হলো 5chan Pass ধারকেরা ডিরেক্টরি ভোটিংয়ে অংশ নিতে পারবেন, তবে চূড়ান্ত শাসনব্যবস্থায় শুধু pass-ধারীদের চূড়ান্ত নিয়ন্ত্রণের বদলে BSO-holder alignment এবং সুরক্ষা ব্যবস্থা থাকতে হবে।"
+  "pass_answer_governance": "না। বর্তমান দিকনির্দেশনা হলো 5chan Pass ধারকেরা ডিরেক্টরি ভোটিংয়ে অংশ নিতে পারবেন, তবে চূড়ান্ত শাসনব্যবস্থায় শুধু pass-ধারীদের চূড়ান্ত নিয়ন্ত্রণের বদলে BSO-holder alignment এবং সুরক্ষা ব্যবস্থা থাকতে হবে।",
+  "media_failed_to_load": "বাইরের ছবি লোড হয়নি",
+  "media_failed_to_load_hint": "ওই সাইট আপনার নেটওয়ার্ক ব্লক করতে পারে; VPN সাহায্য করতে পারে",
+  "media_failed_to_load_source": "{{host}}, 5chan নয়",
+  "media_failed_to_load_source_unknown": "5chan-এর বাইরে হোস্ট করা",
+  "media_failed_to_load_open_source": "মূল ফাইল খুলুন",
+  "media_failed_to_load_inline": "{{host}} থেকে বাইরের ছবি লোড হয়নি। VPN চেষ্টা করুন।",
+  "media_failed_to_load_inline_unknown": "বাইরের ছবি লোড হয়নি। VPN চেষ্টা করুন।"
 }

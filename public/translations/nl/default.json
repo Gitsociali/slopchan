@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Zal 5chan Pass het beheer van de directory bepalen?",
-  "pass_answer_governance": "Nee. De huidige richting is dat houders van 5chan Pass kunnen deelnemen aan directory voting, maar de uiteindelijke governance-mechanismen moeten BSO-holder-afstemming en waarborgen bevatten in plaats van pass-only definitieve controle."
+  "pass_answer_governance": "Nee. De huidige richting is dat houders van 5chan Pass kunnen deelnemen aan directory voting, maar de uiteindelijke governance-mechanismen moeten BSO-holder-afstemming en waarborgen bevatten in plaats van pass-only definitieve controle.",
+  "media_failed_to_load": "Externe afbeelding mislukt",
+  "media_failed_to_load_hint": "Die site kan je netwerk blokkeren; VPN kan helpen",
+  "media_failed_to_load_source": "{{host}}, niet 5chan",
+  "media_failed_to_load_source_unknown": "Externe host, niet 5chan",
+  "media_failed_to_load_open_source": "Origineel bestand openen",
+  "media_failed_to_load_inline": "Externe afbeelding van {{host}} mislukt. Probeer VPN.",
+  "media_failed_to_load_inline_unknown": "Externe afbeelding mislukt. Probeer VPN."
 }

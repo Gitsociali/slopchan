@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass dizin yönetişimini kontrol edecek mi?",
-  "pass_answer_governance": "Hayır. Mevcut yön, 5chan Pass sahiplerinin dizin oylamasına katılabilmesi yönünde, ancak nihai yönetişim mekanizmaları, yalnızca pass sahiplerine nihai kontrol vermek yerine BSO-holder uyumu ve güvenceler içermelidir."
+  "pass_answer_governance": "Hayır. Mevcut yön, 5chan Pass sahiplerinin dizin oylamasına katılabilmesi yönünde, ancak nihai yönetişim mekanizmaları, yalnızca pass sahiplerine nihai kontrol vermek yerine BSO-holder uyumu ve güvenceler içermelidir.",
+  "media_failed_to_load": "Harici görsel yüklenemedi",
+  "media_failed_to_load_hint": "Bu site ağınızı engelleyebilir; VPN yardımcı olabilir",
+  "media_failed_to_load_source": "{{host}}, 5chan değil",
+  "media_failed_to_load_source_unknown": "Harici host, 5chan değil",
+  "media_failed_to_load_open_source": "Orijinal dosyayı aç",
+  "media_failed_to_load_inline": "{{host}} harici görseli yüklenemedi. VPN deneyin.",
+  "media_failed_to_load_inline_unknown": "Harici görsel yüklenemedi. VPN deneyin."
 }

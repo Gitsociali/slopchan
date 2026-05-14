@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Θα ελέγχει το 5chan Pass τη διακυβέρνηση του καταλόγου;",
-  "pass_answer_governance": "Όχι. Η τρέχουσα κατεύθυνση είναι ότι οι κάτοχοι του 5chan Pass μπορούν να συμμετέχουν στην ψηφοφορία καταλόγου, αλλά οι τελικοί μηχανισμοί διακυβέρνησης θα πρέπει να περιλαμβάνουν ευθυγράμμιση με τους BSO-holder και δικλίδες ασφαλείας αντί για τελικό έλεγχο μόνο από κατόχους pass."
+  "pass_answer_governance": "Όχι. Η τρέχουσα κατεύθυνση είναι ότι οι κάτοχοι του 5chan Pass μπορούν να συμμετέχουν στην ψηφοφορία καταλόγου, αλλά οι τελικοί μηχανισμοί διακυβέρνησης θα πρέπει να περιλαμβάνουν ευθυγράμμιση με τους BSO-holder και δικλίδες ασφαλείας αντί για τελικό έλεγχο μόνο από κατόχους pass.",
+  "media_failed_to_load": "Η εξωτερική εικόνα δεν φορτώθηκε",
+  "media_failed_to_load_hint": "Αυτός ο ιστότοπος μπορεί να μπλοκάρει το δίκτυό σας· ένα VPN μπορεί να βοηθήσει",
+  "media_failed_to_load_source": "{{host}}, όχι 5chan",
+  "media_failed_to_load_source_unknown": "Φιλοξενείται εκτός 5chan",
+  "media_failed_to_load_open_source": "Άνοιγμα αρχικού αρχείου",
+  "media_failed_to_load_inline": "Η εξωτερική εικόνα από {{host}} απέτυχε. Δοκιμάστε VPN.",
+  "media_failed_to_load_inline_unknown": "Η εξωτερική εικόνα απέτυχε. Δοκιμάστε VPN."
 }

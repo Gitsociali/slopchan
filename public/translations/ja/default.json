@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass はディレクトリのガバナンスを管理しますか？",
-  "pass_answer_governance": "いいえ。現在の方針では、5chan Pass保有者はディレクトリ投票に参加できますが、最終的なガバナンスの仕組みには、pass保有者だけの最終支配ではなく、BSO-holderとの整合性とセーフガードを含めるべきです。"
+  "pass_answer_governance": "いいえ。現在の方針では、5chan Pass保有者はディレクトリ投票に参加できますが、最終的なガバナンスの仕組みには、pass保有者だけの最終支配ではなく、BSO-holderとの整合性とセーフガードを含めるべきです。",
+  "media_failed_to_load": "外部画像を読み込めませんでした",
+  "media_failed_to_load_hint": "そのサイトがネットワークをブロックしている場合、VPN が役立つことがあります",
+  "media_failed_to_load_source": "{{host}}、5chan ではありません",
+  "media_failed_to_load_source_unknown": "外部ホスト、5chan ではありません",
+  "media_failed_to_load_open_source": "元のファイルを開く",
+  "media_failed_to_load_inline": "{{host}} の外部画像を読み込めませんでした。VPN を試してください。",
+  "media_failed_to_load_inline_unknown": "外部画像を読み込めませんでした。VPN を試してください。"
 }

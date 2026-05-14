@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass จะควบคุมการกำกับดูแลไดเรกทอรีหรือไม่?",
-  "pass_answer_governance": "ไม่ใช่ ทิศทางปัจจุบันคือผู้ถือ 5chan Pass สามารถมีส่วนร่วมในการโหวตไดเรกทอรีได้ แต่กลไกการกำกับดูแลขั้นสุดท้ายควรมีทั้งความสอดคล้องกับ BSO-holder และมาตรการป้องกัน แทนที่จะให้ผู้ถือ pass เป็นผู้ควบคุมขั้นสุดท้ายเพียงฝ่ายเดียว"
+  "pass_answer_governance": "ไม่ใช่ ทิศทางปัจจุบันคือผู้ถือ 5chan Pass สามารถมีส่วนร่วมในการโหวตไดเรกทอรีได้ แต่กลไกการกำกับดูแลขั้นสุดท้ายควรมีทั้งความสอดคล้องกับ BSO-holder และมาตรการป้องกัน แทนที่จะให้ผู้ถือ pass เป็นผู้ควบคุมขั้นสุดท้ายเพียงฝ่ายเดียว",
+  "media_failed_to_load": "โหลดรูปภาพภายนอกไม่สำเร็จ",
+  "media_failed_to_load_hint": "ไซต์นั้นอาจบล็อกเครือข่ายของคุณ; VPN อาจช่วยได้",
+  "media_failed_to_load_source": "{{host}} ไม่ใช่ 5chan",
+  "media_failed_to_load_source_unknown": "โฮสต์ภายนอก ไม่ใช่ 5chan",
+  "media_failed_to_load_open_source": "เปิดไฟล์ต้นฉบับ",
+  "media_failed_to_load_inline": "โหลดรูปภาพภายนอกจาก {{host}} ไม่สำเร็จ ลอง VPN",
+  "media_failed_to_load_inline_unknown": "โหลดรูปภาพภายนอกไม่สำเร็จ ลอง VPN"
 }

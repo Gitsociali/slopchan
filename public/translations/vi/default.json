@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass có kiểm soát việc quản trị thư mục không?",
-  "pass_answer_governance": "Không. Định hướng hiện tại là người nắm giữ 5chan Pass có thể tham gia bỏ phiếu thư mục, nhưng cơ chế quản trị cuối cùng nên bao gồm sự đồng bộ với BSO-holder và các biện pháp bảo vệ thay vì quyền kiểm soát cuối cùng chỉ dành cho người giữ pass."
+  "pass_answer_governance": "Không. Định hướng hiện tại là người nắm giữ 5chan Pass có thể tham gia bỏ phiếu thư mục, nhưng cơ chế quản trị cuối cùng nên bao gồm sự đồng bộ với BSO-holder và các biện pháp bảo vệ thay vì quyền kiểm soát cuối cùng chỉ dành cho người giữ pass.",
+  "media_failed_to_load": "Không tải được ảnh bên ngoài",
+  "media_failed_to_load_hint": "Trang đó có thể chặn mạng của bạn; VPN có thể giúp",
+  "media_failed_to_load_source": "{{host}}, không phải 5chan",
+  "media_failed_to_load_source_unknown": "Máy chủ ngoài, không phải 5chan",
+  "media_failed_to_load_open_source": "Mở tệp gốc",
+  "media_failed_to_load_inline": "Không tải được ảnh bên ngoài từ {{host}}. Thử VPN.",
+  "media_failed_to_load_inline_unknown": "Không tải được ảnh bên ngoài. Thử VPN."
 }

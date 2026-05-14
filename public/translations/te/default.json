@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "5chan Pass డైరెక్టరీ పాలనను నియంత్రిస్తుందా?",
-  "pass_answer_governance": "కాదు. ప్రస్తుత దిశ ఏమిటంటే 5chan Pass హోల్డర్లు directory voting లో పాల్గొనగలరు, కానీ తుది governance mechanics లో pass-only final control కి బదులుగా BSO-holder alignment మరియు safeguards ఉండాలి."
+  "pass_answer_governance": "కాదు. ప్రస్తుత దిశ ఏమిటంటే 5chan Pass హోల్డర్లు directory voting లో పాల్గొనగలరు, కానీ తుది governance mechanics లో pass-only final control కి బదులుగా BSO-holder alignment మరియు safeguards ఉండాలి.",
+  "media_failed_to_load": "బాహ్య చిత్రం లోడ్ కాలేదు",
+  "media_failed_to_load_hint": "ఆ సైట్ మీ నెట్‌వర్క్‌ను బ్లాక్ చేయవచ్చు; VPN సహాయపడవచ్చు",
+  "media_failed_to_load_source": "{{host}}, 5chan కాదు",
+  "media_failed_to_load_source_unknown": "బాహ్య హోస్ట్, 5chan కాదు",
+  "media_failed_to_load_open_source": "అసలు ఫైల్‌ను తెరవండి",
+  "media_failed_to_load_inline": "{{host}} నుండి బాహ్య చిత్రం లోడ్ కాలేదు. VPN ప్రయత్నించండి.",
+  "media_failed_to_load_inline_unknown": "బాహ్య చిత్రం లోడ్ కాలేదు. VPN ప్రయత్నించండి."
 }

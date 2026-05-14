@@ -25,7 +25,7 @@ import useSafeAccountComment from '../../hooks/use-safe-account-comment';
 import { useCurrentTime } from '../../hooks/use-current-time';
 import { useBoardPseudonymityMode } from '../../hooks/use-board-pseudonymity-mode';
 import CommentContent from '../comment-content';
-import CommentMedia from '../comment-media';
+import CommentMedia, { MediaLoadFailureInfo } from '../comment-media';
 import FailedPublishNotice from '../failed-publish-notice';
 import LoadingEllipsis from '../loading-ellipsis';
 import PostMenuMobile from './post-menu-mobile';
@@ -70,7 +70,14 @@ const RepliesFooter = ({ hasMore, loadingString }: { hasMore: boolean; loadingSt
 // Store scroll position for replies virtuoso across navigations
 const lastVirtuosoStates: { [key: string]: StateSnapshot } = {};
 
-const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, postsByAuthorInThread }: PostProps & { postsByAuthorInThread?: Map<string, number> }) => {
+const PostInfoAndMedia = ({
+  onMediaLoadFailureChange,
+  post,
+  postReplyCount = 0,
+  roles,
+  threadNumber,
+  postsByAuthorInThread,
+}: PostProps & { onMediaLoadFailureChange?: (url: string | undefined) => void; postsByAuthorInThread?: Map<string, number> }) => {
   const { t } = useTranslation();
   const directories = useDirectories();
   const resolvedPost = withResolvedCommentCommunityAddress(post);
@@ -441,12 +448,22 @@ const PostInfoAndMedia = ({ post, postReplyCount = 0, roles, threadNumber, posts
           </span>
         </span>
       </div>
-      {(hasThumbnail || link) && !(deleted || removed || purged) && <PostMediaContent key={cid} post={resolvedPost} link={link} />}
+      {(hasThumbnail || link) && !(deleted || removed || purged) && (
+        <PostMediaContent key={cid} onMediaLoadFailureChange={onMediaLoadFailureChange} post={resolvedPost} link={link} />
+      )}
     </>
   );
 };
 
-const PostMediaContent = ({ post, link }: { post: Comment | undefined; link: string }) => {
+const PostMediaContent = ({
+  onMediaLoadFailureChange,
+  post,
+  link,
+}: {
+  onMediaLoadFailureChange?: (url: string | undefined) => void;
+  post: Comment | undefined;
+  link: string;
+}) => {
   const [showThumbnail, setShowThumbnail] = useState(true);
   const { thumbnailUrl, linkWidth, linkHeight, spoiler, deleted, removed, parentCid } = post || {};
   const purged = post?.commentModeration?.purged;
@@ -465,6 +482,7 @@ const PostMediaContent = ({ post, link }: { post: Comment | undefined; link: str
         setShowThumbnail={setShowThumbnail}
         parentCid={parentCid}
         spoiler={spoiler}
+        onMediaLoadFailureChange={onMediaLoadFailureChange}
       />
     )
   );
@@ -536,6 +554,8 @@ const Reply = ({
       onRetry={canRetryFailedPost ? onRetryFailedPost : undefined}
     />
   ) : undefined;
+  const [failedMediaUrl, setFailedMediaUrl] = useState<string | undefined>();
+  const mediaLoadFailureInfo = failedMediaUrl && failedMediaUrl === post?.link ? <MediaLoadFailureInfo url={failedMediaUrl} /> : undefined;
 
   return (
     <div className={`${styles.replyMobile} ${disableDeferredLayout ? styles.pretextVirtualizedReply : ''}`}>
@@ -546,9 +566,16 @@ const Reply = ({
           data-author-address={author?.shortAddress}
           data-post-cid={postCid}
         >
-          <PostInfoAndMedia post={post} postReplyCount={postReplyCount} postsByAuthorInThread={postsByAuthorInThread} roles={roles} threadNumber={threadNumber} />
+          <PostInfoAndMedia
+            onMediaLoadFailureChange={setFailedMediaUrl}
+            post={post}
+            postReplyCount={postReplyCount}
+            postsByAuthorInThread={postsByAuthorInThread}
+            roles={roles}
+            threadNumber={threadNumber}
+          />
           {post && !hidden && (!(removed || deleted || purged) || ((removed || deleted) && reason) || purged) && (
-            <CommentContent comment={post} prependContent={failedPublishNotice} />
+            <CommentContent appendContent={mediaLoadFailureInfo} comment={post} prependContent={failedPublishNotice} />
           )}
           {post && <ReplyBacklinks post={post} quotedByMap={quotedByMap} directRepliesByParentCid={directRepliesByParentCid} />}
         </div>
@@ -681,6 +708,8 @@ const PostMobile = ({
       onRetry={canRetryFailedPost ? onRetryFailedPost : undefined}
     />
   ) : undefined;
+  const [failedMediaUrl, setFailedMediaUrl] = useState<string | undefined>();
+  const mediaLoadFailureInfo = failedMediaUrl && failedMediaUrl === resolvedPost?.link ? <MediaLoadFailureInfo url={failedMediaUrl} /> : undefined;
 
   // Author-deleted replies are hidden from thread replies; moderator removals still render their placeholder.
   const filteredReplies = useMemo(() => filterRepliesForDisplay(freshRepliesForRender), [freshRepliesForRender]);
@@ -837,13 +866,14 @@ const PostMobile = ({
               >
                 {shouldShowSnow() && <img src='assets/xmashat.gif' className={styles.xmasHat} alt='' />}
                 <PostInfoAndMedia
+                  onMediaLoadFailureChange={setFailedMediaUrl}
                   post={resolvedPost}
                   postReplyCount={replyCount}
                   postsByAuthorInThread={postsByAuthorInThread}
                   roles={roles}
                   threadNumber={resolvedPost?.number}
                 />
-                {resolvedPost && <CommentContent comment={resolvedPost} prependContent={failedPublishNotice} />}
+                {resolvedPost && <CommentContent appendContent={mediaLoadFailureInfo} comment={resolvedPost} prependContent={failedPublishNotice} />}
                 {resolvedPost && <ReplyBacklinks post={resolvedPost} quotedByMap={quotedByMap} directRepliesByParentCid={directRepliesByParentCid} />}
               </div>
               {!isInPostView && !isInPendingPostView && (showReplies || isModQueue) && (

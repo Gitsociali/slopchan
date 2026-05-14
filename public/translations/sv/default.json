@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Kommer 5chan Pass att kontrollera katalogets styrning?",
-  "pass_answer_governance": "Nej. Den nuvarande inriktningen är att innehavare av 5chan Pass kan delta i katalogomröstning, men de slutliga styrningsmekanismerna bör inkludera BSO-holder-anpassning och skyddsåtgärder i stället för att passinnehavare ensamma har slutlig kontroll."
+  "pass_answer_governance": "Nej. Den nuvarande inriktningen är att innehavare av 5chan Pass kan delta i katalogomröstning, men de slutliga styrningsmekanismerna bör inkludera BSO-holder-anpassning och skyddsåtgärder i stället för att passinnehavare ensamma har slutlig kontroll.",
+  "media_failed_to_load": "Extern bild kunde inte läsas in",
+  "media_failed_to_load_hint": "Den webbplatsen kan blockera ditt nätverk; VPN kan hjälpa",
+  "media_failed_to_load_source": "{{host}}, inte 5chan",
+  "media_failed_to_load_source_unknown": "Extern host, inte 5chan",
+  "media_failed_to_load_open_source": "Öppna originalfil",
+  "media_failed_to_load_inline": "Extern bild från {{host}} kunde inte läsas in. Prova VPN.",
+  "media_failed_to_load_inline_unknown": "Extern bild kunde inte läsas in. Prova VPN."
 }

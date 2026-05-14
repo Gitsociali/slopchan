@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "هل سيتحكم 5chan Pass في إدارة الدليل؟",
-  "pass_answer_governance": "لا. التوجه الحالي هو أن حاملي 5chan Pass يمكنهم المشاركة في التصويت على الدليل، لكن آليات الحوكمة النهائية يجب أن تتضمن مواءمة BSO-holder وضمانات بدلاً من منح حاملي pass وحدهم السيطرة النهائية."
+  "pass_answer_governance": "لا. التوجه الحالي هو أن حاملي 5chan Pass يمكنهم المشاركة في التصويت على الدليل، لكن آليات الحوكمة النهائية يجب أن تتضمن مواءمة BSO-holder وضمانات بدلاً من منح حاملي pass وحدهم السيطرة النهائية.",
+  "media_failed_to_load": "فشل تحميل الصورة الخارجية",
+  "media_failed_to_load_hint": "قد يحجب ذلك الموقع شبكتك؛ قد يساعد VPN",
+  "media_failed_to_load_source": "{{host}} وليس 5chan",
+  "media_failed_to_load_source_unknown": "مستضافة خارج 5chan",
+  "media_failed_to_load_open_source": "افتح الملف الأصلي",
+  "media_failed_to_load_inline": "فشلت الصورة الخارجية من {{host}}. جرّب VPN.",
+  "media_failed_to_load_inline_unknown": "فشلت الصورة الخارجية. جرّب VPN."
 }

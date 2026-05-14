@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "A 5chan Pass fogja irányítani a címtár felügyeletét?",
-  "pass_answer_governance": "Nem. A jelenlegi irány az, hogy az 5chan Pass tulajdonosai részt vehetnek a könyvtárszavazásban, de a végleges irányítási mechanizmusoknak BSO-holder igazodást és védőkorlátokat kell tartalmazniuk a kizárólag pass-tulajdonosi végső kontroll helyett."
+  "pass_answer_governance": "Nem. A jelenlegi irány az, hogy az 5chan Pass tulajdonosai részt vehetnek a könyvtárszavazásban, de a végleges irányítási mechanizmusoknak BSO-holder igazodást és védőkorlátokat kell tartalmazniuk a kizárólag pass-tulajdonosi végső kontroll helyett.",
+  "media_failed_to_load": "A külső kép nem töltődött be",
+  "media_failed_to_load_hint": "Az a webhely blokkolhatja a hálózatodat; VPN segíthet",
+  "media_failed_to_load_source": "{{host}}, nem 5chan",
+  "media_failed_to_load_source_unknown": "Külső host, nem 5chan",
+  "media_failed_to_load_open_source": "Eredeti fájl megnyitása",
+  "media_failed_to_load_inline": "A külső kép innen nem töltődött be: {{host}}. Próbálj VPN-t.",
+  "media_failed_to_load_inline_unknown": "A külső kép nem töltődött be. Próbálj VPN-t."
 }

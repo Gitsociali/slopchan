@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Vil 5chan Pass styre katalogstyringen?",
-  "pass_answer_governance": "Nei. Den nåværende retningen er at innehavere av 5chan Pass kan delta i katalogavstemning, men de endelige styringsmekanismene bør inkludere BSO-holder-tilpasning og sikkerhetstiltak i stedet for at passinnehavere alene har endelig kontroll."
+  "pass_answer_governance": "Nei. Den nåværende retningen er at innehavere av 5chan Pass kan delta i katalogavstemning, men de endelige styringsmekanismene bør inkludere BSO-holder-tilpasning og sikkerhetstiltak i stedet for at passinnehavere alene har endelig kontroll.",
+  "media_failed_to_load": "Eksternt bilde kunne ikke lastes",
+  "media_failed_to_load_hint": "Det nettstedet kan blokkere nettverket ditt; VPN kan hjelpe",
+  "media_failed_to_load_source": "{{host}}, ikke 5chan",
+  "media_failed_to_load_source_unknown": "Ekstern host, ikke 5chan",
+  "media_failed_to_load_open_source": "Åpne originalfil",
+  "media_failed_to_load_inline": "Eksternt bilde fra {{host}} kunne ikke lastes. Prøv VPN.",
+  "media_failed_to_load_inline_unknown": "Eksternt bilde kunne ikke lastes. Prøv VPN."
 }

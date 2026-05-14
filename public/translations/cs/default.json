@@ -379,5 +379,12 @@
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
   "pass_question_governance": "Bude 5chan Pass řídit správu adresáře?",
-  "pass_answer_governance": "Ne. Současný směr je takový, že držitelé 5chan Pass se mohou účastnit hlasování o adresáři, ale konečné mechanismy správy by měly zahrnovat sladění s BSO-holder a ochranné prvky namísto toho, aby konečnou kontrolu měli pouze držitelé passu."
+  "pass_answer_governance": "Ne. Současný směr je takový, že držitelé 5chan Pass se mohou účastnit hlasování o adresáři, ale konečné mechanismy správy by měly zahrnovat sladění s BSO-holder a ochranné prvky namísto toho, aby konečnou kontrolu měli pouze držitelé passu.",
+  "media_failed_to_load": "Externí obrázek se nenačetl",
+  "media_failed_to_load_hint": "Ten web může blokovat vaši síť; VPN může pomoci",
+  "media_failed_to_load_source": "{{host}}, ne 5chan",
+  "media_failed_to_load_source_unknown": "Hostováno mimo 5chan",
+  "media_failed_to_load_open_source": "Otevřít původní soubor",
+  "media_failed_to_load_inline": "Externí obrázek z {{host}} selhal. Zkuste VPN.",
+  "media_failed_to_load_inline_unknown": "Externí obrázek selhal. Zkuste VPN."
 }
