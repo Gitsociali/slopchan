@@ -171,7 +171,7 @@ const PostMenuDesktop = ({ postMenu }: PostMenuDesktopProps) => {
   const { thumbnail, type, url } = commentMediaInfo || {};
   const [menuBtnRotated, setMenuBtnRotated] = useState(false);
 
-  const { hidden, unhide, hide } = useHide({ cid: cid || '' });
+  const { hidden, unhide, hide } = useHide({ cid: cid || '', comment: postMenu.comment });
 
   const location = useLocation();
   const params = useParams();

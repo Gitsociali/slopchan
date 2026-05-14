@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Catalog, { getCatalogRenderFeed, type CatalogProps } from '../catalog';
 import { clearStableLastVisitTimeFilterName, LAST_VISIT_STORAGE_KEY } from '../../../lib/utils/time-filter-utils';
+import useHiddenCatalogThreadsStore from '../../../stores/use-hidden-catalog-threads-store';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -16,6 +17,7 @@ type TestComment = {
   pinned?: boolean;
   communityAddress?: string;
   deleted?: boolean;
+  parentCid?: string;
   postCid?: string;
   removed?: boolean;
   state?: string;
@@ -33,17 +35,26 @@ type FilterItem = {
 };
 
 const testState = vi.hoisted(() => ({
-  account: { subscriptions: [] as string[] },
+  account: { blockedCids: {} as Record<string, boolean>, subscriptions: [] as string[] },
   accountComments: [] as TestComment[],
   accountCommentsCalls: [] as Array<{ commentIndices?: number[]; communityAddress?: string; newerThan?: number; sortType?: 'new' | 'old' } | undefined>,
   accountCommunityAddresses: [] as string[],
+  blockCidMock: vi.fn(),
+  commentsByCid: {} as Record<string, TestComment>,
   directoryByAddress: {
     'music-posting.eth': {
       address: 'music-posting.eth',
       features: { postsPerPage: 2 },
     },
   } as Record<string, { address: string; features?: Record<string, unknown> }>,
-  directories: [{ address: 'music-posting.eth', title: '/mu/ - Music' }] as Array<{ address: string; title?: string }>,
+  directories: [{ address: 'music-posting.eth', directoryCode: 'mu', title: '/mu/ - Music' }] as Array<{
+    address: string;
+    directoryCode?: string;
+    features?: Record<string, unknown>;
+    name?: string;
+    publicKey?: string;
+    title?: string;
+  }>,
   feed: [] as TestComment[],
   feedOptionsCalls: [] as Array<{ communitiesLength?: number; filterKey?: string; newerThan?: number; postsPerPage?: number; sortType?: string }>,
   filterItems: [] as FilterItem[],
@@ -66,6 +77,7 @@ const testState = vi.hoisted(() => ({
   setResetFunctionMock: vi.fn(),
   showOPComment: true,
   sortType: 'new' as 'active' | 'new',
+  unblockCidMock: vi.fn(),
   virtuosoInitialScrollTops: [] as Array<number | undefined>,
   windowWidth: 900,
   community: {
@@ -168,6 +180,23 @@ vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
     };
   },
   useCommunity: () => testState.community,
+  useComments: ({ commentCids = [] }: { commentCids?: string[] } = {}) => ({
+    comments: commentCids.map((cid) => testState.commentsByCid[cid]),
+    state: 'succeeded',
+  }),
+}));
+
+vi.mock('@bitsocial/bitsocial-react-hooks/dist/stores/accounts', () => ({
+  default: {
+    getState: () => ({
+      accounts: { account: testState.account },
+      accountsActions: {
+        blockCid: testState.blockCidMock,
+        unblockCid: testState.unblockCidMock,
+      },
+      activeAccountId: 'account',
+    }),
+  },
 }));
 
 vi.mock('react-virtuoso', () => ({
@@ -207,8 +236,21 @@ vi.mock('react-virtuoso', () => ({
 vi.mock('../../../hooks/use-directories', () => ({
   useDirectories: () => testState.directories,
   useDirectoryByAddress: (address: string | undefined) => (address ? testState.directoryByAddress[address] : undefined),
-  findDirectoryByAddress: (directories: Array<{ address: string; title?: string; directoryCode?: string }>, address: string | undefined) =>
-    directories.find((entry) => entry.address === address || entry.directoryCode === address || entry.title === address),
+  normalizeBoardAddress: (address: string) => address.replace(/\.(bso|eth)$/, ''),
+  findDirectoryByAddress: (
+    directories: Array<{ address: string; title?: string; directoryCode?: string; name?: string; publicKey?: string }>,
+    address: string | undefined,
+  ) => {
+    if (!address) {
+      return undefined;
+    }
+    const normalize = (value: string) => value.replace(/\.(bso|eth)$/, '');
+    return directories.find((entry) =>
+      [entry.address, entry.directoryCode, entry.name, entry.publicKey, entry.title].some(
+        (identifier) => identifier === address || (!!identifier && normalize(identifier) === normalize(address)),
+      ),
+    );
+  },
 }));
 
 vi.mock('../../../hooks/use-board-feed-page-size', () => ({
@@ -262,8 +304,20 @@ vi.mock('../../../stores/use-catalog-filters-store', () => ({
 }));
 
 vi.mock('../../../components/catalog-row', () => ({
-  default: ({ estimatedHeight, row }: { estimatedHeight?: number; row: TestComment[] }) =>
-    createElement('div', { 'data-pretext-height': estimatedHeight, 'data-testid': 'catalog-row' }, `row:${row.map((comment) => comment.cid).join(',')}`),
+  default: ({ estimatedHeight, row, showHiddenPosts }: { estimatedHeight?: number; row: TestComment[]; showHiddenPosts?: boolean }) =>
+    createElement(
+      'div',
+      { 'data-pretext-height': estimatedHeight, 'data-show-hidden': showHiddenPosts ? 'true' : 'false', 'data-testid': 'catalog-row' },
+      `row:${row.map((comment) => comment.cid).join(',')}`,
+      ...row.map((comment) =>
+        createElement('button', {
+          'aria-label': `hide-${comment.cid}`,
+          key: `hide-${comment.cid}`,
+          onClick: () => testState.blockCidMock(comment.cid),
+          type: 'button',
+        }),
+      ),
+    ),
 }));
 
 vi.mock('../../../components/footer', () => ({
@@ -311,6 +365,8 @@ const LocationProbe = () => {
   return null;
 };
 
+const getHiddenCatalogThreadsScopeKey = (communityAddresses: string[]) => communityAddresses.filter(Boolean).slice().sort().join('\u0000');
+
 const flushEffects = async (count = 5) => {
   for (let i = 0; i < count; i += 1) {
     await act(async () => {
@@ -344,11 +400,22 @@ describe('Catalog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     latestLocation = '';
-    testState.account = { subscriptions: [] };
+    testState.account = { blockedCids: {}, subscriptions: [] };
     testState.accountComments = [];
     testState.accountCommentsCalls = [];
     testState.accountCommunityAddresses = [];
-    testState.directories = [{ address: 'music-posting.eth', title: '/mu/ - Music' }];
+    testState.blockCidMock.mockReset();
+    testState.blockCidMock.mockImplementation(async (cid: string) => {
+      testState.account = {
+        ...testState.account,
+        blockedCids: {
+          ...testState.account.blockedCids,
+          [cid]: true,
+        },
+      };
+    });
+    testState.commentsByCid = {};
+    testState.directories = [{ address: 'music-posting.eth', directoryCode: 'mu', title: '/mu/ - Music' }];
     testState.directoryByAddress = {
       'music-posting.eth': {
         address: 'music-posting.eth',
@@ -371,6 +438,8 @@ describe('Catalog', () => {
     testState.searchText = '';
     testState.showOPComment = true;
     testState.sortType = 'new';
+    testState.unblockCidMock.mockReset();
+    testState.unblockCidMock.mockResolvedValue(undefined);
     testState.virtuosoInitialScrollTops = [];
     testState.windowWidth = 900;
     testState.community = {
@@ -387,6 +456,7 @@ describe('Catalog', () => {
     document.title = 'before';
     clearStableLastVisitTimeFilterName();
     localStorage.setItem(LAST_VISIT_STORAGE_KEY, String(Date.now()));
+    useHiddenCatalogThreadsStore.setState({ hiddenCommentsByCid: {}, scopeHiddenThreadsCounts: {}, shownScopeKey: null });
 
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -396,6 +466,7 @@ describe('Catalog', () => {
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
+    useHiddenCatalogThreadsStore.setState({ hiddenCommentsByCid: {}, scopeHiddenThreadsCounts: {}, shownScopeKey: null });
     clearStableLastVisitTimeFilterName();
     localStorage.clear();
   });
@@ -436,6 +507,191 @@ describe('Catalog', () => {
 
     expect(container.querySelector('[data-testid="virtuoso"]')).toBeNull();
     expect(Array.from(container.querySelectorAll('[data-testid="catalog-row"]')).map((element) => element.textContent)).toEqual(['row:board-post-1,board-post-2']);
+  });
+
+  it('removes hidden account-backed threads from the normal board catalog feed', async () => {
+    testState.account = { blockedCids: { 'hidden-board-post': true }, subscriptions: [] };
+    testState.feed = [
+      { cid: 'visible-board-post', title: 'visible', communityAddress: 'music-posting.eth' },
+      { cid: 'hidden-board-post', title: 'hidden', communityAddress: 'music-posting.eth', postCid: 'hidden-board-post' },
+    ];
+    testState.commentsByCid = {
+      'hidden-board-post': { cid: 'hidden-board-post', title: 'hidden', communityAddress: 'music-posting.eth', postCid: 'hidden-board-post' },
+    };
+
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    expect(Array.from(container.querySelectorAll('[data-testid="catalog-row"]')).map((element) => element.textContent)).toEqual(['row:visible-board-post']);
+    expect(container.textContent).not.toContain('hidden-board-post');
+  });
+
+  it('shows only hidden threads for the current board when hidden catalog mode is enabled', async () => {
+    testState.account = { blockedCids: { 'hidden-board-post': true }, subscriptions: [] };
+    testState.feed = [
+      { cid: 'visible-board-post', title: 'visible', communityAddress: 'music-posting.eth' },
+      { cid: 'hidden-board-post', title: 'hidden', communityAddress: 'music-posting.eth', postCid: 'hidden-board-post' },
+    ];
+    testState.commentsByCid = {
+      'hidden-board-post': { cid: 'hidden-board-post', title: 'hidden', communityAddress: 'music-posting.eth', postCid: 'hidden-board-post' },
+    };
+    useHiddenCatalogThreadsStore.getState().setShownScopeKey(getHiddenCatalogThreadsScopeKey(['music-posting.eth']));
+
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    const rows = Array.from(container.querySelectorAll<HTMLElement>('[data-testid="catalog-row"]'));
+    expect(rows.map((element) => element.textContent)).toEqual(['row:hidden-board-post']);
+    expect(rows[0]?.dataset.showHidden).toBe('true');
+  });
+
+  it('keeps a thread hidden on its board when it was hidden from a multiboard catalog', async () => {
+    const sportsPublicKey = 'sports-public-key';
+    testState.account = { blockedCids: { 'hidden-sp-post': true }, subscriptions: [] };
+    testState.directories = [
+      { address: 'music-posting.eth', directoryCode: 'mu', title: '/mu/ - Music' },
+      { address: 'sports-posting.bso', directoryCode: 'sp', publicKey: sportsPublicKey, title: '/sp/ - Sports' },
+    ];
+    testState.directoryByAddress = {
+      'sports-posting.bso': { address: 'sports-posting.bso', features: { postsPerPage: 2 } },
+    };
+    testState.resolvedCommunityAddress = 'sports-posting.bso';
+    testState.feed = [{ cid: 'hidden-sp-post', title: 'sports hidden', communityAddress: sportsPublicKey, postCid: 'hidden-sp-post' }];
+    testState.commentsByCid = {
+      'hidden-sp-post': { cid: 'hidden-sp-post', title: 'sports hidden', communityAddress: sportsPublicKey, postCid: 'hidden-sp-post' },
+    };
+
+    await renderCatalog({ initialEntry: '/sp/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    expect(container.querySelector('[data-testid="catalog-row"]')).toBeNull();
+
+    useHiddenCatalogThreadsStore.getState().setShownScopeKey(getHiddenCatalogThreadsScopeKey(['sports-posting.bso']));
+    await renderCatalog({ initialEntry: '/sp/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    const hiddenRow = container.querySelector<HTMLElement>('[data-testid="catalog-row"]');
+    expect(hiddenRow?.textContent).toBe('row:hidden-sp-post');
+    expect(hiddenRow?.dataset.showHidden).toBe('true');
+  });
+
+  it('hides a board thread from its own catalog after the thread is hidden in all catalog', async () => {
+    const musicThread = { cid: 'mu-thread-hidden-from-all', title: 'music thread', communityAddress: 'music-posting.eth', postCid: 'mu-thread-hidden-from-all' };
+    testState.filteredDirectoryAddresses = ['music-posting.eth', 'sports-posting.eth'];
+    testState.feed = [musicThread, { cid: 'sports-thread', title: 'sports thread', communityAddress: 'sports-posting.eth', postCid: 'sports-thread' }];
+    testState.commentsByCid = {
+      'mu-thread-hidden-from-all': musicThread,
+    };
+
+    await renderCatalog({
+      catalogProps: { viewType: 'all' },
+      initialEntry: '/all/catalog',
+      routePath: '/all/*',
+    });
+
+    expect(container.textContent).toContain('mu-thread-hidden-from-all');
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>('[aria-label="hide-mu-thread-hidden-from-all"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(testState.account.blockedCids).toEqual({ 'mu-thread-hidden-from-all': true });
+
+    testState.resolvedCommunityAddress = 'music-posting.eth';
+    testState.feed = [musicThread, { cid: 'mu-visible-thread', title: 'other music thread', communityAddress: 'music-posting.eth', postCid: 'mu-visible-thread' }];
+
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    expect(Array.from(container.querySelectorAll('[data-testid="catalog-row"]')).map((element) => element.textContent)).toEqual(['row:mu-visible-thread']);
+    expect(container.textContent).not.toContain('mu-thread-hidden-from-all');
+  });
+
+  it('counts and shows hidden board threads from the raw feed when blocked cid lookup has not resolved them', async () => {
+    const hiddenThread = {
+      cid: 'raw-feed-hidden-thread',
+      communityAddress: 'music-posting.eth',
+      postCid: 'raw-feed-hidden-thread',
+      title: 'raw feed hidden',
+    };
+    testState.account = { blockedCids: { 'raw-feed-hidden-thread': true }, subscriptions: [] };
+    testState.commentsByCid = {};
+    testState.feed = [hiddenThread, { cid: 'raw-feed-visible-thread', communityAddress: 'music-posting.eth', postCid: 'raw-feed-visible-thread', title: 'visible' }];
+
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    expect(useHiddenCatalogThreadsStore.getState().scopeHiddenThreadsCounts[getHiddenCatalogThreadsScopeKey(['music-posting.eth'])]).toBe(1);
+    expect(Array.from(container.querySelectorAll('[data-testid="catalog-row"]')).map((element) => element.textContent)).toEqual(['row:raw-feed-visible-thread']);
+
+    useHiddenCatalogThreadsStore.getState().setShownScopeKey(getHiddenCatalogThreadsScopeKey(['music-posting.eth']));
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    const hiddenRow = container.querySelector<HTMLElement>('[data-testid="catalog-row"]');
+    expect(hiddenRow?.textContent).toBe('row:raw-feed-hidden-thread');
+    expect(hiddenRow?.dataset.showHidden).toBe('true');
+  });
+
+  it('uses the multiboard board scope for hidden catalog mode', async () => {
+    const sportsPublicKey = 'sports-public-key';
+    testState.account = {
+      blockedCids: {
+        'hidden-mu-post': true,
+        'hidden-sp-post': true,
+        'hidden-other-post': true,
+      },
+      subscriptions: [],
+    };
+    testState.directories = [
+      { address: 'music-posting.eth', directoryCode: 'mu', title: '/mu/ - Music' },
+      { address: 'sports-posting.bso', directoryCode: 'sp', publicKey: sportsPublicKey, title: '/sp/ - Sports' },
+    ];
+    testState.filteredDirectoryAddresses = ['music-posting.eth', 'sports-posting.bso'];
+    testState.feed = [
+      { cid: 'visible-mu-post', title: 'visible', communityAddress: 'music-posting.eth' },
+      { cid: 'hidden-mu-post', title: 'music hidden', communityAddress: 'music-posting.eth', postCid: 'hidden-mu-post' },
+      { cid: 'hidden-sp-post', title: 'sports hidden', communityAddress: sportsPublicKey, postCid: 'hidden-sp-post' },
+    ];
+    testState.commentsByCid = {
+      'hidden-mu-post': { cid: 'hidden-mu-post', title: 'music hidden', communityAddress: 'music-posting.eth', postCid: 'hidden-mu-post', timestamp: 100 },
+      'hidden-other-post': { cid: 'hidden-other-post', title: 'other hidden', communityAddress: 'other-board.eth', postCid: 'hidden-other-post', timestamp: 101 },
+      'hidden-sp-post': { cid: 'hidden-sp-post', title: 'sports hidden', communityAddress: sportsPublicKey, postCid: 'hidden-sp-post', timestamp: 102 },
+    };
+    useHiddenCatalogThreadsStore.getState().setShownScopeKey(getHiddenCatalogThreadsScopeKey(['music-posting.eth', 'sports-posting.bso']));
+
+    await renderCatalog({
+      catalogProps: { viewType: 'all' },
+      initialEntry: '/all/catalog',
+      routePath: '/all/*',
+    });
+
+    expect(Array.from(container.querySelectorAll('[data-testid="catalog-row"]')).map((element) => element.textContent)).toEqual(['row:hidden-sp-post,hidden-mu-post']);
+  });
+
+  it('leaves hidden mode automatically when the last hidden thread is unhidden', async () => {
+    testState.account = { blockedCids: { 'hidden-board-post': true }, subscriptions: [] };
+    testState.feed = [{ cid: 'hidden-board-post', title: 'hidden', communityAddress: 'music-posting.eth', postCid: 'hidden-board-post' }];
+    testState.commentsByCid = {
+      'hidden-board-post': { cid: 'hidden-board-post', title: 'hidden', communityAddress: 'music-posting.eth', postCid: 'hidden-board-post' },
+    };
+    useHiddenCatalogThreadsStore.getState().setShownScopeKey(getHiddenCatalogThreadsScopeKey(['music-posting.eth']));
+
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+    expect(container.querySelector('[data-testid="catalog-row"]')?.textContent).toBe('row:hidden-board-post');
+
+    testState.account = { blockedCids: {}, subscriptions: [] };
+    testState.commentsByCid = {};
+    testState.feed = [];
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    expect(useHiddenCatalogThreadsStore.getState().shownScopeKey).toBeNull();
+  });
+
+  it('does not prune hidden board threads just because the visible board feed filtered them out', async () => {
+    testState.account = { blockedCids: { 'removed-hidden-post': true }, subscriptions: [] };
+    testState.commentsByCid = {
+      'removed-hidden-post': { cid: 'removed-hidden-post', title: 'removed', communityAddress: 'music-posting.eth', postCid: 'removed-hidden-post' },
+    };
+    testState.feed = [{ cid: 'visible-board-post', title: 'visible', communityAddress: 'music-posting.eth' }];
+    testState.hasMore = false;
+
+    await renderCatalog({ initialEntry: '/mu/catalog', routePath: '/:boardIdentifier/catalog' });
+
+    expect(testState.unblockCidMock).not.toHaveBeenCalled();
   });
 
   it('prefers the immediate feed until deferred catalog rows exist', () => {
@@ -634,7 +890,7 @@ describe('Catalog', () => {
   });
 
   it('shows the empty subscriptions state when there are no subscribed boards to browse', async () => {
-    testState.account = { subscriptions: [] };
+    testState.account = { blockedCids: {}, subscriptions: [] };
 
     await renderCatalog({
       catalogProps: { viewType: 'subs' },

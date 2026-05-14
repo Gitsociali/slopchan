@@ -34,7 +34,8 @@
   cursor: not-allowed !important;
 }
 
-.mobileBoardButtons a:not([class~='button']), .desktopBoardButtons a:not([class~='button']) {
+.mobileBoardButtons a:not([class~='button']),
+.desktopBoardButtons a:not([class~='button']) {
   all: unset;
 }
 
@@ -60,7 +61,7 @@
 }
 
 .desktopBoardButtons::after {
-  content: "";
+  content: '';
   display: table;
   clear: both;
 }
@@ -105,6 +106,30 @@
 
 .filteredThreadsCount {
   text-transform: none !important;
+}
+
+.hiddenCatalogThreadsToggle {
+  text-transform: none;
+}
+
+.desktopHiddenCatalogThreadsToggle {
+  display: inline;
+}
+
+.hiddenCatalogThreadsToggleAction {
+  all: unset;
+  color: var(--button-desktop-text-color);
+  cursor: pointer;
+}
+
+.hiddenCatalogThreadsToggleAction:hover {
+  color: var(--button-desktop-text-color-hover);
+}
+
+.mobileHiddenCatalogThreadsToggle {
+  display: block;
+  margin-top: 3px;
+  margin-bottom: 15px;
 }
 
 .mobileBoardButtons {
