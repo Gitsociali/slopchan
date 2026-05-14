@@ -175,9 +175,13 @@ const ModQueueActions = ({ status, error, errorMessage, isPublishing, handleAppr
         ]
       </span>
     ) : (
-      <button className={`button ${styles.cardRemoveButton}`} onClick={handleRemove} disabled={isPublishing}>
-        {t('remove')}
-      </button>
+      <span className={styles.cardRemoveButtonWrapper}>
+        [
+        <button className={styles.cardRemoveButton} onClick={handleRemove} disabled={isPublishing}>
+          {t('remove')}
+        </button>
+        ]
+      </span>
     )
   ) : null;
 

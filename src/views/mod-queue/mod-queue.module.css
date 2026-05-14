@@ -351,9 +351,29 @@
   color: #fff;
 }
 
+.cardRemoveButtonWrapper {
+  display: inline-flex;
+  align-items: baseline;
+}
+
 .cardRemoveButton {
-  background-color: #777;
-  color: #fff;
+  all: unset;
+  cursor: pointer;
+  text-transform: capitalize;
+  color: var(--button-desktop-text-color);
+  text-decoration: var(--button-text-decoration);
+  display: inline;
+  font-family: inherit;
+}
+
+.cardRemoveButton:hover {
+  color: var(--button-desktop-text-color-hover);
+  cursor: pointer;
+}
+
+.cardRemoveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Desktop: buttons styled as text links (same as board buttons) */
