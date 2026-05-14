@@ -593,8 +593,8 @@ const PostMobile = ({
   const modQueueThreadRouteState = getQueuedCommentRouteState(resolvedPost);
   const modQueueErrorMessage = formatErrorForDisplay(modQueueError);
   const modQueueRemoveButton = onRemoveFromModQueue ? (
-    <button className={`button ${styles.rejectButton}`} onClick={onRemoveFromModQueue} disabled={isPublishing}>
-      {t('remove')}
+    <button className='button' onClick={onRemoveFromModQueue} disabled={isPublishing}>
+      {capitalize(t('remove'))}
     </button>
   ) : null;
   const linksCount = useCountLinksInReplies(resolvedPost);
