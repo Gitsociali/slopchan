@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
 import { getPkcDataPath } from './pkc-paths.js';
+import { startPkcRpcServer } from './start-pkc-rpc-core.js';
 const dirname = path.join(path.dirname(fileURLToPath(import.meta.url)));
 const projectRoot = path.join(dirname, '..');
 
@@ -39,18 +40,7 @@ const startPkcRpcAutoRestart = async () => {
     try {
       const started = await tcpPortUsed.check(port, '127.0.0.1');
       if (!started) {
-        const pkcWebSocketServer = await PKCRpc.PKCWsServer({ port, pkc: defaultPkcOptions, authKey: pkcRpcAuthKey });
-        pkcWebSocketServer.on('error', (e) => console.log('pkc rpc error', e));
-
-        console.log(`pkc rpc: listening on ws://localhost:${port} (local connections only)`);
-        console.log(`pkc rpc: listening on ws://localhost:${port}/${pkcRpcAuthKey} (secret auth key for remote connections)`);
-        pkcWebSocketServer.ws.on('connection', (socket, request) => {
-          console.log('pkc rpc: new connection');
-          // debug raw JSON RPC messages in console
-          if (isDev) {
-            socket.on('message', (message) => console.log(`pkc rpc: ${message.toString()}`));
-          }
-        });
+        await startPkcRpcServer({ PKCRpcModule: PKCRpc, port, pkcOptions: defaultPkcOptions, authKey: pkcRpcAuthKey, isDev });
       }
     } catch (e) {
       console.log('failed starting pkc rpc server', e);
