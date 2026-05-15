@@ -9,7 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "5chan@workspace:."
   dependencies:
-    "@bitsocial/bitsocial-react-hooks": "npm:0.1.9"
+    "@bitsocial/bitsocial-react-hooks": "npm:0.1.10"
     "@capacitor/android": "npm:7.4.5"
     "@capacitor/app": "npm:7.0.1"
     "@capacitor/browser": "npm:7.0.5"
@@ -24,7 +24,7 @@ __metadata:
     "@electron-forge/maker-zip": "npm:7.8.0"
     "@electron/rebuild": "npm:3.7.2"
     "@floating-ui/react": "npm:0.26.1"
-    "@pkcprotocol/pkc-js": "npm:0.0.30"
+    "@pkcprotocol/pkc-js": "npm:0.0.33"
     "@react-spring/web": "npm:10.0.3"
     "@reforged/maker-appimage": "npm:5.1.1"
     "@types/lodash": "npm:4.17.24"
@@ -1530,12 +1530,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bitsocial/bitsocial-react-hooks@npm:0.1.9":
-  version: 0.1.9
-  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.9"
+"@bitsocial/bitsocial-react-hooks@npm:0.1.10":
+  version: 0.1.10
+  resolution: "@bitsocial/bitsocial-react-hooks@npm:0.1.10"
   dependencies:
     "@bitsocial/bso-resolver": "npm:0.0.8"
-    "@pkcprotocol/pkc-js": "npm:0.0.30"
+    "@pkcprotocol/pkc-js": "npm:0.0.33"
     "@pkcprotocol/pkc-logger": "npm:0.1.0"
     assert: "npm:2.0.0"
     ethers: "npm:5.8.0"
@@ -1551,7 +1551,7 @@ __metadata:
     zustand: "npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10c0/477c4543b130a054e969ec3079fafe165e7aeb6480c2ec4f0ea6ee122a1ff226b315346d7ce55930ef32a5aad57cf10ccc7cf6baceae49378212c7d8b99f7df9
+  checksum: 10c0/8094a3ccc40a82a124f6a240c8124b71620873698231dd434bae7f2dd80fa9c7a05682f80333173c1ee485be93f50fcdf795fe2e1072edb4a494f4dc0d8199de
   languageName: node
   linkType: hard
 
@@ -4550,25 +4550,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@libp2p/webtransport@npm:6.0.22":
-  version: 6.0.22
-  resolution: "@libp2p/webtransport@npm:6.0.22"
-  dependencies:
-    "@chainsafe/libp2p-noise": "npm:^17.0.0"
-    "@libp2p/interface": "npm:^3.2.2"
-    "@libp2p/peer-id": "npm:^6.0.8"
-    "@libp2p/utils": "npm:^7.1.0"
-    "@multiformats/multiaddr": "npm:^13.0.1"
-    "@multiformats/multiaddr-matcher": "npm:^3.0.1"
-    multiformats: "npm:^13.3.6"
-    progress-events: "npm:^1.0.1"
-    race-signal: "npm:^2.0.0"
-    uint8arraylist: "npm:^2.4.8"
-    uint8arrays: "npm:^5.1.0"
-  checksum: 10c0/152aaf9b2895681b05b243b5fa156eb4c510d655b9880ac105c8963741dae2690e7eef079a1484569e22745a065ea9580ed543121db039ed77327fb715544b32
-  languageName: node
-  linkType: hard
-
 "@malept/cross-spawn-promise@npm:^2.0.0":
   version: 2.0.0
   resolution: "@malept/cross-spawn-promise@npm:2.0.0"
@@ -5709,9 +5690,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkcprotocol/pkc-js@npm:0.0.30":
-  version: 0.0.30
-  resolution: "@pkcprotocol/pkc-js@npm:0.0.30"
+"@pkcprotocol/pkc-js@npm:0.0.33":
+  version: 0.0.33
+  resolution: "@pkcprotocol/pkc-js@npm:0.0.33"
   dependencies:
     "@enhances/with-resolvers": "npm:0.0.5"
     "@helia/block-brokers": "npm:5.2.4"
@@ -5724,7 +5705,6 @@ __metadata:
     "@libp2p/identify": "npm:4.1.3"
     "@libp2p/interfaces": "npm:3.3.2"
     "@libp2p/peer-id": "npm:6.0.8"
-    "@libp2p/webtransport": "npm:6.0.22"
     "@noble/curves": "npm:2.2.0"
     "@pkcprotocol/pkc-logger": "npm:0.1.0"
     "@pkcprotocol/proper-lock-file": "npm:4.2.1"
@@ -5761,7 +5741,7 @@ __metadata:
     typestub-ipfs-only-hash: "npm:4.0.0"
     uuid: "npm:13.0.0"
     zod: "npm:4.3.6"
-  checksum: 10c0/b6fa8a8e6474d4d7150c6fd29ac8caef9a8d1fd67a2444f9b3e4354ed95b80427693387618363eb059ad4775834857e58ca8fb5b85c9daafc795a16349b34d11
+  checksum: 10c0/4e3cfc1a1965dd7bf7bba635c9696f51649c5b72c52feca383cde36ca387651c278bf3135b7d9b2de920818166b2c4bb1c6393aa62254aaf5b2e50d6c110d6ef
   languageName: node
   linkType: hard
 
