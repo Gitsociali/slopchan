@@ -318,7 +318,10 @@ describe('ChallengeModal', () => {
       'https://mintpass.org',
     );
 
-    await clickButton('Close challenge');
+    const doneButton = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'Done');
+    expect(doneButton?.getAttribute('aria-label')).toBe('Finish challenge');
+
+    await clickButton('Done');
     expect(publication.publishChallengeAnswers).toHaveBeenCalledWith(['']);
     expect(testState.removeChallengeMock).toHaveBeenCalledOnce();
   });
