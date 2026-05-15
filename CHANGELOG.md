@@ -1,3 +1,33 @@
+## [0.8.5](https://github.com/bitsocialnet/5chan/compare/v0.8.4...v0.8.5) (2026-05-15)
+
+
+### Bug Fixes
+
+* **blotter:** render on multiboard feeds ([918ed5b](https://github.com/bitsocialnet/5chan/commit/918ed5b11b0ef7c2a982725077575d91853ed0f0))
+* **boards bar:** preserve catalog multiboard links ([29f5e67](https://github.com/bitsocialnet/5chan/commit/29f5e67c723175acd449ecb78f9cbd384513f9b4))
+* **catalog:** hide threads across board catalogs ([8217bad](https://github.com/bitsocialnet/5chan/commit/8217bad7357903095142c6dce64a770f7f7f3b4c))
+* **deps:** update vulnerable transitive dependencies ([c40353d](https://github.com/bitsocialnet/5chan/commit/c40353d2e615335acb11054a3f1a5e9de7622541))
+* **desktop:** start PKC RPC with configured options ([9f2a95a](https://github.com/bitsocialnet/5chan/commit/9f2a95af50f4f4935e57de02618fc33d8b32778d))
+* **dev server:** route HMR through Portless ([f008e82](https://github.com/bitsocialnet/5chan/commit/f008e82539a71019abf9306824fa397c33d3a92e))
+* **electron:** use bundled Chromium version in user agent ([8486401](https://github.com/bitsocialnet/5chan/commit/84864019f579b54eb6e58c9215ae0fbb1d4f589e))
+* **favicon:** add touch and search icons ([69008df](https://github.com/bitsocialnet/5chan/commit/69008dfd818cabcc99fae47f85c49aad9186e984))
+* **footer:** use link color for legal metadata ([2adb4bb](https://github.com/bitsocialnet/5chan/commit/2adb4bb88ce178c607e403a1a509aecebf94cca1))
+* **media:** clarify failed external image embeds ([fe87808](https://github.com/bitsocialnet/5chan/commit/fe87808a9004279c94219ac1bcabce03b6c6a154))
+* **mod queue:** align mobile remove button styling ([36ecad6](https://github.com/bitsocialnet/5chan/commit/36ecad640d5d02938de756397408820f91a3a9e0))
+* **mod queue:** keep error details out of visible text ([a4e058c](https://github.com/bitsocialnet/5chan/commit/a4e058c6ac313135903caf7613874400d0a88b7f))
+* **mod queue:** stop resurfacing stale pending history ([#1130](https://github.com/bitsocialnet/5chan/issues/1130)) ([a6f6e42](https://github.com/bitsocialnet/5chan/commit/a6f6e42bd7daeb2caf05bb79d468d98f25837f10))
+* **p2p stats:** clarify browser peer data ([8cb632f](https://github.com/bitsocialnet/5chan/commit/8cb632f3dbe18a90810e3231c25dcd9996cde864))
+* **p2p:** force browser mode on p2p subdomains ([a97b891](https://github.com/bitsocialnet/5chan/commit/a97b891c5f1645f067f70757102bfe1713544bc0))
+* **pass:** preserve heading casing ([3767923](https://github.com/bitsocialnet/5chan/commit/3767923556f5d0265bfce9284fef7c36281e18d2))
+* **settings:** show latest update feedback ([c8640a8](https://github.com/bitsocialnet/5chan/commit/c8640a801000094116ec3f0bf71e70e24ef7468c))
+
+
+### Features
+
+* **author badges:** add 5chan developer badges ([9f6c073](https://github.com/bitsocialnet/5chan/commit/9f6c07326478d8cfb82f1acd675c28a9da91bb01))
+
+
+
 ## [0.8.4](https://github.com/bitsocialnet/5chan/compare/v0.8.3...v0.8.4) (2026-05-11)
 
 

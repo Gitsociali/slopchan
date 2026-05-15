@@ -105,7 +105,7 @@ const downloads = [macSection, winSection, linuxSection, androidSection, htmlSec
 
 // One-liner summary of what changed in this release. Update before each release.
 const oneLinerDescription =
-  'This version adds remembered trusted board website permissions, browser P2P stats, clearer unreleased build labels, safer Android updates, and several media, settings, and posting fixes.';
+  'This version adds 5chan developer badges, clearer media and update feedback, better catalog and moderation behavior, improved desktop and P2P reliability, app icons, and security fixes.';
 
 const releaseBody = `${oneLinerDescription}
 
