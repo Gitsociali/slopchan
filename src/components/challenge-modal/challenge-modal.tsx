@@ -291,7 +291,9 @@ const IframeChallenge = ({
       </div>
       <div className={`${styles.challengeFooter} ${styles.iframeFooter}`}>
         <div className={styles.iframeCloseButton}>
-          <button onClick={onDone}>Close challenge</button>
+          <button aria-label='Finish challenge' onClick={onDone}>
+            Done
+          </button>
         </div>
       </div>
     </>
