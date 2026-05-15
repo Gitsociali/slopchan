@@ -7,23 +7,28 @@ describe('update-favicon', () => {
     vi.resetModules();
   });
 
-  it('replaces managed icon links and keeps both icon rel variants in sync', async () => {
+  it('replaces managed tab icon links without removing larger crawler icons', async () => {
     const { updateFavicon } = await import('../update-favicon');
 
-    document.head.innerHTML = '<link rel="icon" href="/favicon.ico"><link rel="shortcut icon" href="/favicon.ico">';
+    document.head.innerHTML =
+      '<link rel="icon" sizes="16x16" href="/favicon.ico"><link rel="shortcut icon" sizes="16x16" href="/favicon.ico"><link rel="icon" sizes="192x192" href="/manifest-icon-192x192.png"><link rel="apple-touch-icon" sizes="256x256" href="/apple-touch-icon.png">';
 
     updateFavicon(false);
-    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]')).toHaveLength(2);
-    expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/favicon.ico?variant=nsfw');
-    expect(document.querySelector('link[rel="shortcut icon"]')?.getAttribute('href')).toBe('/favicon.ico?variant=nsfw');
+    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]')).toHaveLength(4);
+    expect(document.querySelector('link[rel="icon"][sizes="16x16"]')?.getAttribute('href')).toBe('/favicon.ico?variant=nsfw');
+    expect(document.querySelector('link[rel="shortcut icon"][sizes="16x16"]')?.getAttribute('href')).toBe('/favicon.ico?variant=nsfw');
+    expect(document.querySelector('link[rel="icon"][sizes="192x192"]')?.getAttribute('href')).toBe('/manifest-icon-192x192.png');
+    expect(document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute('href')).toBe('/apple-touch-icon.png');
 
     updateFavicon(false);
-    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]')).toHaveLength(2);
+    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]')).toHaveLength(4);
 
     updateFavicon(true);
-    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]')).toHaveLength(2);
-    expect(document.querySelector('link[rel="icon"]')?.getAttribute('href')).toBe('/favicon2.ico?variant=sfw');
-    expect(document.querySelector('link[rel="shortcut icon"]')?.getAttribute('href')).toBe('/favicon2.ico?variant=sfw');
+    expect(document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]')).toHaveLength(4);
+    expect(document.querySelector('link[rel="icon"][sizes="16x16"]')?.getAttribute('href')).toBe('/favicon2.ico?variant=sfw');
+    expect(document.querySelector('link[rel="shortcut icon"][sizes="16x16"]')?.getAttribute('href')).toBe('/favicon2.ico?variant=sfw');
+    expect(document.querySelector('link[rel="icon"][sizes="192x192"]')?.getAttribute('href')).toBe('/manifest-icon-192x192.png');
+    expect(document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute('href')).toBe('/apple-touch-icon.png');
   });
 
   it('marks only non-special, non-routing aggregate sfw boards as sfw', async () => {

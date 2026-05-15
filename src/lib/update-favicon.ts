@@ -1,18 +1,20 @@
 const DEFAULT_FAVICON = '/favicon.ico?variant=nsfw';
 const SFW_FAVICON = '/favicon2.ico?variant=sfw';
 const FAVICON_RELS = ['icon', 'shortcut icon'] as const;
-const FAVICON_SELECTOR = FAVICON_RELS.map((rel) => `link[rel="${rel}"]`).join(', ');
+const FAVICON_SELECTOR = ['link[data-fivechan-tab-favicon="true"]', ...FAVICON_RELS.map((rel) => `link[rel="${rel}"][sizes="16x16"]`)].join(', ');
 
 let currentHref: string | null = null;
 
-const hasExpectedFaviconLinks = (href: string): boolean => FAVICON_RELS.every((rel) => document.querySelector(`link[rel="${rel}"][href="${href}"]`));
+const hasExpectedFaviconLinks = (href: string): boolean =>
+  FAVICON_RELS.every((rel) => document.querySelector(`link[rel="${rel}"][href="${href}"][data-fivechan-tab-favicon="true"]`));
 
 const createFaviconLink = (rel: (typeof FAVICON_RELS)[number], href: string): HTMLLinkElement => {
   const link = document.createElement('link');
   link.rel = rel;
   link.type = 'image/png';
-  link.sizes = '16x16';
+  link.setAttribute('sizes', '16x16');
   link.href = href;
+  link.dataset.fivechanTabFavicon = 'true';
   return link;
 };
 
