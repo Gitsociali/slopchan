@@ -163,4 +163,5 @@
   color: var(--post-link-text-color);
   padding: 3px 5px;
   margin-top: 1px;
+  overflow-wrap: anywhere;
 }
