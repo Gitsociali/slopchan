@@ -379,7 +379,8 @@ describe('PostForm', () => {
     expect(testState.handleUploadMock).toHaveBeenCalledTimes(1);
 
     await clickByText(table as HTMLTableElement, 'post');
-    expect(globalThis.alert).toHaveBeenCalledWith('empty_comment_alert');
+    expect(globalThis.alert).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('error: empty_comment_alert');
 
     const textInputs = table?.querySelectorAll<HTMLInputElement>('input[type="text"]') || [];
     const nameInput = textInputs[0];
@@ -395,12 +396,11 @@ describe('PostForm', () => {
     expect(textarea).toBeTruthy();
     expect(select).toBeTruthy();
 
-    (globalThis.alert as ReturnType<typeof vi.fn>).mockClear();
     await dispatchInput(linkInput as HTMLInputElement, 'not-a-url');
     await clickByText(table as HTMLTableElement, 'post');
-    expect(globalThis.alert).toHaveBeenCalledWith('invalid_url_alert');
+    expect(globalThis.alert).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('error: invalid_url_alert');
 
-    (globalThis.alert as ReturnType<typeof vi.fn>).mockClear();
     await dispatchInput(textarea as HTMLTextAreaElement, 'A valid body');
     await dispatchInput(linkInput as HTMLInputElement, 'https://i.4cdn.org/gif/file.jpg');
     await clickByText(table as HTMLTableElement, 'post');
@@ -410,7 +410,8 @@ describe('PostForm', () => {
 
     await dispatchInput(linkInput as HTMLInputElement, '');
     await clickByText(table as HTMLTableElement, 'post');
-    expect(globalThis.alert).toHaveBeenCalledWith('no_board_selected_warning');
+    expect(globalThis.alert).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('error: no_board_selected_warning');
 
     await dispatchChange(select as HTMLSelectElement, 'music-posting.eth');
     await dispatchInput(nameInput as HTMLInputElement, 'Alice Cooper');
@@ -501,6 +502,20 @@ describe('PostForm', () => {
     expect(textarea).toBeTruthy();
     expect(container.textContent).toContain('offline board');
 
+    await clickByText(table as HTMLTableElement, 'post');
+    expect(globalThis.alert).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('error: empty_comment_alert');
+
+    const textInputs = table?.querySelectorAll<HTMLInputElement>('input[type="text"]') || [];
+    const linkInput = textInputs[1];
+    expect(linkInput).toBeTruthy();
+
+    await dispatchInput(linkInput as HTMLInputElement, 'not-a-url');
+    await clickByText(table as HTMLTableElement, 'post');
+    expect(globalThis.alert).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('error: invalid_url_alert');
+
+    await dispatchInput(linkInput as HTMLInputElement, '');
     await dispatchInput(textarea as HTMLTextAreaElement, 'Reply body');
     await clickByText(table as HTMLTableElement, 'post');
 

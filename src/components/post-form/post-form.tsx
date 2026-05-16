@@ -382,11 +382,11 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
     setFormError(null);
 
     if (!currentTitle && !currentContent && !currentUrl) {
-      alert(t('empty_comment_alert'));
+      setFormError(`${t('error')}: ${t('empty_comment_alert')}`);
       return;
     }
     if (currentUrl && !isValidPublishURL(currentUrl)) {
-      alert(t('invalid_url_alert'));
+      setFormError(`${t('error')}: ${t('invalid_url_alert')}`);
       return;
     }
     const expiringMediaLinkAlert = currentUrl ? getExpiringMediaLinkAlert(currentUrl, t) : null;
@@ -396,12 +396,12 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
     }
 
     if (currentContent.length > 2000) {
-      alert(t('error') + ': ' + t('field_too_long'));
+      setFormError(`${t('error')}: ${t('field_too_long')}`);
       return;
     }
 
     if ((isInAllView || isInSubscriptionsView || isInModView) && !publishPostOptions.communityAddress) {
-      alert(t('no_board_selected_warning'));
+      setFormError(`${t('error')}: ${t('no_board_selected_warning')}`);
       return;
     }
 
@@ -443,12 +443,12 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
     setFormError(null);
 
     if (!currentContent && !currentUrl) {
-      alert(t('empty_comment_alert'));
+      setFormError(`${t('error')}: ${t('empty_comment_alert')}`);
       return;
     }
 
     if (currentUrl && !isValidPublishURL(currentUrl)) {
-      alert(t('invalid_url_alert'));
+      setFormError(`${t('error')}: ${t('invalid_url_alert')}`);
       return;
     }
     const expiringMediaLinkAlert = currentUrl ? getExpiringMediaLinkAlert(currentUrl, t) : null;
@@ -458,7 +458,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
     }
 
     if (currentContent.length > 2000) {
-      alert(t('error') + ': ' + t('field_too_long'));
+      setFormError(`${t('error')}: ${t('field_too_long')}`);
       return;
     }
 
