@@ -14,6 +14,8 @@ const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise
 type DirectoryEntry = {
   address: string;
   features?: { requirePostLinkIsMedia?: boolean };
+  name?: string;
+  publicKey?: string;
   title?: string;
 };
 
@@ -25,7 +27,7 @@ const testState = vi.hoisted(() => ({
   alertThresholdValue: 5,
   commentsByCid: {} as Record<string, any>,
   directories: [
-    { address: 'music-posting.eth', features: {}, title: '/mu/ - Music' },
+    { address: 'music-posting.eth', features: {}, name: 'music-posting.eth', publicKey: 'music-public-key', title: '/mu/ - Music' },
     { address: 'tech-posting.eth', features: { requirePostLinkIsMedia: true }, title: '/g/ - Technology' },
   ] as DirectoryEntry[],
   enableInfiniteScroll: false,
@@ -52,6 +54,7 @@ const testState = vi.hoisted(() => ({
   subscribeMock: vi.fn(),
   subscribed: false,
   unsubscribeMock: vi.fn(),
+  useCommentCalls: [] as Array<{ commentCid?: string; community?: { name?: string; publicKey?: string } }>,
   viewMode: 'compact' as 'compact' | 'feed',
 }));
 
@@ -80,7 +83,10 @@ vi.mock('react-router-dom', async () => {
 vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
   useAccount: () => testState.account,
   useAccountComment: () => testState.accountComment,
-  useComment: ({ commentCid }: { commentCid?: string }) => (commentCid ? testState.commentsByCid[commentCid] : undefined),
+  useComment: ({ commentCid, community }: { commentCid?: string; community?: { name?: string; publicKey?: string } }) => {
+    testState.useCommentCalls.push({ commentCid, community });
+    return commentCid ? testState.commentsByCid[commentCid] : undefined;
+  },
   useSubscribe: () => ({
     subscribe: testState.subscribeMock,
     subscribed: testState.subscribed,
@@ -113,6 +119,8 @@ vi.mock('../../../hooks/use-post-page-number', () => ({
 }));
 
 vi.mock('../../../hooks/use-directories', () => ({
+  findDirectoryByAddress: (directories: DirectoryEntry[], address?: string) =>
+    directories.find((entry) => address && [entry.address, entry.name, entry.publicKey].includes(address)),
   useDirectories: () => testState.directories,
   useDirectoryByAddress: (address: string | undefined) => testState.directories.find((entry) => entry.address === address),
 }));
@@ -263,7 +271,7 @@ describe('BoardButtons', () => {
     testState.alertThresholdValue = 5;
     testState.commentsByCid = {};
     testState.directories = [
-      { address: 'music-posting.eth', features: {}, title: '/mu/ - Music' },
+      { address: 'music-posting.eth', features: {}, name: 'music-posting.eth', publicKey: 'music-public-key', title: '/mu/ - Music' },
       { address: 'tech-posting.eth', features: { requirePostLinkIsMedia: true }, title: '/g/ - Technology' },
     ];
     testState.enableInfiniteScroll = false;
@@ -280,6 +288,7 @@ describe('BoardButtons', () => {
     testState.showOPComment = false;
     testState.sortType = 'active';
     testState.subscribed = false;
+    testState.useCommentCalls = [];
     testState.viewMode = 'compact';
     useThreadLiveUpdatesStore.getState().resetState();
     useHiddenCatalogThreadsStore.setState({ hiddenCommentsByCid: {}, scopeHiddenThreadsCounts: {}, shownScopeKey: null });
@@ -474,6 +483,14 @@ describe('BoardButtons', () => {
     expect(container.textContent).toContain('Archived /');
     expect(container.textContent).toContain('Sticky /');
     expect(container.textContent).toContain('Closed /');
+    expect(testState.useCommentCalls).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          commentCid: 'comment-1',
+          community: { name: 'music-posting.eth', publicKey: 'music-public-key' },
+        }),
+      ]),
+    );
 
     await clickButton('bottom');
     await clickButton('update');

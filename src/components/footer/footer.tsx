@@ -11,6 +11,7 @@ import useThreadLiveUpdatesStore from '../../stores/use-thread-live-updates-stor
 import useCountLinksInReplies from '../../hooks/use-count-links-in-replies';
 import { usePostPageNumber } from '../../hooks/use-post-page-number';
 import { useDirectoryByAddress } from '../../hooks/use-directories';
+import { useCommunityIdentifier } from '../../hooks/use-community-identifiers';
 import capitalize from 'lodash/capitalize';
 import styles from './footer.module.css';
 
@@ -211,8 +212,9 @@ export const ThreadFooterMobile = ({ postCid, threadNumber, communityAddress, is
   const isInAllView = isAllView(location.pathname);
   const isInSubscriptionsView = isSubscriptionsView(location.pathname, params);
   const isInModView = isModView(location.pathname);
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
 
-  const post = useComment({ commentCid: postCid, autoUpdate: autoUpdateEnabled });
+  const post = useComment({ commentCid: postCid, autoUpdate: autoUpdateEnabled, community: communityIdentifier });
   const { replyCount } = post || {};
   const linkCount = useCountLinksInReplies(post);
   const directoryEntry = useDirectoryByAddress(communityAddress);

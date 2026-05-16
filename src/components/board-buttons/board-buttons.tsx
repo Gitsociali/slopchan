@@ -9,6 +9,7 @@ import { useAccountCommunityAddresses } from '../../hooks/use-account-community-
 import { useFilteredDirectoryAddresses } from '../../hooks/use-filtered-directory-addresses';
 import { getBoardPath, isDirectoryBoard } from '../../lib/utils/route-utils';
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
+import { useCommunityIdentifier } from '../../hooks/use-community-identifiers';
 import useSafeAccountComment from '../../hooks/use-safe-account-comment';
 import useHiddenCatalogThreads from '../../hooks/use-hidden-catalog-threads';
 import useCatalogFiltersStore from '../../stores/use-catalog-filters-store';
@@ -643,10 +644,11 @@ export const PostPageStats = () => {
   const resolvedAddress = useResolvedCommunityAddress();
   const accountComment = useSafeAccountComment({ commentIndex: params?.accountCommentIndex });
   const communityAddress = resolvedAddress || accountComment?.communityAddress;
+  const communityIdentifier = useCommunityIdentifier(communityAddress);
 
-  const comment = useComment({ commentCid, autoUpdate: autoUpdateEnabled });
+  const comment = useComment({ commentCid, autoUpdate: autoUpdateEnabled, community: communityIdentifier });
   const postCid = comment?.postCid ?? commentCid;
-  const post = useComment({ commentCid: postCid, autoUpdate: autoUpdateEnabled });
+  const post = useComment({ commentCid: postCid, autoUpdate: autoUpdateEnabled, community: communityIdentifier });
 
   const archived = isCommentArchived(post);
   const { closed, pinned, replyCount } = post || {};

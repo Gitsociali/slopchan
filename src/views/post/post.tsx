@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Comment, Role, useComment, useEditedComment, useCommunity, useReplies } from '@bitsocial/bitsocial-react-hooks';
+import { type Comment, type CommunityIdentifier, type Role, useComment, useEditedComment, useCommunity, useReplies } from '@bitsocial/bitsocial-react-hooks';
 import useCommunitiesPagesStore from '@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages';
 import { useCommunityField } from '../../hooks/use-stable-community';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -64,7 +64,7 @@ interface ReplyPaginationOverride {
 // useComment may not return cached feed data immediately due to its updatedAt comparison logic.
 // This hook falls back to the communities pages store (populated by useFeed) so content
 // from the catalog appears instantly instead of going through a loading phase.
-const useCommentWithFeedCache = (options: { commentCid: string | undefined; autoUpdate?: boolean }): CommentWithRefresh | undefined => {
+const useCommentWithFeedCache = (options: { commentCid: string | undefined; autoUpdate?: boolean; community?: CommunityIdentifier }): CommentWithRefresh | undefined => {
   const comment = useComment(options);
   const cachedComment = useCommunitiesPagesStore((state) => state.comments[options?.commentCid || '']);
 
@@ -281,10 +281,11 @@ const PostPage = () => {
   const finishUpdate = useThreadLiveUpdatesStore((state) => state.finishUpdate);
   const resetThreadLiveUpdates = useThreadLiveUpdatesStore((state) => state.resetState);
   const resolvedCommunityAddress = useResolvedCommunityAddress();
+  const resolvedCommunityIdentifier = useCommunityIdentifier(resolvedCommunityAddress);
   const isInAllView = isAllView(pathname);
   const routeState = useMemo(() => getEffectiveRouteUserState(locationState), [locationKey, pathname, locationState]);
 
-  const resolvedComment = useCommentWithFeedCache({ commentCid, autoUpdate: autoUpdateEnabled });
+  const resolvedComment = useCommentWithFeedCache({ commentCid, autoUpdate: autoUpdateEnabled, community: resolvedCommunityIdentifier });
   const queuedComment = useMemo(() => getQueuedCommentFromRouteState(routeState, commentCid), [routeState, commentCid]);
   const comment = useMemo(() => mergeCommentFallback(resolvedComment, queuedComment), [resolvedComment, queuedComment]);
   const commentCommunityAddress = getCommentCommunityAddress(comment);
@@ -306,7 +307,7 @@ const PostPage = () => {
   const directories = useDirectories();
 
   // if the comment is a reply, return the post comment instead, then the reply will be highlighted in the thread
-  const postComment = useCommentWithFeedCache({ commentCid: comment?.postCid, autoUpdate: autoUpdateEnabled });
+  const postComment = useCommentWithFeedCache({ commentCid: comment?.postCid, autoUpdate: autoUpdateEnabled, community: communityIdentifier });
   const post = useMemo(() => (comment?.parentCid ? mergeCommentFallback(postComment, comment) : comment), [comment, postComment]);
   const requestedThreadTopCid = getRequestedThreadTopCid(routeState);
 

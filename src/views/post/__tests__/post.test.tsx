@@ -37,7 +37,12 @@ const testState = vi.hoisted(() => ({
   cachedComments: {} as Record<string, TestComment>,
   communityFieldAddress: undefined as string | undefined,
   commentsByCid: {} as Record<string, TestComment>,
-  directories: [{ address: 'music-posting.eth', title: '/mu/ - Music' }] as Array<{ address: string; title?: string }>,
+  directories: [{ address: 'music-posting.eth', name: 'music-posting.eth', publicKey: 'music-public-key', title: '/mu/ - Music' }] as Array<{
+    address: string;
+    name?: string;
+    publicKey?: string;
+    title?: string;
+  }>,
   editedCommentsByCid: {} as Record<string, TestComment | undefined>,
   isMobile: false,
   navigateMock: vi.fn(),
@@ -53,7 +58,7 @@ const testState = vi.hoisted(() => ({
       '0xmod': { role: 'admin' },
     },
   } as { roles?: Record<string, unknown> },
-  useCommentCalls: [] as Array<{ commentCid?: string; autoUpdate?: boolean }>,
+  useCommentCalls: [] as Array<{ commentCid?: string; autoUpdate?: boolean; community?: { name?: string; publicKey?: string } }>,
 }));
 
 vi.mock('react-i18next', () => ({
@@ -71,8 +76,8 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
-  useComment: ({ commentCid, autoUpdate }: { commentCid?: string; autoUpdate?: boolean }) => {
-    testState.useCommentCalls.push({ commentCid, autoUpdate });
+  useComment: ({ commentCid, autoUpdate, community }: { commentCid?: string; autoUpdate?: boolean; community?: { name?: string; publicKey?: string } }) => {
+    testState.useCommentCalls.push({ commentCid, autoUpdate, community });
     return commentCid ? testState.commentsByCid[commentCid] : undefined;
   },
   useEditedComment: ({ comment }: { comment?: TestComment }) => ({
@@ -243,7 +248,7 @@ describe('Post', () => {
     testState.cachedComments = {};
     testState.communityFieldAddress = undefined;
     testState.commentsByCid = {};
-    testState.directories = [{ address: 'music-posting.eth', title: '/mu/ - Music' }];
+    testState.directories = [{ address: 'music-posting.eth', name: 'music-posting.eth', publicKey: 'music-public-key', title: '/mu/ - Music' }];
     testState.editedCommentsByCid = {};
     testState.isMobile = false;
     testState.resolvedCommunityAddress = 'music-posting.eth';
@@ -719,8 +724,16 @@ describe('Post', () => {
 
     expect(testState.useCommentCalls).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ commentCid: 'reply-cid', autoUpdate: false }),
-        expect.objectContaining({ commentCid: 'root-cid', autoUpdate: false }),
+        expect.objectContaining({
+          autoUpdate: false,
+          commentCid: 'reply-cid',
+          community: { name: 'music-posting.eth', publicKey: 'music-public-key' },
+        }),
+        expect.objectContaining({
+          autoUpdate: false,
+          commentCid: 'root-cid',
+          community: { name: 'music-posting.eth', publicKey: 'music-public-key' },
+        }),
       ]),
     );
   });

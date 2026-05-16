@@ -22,6 +22,7 @@ const testState = vi.hoisted(() => ({
   openReplyModalEmptyMock: vi.fn(),
   pageNumber: 4 as number | undefined,
   post: { replyCount: 7 } as { replyCount?: number } | undefined,
+  useCommentCalls: [] as Array<{ commentCid?: string; community?: { name?: string; publicKey?: string } }>,
 }));
 
 vi.mock('react-i18next', () => ({
@@ -31,7 +32,10 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
-  useComment: () => testState.post,
+  useComment: ({ commentCid, community }: { commentCid?: string; community?: { name?: string; publicKey?: string } }) => {
+    testState.useCommentCalls.push({ commentCid, community });
+    return testState.post;
+  },
 }));
 
 vi.mock('../../boards-bar', () => ({
@@ -94,6 +98,10 @@ vi.mock('../../../hooks/use-directories', () => ({
   useDirectoryByAddress: () => testState.directoryEntry,
 }));
 
+vi.mock('../../../hooks/use-community-identifiers', () => ({
+  useCommunityIdentifier: (address?: string) => (address ? { name: address, publicKey: `${address}-public-key` } : undefined),
+}));
+
 let container: HTMLDivElement;
 let root: Root;
 
@@ -111,6 +119,7 @@ describe('footer', () => {
     testState.openReplyModalEmptyMock.mockReset();
     testState.pageNumber = 4;
     testState.post = { replyCount: 7 };
+    testState.useCommentCalls = [];
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -210,6 +219,15 @@ describe('footer', () => {
     );
 
     expect(container.textContent).toContain('Replies: 7 / Images: 2 / pagination.pageLabel: 4');
+    expect(testState.useCommentCalls).toEqual([
+      {
+        commentCid: 'post-cid',
+        community: {
+          name: 'music-posting.eth',
+          publicKey: 'music-posting.eth-public-key',
+        },
+      },
+    ]);
 
     const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === 'post_a_reply');
     await act(async () => {
