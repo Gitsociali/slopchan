@@ -10,6 +10,7 @@ vi.mock('../clipboard-utils', () => ({
 
 import {
   copyShareLinkToClipboard,
+  getExpiringMediaLinkHostname,
   getHostname,
   getPublishURLFilename,
   is5chanLink,
@@ -60,6 +61,15 @@ describe('url-utils', () => {
     expect(isValidPublishURL('not-a-url')).toBe(false);
     expect(getPublishURLFilename('https://example.com/images/file%20name.jpg?size=large')).toBe('file name.jpg');
     expect(getPublishURLFilename('not-a-url')).toBeNull();
+  });
+
+  it('detects publish media hosts with temporary links', () => {
+    expect(getExpiringMediaLinkHostname('https://i.4cdn.org/gif/1712345678900.jpg')).toBe('i.4cdn.org');
+    expect(getExpiringMediaLinkHostname('http://litterbox.catbox.moe/u/example.png')).toBe('litterbox.catbox.moe');
+    expect(getExpiringMediaLinkHostname('https://www.tmpfiles.org/dl/123/file.mp4')).toBe('tmpfiles.org');
+    expect(getExpiringMediaLinkHostname('https://cdn.file.kiwi/example')).toBe('file.kiwi');
+    expect(getExpiringMediaLinkHostname('https://example.com/file.png')).toBeNull();
+    expect(getExpiringMediaLinkHostname('not-a-url')).toBeNull();
   });
 
   it('copies share links for threads and catalog pages using the production fallback base url', async () => {

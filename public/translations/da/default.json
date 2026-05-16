@@ -387,5 +387,6 @@
   "media_failed_to_load_source_unknown": "Hostet uden for 5chan",
   "media_failed_to_load_open_source": "Åbn originalfil",
   "media_failed_to_load_inline": "Eksternt billede fra {{host}} fejlede. Prøv VPN.",
-  "media_failed_to_load_inline_unknown": "Eksternt billede fejlede. Prøv VPN."
+  "media_failed_to_load_inline_unknown": "Eksternt billede fejlede. Prøv VPN.",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
 }

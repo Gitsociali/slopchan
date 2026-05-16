@@ -6,6 +6,7 @@ import { Comment, setAccount, useAccount, useEditedComment } from '@bitsocial/bi
 import getShortAddress from '../../lib/get-short-address';
 import useCommunitiesPagesStore from '@bitsocial/bitsocial-react-hooks/dist/stores/communities-pages';
 import { getDisplayMediaInfoType, getLinkMediaInfo } from '../../lib/utils/media-utils';
+import { getExpiringMediaLinkAlert } from '../../lib/utils/media-link-validation-utils';
 import { getPublishURLFilename, isValidPublishURL, isValidURL } from '../../lib/utils/url-utils';
 import { isAllView, isCatalogView, isModQueueView, isModView, isPostPageView, isSubscriptionsView } from '../../lib/utils/view-utils';
 import { useAccountCommunityAddresses } from '../../hooks/use-account-community-addresses';
@@ -346,6 +347,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
   const accountCommunityAddresses = useAccountCommunityAddresses();
 
   const [lengthError, setLengthError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const checkContentLength = useRef(
     debounce((content: string, t: TFunction) => {
@@ -377,6 +379,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
 
     checkContentLength.cancel();
     setLengthError(null);
+    setFormError(null);
 
     if (!currentTitle && !currentContent && !currentUrl) {
       alert(t('empty_comment_alert'));
@@ -384,6 +387,11 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
     }
     if (currentUrl && !isValidPublishURL(currentUrl)) {
       alert(t('invalid_url_alert'));
+      return;
+    }
+    const expiringMediaLinkAlert = currentUrl ? getExpiringMediaLinkAlert(currentUrl, t) : null;
+    if (expiringMediaLinkAlert) {
+      setFormError(expiringMediaLinkAlert);
       return;
     }
 
@@ -432,6 +440,7 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
 
     checkContentLength.cancel();
     setLengthError(null);
+    setFormError(null);
 
     if (!currentContent && !currentUrl) {
       alert(t('empty_comment_alert'));
@@ -440,6 +449,11 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
 
     if (currentUrl && !isValidPublishURL(currentUrl)) {
       alert(t('invalid_url_alert'));
+      return;
+    }
+    const expiringMediaLinkAlert = currentUrl ? getExpiringMediaLinkAlert(currentUrl, t) : null;
+    if (expiringMediaLinkAlert) {
+      setFormError(expiringMediaLinkAlert);
       return;
     }
 
@@ -527,8 +541,9 @@ const PostFormTable = ({ closeForm, postCid }: { closeForm: () => void; postCid:
           />
         </tbody>
       </table>
-      {publishPostError && <div className={styles.error}>{publishPostError}</div>}
-      {publishReplyError && <div className={styles.error}>{publishReplyError}</div>}
+      {formError && <div className={`${styles.error} ${styles.formError}`}>{formError}</div>}
+      {publishPostError && <div className={`${styles.error} ${styles.formError}`}>{publishPostError}</div>}
+      {publishReplyError && <div className={`${styles.error} ${styles.formError}`}>{publishReplyError}</div>}
       {publishReplyStateMessage && <div className={styles.status}>{publishReplyStateMessage}</div>}
     </>
   );

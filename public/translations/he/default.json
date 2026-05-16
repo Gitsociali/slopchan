@@ -387,5 +387,6 @@
   "media_failed_to_load_source_unknown": "מארח חיצוני, לא 5chan",
   "media_failed_to_load_open_source": "פתח את הקובץ המקורי",
   "media_failed_to_load_inline": "התמונה החיצונית מ-{{host}} נכשלה. נסה VPN.",
-  "media_failed_to_load_inline_unknown": "התמונה החיצונית נכשלה. נסה VPN."
+  "media_failed_to_load_inline_unknown": "התמונה החיצונית נכשלה. נסה VPN.",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
 }

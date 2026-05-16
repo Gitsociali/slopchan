@@ -67,6 +67,41 @@ export const normalizePublishURL = (url: string) => {
   return trimmedUrl;
 };
 
+const EXPIRING_MEDIA_LINK_HOSTNAMES = [
+  // 4chan CDN media disappears when threads are pruned, usually after a few hours or days.
+  'i.4cdn.org',
+  // Litterbox temporary uploads can expire after 1 hour, 12 hours, 1 day, or 3 days.
+  'litterbox.catbox.moe',
+  // tmpfiles.org uploads expire after 60 minutes, 6 hours, 12 hours, or 24 hours.
+  'tmpfiles.org',
+  // Filebin uploads are deleted automatically after about 6 days.
+  'filebin.net',
+  // temp.sh files expire after 3 days.
+  'temp.sh',
+  // Termbin pastes are automatically deleted after 1 week.
+  'termbin.com',
+  // Uguu files expire after 3 hours.
+  'uguu.se',
+  // file.kiwi encrypted files are deleted after about 4 days by default.
+  'file.kiwi',
+] as const;
+
+const normalizeHostnameForMatching = (hostname: string) => hostname.toLowerCase().replace(/^www\./, '');
+
+export const getExpiringMediaLinkHostname = (url: string): string | null => {
+  try {
+    const parsedUrl = new URL(normalizePublishURL(url));
+    if (parsedUrl.protocol !== 'https:') {
+      return null;
+    }
+
+    const hostname = normalizeHostnameForMatching(parsedUrl.hostname);
+    return EXPIRING_MEDIA_LINK_HOSTNAMES.find((expiringHostname) => hostname === expiringHostname || hostname.endsWith(`.${expiringHostname}`)) || null;
+  } catch {
+    return null;
+  }
+};
+
 export const isValidPublishURL = (url: string) => {
   try {
     return new URL(normalizePublishURL(url)).protocol === 'https:';

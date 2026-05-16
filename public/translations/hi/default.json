@@ -387,5 +387,6 @@
   "media_failed_to_load_source_unknown": "बाहरी होस्ट, 5chan नहीं",
   "media_failed_to_load_open_source": "मूल फ़ाइल खोलें",
   "media_failed_to_load_inline": "{{host}} से बाहरी छवि लोड नहीं हुई। VPN आज़माएँ।",
-  "media_failed_to_load_inline_unknown": "बाहरी छवि लोड नहीं हुई। VPN आज़माएँ।"
+  "media_failed_to_load_inline_unknown": "बाहरी छवि लोड नहीं हुई। VPN आज़माएँ।",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
 }

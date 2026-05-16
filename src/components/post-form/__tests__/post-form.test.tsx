@@ -52,7 +52,7 @@ const testState = vi.hoisted(() => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: Record<string, unknown>) => (options?.domain ? `${key}:${options.domain}` : key),
   }),
 }));
 
@@ -401,8 +401,14 @@ describe('PostForm', () => {
     expect(globalThis.alert).toHaveBeenCalledWith('invalid_url_alert');
 
     (globalThis.alert as ReturnType<typeof vi.fn>).mockClear();
-    await dispatchInput(linkInput as HTMLInputElement, '');
     await dispatchInput(textarea as HTMLTextAreaElement, 'A valid body');
+    await dispatchInput(linkInput as HTMLInputElement, 'https://i.4cdn.org/gif/file.jpg');
+    await clickByText(table as HTMLTableElement, 'post');
+    expect(globalThis.alert).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('error: expiring_media_link_alert:i.4cdn.org');
+    expect(testState.publishPostMock).not.toHaveBeenCalled();
+
+    await dispatchInput(linkInput as HTMLInputElement, '');
     await clickByText(table as HTMLTableElement, 'post');
     expect(globalThis.alert).toHaveBeenCalledWith('no_board_selected_warning');
 

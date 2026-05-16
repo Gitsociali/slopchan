@@ -387,5 +387,6 @@
   "media_failed_to_load_source_unknown": "외부 호스트, 5chan 아님",
   "media_failed_to_load_open_source": "원본 파일 열기",
   "media_failed_to_load_inline": "{{host}}의 외부 이미지를 불러오지 못했습니다. VPN을 시도하세요.",
-  "media_failed_to_load_inline_unknown": "외부 이미지를 불러오지 못했습니다. VPN을 시도하세요."
+  "media_failed_to_load_inline_unknown": "외부 이미지를 불러오지 못했습니다. VPN을 시도하세요.",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
 }

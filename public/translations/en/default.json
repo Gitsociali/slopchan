@@ -187,6 +187,7 @@
   "filtered_threads": "Filtered threads",
   "no_board_selected_warning": "Please select a board before posting.",
   "invalid_url_alert": "The provided link is not a valid URL.",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
   "empty_comment_alert": "Cannot post empty comment.",
   "stored_locally": "Stored locally (in {{location}} data), not synced across devices.",
   "choose_one": "Choose one:",

@@ -387,5 +387,6 @@
   "media_failed_to_load_source_unknown": "Hôte externe, pas 5chan",
   "media_failed_to_load_open_source": "Ouvrir le fichier original",
   "media_failed_to_load_inline": "L'image externe de {{host}} a échoué. Essayez un VPN.",
-  "media_failed_to_load_inline_unknown": "L'image externe a échoué. Essayez un VPN."
+  "media_failed_to_load_inline_unknown": "L'image externe a échoué. Essayez un VPN.",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
 }

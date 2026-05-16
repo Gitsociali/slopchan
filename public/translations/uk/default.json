@@ -387,5 +387,6 @@
   "media_failed_to_load_source_unknown": "Зовнішній хост, не 5chan",
   "media_failed_to_load_open_source": "Відкрити оригінальний файл",
   "media_failed_to_load_inline": "Зовнішнє зображення з {{host}} не завантажилося. Спробуйте VPN.",
-  "media_failed_to_load_inline_unknown": "Зовнішнє зображення не завантажилося. Спробуйте VPN."
+  "media_failed_to_load_inline_unknown": "Зовнішнє зображення не завантажилося. Спробуйте VPN.",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
 }

@@ -3,6 +3,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { setAccount, useAccount } from '@bitsocial/bitsocial-react-hooks';
+import { getExpiringMediaLinkAlert } from '../../lib/utils/media-link-validation-utils';
 import { getPublishURLFilename, isValidPublishURL } from '../../lib/utils/url-utils';
 import { isAllView, isModView, isSubscriptionsView } from '../../lib/utils/view-utils';
 import useSelectedTextStore from '../../stores/use-selected-text-store';
@@ -101,6 +102,11 @@ const ReplyModal = ({ closeModal, showReplyModal, parentCid, parentNumber, threa
 
     if (currentUrl && !isValidPublishURL(currentUrl)) {
       setError(t('error') + ': ' + t('invalid_url_alert'));
+      return;
+    }
+    const expiringMediaLinkAlert = currentUrl ? getExpiringMediaLinkAlert(currentUrl, t) : null;
+    if (expiringMediaLinkAlert) {
+      setError(expiringMediaLinkAlert);
       return;
     }
 

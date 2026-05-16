@@ -387,5 +387,6 @@
   "media_failed_to_load_source_unknown": "Panlabas na host, hindi 5chan",
   "media_failed_to_load_open_source": "Buksan ang orihinal na file",
   "media_failed_to_load_inline": "Nabigo ang panlabas na larawan mula sa {{host}}. Subukan ang VPN.",
-  "media_failed_to_load_inline_unknown": "Nabigo ang panlabas na larawan. Subukan ang VPN."
+  "media_failed_to_load_inline_unknown": "Nabigo ang panlabas na larawan. Subukan ang VPN.",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
 }

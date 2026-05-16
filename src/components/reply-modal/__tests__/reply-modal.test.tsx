@@ -414,6 +414,12 @@ describe('ReplyModal', () => {
     expect(container.textContent).toContain('error: invalid_url_alert');
     expect(testState.setPublishReplyOptionsMock).toHaveBeenCalledWith({ spoiler: true });
 
+    await dispatchInput(linkInput, 'https://temp.sh/example.png');
+    await clickButtonByText('post');
+
+    expect(container.textContent).toContain('error: expiring_media_link_alert:{"domain":"temp.sh"}');
+    expect(testState.publishReplyMock).not.toHaveBeenCalled();
+
     await dispatchInput(linkInput, 'https://example.com/file.png');
     await clickButtonByText('post');
 

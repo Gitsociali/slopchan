@@ -387,5 +387,6 @@
   "media_failed_to_load_source_unknown": "Máy chủ ngoài, không phải 5chan",
   "media_failed_to_load_open_source": "Mở tệp gốc",
   "media_failed_to_load_inline": "Không tải được ảnh bên ngoài từ {{host}}. Thử VPN.",
-  "media_failed_to_load_inline_unknown": "Không tải được ảnh bên ngoài. Thử VPN."
+  "media_failed_to_load_inline_unknown": "Không tải được ảnh bên ngoài. Thử VPN.",
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
 }
