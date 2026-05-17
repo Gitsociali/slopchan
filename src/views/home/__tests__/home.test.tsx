@@ -128,6 +128,7 @@ describe('Home', () => {
     expect(container.textContent).toContain('current_users 7');
     expect(container.textContent).toContain('boards_tracked 2');
     expect(container.querySelector('[data-testid="site-legal-meta"]')?.textContent).toBe('site-legal-meta');
+    expect(container.querySelector<HTMLAnchorElement>('a[href="/pass"]')?.textContent).toBe('support_5chan');
   });
 
   it('navigates to the canonical board path when the search form is submitted', async () => {

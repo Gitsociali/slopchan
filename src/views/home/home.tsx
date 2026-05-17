@@ -158,9 +158,7 @@ export const Footer = () => {
           </a>
         </li>
         <li>
-          <a href='https://github.com/sponsors/tomcasaburi' target='_blank' rel='noopener noreferrer'>
-            {t('support_5chan')}
-          </a>
+          <Link to='/pass'>{t('support_5chan')}</Link>
         </li>
         <li>
           <a href='https://github.com/bitsocialnet/5chan' target='_blank' rel='noopener noreferrer'>
