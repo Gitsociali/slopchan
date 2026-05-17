@@ -7,6 +7,7 @@ import { CommunityStatsCollector, useCommunitiesStatsStore } from '../../hooks/u
 import PopularThreadsBox from './popular-threads-box';
 import BoardsList from './boards-list';
 import SiteLegalMeta from '../../components/site-legal-meta';
+import LoadingEllipsis from '../../components/loading-ellipsis';
 import useDirectoryModalStore from '../../stores/use-directory-modal-store';
 import DisclaimerModal from '../../components/disclaimer-modal';
 import DirectoryModal from '../../components/directory-modal';
@@ -84,26 +85,41 @@ const InfoBox = () => {
   );
 };
 
+interface StatValueProps {
+  isLoaded: boolean;
+  loadingLabel: string;
+  value: number;
+}
+
+const StatValue = ({ isLoaded, loadingLabel, value }: StatValueProps) => (isLoaded ? <>{value}</> : <LoadingEllipsis string={loadingLabel} />);
+
 const Stats = ({ directoryAddresses }: { directoryAddresses: string[] }) => {
   const { t } = useTranslation();
   const communitiesStats = useCommunitiesStatsStore((state) => state.communityStats);
 
-  const { totalPosts, currentUsers, boardsTracked } = useMemo(() => {
+  const { totalPosts, currentUsers, boardsTracked, allDirectoryStatsLoaded } = useMemo(() => {
     let totalPosts = 0;
     let currentUsers = 0;
     let boardsTracked = 0;
+    let allDirectoryStatsLoaded = directoryAddresses.length > 0;
 
-    directoryAddresses.forEach((address) => {
+    for (const address of directoryAddresses) {
       const stat = communitiesStats[address];
-      if (stat) {
-        totalPosts += stat.allPostCount || 0;
-        currentUsers += stat.weekActiveUserCount || 0;
-        boardsTracked++;
-      }
-    });
 
-    return { totalPosts, currentUsers, boardsTracked };
+      if (!stat || stat.allPostCount === undefined) {
+        allDirectoryStatsLoaded = false;
+        continue;
+      }
+
+      totalPosts += stat.allPostCount || 0;
+      currentUsers += stat.weekActiveUserCount || 0;
+      boardsTracked++;
+    }
+
+    return { totalPosts, currentUsers, boardsTracked, allDirectoryStatsLoaded };
   }, [communitiesStats, directoryAddresses]);
+
+  const loadingLabel = t('loading');
 
   return (
     <>
@@ -117,13 +133,13 @@ const Stats = ({ directoryAddresses }: { directoryAddresses: string[] }) => {
         </div>
         <div className={`${styles.boxContent} ${styles.stats}`}>
           <div className={styles.stat}>
-            <b>{t('total_posts')}</b> {totalPosts}
+            <b>{t('total_posts')}</b> <StatValue isLoaded={allDirectoryStatsLoaded} loadingLabel={loadingLabel} value={totalPosts} />
           </div>
           <div className={styles.stat}>
-            <b>{t('current_users')}</b> {currentUsers}
+            <b>{t('current_users')}</b> <StatValue isLoaded={allDirectoryStatsLoaded} loadingLabel={loadingLabel} value={currentUsers} />
           </div>
           <div className={styles.stat}>
-            <b>{t('boards_tracked')}</b> {boardsTracked}
+            <b>{t('boards_tracked')}</b> <StatValue isLoaded={allDirectoryStatsLoaded} loadingLabel={loadingLabel} value={boardsTracked} />
           </div>
         </div>
       </div>

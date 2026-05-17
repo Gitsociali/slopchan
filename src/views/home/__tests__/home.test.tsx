@@ -49,6 +49,10 @@ vi.mock('../../../hooks/use-communities-stats', () => ({
   useCommunitiesStatsStore: (selector: (state: { communityStats: typeof testState.communityStats }) => unknown) => selector({ communityStats: testState.communityStats }),
 }));
 
+vi.mock('../../../components/loading-ellipsis', () => ({
+  default: ({ string }: { string: string }) => createElement('span', { 'data-testid': 'loading-ellipsis' }, string),
+}));
+
 vi.mock('../../../stores/use-directory-modal-store', () => ({
   default: () => ({
     closeDirectoryModal: testState.closeDirectoryModalMock,
@@ -124,11 +128,41 @@ describe('Home', () => {
     expect(container.querySelector('[data-testid="boards-list"]')?.textContent).toBe('boards:2');
     expect(container.querySelector('[data-testid="popular-threads-box"]')?.textContent).toBe('popular:2:2');
     expect(container.querySelectorAll('[data-testid="stats-collector"]')).toHaveLength(2);
+    expect(container.querySelectorAll('[data-testid="loading-ellipsis"]')).toHaveLength(0);
     expect(container.textContent).toContain('total_posts 12');
     expect(container.textContent).toContain('current_users 7');
     expect(container.textContent).toContain('boards_tracked 2');
     expect(container.querySelector('[data-testid="site-legal-meta"]')?.textContent).toBe('site-legal-meta');
     expect(container.querySelector<HTMLAnchorElement>('a[href="/pass"]')?.textContent).toBe('support_5chan');
+  });
+
+  it('keeps the stats values loading until every directory has loaded stats', () => {
+    testState.communityStats = {
+      'music-posting.eth': { allPostCount: 5, weekActiveUserCount: 2 },
+    };
+
+    renderHome();
+
+    const loadingValues = Array.from(container.querySelectorAll('[data-testid="loading-ellipsis"]'));
+    expect(loadingValues).toHaveLength(3);
+    expect(loadingValues.map((value) => value.textContent)).toEqual(['loading', 'loading', 'loading']);
+    expect(container.textContent).not.toContain('total_posts 5');
+    expect(container.textContent).not.toContain('current_users 2');
+    expect(container.textContent).not.toContain('boards_tracked 1');
+  });
+
+  it('shows zero totals after every directory has loaded zero-count stats', () => {
+    testState.communityStats = {
+      'music-posting.eth': { allPostCount: 0, weekActiveUserCount: 0 },
+      'tech-posting.eth': { allPostCount: 0, weekActiveUserCount: 0 },
+    };
+
+    renderHome();
+
+    expect(container.querySelectorAll('[data-testid="loading-ellipsis"]')).toHaveLength(0);
+    expect(container.textContent).toContain('total_posts 0');
+    expect(container.textContent).toContain('current_users 0');
+    expect(container.textContent).toContain('boards_tracked 2');
   });
 
   it('navigates to the canonical board path when the search form is submitted', async () => {
