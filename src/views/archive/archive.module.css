@@ -41,7 +41,7 @@
   margin: 5px 2px;
 }
 
-.mobileNavLinks a {
+.mobileNavLinks a:not([class~='button']) {
   all: unset;
 }
 
@@ -63,7 +63,7 @@
   margin: 5px 2px;
 }
 
-.mobileFooterButtons a {
+.mobileFooterButtons a:not([class~='button']) {
   all: unset;
 }
 
@@ -79,8 +79,8 @@
 }
 
 .flashListing {
-  width: auto;
-  max-width: 80%;
+  width: 80%;
+  max-width: 810px;
   margin: 10px auto 0;
   border-collapse: separate;
   border-spacing: 1px;
@@ -170,6 +170,7 @@
   }
 
   .flashListing {
+    width: calc(100% - 10px);
     max-width: calc(100% - 10px);
     margin: 10px auto 0 auto;
   }
