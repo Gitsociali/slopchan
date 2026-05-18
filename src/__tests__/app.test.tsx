@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { Link, MemoryRouter, useLocation, useNavigate } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
@@ -109,6 +109,38 @@ function makeNamedComponent(name: string) {
   return () => createElement('div', { 'data-testid': name }, name);
 }
 
+const MockBoardsBar = () => {
+  const location = useLocation();
+  const settingsPath = !location.pathname.endsWith('settings') ? location.pathname.replace(/\/$/, '') + '/settings' : location.pathname;
+  return createElement('div', { 'data-testid': 'boards-bar' }, createElement(Link, { to: settingsPath }, 'Settings'));
+};
+
+const MockPostForm = () => {
+  const [showForm, setShowForm] = React.useState(false);
+  const [draft, setDraft] = React.useState('');
+  return createElement(
+    'div',
+    { 'data-testid': 'post-form' },
+    showForm
+      ? createElement('textarea', {
+          'aria-label': 'comment',
+          onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => setDraft(event.target.value),
+          value: draft,
+        })
+      : createElement('button', { onClick: () => setShowForm(true) }, 'Start a New Thread'),
+  );
+};
+
+const MockSettingsModal = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  return createElement(
+    'div',
+    { 'data-testid': 'settings-modal' },
+    createElement('button', { 'aria-label': 'close', onClick: () => navigate(location.pathname.replace(/\/settings$/, '')) }, 'close'),
+  );
+};
+
 vi.mock('../components/board-buttons', () => ({
   DesktopBoardButtons: makeNamedComponent('desktop-board-buttons'),
   MobileAllFeedFilter: makeNamedComponent('mobile-all-feed-filter'),
@@ -124,7 +156,7 @@ vi.mock('../components/feed-cache-container', () => ({
 }));
 
 vi.mock('../components/post-form', () => ({
-  default: makeNamedComponent('post-form'),
+  default: MockPostForm,
 }));
 
 vi.mock('../components/board-blotter', () => ({
@@ -132,7 +164,7 @@ vi.mock('../components/board-blotter', () => ({
 }));
 
 vi.mock('../components/boards-bar', () => ({
-  default: makeNamedComponent('boards-bar'),
+  default: MockBoardsBar,
 }));
 
 vi.mock('../views/board', () => ({
@@ -212,7 +244,7 @@ vi.mock('../components/disclaimer-modal', () => ({
 }));
 
 vi.mock('../components/settings-modal', () => ({
-  default: makeNamedComponent('settings-modal'),
+  default: MockSettingsModal,
 }));
 
 vi.mock('../components/reply-modal', () => ({
@@ -249,6 +281,38 @@ const renderApp = async (initialEntry: string) => {
   latestLocation = initialEntry;
   await act(async () => {
     root.render(createElement(MemoryRouter, { initialEntries: [initialEntry] }, createElement(App!), createElement(LocationProbe)));
+  });
+  await flushEffects();
+};
+
+const clickButtonByText = async (text: string) => {
+  const button = Array.from(container.querySelectorAll('button')).find((candidate) => candidate.textContent === text) as HTMLButtonElement | undefined;
+  if (!button) {
+    throw new Error(`Button not found: ${text}`);
+  }
+  await act(async () => {
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  });
+  await flushEffects();
+};
+
+const clickLinkByText = async (text: string) => {
+  const link = Array.from(container.querySelectorAll('a')).find((candidate) => candidate.textContent === text) as HTMLAnchorElement | undefined;
+  if (!link) {
+    throw new Error(`Link not found: ${text}`);
+  }
+  await act(async () => {
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  });
+  await flushEffects();
+};
+
+const dispatchTextInput = async (element: HTMLTextAreaElement, value: string) => {
+  await act(async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value');
+    descriptor?.set?.call(element, value);
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+    element.dispatchEvent(new Event('change', { bubbles: true }));
   });
   await flushEffects();
 };
@@ -310,6 +374,26 @@ describe('App', () => {
     expect(container.querySelector('[data-testid="desktop-board-buttons"]')).toBeTruthy();
     expect(container.querySelector('[data-testid="board-blotter"]')).toBeTruthy();
     expect(latestLocation).toBe('/all/settings');
+  });
+
+  it('keeps an open post form and its draft when settings opens from a trailing-slash board route', async () => {
+    await renderApp('/mu/');
+
+    await clickButtonByText('Start a New Thread');
+    const textarea = container.querySelector<HTMLTextAreaElement>('textarea[aria-label="comment"]');
+    expect(textarea).toBeTruthy();
+
+    await dispatchTextInput(textarea as HTMLTextAreaElement, 'draft before settings');
+    await clickLinkByText('Settings');
+
+    expect(latestLocation).toBe('/mu/settings');
+    expect(container.querySelector('[data-testid="settings-modal"]')).toBeTruthy();
+    expect(container.querySelector<HTMLTextAreaElement>('textarea[aria-label="comment"]')?.value).toBe('draft before settings');
+
+    await clickButtonByText('close');
+
+    expect(latestLocation).toBe('/mu');
+    expect(container.querySelector<HTMLTextAreaElement>('textarea[aria-label="comment"]')?.value).toBe('draft before settings');
   });
 
   it.each(['/all', '/subs', '/mod'])('renders board blotter on desktop multiboard route %s', async (route) => {

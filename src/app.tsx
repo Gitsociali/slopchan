@@ -64,6 +64,8 @@ const SettingsModal = lazy(() => import('./components/settings-modal'));
 preloadThemeAssets();
 preloadReplyModal();
 
+const getPostFormRouteKeyPath = (pathname: string) => pathname.replace(/\/settings$/, '').replace(/\/$/, '');
+
 const BoardLayout = () => {
   const params = useParams();
   const { accountCommentIndex, boardIdentifier, pageNumber } = params;
@@ -101,7 +103,7 @@ const BoardLayout = () => {
   }, [pathname, closeCreateBoardModal]);
 
   // force rerender of post form when navigating between pages, except when opening settings modal in current view
-  const key = pathname.endsWith('/settings') ? `${communityAddress}-${pathname.replace(/\/settings$/, '')}` : `${communityAddress}-${pathname}`;
+  const key = `${communityAddress}-${getPostFormRouteKeyPath(pathname)}`;
 
   if (pageNumber === '1') {
     return <Navigate to='/not-found' replace />;
