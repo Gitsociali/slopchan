@@ -388,5 +388,6 @@
   "media_failed_to_load_open_source": "Öppna originalfil",
   "media_failed_to_load_inline": "Extern bild från {{host}} kunde inte läsas in. Prova VPN.",
   "media_failed_to_load_inline_unknown": "Extern bild kunde inte läsas in. Prova VPN.",
-  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
+  "nothing_found": "Nothing Found"
 }

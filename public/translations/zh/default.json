@@ -388,5 +388,6 @@
   "media_failed_to_load_open_source": "打开原始文件",
   "media_failed_to_load_inline": "来自 {{host}} 的外部图片加载失败。试试 VPN。",
   "media_failed_to_load_inline_unknown": "外部图片加载失败。试试 VPN。",
-  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
+  "nothing_found": "Nothing Found"
 }

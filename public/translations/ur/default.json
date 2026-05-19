@@ -388,5 +388,6 @@
   "media_failed_to_load_open_source": "اصل فائل کھولیں",
   "media_failed_to_load_inline": "{{host}} سے بیرونی تصویر لوڈ نہیں ہوئی۔ VPN آزمائیں۔",
   "media_failed_to_load_inline_unknown": "بیرونی تصویر لوڈ نہیں ہوئی۔ VPN آزمائیں۔",
-  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
+  "nothing_found": "Nothing Found"
 }
