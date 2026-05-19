@@ -1,6 +1,6 @@
 ---
 name: test-apk
-model: composer-2
+model: composer-2.5-fast
 description: Android APK testing specialist that runs the 5chan APK on a local Android emulator. Manages emulator lifecycle, builds and installs debug APK, runs instrumentation tests, captures logcat diagnostics, and debugs WebView upload automation (imgur, postimages). Use proactively when the user asks to test APK features, debug Android uploads, run emulator tests, or investigate WebView automation issues.
 ---
 
