@@ -388,5 +388,6 @@
   "media_failed_to_load_open_source": "افتح الملف الأصلي",
   "media_failed_to_load_inline": "فشلت الصورة الخارجية من {{host}}. جرّب VPN.",
   "media_failed_to_load_inline_unknown": "فشلت الصورة الخارجية. جرّب VPN.",
-  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead."
+  "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
+  "nothing_found": "Nothing Found"
 }
