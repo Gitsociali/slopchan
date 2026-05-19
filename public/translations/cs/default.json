@@ -244,8 +244,6 @@
   "copy_direct_link": "kopírovat přímý odkaz",
   "posts_auto_update_info": "Příspěvky se aktualizují automaticky přibližně každých ~2 minut. V současné době není možné tuto funkci zakázat.",
   "board_address_tooltip": "Adresa uzlu peer-to-peer této desky",
-  "vote_button_unavailable_intro": "Zatím není k dispozici. Každý adresář bude mít hlasovací stránku se seznamem nástěnek soutěžících o /{{boardIdentifier}}/.",
-  "vote_button_unavailable_outro": "Drzitele 5chan Pass se budou moci zapojit do hlasování v adresáři. Konečná pravidla správy se stále navrhují tak, aby zahrnovala soulad s BSO-holder. Více se dozvíte na 5chan.app/pass.",
   "upload_failed": "Nahrávání se nezdařilo",
   "upload_not_supported_web": "Nahrávání médií není vaším prohlížečem podporováno z důvodu technických omezení (CORS). Je podporováno v aplikaci 5chan pro Android a desktopové aplikaci pro Mac/Linux/Windows. Stáhněte si z oficiální stránky vydání: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "Soubor",

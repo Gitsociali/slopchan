@@ -244,8 +244,6 @@
   "copy_direct_link": "نسخ الرابط المباشر",
   "posts_auto_update_info": "يتم تحديث المنشورات تلقائياً كل ~2 دقيقة. لا يمكن تعطيل هذا في الوقت الحالي.",
   "board_address_tooltip": "عنوان عقدة الند للند لهذه اللوحة",
-  "vote_button_unavailable_intro": "غير متاح بعد. سيكون لكل دليل صفحة تصويت تعرض اللوحات المتنافسة على /{{boardIdentifier}}/.",
-  "vote_button_unavailable_outro": "سيتمكن حاملو 5chan Pass من المشاركة في التصويت على الدليل. لا تزال آليات الحوكمة النهائية قيد التصميم لتشمل التوافق مع BSO-holder. تعرّف على المزيد على 5chan.app/pass.",
   "upload_failed": "فشل التحميل",
   "upload_not_supported_web": "رفع الوسائط غير مدعوم من متصفحك بسبب قيود تقنية (CORS). إنه مدعوم في تطبيق 5chan لـ Android والتطبيق المكتبي لـ Mac/Linux/Windows. التحميل من صفحة الإصدار الرسمية: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "ملف",

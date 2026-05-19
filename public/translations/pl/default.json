@@ -244,8 +244,6 @@
   "copy_direct_link": "skopiuj bezpośredni link",
   "posts_auto_update_info": "Posty aktualizują się automatycznie co ~2 minuty. Chwilowo nie jest możliwe wyłączenie tej funkcji.",
   "board_address_tooltip": "Adres węzła peer-to-peer tej tablicy",
-  "vote_button_unavailable_intro": "Jeszcze niedostępne. Każdy katalog będzie miał stronę głosowania z listą tablic rywalizujących o /{{boardIdentifier}}/.",
-  "vote_button_unavailable_outro": "Posiadacze 5chan Pass będą mogli brać udział w głosowaniu katalogowym. Ostateczne mechanizmy zarządzania są nadal projektowane tak, aby uwzględniały zgodność z BSO-holder. Dowiedz się więcej na 5chan.app/pass.",
   "upload_failed": "Przesyłanie nie powiodło się",
   "upload_not_supported_web": "Przesyłanie multimediów nie jest obsługiwane przez twoją przeglądarkę ze względu na ograniczenia techniczne (CORS). Jest obsługiwane w aplikacji 5chan na Androida i w aplikacji desktopowej Mac/Linux/Windows. Pobierz ze strony oficjalnych wydań: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "Plik",

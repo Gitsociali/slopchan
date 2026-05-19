@@ -244,8 +244,6 @@
   "copy_direct_link": "คัดลอกลิงก์โดยตรง",
   "posts_auto_update_info": "โพสต์จะอัปเดตโดยอัตโนมัติทุก ~2 นาที ไม่สามารถปิดการใช้งานนี้ได้ในขณะนี้",
   "board_address_tooltip": "ที่อยู่โหนด P2P ของบอร์ดนี้",
-  "vote_button_unavailable_intro": "ยังไม่พร้อมใช้งาน แต่ละไดเรกทอรีจะมีหน้าลงคะแนนที่แสดงรายการบอร์ดที่แข่งขันกันเพื่อ /{{boardIdentifier}}/.",
-  "vote_button_unavailable_outro": "ผู้ถือ 5chan Pass จะสามารถเข้าร่วมการโหวตไดเรกทอรีได้ กลไกการกำกับดูแลขั้นสุดท้ายยังอยู่ระหว่างการออกแบบเพื่อรวมการจัดแนวร่วมกับ BSO-holder ไว้ด้วย ดูข้อมูลเพิ่มเติมที่ 5chan.app/pass",
   "upload_failed": "อัปโหลดล้มเหลว",
   "upload_not_supported_web": "การอัปโหลดสื่อไม่รองรับโดยเบราว์เซอร์ของคุณเนื่องจากข้อจำกัดทางเทคนิค (CORS) รองรับในแอป 5chan สำหรับ Android และแอปเดสก์ท็อปสำหรับ Mac/Linux/Windows ดาวน์โหลดจากหน้าปล่อยอย่างเป็นทางการ: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "ไฟล์",

@@ -244,8 +244,6 @@
   "copy_direct_link": "डायरेक्ट लिंक कॉपी करा",
   "posts_auto_update_info": "पोस्ट प्रत्येक ~2 मिनिटात स्वयंचलितपणे अपडेट होतात. सध्या हे अक्षम करणे शक्य नाही.",
   "board_address_tooltip": "या बोर्डच्या पीअर-टू-पीअर नोडचा पत्ता",
-  "vote_button_unavailable_intro": "अद्याप उपलब्ध नाही. प्रत्येक डायरेक्टरीमध्ये /{{boardIdentifier}}/ साठी स्पर्धा करणाऱ्या बोर्डांची यादी असलेले मतदान पृष्ठ असेल.",
-  "vote_button_unavailable_outro": "5chan Pass धारकांना डिरेक्टरी मतदानात सहभागी होता येईल. अंतिम गव्हर्नन्स यंत्रणा अजूनही BSO-holder alignment समाविष्ट करण्यासाठी डिझाइन केल्या जात आहेत. अधिक माहितीसाठी 5chan.app/pass ला भेट द्या.",
   "upload_failed": "अपलोड अयशस्वी",
   "upload_not_supported_web": "तांत्रिक मर्यादांमुळे (CORS) तुमचा ब्राउझर मीडिया अपलोडला समर्थन देत नाही. 5chan Android अॅप आणि Mac/Linux/Windows डेस्कटॉप अॅपमध्ये ते समर्थित आहे. अधिकृत रिलीझ पेजवरून डाउनलोड करा: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "फाइल",

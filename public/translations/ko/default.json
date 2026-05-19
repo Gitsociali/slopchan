@@ -244,8 +244,6 @@
   "copy_direct_link": "직접 링크 복사",
   "posts_auto_update_info": "게시물은 약 2분마다 자동으로 업데이트됩니다. 현재 이를 비활성화할 수 없습니다.",
   "board_address_tooltip": "이 게시판의 P2P 노드 주소",
-  "vote_button_unavailable_intro": "아직 사용할 수 없습니다. 각 디렉터리에는 /{{boardIdentifier}}/ 자리를 두고 경쟁하는 보드 목록이 있는 투표 페이지가 생깁니다.",
-  "vote_button_unavailable_outro": "5chan Pass 보유자는 디렉터리 투표에 참여할 수 있게 됩니다. 최종 거버넌스 메커니즘은 BSO-holder alignment를 포함하도록 아직 설계 중입니다. 자세한 내용은 5chan.app/pass 에서 확인하세요.",
   "upload_failed": "업로드 실패",
   "upload_not_supported_web": "기술적 제한(CORS)으로 인해 브라우저에서 미디어 업로드를 지원하지 않습니다. 5chan Android 앱과 Mac/Linux/Windows 데스크톱 앱에서는 지원됩니다. 공식 릴리스 페이지에서 다운로드하세요: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "파일",

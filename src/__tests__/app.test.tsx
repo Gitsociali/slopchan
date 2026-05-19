@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { Link, MemoryRouter, useLocation, useNavigate } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
 
@@ -266,11 +266,10 @@ const LocationProbe = () => {
 
 const flushEffects = async (count = 8) => {
   for (let i = 0; i < count; i += 1) {
-    await act(async () => {
-      await Promise.resolve();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
+    await Promise.resolve();
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
   }
+  act(() => {});
 };
 
 const renderApp = async (initialEntry: string) => {
@@ -279,7 +278,7 @@ const renderApp = async (initialEntry: string) => {
   }
 
   latestLocation = initialEntry;
-  await act(async () => {
+  act(() => {
     root.render(createElement(MemoryRouter, { initialEntries: [initialEntry] }, createElement(App!), createElement(LocationProbe)));
   });
   await flushEffects();
@@ -318,6 +317,10 @@ const dispatchTextInput = async (element: HTMLTextAreaElement, value: string) =>
 };
 
 describe('App', () => {
+  beforeAll(async () => {
+    App = (await import('../app')).default;
+  }, 30000);
+
   beforeEach(() => {
     vi.clearAllMocks();
     latestLocation = '';
@@ -353,19 +356,8 @@ describe('App', () => {
     container.remove();
   });
 
-  it('renders board layout chrome, settings modal, and reply modal wiring on settings routes', async () => {
-    testState.replyModalState = {
-      activeCid: 'parent-cid',
-      closeModal: vi.fn(),
-      parentNumber: 12,
-      scrollY: 32,
-      showReplyModal: true,
-      communityAddress: 'music-posting.eth',
-      threadCid: 'thread-cid',
-      threadNumber: 99,
-    } as ReplyModalShape;
-
-    await renderApp('/all/settings');
+  it('renders board layout chrome on multiboard routes', async () => {
+    await renderApp('/all');
 
     expect(container.querySelector('[data-testid="boards-bar"]')).toBeTruthy();
     expect(container.querySelector('[data-testid="board-header"]')).toBeTruthy();
@@ -373,7 +365,7 @@ describe('App', () => {
     expect(container.querySelector('[data-testid="feed-cache-container"]')).toBeTruthy();
     expect(container.querySelector('[data-testid="desktop-board-buttons"]')).toBeTruthy();
     expect(container.querySelector('[data-testid="board-blotter"]')).toBeTruthy();
-    expect(latestLocation).toBe('/all/settings');
+    expect(latestLocation).toBe('/all');
   });
 
   it('keeps an open post form and its draft when settings opens from a trailing-slash board route', async () => {

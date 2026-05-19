@@ -7,7 +7,6 @@ interface Known5chanDeveloperEntry {
 }
 
 export const KNOWN_5CHAN_DEVELOPER_ENTRIES = known5chanDeveloperEntries as readonly Known5chanDeveloperEntry[];
-export const KNOWN_5CHAN_DEVELOPER_ADDRESSES = KNOWN_5CHAN_DEVELOPER_ENTRIES.map(({ address }) => address);
 
 type AuthorBadgeIcon = 'admin' | 'mod';
 
@@ -26,6 +25,9 @@ const normalizeBoardRole = (role?: string): string | undefined => {
 
 export const isKnown5chanDeveloper = (address?: string): boolean =>
   typeof address === 'string' && KNOWN_5CHAN_DEVELOPER_ENTRIES.some((developer) => developer.address === address);
+
+/** 5chan Dev capcode only — never board owner/mod badges. */
+export const get5chanDeveloperBadge = (address?: string): AuthorBadge | undefined => (isKnown5chanDeveloper(address) ? getAuthorBadge({ address }) : undefined);
 
 export const getAuthorBadge = ({ address, role }: { address?: string; role?: string }): AuthorBadge | undefined => {
   const boardRole = normalizeBoardRole(role);

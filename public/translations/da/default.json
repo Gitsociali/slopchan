@@ -244,8 +244,6 @@
   "copy_direct_link": "kopier direkte link",
   "posts_auto_update_info": "Indlæg opdateres automatisk hver ~2 minut. Det er ikke muligt at deaktivere dette i øjeblikket.",
   "board_address_tooltip": "Adressen til dette boards peer-to-peer-node",
-  "vote_button_unavailable_intro": "Ikke tilgængelig endnu. Hvert katalog får en afstemningsside med en liste over de boards, der konkurrerer om /{{boardIdentifier}}/.",
-  "vote_button_unavailable_outro": "Indehavere af 5chan Pass vil kunne deltage i katalogafstemning. De endelige governance-mekanismer bliver stadig udformet, så de også omfatter BSO-holder-tilpasning. Læs mere på 5chan.app/pass.",
   "upload_failed": "Upload mislykkedes",
   "upload_not_supported_web": "Upload af medier understøttes ikke af din browser på grund af tekniske begrænsninger (CORS). Det understøttes i 5chan Android-appen og Mac/Linux/Windows desktop-appen. Download fra den officielle udgivelsesside: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "Fil",

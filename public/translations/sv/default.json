@@ -244,8 +244,6 @@
   "copy_direct_link": "kopiera direktlänk",
   "posts_auto_update_info": "Inlägg uppdateras automatiskt ungefär var ~2:e minut. Det är för närvarande inte möjligt att inaktivera detta.",
   "board_address_tooltip": "Adressen till denna tavlas peer-to-peer-nod",
-  "vote_button_unavailable_intro": "Inte tillgängligt ännu. Varje katalog kommer att ha en omröstningssida som listar brädorna som tävlar om /{{boardIdentifier}}/.",
-  "vote_button_unavailable_outro": "Innehavare av 5chan Pass kommer att kunna delta i katalogomröstningar. De slutliga styrningsmekanismerna utformas fortfarande för att inkludera anpassning till BSO-holder. Läs mer på 5chan.app/pass.",
   "upload_failed": "Uppladdning misslyckades",
   "upload_not_supported_web": "Uppladdning av media stöds inte av din webbläsare på grund av tekniska begränsningar (CORS). Det stöds i 5chan Android-appen och Mac/Linux/Windows desktop-appen. Ladda ner från den officiella utgivningssidan: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "Fil",

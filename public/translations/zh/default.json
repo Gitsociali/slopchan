@@ -244,8 +244,6 @@
   "copy_direct_link": "复制直接链接",
   "posts_auto_update_info": "帖子每约2分钟自动更新一次。目前无法禁用此功能。",
   "board_address_tooltip": "此板块的点对点节点地址",
-  "vote_button_unavailable_intro": "暂不可用。每个目录都会有一个投票页面，列出正在竞争 /{{boardIdentifier}}/ 的版块。",
-  "vote_button_unavailable_outro": "5chan Pass 持有者将能够参与目录投票。最终治理机制仍在设计中，以纳入与 BSO-holder 的一致性。了解更多请访问 5chan.app/pass。",
   "upload_failed": "上传失败",
   "upload_not_supported_web": "由于技术限制（CORS），您的浏览器不支持上传媒体。5chan Android 应用和 Mac/Linux/Windows 桌面应用支持此功能。请从官方发布页面下载：https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "文件",

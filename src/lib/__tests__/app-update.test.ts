@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const testState = vi.hoisted(() => ({
+  appUpdateEnabled: true,
   capacitorPlatform: 'web',
   browserOpenMock: vi.fn(),
   electronDownloadAndInstallUpdateMock: vi.fn(),
@@ -18,6 +19,12 @@ vi.mock('@capacitor/core', () => ({
 vi.mock('@capacitor/browser', () => ({
   Browser: {
     open: (options: unknown) => testState.browserOpenMock(options),
+  },
+}));
+
+vi.mock('../app-distribution', () => ({
+  get isAppUpdateEnabled() {
+    return testState.appUpdateEnabled;
   },
 }));
 
@@ -39,6 +46,7 @@ const loadModule = async () => {
 describe('app-update', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    testState.appUpdateEnabled = true;
     testState.capacitorPlatform = 'web';
     testState.browserOpenMock.mockReset();
     testState.electronDownloadAndInstallUpdateMock.mockReset();
@@ -97,7 +105,7 @@ describe('app-update', () => {
   });
 
   it('disables update checks for F-Droid builds', async () => {
-    vi.stubEnv('VITE_APP_DISTRIBUTION', 'fdroid');
+    testState.appUpdateEnabled = false;
     testState.capacitorPlatform = 'android';
 
     const { applyAvailableAppUpdate, isAppUpdateEnabled, resolveAvailableAppUpdate } = await loadModule();

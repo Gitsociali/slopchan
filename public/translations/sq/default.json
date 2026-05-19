@@ -244,8 +244,6 @@
   "copy_direct_link": "kopjo lidhjen e drejtpërdrejtë",
   "posts_auto_update_info": "Postimet përditësohen automatikisht çdo ~2 minuta. Nuk është e mundur ta çaktivizoni këtë për momentin.",
   "board_address_tooltip": "Adresa e nyjës peer-to-peer të kësaj tabele",
-  "vote_button_unavailable_intro": "Ende nuk është i disponueshëm. Çdo drejtori do të ketë një faqe votimi me bordet që konkurrojnë për /{{boardIdentifier}}/.",
-  "vote_button_unavailable_outro": "Mbajtësit e 5chan Pass do të mund të marrin pjesë në votimin e direktorisë. Mekanizmat përfundimtarë të qeverisjes ende po hartohen për të përfshirë përputhjen me BSO-holder. Mësoni më shumë te 5chan.app/pass.",
   "upload_failed": "Ngarkimi dështoi",
   "upload_not_supported_web": "Ngarkimi i mediave nuk mbështetet nga shfletuesi juaj për shkak të kufizimeve teknike (CORS). Mbështetet në aplikacionin 5chan për Android dhe aplikacionin desktop për Mac/Linux/Windows. Shkarkoni nga faqja zyrtare e publikimeve: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "Skedar",

@@ -244,8 +244,6 @@
   "copy_direct_link": "doğrudan bağlantıyı kopyala",
   "posts_auto_update_info": "Gönderiler her ~2 dakikada otomatik olarak güncellenir. Şu anda bunu devre dışı bırakmak mümkün değildir.",
   "board_address_tooltip": "Bu panonun eşler arası düğüm adresi",
-  "vote_button_unavailable_intro": "Henüz kullanılamıyor. Her dizinin, /{{boardIdentifier}}/ için yarışan panoları listeleyen bir oylama sayfası olacak.",
-  "vote_button_unavailable_outro": "5chan Pass sahipleri dizin oylamasına katılabilecek. Nihai yönetişim mekanikleri, BSO-holder uyumunu da içerecek şekilde hâlâ tasarlanıyor. Daha fazla bilgi için 5chan.app/pass adresine bakın.",
   "upload_failed": "Yükleme başarısız",
   "upload_not_supported_web": "Teknik kısıtlamalar (CORS) nedeniyle tarayıcınız medya yüklemeyi desteklemiyor. 5chan Android uygulamasında ve Mac/Linux/Windows masaüstü uygulamasında destekleniyor. Resmi sürüm sayfasından indirin: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "Dosya",

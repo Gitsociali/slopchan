@@ -244,8 +244,6 @@
   "copy_direct_link": "közvetlen link másolása",
   "posts_auto_update_info": "A bejegyzések kb. 2 percenként automatikusan frissülnek. Jelenleg nem lehetséges ezt letiltani.",
   "board_address_tooltip": "Ennek a táblának a peer-to-peer csomópontja címe",
-  "vote_button_unavailable_intro": "Még nem érhető el. Minden könyvtárhoz tartozni fog egy szavazási oldal, amely felsorolja a /{{boardIdentifier}}/ helyért versengő boardokat.",
-  "vote_button_unavailable_outro": "Az 5chan Pass tulajdonosai részt vehetnek majd a könyvtárszavazásban. A végleges irányítási mechanizmusok még kialakítás alatt állnak, hogy a BSO-holderrel való összhangot is tartalmazzák. További információ: 5chan.app/pass.",
   "upload_failed": "A feltöltés sikertelen",
   "upload_not_supported_web": "A média feltöltése nem támogatott a böngésződben technikai korlátozások miatt (CORS). A 5chan Android alkalmazásban és a Mac/Linux/Windows asztali alkalmazásban támogatott. Töltse le a hivatalos kiadási oldalról: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "Fájl",

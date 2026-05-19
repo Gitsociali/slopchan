@@ -244,8 +244,6 @@
   "copy_direct_link": "copiați linkul direct",
   "posts_auto_update_info": "Postările se actualizează automat la fiecare ~2 minute. În prezent, nu este posibil să dezactivezi aceasta.",
   "board_address_tooltip": "Adresa nodului peer-to-peer al acestei plăci",
-  "vote_button_unavailable_intro": "Nu este disponibil încă. Fiecare director va avea o pagină de vot care listează tablourile ce concurează pentru /{{boardIdentifier}}/.",
-  "vote_button_unavailable_outro": "Deținătorii de 5chan Pass vor putea participa la votul directorului. Mecanismele finale de guvernanță sunt încă în curs de proiectare pentru a include alinierea cu BSO-holder. Aflați mai multe la 5chan.app/pass.",
   "upload_failed": "Încărcarea a eșuat",
   "upload_not_supported_web": "Încărcarea mediilor nu este suportată de browserul tău din cauza limitărilor tehnice (CORS). Este suportată în aplicația 5chan pentru Android și aplicația de desktop pentru Mac/Linux/Windows. Descarcă de pe pagina oficială de release: https://github.com/bitsocialnet/5chan/releases/latest",
   "file": "Fișier",
