@@ -102,12 +102,14 @@
   table-layout: auto;
 }
 
+.flashListing th,
 .flashListing td {
   padding: 2px;
   font-size: 12px;
   text-align: center;
 }
 
+.flashListing thead th,
 .flashListing thead td {
   background: #98e;
   border: 1px solid #000;
@@ -265,6 +267,7 @@
   background: #ede2d4;
 }
 
+:global(body.yotsuba) .flashListing thead th,
 :global(body.yotsuba) .flashListing thead td {
   background: #ea8;
 }
@@ -277,6 +280,7 @@
   background: #ede2d4;
 }
 
+:global(body.futaba) .flashListing thead th,
 :global(body.futaba) .flashListing thead td {
   background: #f0e0d6;
 }
@@ -285,6 +289,7 @@
   background: #e0e5f6;
 }
 
+:global(body.burichan) .flashListing thead th,
 :global(body.burichan) .flashListing thead td {
   background: #c3c9e9;
 }
@@ -293,6 +298,7 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+:global(body.tomorrow) .flashListing thead th,
 :global(body.tomorrow) .flashListing thead td {
   background: #b294bb;
 }
@@ -301,6 +307,7 @@
   background: #888;
 }
 
+:global(body.photon) .flashListing thead th,
 :global(body.photon) .flashListing thead td {
   background: #ddd;
 }
