@@ -372,7 +372,7 @@
   "revoke": "취소",
   "p2p_stats": "P2P stats",
   "enable_pure_p2p": "Enable pure P2P",
-  "enable_pure_p2p_tip": "Use a browser P2P node instead of gateway compatibility mode.",
+  "enable_pure_p2p_tip": "중앙화된 IPFS 게이트웨이 대신 브라우저 P2P 노드를 사용하세요.",
   "p2p_stats_loading": "Loading P2P stats...",
   "p2p_stats_updated": "Updated",
   "p2p_stats_starting": "P2P stats appear after the P2P client starts.",
