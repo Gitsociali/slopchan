@@ -387,5 +387,6 @@
   "media_failed_to_load_inline": "Falló la imagen externa de {{host}}. Prueba una VPN.",
   "media_failed_to_load_inline_unknown": "Falló la imagen externa. Prueba una VPN.",
   "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
-  "nothing_found": "Nothing Found"
+  "nothing_found": "Nothing Found",
+  "modQueue.dismiss": "Descartar"
 }

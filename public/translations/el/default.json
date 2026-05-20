@@ -387,5 +387,6 @@
   "media_failed_to_load_inline": "Η εξωτερική εικόνα από {{host}} απέτυχε. Δοκιμάστε VPN.",
   "media_failed_to_load_inline_unknown": "Η εξωτερική εικόνα απέτυχε. Δοκιμάστε VPN.",
   "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
-  "nothing_found": "Nothing Found"
+  "nothing_found": "Nothing Found",
+  "modQueue.dismiss": "Παράβλεψη"
 }

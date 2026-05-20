@@ -387,5 +387,6 @@
   "media_failed_to_load_inline": "Gambar eksternal dari {{host}} gagal. Coba VPN.",
   "media_failed_to_load_inline_unknown": "Gambar eksternal gagal. Coba VPN.",
   "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
-  "nothing_found": "Nothing Found"
+  "nothing_found": "Nothing Found",
+  "modQueue.dismiss": "Abaikan"
 }

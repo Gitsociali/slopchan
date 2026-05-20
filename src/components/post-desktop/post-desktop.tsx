@@ -315,7 +315,7 @@ const PostInfo = ({
     <span className={styles.modQueueButtonWrapper}>
       [
       <button className={styles.modQueueActionButton} onClick={onRemoveFromModQueue} disabled={isPublishing}>
-        {t('remove')}
+        {t('modQueue.dismiss')}
       </button>
       ]
     </span>

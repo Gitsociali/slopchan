@@ -621,7 +621,7 @@ const PostMobile = ({
   const modQueueErrorMessage = formatErrorForDisplay(modQueueError);
   const modQueueRemoveButton = onRemoveFromModQueue ? (
     <button className='button' onClick={onRemoveFromModQueue} disabled={isPublishing}>
-      {capitalize(t('remove'))}
+      {capitalize(t('modQueue.dismiss'))}
     </button>
   ) : null;
   const linksCount = useCountLinksInReplies(resolvedPost);

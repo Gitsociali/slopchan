@@ -387,5 +387,6 @@
   "media_failed_to_load_inline": "{{host}} の外部画像を読み込めませんでした。VPN を試してください。",
   "media_failed_to_load_inline_unknown": "外部画像を読み込めませんでした。VPN を試してください。",
   "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
-  "nothing_found": "Nothing Found"
+  "nothing_found": "Nothing Found",
+  "modQueue.dismiss": "無視"
 }

@@ -177,7 +177,7 @@ const ModQueueActions = ({ status, error, errorMessage, isPublishing, handleAppr
       <span className={styles.buttonWrapper}>
         [
         <button className={styles.button} onClick={handleRemove} disabled={isPublishing}>
-          {t('remove')}
+          {t('modQueue.dismiss')}
         </button>
         ]
       </span>
@@ -185,7 +185,7 @@ const ModQueueActions = ({ status, error, errorMessage, isPublishing, handleAppr
       <span className={styles.cardRemoveButtonWrapper}>
         [
         <button className={styles.cardRemoveButton} onClick={handleRemove} disabled={isPublishing}>
-          {t('remove')}
+          {t('modQueue.dismiss')}
         </button>
         ]
       </span>

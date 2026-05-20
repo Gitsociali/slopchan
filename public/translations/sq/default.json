@@ -387,5 +387,6 @@
   "media_failed_to_load_inline": "Imazhi i jashtëm nga {{host}} dështoi. Provoni VPN.",
   "media_failed_to_load_inline_unknown": "Imazhi i jashtëm dështoi. Provoni VPN.",
   "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
-  "nothing_found": "Nothing Found"
+  "nothing_found": "Nothing Found",
+  "modQueue.dismiss": "Shpërfill"
 }

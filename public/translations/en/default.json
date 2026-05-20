@@ -406,5 +406,6 @@
   "media_failed_to_load_open_source": "Open original file",
   "media_failed_to_load_inline": "External image from {{host}} failed. Try VPN.",
   "media_failed_to_load_inline_unknown": "External image failed. Try VPN.",
-  "directory_status_unavailable_reason": "check only available for top 5 boards"
+  "directory_status_unavailable_reason": "check only available for top 5 boards",
+  "modQueue.dismiss": "Dismiss"
 }

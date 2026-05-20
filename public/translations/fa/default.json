@@ -387,5 +387,6 @@
   "media_failed_to_load_inline": "تصویر خارجی از {{host}} بارگیری نشد. VPN را امتحان کنید.",
   "media_failed_to_load_inline_unknown": "تصویر خارجی بارگیری نشد. VPN را امتحان کنید.",
   "expiring_media_link_alert": "Media from {{domain}} expires quickly. Use a stable media link instead.",
-  "nothing_found": "Nothing Found"
+  "nothing_found": "Nothing Found",
+  "modQueue.dismiss": "نادیده گرفتن"
 }
