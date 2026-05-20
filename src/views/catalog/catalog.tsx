@@ -23,7 +23,7 @@ import useFeedResetStore from '../../stores/use-feed-reset-store';
 import useHiddenCatalogThreadsStore from '../../stores/use-hidden-catalog-threads-store';
 import useSortingStore from '../../stores/use-sorting-store';
 import useCatalogFiltersStore from '../../stores/use-catalog-filters-store';
-import { getCommunityAddress, isDirectoryBoard, normalizeMultiboardFeedPath } from '../../lib/utils/route-utils';
+import { isDirectoryBoard, normalizeMultiboardFeedPath } from '../../lib/utils/route-utils';
 import CatalogRow from '../../components/catalog-row';
 import { CatalogFooterFirstRow, CatalogFooterStyleRow, PageFooterDesktop, PageFooterMobile } from '../../components/footer';
 import { ReturnButton, ArchiveButton, TopButton, RefreshButton } from '../../components/board-buttons/board-buttons';
@@ -285,13 +285,7 @@ const Catalog = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp,
   const effectiveInfiniteScroll = isMultiboard;
 
   const directories = useDirectories();
-  const resolvedAddressFromUrl = useResolvedCommunityAddress();
-  const communityAddress = useMemo(() => {
-    if (boardIdentifierProp) {
-      return getCommunityAddress(boardIdentifierProp, directories);
-    }
-    return resolvedAddressFromUrl;
-  }, [boardIdentifierProp, directories, resolvedAddressFromUrl]);
+  const communityAddress = useResolvedCommunityAddress(boardIdentifierProp);
 
   const filterItems = useCatalogFiltersStore((state) => state.filterItems);
   const searchText = useCatalogFiltersStore((state) => state.searchText);

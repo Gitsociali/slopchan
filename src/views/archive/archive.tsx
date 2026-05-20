@@ -10,7 +10,7 @@ import LoadingEllipsis from '../../components/loading-ellipsis';
 import { useResolvedCommunityAddress } from '../../hooks/use-resolved-community-address';
 import { useCommunityField } from '../../hooks/use-stable-community';
 import { useFeedStateString } from '../../hooks/use-state-string';
-import { getCommunityAddress, getBoardPath } from '../../lib/utils/route-utils';
+import { getBoardPath } from '../../lib/utils/route-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import { removeMarkdown } from '../../lib/utils/post-utils';
 import { useDirectories } from '../../hooks/use-directories';
@@ -151,13 +151,7 @@ const Archive = () => {
   const boardIdentifier = params.boardIdentifier;
   const directories = useDirectories();
 
-  const resolvedAddressFromUrl = useResolvedCommunityAddress();
-  const communityAddress = useMemo(() => {
-    if (boardIdentifier) {
-      return getCommunityAddress(boardIdentifier, directories);
-    }
-    return resolvedAddressFromUrl;
-  }, [boardIdentifier, directories, resolvedAddressFromUrl]);
+  const communityAddress = useResolvedCommunityAddress(boardIdentifier);
 
   const boardPath = useMemo(() => {
     if (!communityAddress) {

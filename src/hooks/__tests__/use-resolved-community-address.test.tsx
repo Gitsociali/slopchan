@@ -2,13 +2,14 @@ import * as React from 'react';
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useResolvedCommunityAddress } from '../use-resolved-community-address';
+import { useResolvedCommunityAddress, useResolvedDirectoryBoardPath } from '../use-resolved-community-address';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const act = (React as { act?: (cb: () => void | Promise<void>) => void | Promise<void> }).act as (cb: () => void | Promise<void>) => void | Promise<void>;
 
 const testState = vi.hoisted(() => ({
   boardIdentifier: 'biz',
+  boardIdentifierOverride: undefined as string | undefined,
   directories: [
     {
       address: 'business-and-finance.bso',
@@ -20,7 +21,7 @@ const testState = vi.hoisted(() => ({
     directoryCode: 'biz',
     boards: [
       { address: 'business-and-finance.bso', score: 100 },
-      { address: 'backup-business.bso', score: 10 },
+      { address: 'bizraelis.bso', score: 10 },
     ],
   },
   offlineStates: {} as Record<string, { updatedAt?: number; state?: string }>,
@@ -37,6 +38,7 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../use-directories', () => ({
   useDirectories: () => testState.directories,
+  normalizeBoardAddress: (address: string) => address.replace(/\.(bso|eth)$/, ''),
 }));
 
 vi.mock('../use-directory-list', async () => {
@@ -56,11 +58,13 @@ vi.mock('../../stores/use-community-offline-store', () => ({
 }));
 
 let latestValue: string | undefined;
+let latestDirectoryBoardPath: { boardPath: string | undefined; isDirectoryCandidate: boolean };
 let container: HTMLDivElement;
 let root: Root;
 
 const HookHarness = () => {
-  latestValue = useResolvedCommunityAddress();
+  latestValue = useResolvedCommunityAddress(testState.boardIdentifierOverride);
+  latestDirectoryBoardPath = useResolvedDirectoryBoardPath(testState.boardIdentifier);
   return null;
 };
 
@@ -75,7 +79,9 @@ describe('useResolvedCommunityAddress', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2024-01-01T00:00:10Z'));
     latestValue = undefined;
+    latestDirectoryBoardPath = { boardPath: undefined, isDirectoryCandidate: false };
     testState.boardIdentifier = 'biz';
+    testState.boardIdentifierOverride = undefined;
     testState.offlineStates = {};
     testState.offlineSelections = [];
 
@@ -99,7 +105,7 @@ describe('useResolvedCommunityAddress', () => {
 
     await renderHook();
 
-    expect(latestValue).toBe('backup-business.bso');
+    expect(latestValue).toBe('bizraelis.bso');
   });
 
   it('keeps a higher-ranked directory board when its last update is newer than 30 minutes', async () => {
@@ -125,7 +131,7 @@ describe('useResolvedCommunityAddress', () => {
     await renderHook();
 
     expect(latestValue).toBe('custom-board.bso');
-    expect(testState.offlineSelections).toEqual([undefined]);
+    expect(testState.offlineSelections.every((selection) => selection === undefined)).toBe(true);
   });
 
   it('switches away from a directory board when it crosses the offline threshold while mounted', async () => {
@@ -143,6 +149,52 @@ describe('useResolvedCommunityAddress', () => {
       vi.advanceTimersByTime(2 * 60 * 1000);
     });
 
-    expect(latestValue).toBe('backup-business.bso');
+    expect(latestValue).toBe('bizraelis.bso');
+  });
+
+  it('uses an explicit directory identifier for cached board feeds', async () => {
+    testState.boardIdentifier = 'all';
+    testState.boardIdentifierOverride = 'biz';
+    testState.offlineStates = {
+      'business-and-finance.bso': {
+        updatedAt: 1_704_067_210 - 31 * 60,
+      },
+    };
+
+    await renderHook();
+
+    expect(latestValue).toBe('bizraelis.bso');
+  });
+
+  it('canonicalizes the direct address for the current directory winner', async () => {
+    testState.boardIdentifier = 'bizraelis.bso';
+    testState.offlineStates = {
+      'business-and-finance.bso': {
+        updatedAt: 1_704_067_210 - 31 * 60,
+      },
+    };
+
+    await renderHook();
+
+    expect(latestDirectoryBoardPath).toEqual({
+      boardPath: 'biz',
+      isDirectoryCandidate: true,
+    });
+  });
+
+  it('does not canonicalize a directory candidate address when it is not the current winner', async () => {
+    testState.boardIdentifier = 'business-and-finance.bso';
+    testState.offlineStates = {
+      'business-and-finance.bso': {
+        updatedAt: 1_704_067_210 - 31 * 60,
+      },
+    };
+
+    await renderHook();
+
+    expect(latestDirectoryBoardPath).toEqual({
+      boardPath: undefined,
+      isDirectoryCandidate: true,
+    });
   });
 });

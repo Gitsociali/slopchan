@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { DirectoryCommunity, useDirectories } from './use-directories';
+import { type DirectoryCommunity, normalizeBoardAddress, useDirectories } from './use-directories';
 import { type DirectoryList, type DirectoryListBoard, normalizeDirectoryList, sortDirectoryBoardsByRank } from '../lib/utils/directory-list-utils';
+import directoryListsData from '../data/5chan-directory-lists.json';
 
 export type { DirectoryListBoard } from '../lib/utils/directory-list-utils';
 
@@ -28,6 +29,33 @@ const moduleCaches = new Map<string, DirectoryList>();
 const inFlightFetches = new Map<string, Promise<DirectoryList | null>>();
 const lastFetchSuccessAt = new Map<string, number>();
 const lastFetchAttemptAt = new Map<string, number>();
+let vendoredDirectoryListsCache: DirectoryList[] | null = null;
+
+const getVendoredDirectoryLists = (): DirectoryList[] => {
+  if (vendoredDirectoryListsCache) return vendoredDirectoryListsCache;
+
+  const directories = Array.isArray(directoryListsData.directories) ? directoryListsData.directories : [];
+  vendoredDirectoryListsCache = directories.flatMap((directory) => {
+    const directoryCode = typeof directory.directoryCode === 'string' ? directory.directoryCode : undefined;
+    if (!directoryCode) return [];
+    const normalized = normalizeDirectoryList(directory, directoryCode);
+    return normalized ? [normalized] : [];
+  });
+
+  return vendoredDirectoryListsCache;
+};
+
+const getVendoredDirectoryList = (directoryCode: string): DirectoryList | null =>
+  getVendoredDirectoryLists().find((directory) => directory.directoryCode === directoryCode) ?? null;
+
+export const getDirectoryCodeForBoardAddress = (address: string | undefined): string | undefined => {
+  if (!address) return undefined;
+
+  const normalizedAddress = normalizeBoardAddress(address);
+  return getVendoredDirectoryLists().find((directory) =>
+    directory.boards.some((board) => normalizeBoardAddress(board.address) === normalizedAddress || board.publicKey === address),
+  )?.directoryCode;
+};
 
 const synthesizeFromMainDirectory = (directoryCode: string, directories: DirectoryCommunity[]): DirectoryList | null => {
   const match = directories.find((community) => community.directoryCode === directoryCode);
@@ -47,6 +75,9 @@ const synthesizeFromMainDirectory = (directoryCode: string, directories: Directo
     boards: [board],
   };
 };
+
+const getFallbackDirectoryList = (directoryCode: string, directories: DirectoryCommunity[]): DirectoryList | null =>
+  getVendoredDirectoryList(directoryCode) ?? synthesizeFromMainDirectory(directoryCode, directories);
 
 const mergeDirectoryListDefaults = (list: DirectoryList, fallback: DirectoryList | null): DirectoryList => ({
   ...list,
@@ -145,13 +176,13 @@ const fetchDirectoryListDeduped = (code: string): Promise<DirectoryList | null> 
 /**
  * Fetch the candidate boards for a single directory code (e.g. 'biz').
  *
- * Source: `bitsocialnet/lists/5chan-directories/5chan-{code}-directory.json`. When the network is unavailable
- * or the file is not yet published, falls back to a synthesized single-entry list derived
- * from the merged directory assignments.
+ * Source: `bitsocialnet/lists/5chan-directories/5chan-{code}-directory.json`. While the network
+ * is unavailable or the remote file is still loading, falls back to the vendored list
+ * generated from that repo, then to a synthesized single-entry list from directory assignments.
  */
 export const useDirectoryList = (directoryCode: string | undefined): DirectoryListState => {
   const directories = useDirectories();
-  const fallback = useMemo(() => (directoryCode ? synthesizeFromMainDirectory(directoryCode, directories) : null), [directoryCode, directories]);
+  const fallback = useMemo(() => (directoryCode ? getFallbackDirectoryList(directoryCode, directories) : null), [directoryCode, directories]);
 
   const [state, setState] = useState<DirectoryListState>(() => {
     if (!directoryCode) {
@@ -233,7 +264,7 @@ export const useDirectoryLists = (directoryCodes: string[] | undefined): Directo
 
   const fallbackByCode = useMemo(() => {
     const normalizedDirectoryCodes = directoryCodesKey ? directoryCodesKey.split('\0') : [];
-    return Object.fromEntries(normalizedDirectoryCodes.map((directoryCode) => [directoryCode, synthesizeFromMainDirectory(directoryCode, directories)])) as Record<
+    return Object.fromEntries(normalizedDirectoryCodes.map((directoryCode) => [directoryCode, getFallbackDirectoryList(directoryCode, directories)])) as Record<
       string,
       DirectoryList | null
     >;

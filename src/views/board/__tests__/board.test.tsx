@@ -25,7 +25,7 @@ const testState = vi.hoisted(() => ({
   accountComments: [] as TestComment[],
   accountCommentsCalls: [] as Array<{ commentIndices?: number[]; communityAddress?: string; newerThan?: number; sortType?: 'new' | 'old' } | undefined>,
   accountCommunityAddresses: [] as string[],
-  directories: [{ address: 'music-posting.eth', title: '/mu/ - Music' }] as Array<{ address: string; title?: string }>,
+  directories: [{ address: 'music-posting.eth', title: '/mu/ - Music' }] as Array<{ address: string; title?: string; directoryCode?: string }>,
   directoryByAddress: {
     'music-posting.eth': {
       address: 'music-posting.eth',
@@ -33,7 +33,7 @@ const testState = vi.hoisted(() => ({
     },
   } as Record<string, { address: string; features?: Record<string, unknown> }>,
   feed: [] as TestComment[],
-  feedOptionsCalls: [] as Array<{ communitiesLength?: number; newerThan?: number; postsPerPage?: number; sortType?: string }>,
+  feedOptionsCalls: [] as Array<{ communities?: unknown[]; communitiesLength?: number; newerThan?: number; postsPerPage?: number; sortType?: string }>,
   feedState: undefined as string | undefined,
   feedStateString: 'syncing' as string | undefined,
   filteredDirectoryAddresses: ['music-posting.eth'] as string[],
@@ -129,6 +129,7 @@ vi.mock('@bitsocial/bitsocial-react-hooks', () => ({
     sortType?: string;
   }) => {
     testState.feedOptionsCalls.push({
+      communities: options?.communities,
       communitiesLength: options?.communities?.length,
       newerThan: options?.newerThan,
       postsPerPage: options?.postsPerPage,
@@ -377,6 +378,25 @@ describe('Board', () => {
     container.remove();
     clearStableLastVisitTimeFilterName();
     localStorage.clear();
+  });
+
+  it('uses the resolved directory winner for cached board feeds', async () => {
+    testState.directories = [{ address: 'business-and-finance.bso', directoryCode: 'biz', title: '/biz/ - Business & Finance' }];
+    testState.directoryByAddress = {
+      'bizraelis.bso': {
+        address: 'bizraelis.bso',
+        features: { postsPerPage: 2 },
+      },
+    };
+    testState.resolvedCommunityAddress = 'bizraelis.bso';
+
+    await renderBoard({
+      boardProps: { boardIdentifier: 'biz', viewType: 'board' },
+      initialEntry: '/biz',
+      routePath: '/:boardIdentifier/*',
+    });
+
+    expect(testState.feedOptionsCalls.map((call) => call.communities)).toContainEqual([{ name: 'bizraelis.bso' }]);
   });
 
   it('renders the current page feed, inserts recent account comments, and wires footer actions', async () => {

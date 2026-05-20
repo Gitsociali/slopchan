@@ -22,7 +22,7 @@ import useIsMobile from '../../hooks/use-is-mobile';
 import { useSuggestionFeedLoader } from '../../hooks/use-suggestion-feed-loader';
 import useTimeFilter from '../../hooks/use-time-filter';
 import { getPageSlice } from '../../lib/utils/board-feed-pagination';
-import { getPageFromFeedPath, getCommunityAddress, isDirectoryBoard, normalizeMultiboardFeedPath, stripPageFromFeedPath } from '../../lib/utils/route-utils';
+import { getPageFromFeedPath, isDirectoryBoard, normalizeMultiboardFeedPath, stripPageFromFeedPath } from '../../lib/utils/route-utils';
 import { isCommentArchived } from '../../lib/utils/comment-moderation-utils';
 import { getCommentCommunityAddress } from '../../lib/utils/comment-utils';
 import { getSearchWithTimeFilter, getTimeFilterSuggestion, type TimeFilterSuggestion } from '../../lib/utils/time-filter-utils';
@@ -166,13 +166,7 @@ const Board = ({ feedCacheKey, viewType, boardIdentifier: boardIdentifierProp, t
   const multiboardTimeFilterSeconds = isMultiboardView ? timeFilterSeconds : undefined;
 
   const directories = useDirectories();
-  const resolvedAddressFromUrl = useResolvedCommunityAddress();
-  const communityAddress = useMemo(() => {
-    if (boardIdentifierProp) {
-      return getCommunityAddress(boardIdentifierProp, directories);
-    }
-    return resolvedAddressFromUrl;
-  }, [boardIdentifierProp, directories, resolvedAddressFromUrl]);
+  const communityAddress = useResolvedCommunityAddress(boardIdentifierProp);
 
   const filteredDirectoryAddresses = useFilteredDirectoryAddresses();
 

@@ -14,12 +14,11 @@ import { useAccountCommunityAddresses } from './hooks/use-account-community-addr
 import useTheme from './hooks/use-theme';
 import { useDirectories } from './hooks/use-directories';
 import { useCommunityIdentifier } from './hooks/use-community-identifiers';
-import { useResolvedCommunityAddress } from './hooks/use-resolved-community-address';
+import { useResolvedCommunityAddress, useResolvedDirectoryBoardPath } from './hooks/use-resolved-community-address';
 import useSafeAccountComment from './hooks/use-safe-account-comment';
 import { getCommentCommunityAddress } from './lib/utils/comment-utils';
 import {
   getBoardPath,
-  getCommunityAddress,
   isBoardModRoute,
   isDirectoryBoard,
   isArchiveRoute,
@@ -77,7 +76,8 @@ const BoardLayout = () => {
   const isInSubscriptionsView = isSubscriptionsView(pathname, useParams());
   const isInModView = isModView(pathname);
   const directories = useDirectories();
-  const communityAddress = boardIdentifier ? getCommunityAddress(boardIdentifier, directories) : undefined;
+  const communityAddress = useResolvedCommunityAddress(boardIdentifier);
+  const { boardPath: resolvedDirectoryBoardPath, isDirectoryCandidate } = useResolvedDirectoryBoardPath(boardIdentifier);
   const pendingPost = useSafeAccountComment({ commentIndex: accountCommentIndex });
   const pendingPostCommunityAddress = getCommentCommunityAddress(pendingPost);
   const { closeCreateBoardModal } = useCreateBoardModalStore();
@@ -128,7 +128,7 @@ const BoardLayout = () => {
 
   // Normalize address URLs to directory codes: /anime-and-manga.eth/thread/xxx -> /a/thread/xxx
   if (boardIdentifier && !isDirectoryBoard(boardIdentifier, directories)) {
-    const canonicalBoardIdentifier = getBoardPath(boardIdentifier, directories);
+    const canonicalBoardIdentifier = resolvedDirectoryBoardPath ?? (isDirectoryCandidate ? boardIdentifier : getBoardPath(boardIdentifier, directories));
     if (canonicalBoardIdentifier !== boardIdentifier) {
       const canonicalPath = pathname.replace(`/${boardIdentifier}`, `/${canonicalBoardIdentifier}`);
       return <Navigate to={canonicalPath + (search || '')} replace />;

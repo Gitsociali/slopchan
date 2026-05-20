@@ -25,7 +25,7 @@ const testState = vi.hoisted(() => ({
   directories: [
     { address: 'music-posting.eth', title: '/mu/ - Music', nsfw: false },
     { address: 'tech-posting.eth', title: '/g/ - Technology', nsfw: false },
-  ] as Array<{ address: string; title?: string; nsfw?: boolean }>,
+  ] as Array<{ address: string; title?: string; nsfw?: boolean; directoryCode?: string }>,
   initSnowMock: vi.fn(),
   isMobile: false,
   isSpecialEnabled: false,
@@ -41,6 +41,8 @@ const testState = vi.hoisted(() => ({
     threadNumber: null,
   } as ReplyModalShape,
   resolvedCommunityAddress: undefined as string | undefined,
+  resolvedDirectoryBoardPath: undefined as string | undefined,
+  isDirectoryCandidate: false,
   communities: {} as Record<string, unknown>,
   useThemeMock: vi.fn(),
 }));
@@ -72,7 +74,11 @@ vi.mock('../hooks/use-is-mobile', () => ({
 }));
 
 vi.mock('../hooks/use-resolved-community-address', () => ({
-  useResolvedCommunityAddress: () => testState.resolvedCommunityAddress,
+  useResolvedCommunityAddress: (boardIdentifier?: string) => testState.resolvedCommunityAddress ?? boardIdentifier,
+  useResolvedDirectoryBoardPath: () => ({
+    boardPath: testState.resolvedDirectoryBoardPath,
+    isDirectoryCandidate: testState.isDirectoryCandidate,
+  }),
 }));
 
 vi.mock('../hooks/use-theme', () => ({
@@ -340,6 +346,8 @@ describe('App', () => {
       threadNumber: null,
     } as ReplyModalShape;
     testState.resolvedCommunityAddress = undefined;
+    testState.resolvedDirectoryBoardPath = undefined;
+    testState.isDirectoryCandidate = false;
     testState.communities = {};
     testState.useThemeMock.mockReset();
     testState.closeCreateBoardModalMock.mockReset();
@@ -414,6 +422,25 @@ describe('App', () => {
 
     expect(latestLocation).toBe('/mu/thread/comment-1?focus=1');
     expect(container.querySelector('[data-testid="post-view"]')).toBeTruthy();
+  });
+
+  it('canonicalizes a direct route for the current resolved directory board', async () => {
+    testState.resolvedDirectoryBoardPath = 'biz';
+    testState.isDirectoryCandidate = true;
+
+    await renderApp('/bizraelis.bso/thread/comment-1?focus=1');
+
+    expect(latestLocation).toBe('/biz/thread/comment-1?focus=1');
+    expect(container.querySelector('[data-testid="post-view"]')).toBeTruthy();
+  });
+
+  it('does not canonicalize a directory candidate address when another board is resolved', async () => {
+    testState.directories = [{ address: 'business-and-finance.bso', directoryCode: 'biz', title: '/biz/ - Business & Finance', nsfw: false }];
+    testState.isDirectoryCandidate = true;
+
+    await renderApp('/business-and-finance.bso?focus=1');
+
+    expect(latestLocation).toBe('/business-and-finance.bso?focus=1');
   });
 
   it('routes invalid mod aliases and unknown mod paths to not-found', async () => {
