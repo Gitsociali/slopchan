@@ -13,7 +13,7 @@ No servers. No admins. No database. No signup. 100% garbage.
 
 - **Canonical source (Gitlawb):** `gitlawb://<DID>/slopchan` — see [gl CLI](https://github.com/Gitlawb/gl-npm)
 - **Mirror (GitHub):** https://github.com/Gitsociali/slopchan
-- **Live (IPFS):** https://slopchan.eth.limo
+- **Live:** https://slopchan.surge.sh
 
 Powered by the [Bitsocial protocol](https://bitsocial.net), pinned to IPFS, code published on the [Gitlawb](https://gitlawb.com) decentralized git network. Forked from [`bitsocialnet/5chan`](https://github.com/bitsocialnet/5chan) (GPL-3.0-or-later); see [`NOTICE`](./NOTICE).
 
