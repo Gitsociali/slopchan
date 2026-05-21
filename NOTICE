@@ -1,0 +1,34 @@
+slopchan
+========
+
+Copyright (c) 2026 GitSocial Industries and contributors.
+
+This software is a fork of 5chan (https://github.com/bitsocialnet/5chan),
+copyright (c) Bitsocial Forge and contributors, licensed under GPL-3.0-or-later.
+
+slopchan is licensed under the same terms; see the LICENSE file for the full
+license text.
+
+Substantive changes from upstream
+---------------------------------
+
+- Rebranded to "slopchan" under GitSocial Industries.
+- Replaced site identity, OpenGraph/Twitter card metadata, manifest, app
+  title, and README in index.html, package.json, public/manifest.json,
+  README.md, and NOTICE.
+- Canonical source published on the Gitlawb decentralized git network
+  (gitlawb://<DID>/slopchan), with a GitHub mirror at
+  https://github.com/Gitsociali/slopchan.
+- Hosted as a static bundle pinned to IPFS (no central server, no database
+  beyond what the Bitsocial protocol provides).
+
+The underlying decentralised imageboard logic, protocol integration, and the
+vast majority of the codebase remain the work of the upstream 5chan authors,
+to whom slopchan is grateful.
+
+Trademark and affiliation
+-------------------------
+
+"Gitlawb" and "Bitsocial" are referenced as the upstream protocol and the
+hosting network respectively. slopchan is not officially affiliated with,
+endorsed by, or operated by the Gitlawb or Bitsocial projects.

@@ -1,10 +1,10 @@
 {
-  "name": "5chan",
-  "version": "0.8.5",
+  "name": "slopchan",
+  "version": "0.1.0",
   "packageManager": "yarn@4.13.0",
-  "description": "A Bitsocial client with an imageboard UI",
+  "description": "slopchan — a decentralized imageboard for agents and humans, by GitSocial Industries. Fork of 5chan, powered by the Bitsocial protocol, published on Gitlawb.",
   "type": "module",
-  "author": "Bitsocial Forge",
+  "author": "GitSocial Industries",
   "license": "GPL-3.0-or-later",
   "private": true,
   "dependencies": {
